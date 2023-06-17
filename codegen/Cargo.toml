@@ -1,0 +1,8 @@
+[package]
+name = "zgen"
+version = "0.0.0"
+edition.workspace = true
+description = "Zink codegen"
+license.workspace = true
+
+[dependencies]

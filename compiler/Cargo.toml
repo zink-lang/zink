@@ -1,0 +1,8 @@
+[package]
+name = "zinkc"
+version = "0.0.0"
+edition = "2021"
+description = "zink compiler"
+license.workspace = true
+
+[dependencies]

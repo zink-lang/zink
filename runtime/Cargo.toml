@@ -1,0 +1,8 @@
+[package]
+name = "ztime"
+version = "0.0.0"
+edition = "2021"
+description = "Zink runtime"
+license.workspace = true
+
+[dependencies]

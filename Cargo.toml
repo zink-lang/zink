@@ -1,0 +1,25 @@
+[workspace.package]
+version = "0.0.1"
+authors = ["clearloop"]
+edition = "2021"
+license = "GPL-3.0-only"
+
+[workspace]
+members = [
+  "cli",
+  "codegen",
+  "compiler",
+  "ir",
+  "opcode",
+  "runtime",
+  "zink",
+]
+
+[workspace.dependencies]
+cli = { path = "./cli" }
+codegen = { path = "./codegen" }
+compiler = { path = "./compiler" }
+ir = { path = "./ir" }
+opcode = { path = "./opcode" }
+runtime = { path = "runtime" }
+zink = { path = "./zink" }
