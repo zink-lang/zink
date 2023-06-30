@@ -3,149 +3,317 @@
 /// Ethereum virtual machine opcode.
 #[derive(Clone, Copy, Debug)]
 pub enum OpCode {
+    // 0x0 range - Stop and Arithmetic Operations
+    //
+    /// Halts execution.
     STOP,
+    /// Addition operation.
     ADD,
+    /// Multiplication operation.
     MUL,
+    /// Subtraction operation.
     SUB,
+    /// Integer division operation.
     DIV,
+    /// Signed integer division operation (truncated).
     SDIV,
+    /// Modulo remainder operation.
     MOD,
+    /// Signed modulo remainder operation.
     SMOD,
+    /// Modulo addition operation.
     ADDMOD,
+    /// Modulo multiplication operation.
     MULMOD,
+    /// Exponential operation.
     EXP,
+    /// Extend length of signed integer.
     SIGNEXTEND,
+    // 0x10 range - Comparison & Bitwise Logic Operations
+    //
+    /// Less-than comparision.
     LT,
+    /// Greater-than comparision.
     GT,
+    /// Signed less-than comparision.
     SLT,
+    /// Signed greater-than comparision.
     SGT,
+    /// Equality comparision.
     EQ,
+    /// Simple not operator.
     ISZERO,
+    /// Bitwise AND operation.
     AND,
+    /// Bitwise OR operation.
     OR,
+    /// Bitwise XOR operation.
     XOR,
+    /// Bitwise NOT operation.
     NOT,
+    /// Retrieve single byte from word.
     BYTE,
+    /// Shift left operation.
     SHL,
+    /// Logical shift right operation.
     SHR,
+    /// Arithmetic shift right operation.
     SAR,
+    // 0x20 range - SHA3
+    //
+    /// Compute Keccak-256 hash.
     SHA3,
+    // 0x30 range - Environmental Information
+    //
+    /// Get address of currently executing account.
     ADDRESS,
+    /// Get balance of the given account.
     BALANCE,
+    /// Get execution origination address.
     ORIGIN,
+    /// Get caller address.
     CALLER,
+    /// Get deposited value by the instruction/transaction responsible for this execution.
     CALLVALUE,
+    /// Get input data of current environment.
     CALLDATALOAD,
+    /// Get size of input data in current environment.
     CALLDATASIZE,
+    /// Copy input data in current environment to memory.
     CALLDATACOPY,
+    /// Get size of code running in current environment.
     CODESIZE,
+    /// Copy code running in current environment to memory.
     CODECOPY,
+    /// Get price of gas in current environment.
     GASPRICE,
+    /// Get external code size.
     EXTCODESIZE,
+    /// Copy external code to memory.
     EXTCODECOPY,
+    /// Get size of available gas.
     RETURNDATASIZE,
+    /// Copy output data to memory.
     RETURNDATACOPY,
+    /// Get size of code running in current environment.
     EXTCODEHASH,
+    // 0x40 range - Block Information
+    //
+    /// Get hash of most recent complete block.
     BLOCKHASH,
+    /// Get the block's coinbase address.
     COINBASE,
+    /// Get the block's timestamp.
     TIMESTAMP,
+    /// Get the block's number.
     NUMBER,
+    /// Get the block's difficulty.
     DIFFICULTY,
+    /// Get the block's gas limit.
     GASLIMIT,
+    /// Get the chain ID.
     CHAINID,
+    /// Get balance of currently executing account.
     SELFBALANCE,
+    /// Get the base fee.
     BASEFEE,
+    // 0x50 range - Stack, Memory, Storage and Flow Operations
+    //
+    /// Remove item from stack.
     POP,
+    /// Load word from memory.
     MLOAD,
+    /// Save word to memory.
     MSTORE,
+    /// Save byte to memory.
     MSTORE8,
+    /// Load word from storage.
     SLOAD,
+    /// Save word to storage.
     SSTORE,
+    /// Alter the program counter.
     JUMP,
+    /// Conditionally alter the program counter.
     JUMPI,
+    /// Get the program counter.
     PC,
+    /// Get the size of active memory.
     MSIZE,
+    /// Get the amount of available gas.
     GAS,
+    /// Set a potential jump destination.
     JUMPDEST,
+    // 0x5f range - Push Operations
+    //
+    /// Place value 0 on stack.
     PUSH0,
+    /// Place 1 byte item on stack.
     PUSH1,
+    /// Place 2 byte item on stack.
     PUSH2,
+    /// Place 3 byte item on stack.
     PUSH3,
+    /// Place 4 byte item on stack.
     PUSH4,
+    /// Place 5 byte item on stack.
     PUSH5,
+    /// Place 6 byte item on stack.
     PUSH6,
+    /// Place 7 byte item on stack.
     PUSH7,
+    /// Place 8 byte item on stack.
     PUSH8,
+    /// Place 9 byte item on stack.
     PUSH9,
+    /// Place 10 byte item on stack.
     PUSH10,
+    /// Place 11 byte item on stack.
     PUSH11,
+    /// Place 12 byte item on stack.
     PUSH12,
+    /// Place 13 byte item on stack.
     PUSH13,
+    /// Place 14 byte item on stack.
     PUSH14,
+    /// Place 15 byte item on stack.
     PUSH15,
+    /// Place 16 byte item on stack.
     PUSH16,
+    /// Place 17 byte item on stack.
     PUSH17,
+    /// Place 18 byte item on stack.
     PUSH18,
+    /// Place 19 byte item on stack.
     PUSH19,
+    /// Place 20 byte item on stack.
     PUSH20,
+    /// Place 21 byte item on stack.
     PUSH21,
+    /// Place 22 byte item on stack.
     PUSH22,
+    /// Place 23 byte item on stack.
     PUSH23,
+    /// Place 24 byte item on stack.
     PUSH24,
+    /// Place 25 byte item on stack.
     PUSH25,
+    /// Place 26 byte item on stack.
     PUSH26,
+    /// Place 27 byte item on stack.
     PUSH27,
+    /// Place 28 byte item on stack.
     PUSH28,
+    /// Place 29 byte item on stack.
     PUSH29,
+    /// Place 30 byte item on stack.
     PUSH30,
+    /// Place 31 byte item on stack.
     PUSH31,
+    /// Place 32 byte item on stack.
     PUSH32,
+    // 0x80 range - Duplication Operations
+    //
+    /// Duplicate 1st stack item.
     DUP1,
+    /// Duplicate 2nd stack item.
     DUP2,
+    /// Duplicate 3rd stack item.
     DUP3,
+    /// Duplicate 4th stack item.
     DUP4,
+    /// Duplicate 5th stack item.
     DUP5,
+    /// Duplicate 6th stack item.
     DUP6,
+    /// Duplicate 7th stack item.
     DUP7,
+    /// Duplicate 8th stack item.
     DUP8,
+    /// Duplicate 9th stack item.
     DUP9,
+    /// Duplicate 10th stack item.
     DUP10,
+    /// Duplicate 11th stack item.
     DUP11,
+    /// Duplicate 12th stack item.
     DUP12,
+    /// Duplicate 13th stack item.
     DUP13,
+    /// Duplicate 14th stack item.
     DUP14,
+    /// Duplicate 15th stack item.
     DUP15,
+    /// Duplicate 16th stack item.
     DUP16,
+    // 0x90 range - Exchange Operations
+    //
+    /// Exchange 1st and 2nd stack items.
     SWAP1,
+    /// Exchange 1st and 3rd stack items.
     SWAP2,
+    /// Exchange 1st and 4th stack items.
     SWAP3,
+    /// Exchange 1st and 5th stack items.
     SWAP4,
+    /// Exchange 1st and 6th stack items.
     SWAP5,
+    /// Exchange 1st and 7th stack items.
     SWAP6,
+    /// Exchange 1st and 8th stack items.
     SWAP7,
+    /// Exchange 1st and 9th stack items.
     SWAP8,
+    /// Exchange 1st and 10th stack items.
     SWAP9,
+    /// Exchange 1st and 11th stack items.
     SWAP10,
+    /// Exchange 1st and 12th stack items.
     SWAP11,
+    /// Exchange 1st and 13th stack items.
     SWAP12,
+    /// Exchange 1st and 14th stack items.
     SWAP13,
+    /// Exchange 1st and 15th stack items.
     SWAP14,
+    /// Exchange 1st and 16th stack items.
     SWAP15,
+    /// Exchange 1st and 17th stack items.
     SWAP16,
+    // 0xa0 range - Logging Operations
+    //
+    /// Append log record with no topics.
     LOG0,
+    /// Append log record with one topic.
     LOG1,
+    /// Append log record with two topics.
     LOG2,
+    /// Append log record with three topics.
     LOG3,
+    /// Append log record with four topics.
     LOG4,
+    // 0xf0 range - System operations
+    //
+    /// Create a new account with associated code.
     CREATE,
+    /// Message-call into an account.
     CALL,
+    /// Message-call into this account with an alternative account's code.
     CALLCODE,
+    /// Halts execution returning output data.
     RETURN,
+    /// Message-call into this account with an alternative account's code,
+    /// but with persistent state and code not being modified.
     DELEGATECALL,
+    /// Create a new account without associated code.
     CREATE2,
+    /// Static message-call into an account.
     STATICCALL,
+    /// Halt execution and register account for later deletion.
     REVERT,
+    /// Designated invalid instruction.
     INVALID,
+    /// Halt execution and register account for later deletion, unless
+    /// already scheduled.
     SELFDESTRUCT,
 }
 
@@ -355,5 +523,15 @@ impl From<OpCode> for u16 {
             OpCode::CREATE | OpCode::CREATE2 => 32000,
             _ => 3,
         }
+    }
+}
+
+impl OpCode {
+    /// Returns the minimal gas cost of the opcode.
+    pub fn gas<T>(&self) -> T
+    where
+        T: From<u16>,
+    {
+        T::from(u16::from(*self))
     }
 }
