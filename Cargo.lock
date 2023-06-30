@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "evm-opcode"
-version = "0.0.0"
+version = "0.1.0"
 
 [[package]]
 name = "zgen"

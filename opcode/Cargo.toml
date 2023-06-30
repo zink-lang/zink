@@ -1,7 +1,9 @@
 [package]
 name = "evm-opcode"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
-description = "EVM opcode"
-
-[dependencies]
+description = "Rust implementation of EVM opcode"
+license.workspace = true
+documentation = "https://docs.rs/evm-opcode"
+homepage = "https://github.com/clearloop/zink/tree/main/opcode"
+repository = "https://github.com/clearloop/zink/"
