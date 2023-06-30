@@ -1,5 +1,5 @@
 [package]
 name = "evm-opcode"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
-description = "EVM opcode"
+description = "Rust implementation of EVM opcode"
