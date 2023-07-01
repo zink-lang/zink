@@ -7,3 +7,6 @@ exclude = [
   ".cargo",
   "target"
 ]
+
+[workspace.dependencies]
+zink = { path = "../zink" }
