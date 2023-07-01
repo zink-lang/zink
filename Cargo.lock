@@ -3,10 +3,6 @@
 version = 3
 
 [[package]]
-name = "addition"
-version = "0.1.0"
-
-[[package]]
 name = "evm-opcode"
 version = "0.1.0"
 

@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "./*"
+]
+
+exclude = [
+  ".cargo",
+  "target"
+]

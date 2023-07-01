@@ -9,14 +9,10 @@ members = [
   "cli",
   "codegen",
   "compiler",
-  "examples/*",
   "ir",
   "opcode",
   "runtime",
   "zink",
-]
-exclude = [
-  "examples/.cargo"
 ]
 
 [workspace.dependencies]
@@ -28,3 +24,9 @@ opcode = { path = "./opcode" }
 runtime = { path = "runtime" }
 zink-std = { path = "./std" }
 zink = { path = "./zink" }
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "unwind"
