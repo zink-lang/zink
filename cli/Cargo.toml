@@ -6,3 +6,13 @@ description = "Zink CLI"
 license.workspace = true
 
 [dependencies]
+anyhow.workspace = true
+clap = { workspace = true, features = ["derive"] }
+zinkc.workspace = true
+env_logger.workspace = true
+etc.workspace = true
+color-eyre.workspace = true
+
+[[bin]]
+path = "bin/zinkc.rs"
+name = "zinkc"

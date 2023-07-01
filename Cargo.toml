@@ -15,13 +15,21 @@ members = [
 ]
 
 [workspace.dependencies]
+anyhow = "1.0.71"
+cargo_metadata = "0.15.4"
+clap = "4.3.10"
+color-eyre = "0.6.2"
+env_logger = "0.10.0"
+etc = "0.1.16"
 hex = "0.4.3"
+log = "0.4.19"
 revm-interpreter = "1.1.2"
 revm-primitives = "1.1.2"
+thiserror = "1.0.40"
 
 # Local Dependencies.
 cli = { path = "./cli" }
-compiler = { path = "./compiler" }
+zinkc = { path = "./compiler" }
 runtime = { path = "runtime" }
 zink-std = { path = "./std" }
 zink = { path = "./zink" }
