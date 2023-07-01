@@ -6,3 +6,8 @@ description = "zink compiler"
 license.workspace = true
 
 [dependencies]
+anyhow.workspace = true
+etc.workspace = true
+log.workspace = true
+thiserror.workspace = true
+cargo_metadata.workspace = true

@@ -15,9 +15,14 @@ members = [
 ]
 
 [workspace.dependencies]
+anyhow = "1.0.71"
+cargo_metadata = "0.15.4"
+etc = "0.1.16"
 hex = "0.4.3"
+log = "0.4.19"
 revm-interpreter = "1.1.2"
 revm-primitives = "1.1.2"
+thiserror = "1.0.40"
 
 # Local Dependencies.
 cli = { path = "./cli" }
