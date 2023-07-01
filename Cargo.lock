@@ -155,10 +155,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88bffebc5d80432c9b140ee17875ff173a8ab62faad5b257da912bd2f6c1c0a1"
 
 [[package]]
-name = "evm-opcode"
-version = "0.1.0"
-
-[[package]]
 name = "fixed-hash"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -638,10 +634,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "zgen"
-version = "0.0.0"
-
-[[package]]
 name = "zink"
 version = "0.0.0"
 
@@ -654,10 +646,6 @@ name = "zinkc"
 version = "0.0.0"
 
 [[package]]
-name = "zir"
-version = "0.0.0"
-
-[[package]]
 name = "ztime"
 version = "0.0.0"
 dependencies = [
@@ -665,3 +653,7 @@ dependencies = [
  "revm-interpreter",
  "revm-primitives",
 ]
+
+[[package]]
+name = "zuff"
+version = "0.0.0"

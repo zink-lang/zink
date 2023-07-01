@@ -7,12 +7,10 @@ license = "GPL-3.0-only"
 [workspace]
 members = [
   "cli",
-  "codegen",
   "compiler",
-  "ir",
-  "opcode",
   "runtime",
   "zink",
+  "lexer",
   "examples/*"
 ]
 
@@ -23,10 +21,7 @@ revm-primitives = "1.1.2"
 
 # Local Dependencies.
 cli = { path = "./cli" }
-codegen = { path = "./codegen" }
 compiler = { path = "./compiler" }
-ir = { path = "./ir" }
-opcode = { path = "./opcode" }
 runtime = { path = "runtime" }
 zink-std = { path = "./std" }
 zink = { path = "./zink" }
