@@ -1,16 +1,14 @@
 ## zink
 
-
 [![zink][version-badge]][version-link]
 [![ci][ci-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
-
 
 Zink programming language that targets the Ethereum Virtual Machine.
 
 Zink is designed for building zero-knowledge proofs for EVM contracts elegantly and efficiently, with 
 the support of zink, you can write your Ethereum contract in any language that could be compiled into
-WebAssembly.
+WebAssembly!
 
 ```mermaid
 flowchart LR
@@ -22,7 +20,6 @@ flowchart LR
     W --> |zink| Z{Zink Compiler}
     Z --> |zk support| T[(ZTime)]
     Z --> |Huff IR| V[(EVM)]
-
 ```
 
 ## Installation
@@ -79,9 +76,9 @@ addition.wasm addition.bin
 
 GPL-3.0-only
 
-[telegram-badge]: https://img.shields.io/badge/telegram-blue?style=for-the-badge&logo=telegram 
+[telegram-badge]: https://img.shields.io/badge/telegram-blue?logo=telegram 
 [telegram-group]: https://t.me/+6oZpbwxlVD81OGQ1
-[version-badge]: https://img.shields.io/crates/v/zink?style=for-the-badge
+[version-badge]: https://img.shields.io/crates/v/zink
 [version-link]: https://docs.rs/zink/latest/zink/
-[ci-badge]: https://img.shields.io/github/actions/workflow/status/clearloop/zink/CI.yml?style=for-the-badge
+[ci-badge]: https://img.shields.io/github/actions/workflow/status/clearloop/zink/CI.yml
 [ci-link]: https://github.com/clearloop/zink/actions/workflows/CI.yml
