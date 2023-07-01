@@ -16,18 +16,18 @@ body:
           options:
               - zuff
               - ztime
-              - zkinc
+              - zinkc
               - zink
               - Other (please describe)
       validations:
           required: true
-    - type: textarea
+    - type: markdown
       attributes:
           label: Feature
           description: Please also describe what the feature is aiming to solve, if relevant.
       validations:
           required: true
-    - type: textarea
+    - type: markdown
       attributes:
           label: Possible Solution
           description: Add any other context to the feature (like screenshots, resources)
