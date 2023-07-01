@@ -6,3 +6,8 @@ description = "Zink CLI"
 license.workspace = true
 
 [dependencies]
+anyhow.workspace = true
+clap.workspace = true
+zinkc.workspace = true
+env_logger.workspace = true
+color-eyre.workspace = true
