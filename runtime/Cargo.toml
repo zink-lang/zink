@@ -1,9 +1,13 @@
 [package]
+authors = ["clearloop"]
 name = "ztime"
 version = "0.0.0"
 edition = "2021"
 description = "Zink runtime"
 license.workspace = true
+homepage = "https://github.com/clearloop/zink"
+repository = "https://github.com/clearloop/zink.git"
+documentation = "https://docs.rs/ztime"
 
 [dependencies]
 hex.workspace = true
