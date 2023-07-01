@@ -1,0 +1,33 @@
+name: Feature Request
+description: Suggest an idea for this project
+labels: ["enhancement"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Please ensure that the feature has not already been requested in the issue tracker.
+
+              Thanks for helping us improve Zink!
+    - type: dropdown
+      attributes:
+          label: Component
+          description: What component is the feature for?
+          multiple: true
+          options:
+              - zuff
+              - ztime
+              - zinkc
+              - zink
+              - Other (please describe)
+      validations:
+          required: true
+    - type: markdown
+      attributes:
+          label: Feature
+          description: Please also describe what the feature is aiming to solve, if relevant.
+      validations:
+          required: true
+    - type: markdown
+      attributes:
+          label: Possible Solution
+          description: Add any other context to the feature (like screenshots, resources)
