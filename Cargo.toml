@@ -16,6 +16,11 @@ members = [
 ]
 
 [workspace.dependencies]
+hex = "0.4.3"
+revm-interpreter = "1.1.2"
+revm-primitives = "1.1.2"
+
+# Local Dependencies.
 cli = { path = "./cli" }
 codegen = { path = "./codegen" }
 compiler = { path = "./compiler" }
@@ -25,8 +30,7 @@ runtime = { path = "runtime" }
 zink-std = { path = "./std" }
 zink = { path = "./zink" }
 
-[profile.dev]
-panic = "abort"
 
-[profile.release]
-panic = "unwind"
+[profile]
+dev = { panic = "abort"}
+release = { panic = "unwind" }
