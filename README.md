@@ -2,7 +2,7 @@
 
 
 [![zink][version-badge]][version-link]
-[![ci][zi-badge]][ci-link]
+[![ci][ci-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
 
 
