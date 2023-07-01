@@ -26,7 +26,6 @@ runtime = { path = "runtime" }
 zink-std = { path = "./std" }
 zink = { path = "./zink" }
 
-
 [profile]
 dev = { panic = "abort"}
 release = { panic = "unwind" }
