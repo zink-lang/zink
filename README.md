@@ -1,6 +1,10 @@
 ## zink
 
+
+[![zink][version-badge]][version-link]
+[![ci][zi-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
+
 
 Zink programming language that targets the Ethereum Virtual Machine.
 
@@ -77,3 +81,7 @@ GPL-3.0-only
 
 [telegram-badge]: https://img.shields.io/badge/telegram-blue?style=for-the-badge&logo=telegram 
 [telegram-group]: https://t.me/+6oZpbwxlVD81OGQ1
+[version-badge]: https://img.shields.io/crates/v/zink?style=for-the-badge
+[version-link]: https://docs.rs/zink/latest/zink/
+[ci-badge]: https://img.shields.io/github/actions/workflow/status/clearloop/zink/CI.yml?style=for-the-badge
+[ci-link]: https://github.com/clearloop/zink/actions/workflows/CI.yml
