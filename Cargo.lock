@@ -3,6 +3,10 @@
 version = 3
 
 [[package]]
+name = "addition"
+version = "0.1.0"
+
+[[package]]
 name = "evm-opcode"
 version = "0.1.0"
 
@@ -12,7 +16,7 @@ version = "0.0.0"
 
 [[package]]
 name = "zink"
-version = "0.0.1"
+version = "0.0.0"
 
 [[package]]
 name = "zink-cli"

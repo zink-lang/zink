@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.0.1"
+version = "0.0.0"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -9,10 +9,14 @@ members = [
   "cli",
   "codegen",
   "compiler",
+  "examples/*",
   "ir",
   "opcode",
   "runtime",
   "zink",
+]
+exclude = [
+  "examples/.cargo"
 ]
 
 [workspace.dependencies]
@@ -22,4 +26,5 @@ compiler = { path = "./compiler" }
 ir = { path = "./ir" }
 opcode = { path = "./opcode" }
 runtime = { path = "runtime" }
+zink-std = { path = "./std" }
 zink = { path = "./zink" }
