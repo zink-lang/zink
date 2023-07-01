@@ -1,7 +1,8 @@
 //! Addition example.
-#![no_std]
+#![cfg_attr(target_arch = "wasm32", no_std)]
 
 // for panic handler.
+#[cfg(all(target_arch = "wasm32", not(test)))]
 extern crate zink;
 
 /// Adds two numbers together.
