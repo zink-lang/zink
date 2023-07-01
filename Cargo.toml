@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.0.1"
+version = "0.0.0"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -7,19 +7,26 @@ license = "GPL-3.0-only"
 [workspace]
 members = [
   "cli",
-  "codegen",
   "compiler",
-  "ir",
-  "opcode",
   "runtime",
   "zink",
+  "lexer",
+  "examples/*"
 ]
 
 [workspace.dependencies]
+hex = "0.4.3"
+revm-interpreter = "1.1.2"
+revm-primitives = "1.1.2"
+
+# Local Dependencies.
 cli = { path = "./cli" }
-codegen = { path = "./codegen" }
 compiler = { path = "./compiler" }
-ir = { path = "./ir" }
-opcode = { path = "./opcode" }
 runtime = { path = "runtime" }
+zink-std = { path = "./std" }
 zink = { path = "./zink" }
+
+
+[profile]
+dev = { panic = "abort"}
+release = { panic = "unwind" }

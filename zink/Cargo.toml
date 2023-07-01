@@ -4,3 +4,6 @@ version.workspace = true
 edition.workspace = true
 description = "WASM that targets the Ethereum Virtual Machine"
 license.workspace = true
+
+[features]
+std = []

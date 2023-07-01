@@ -6,3 +6,6 @@ description = "Zink runtime"
 license.workspace = true
 
 [dependencies]
+hex.workspace = true
+revm-interpreter.workspace = true
+revm-primitives.workspace = true
