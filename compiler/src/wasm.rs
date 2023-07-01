@@ -1,48 +1,28 @@
 //! WASM Compiler
 
-use crate::Result;
+use crate::{Profile, Result};
 use anyhow::anyhow;
 use cargo_metadata::{Metadata, MetadataCommand, Package};
 use etc::{Etc, FileSystem};
-use std::{fs, path::PathBuf};
-
-/// WASM Compiler Profile
-#[derive(PartialEq, Eq)]
-pub enum Profile {
-    Debug,
-    Release,
-}
-
-impl From<&str> for Profile {
-    fn from(profile: &str) -> Self {
-        match profile.as_ref() {
-            "release" | "production" => Profile::Release,
-            "debug" | _ => Profile::Debug,
-        }
-    }
-}
-
-impl AsRef<str> for Profile {
-    fn as_ref(&self) -> &str {
-        match self {
-            Profile::Debug => "debug",
-            Profile::Release => "release",
-        }
-    }
-}
+use std::{env, fs, path::PathBuf, process::Command};
 
 /// WASM Builder
 pub struct WasmBuilder {
     profile: Profile,
     metadata: Metadata,
     package: Package,
+    #[allow(unused)]
+    output: PathBuf,
+    out_dir: PathBuf,
 }
 
 impl WasmBuilder {
     /// Create a new WASM Builder.
-    pub fn new(path: impl Into<PathBuf>, profile: impl AsRef<str>) -> Result<Self> {
+    pub fn new(path: impl Into<PathBuf>) -> Result<Self> {
         let mut metadata_command = MetadataCommand::new();
         let path = path.into();
+
+        log::trace!("parsing cargo metadata from: {path:?}");
         let metadata = if path.is_dir() {
             metadata_command.current_dir(&path)
         } else {
@@ -51,29 +31,53 @@ impl WasmBuilder {
         .exec()?;
 
         let manifest = Etc::from(path).find("Cargo.toml")?;
+        log::trace!("expected manifest: {manifest:?}");
         let package = metadata
             .packages
             .iter()
-            .find(|p| p.manifest_path == manifest)
-            .ok_or(anyhow!("package not found"))?
+            .find(|p| p.manifest_path.ends_with(&manifest))
+            .ok_or(anyhow!("package {manifest:?} not found"))?
             .clone();
 
+        let out_dir = env::current_dir()?;
+        let output = out_dir.join(package.name.as_str());
+
         Ok(Self {
-            profile: profile.as_ref().into(),
+            profile: Profile::Debug,
             metadata,
             package,
+            output,
+            out_dir: env::current_dir()?,
         })
     }
 
+    /// Set the profile.
+    pub fn profile(&mut self, profile: impl Into<Profile>) -> &mut Self {
+        self.profile = profile.into();
+        self
+    }
+
+    /// Set the output directory.
+    pub fn out_dir(&mut self, out_dir: impl Into<PathBuf>) -> &mut Self {
+        self.out_dir = out_dir.into();
+        self
+    }
+
+    /// Set the output file.
+    pub fn output(&mut self, output: impl Into<PathBuf>) -> &mut Self {
+        self.output = output.into();
+        self
+    }
+
     /// Run the WASM Builder.
-    pub fn run(&self) -> Result<()> {
-        self.build()?;
+    pub fn build(&self) -> Result<()> {
+        self.compile()?;
         self.post()?;
         Ok(())
     }
 
     /// Compile project to WASM.
-    fn build(&self) -> Result<()> {
+    fn compile(&self) -> Result<()> {
         let mut args = vec![
             "build",
             "--manifest-path",
@@ -86,13 +90,11 @@ impl WasmBuilder {
             args.push("--release");
         }
 
-        let meta = MetadataCommand::new();
-        meta.cargo_command().args(&args).status()?;
-
+        Command::new("cargo").args(&args).status()?;
         Ok(())
     }
 
-    /// Post processing the built WASM files
+    /// Post processing the built WASM files.
     fn post(&self) -> Result<()> {
         let target = self.metadata.target_directory.clone();
         let zink = target.join("zink").join(self.profile.as_ref());
@@ -105,9 +107,13 @@ impl WasmBuilder {
             .join(self.profile.as_ref())
             .join(self.package.name.as_str())
             .with_extension("wasm");
-        let dst = zink.join(self.package.name.as_str()).with_extension("wasm");
 
-        fs::copy(src, dst)?;
+        // copy the wasm file to the zink directory and the out directory.
+        for dir in [self.out_dir.clone(), zink.clone().into()] {
+            let dst = dir.join(self.package.name.as_str()).with_extension("wasm");
+            fs::copy(&src, dst)?;
+        }
+
         Ok(())
     }
 }
