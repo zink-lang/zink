@@ -10,6 +10,7 @@ members = [
   "codegen",
   "compiler",
   "examples",
+  "evm",
   "runtime",
   "zink"
 ]
