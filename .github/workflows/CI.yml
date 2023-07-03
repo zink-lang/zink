@@ -5,13 +5,14 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.head_ref }}
-      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
@@ -21,9 +22,6 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.head_ref }}
-      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
