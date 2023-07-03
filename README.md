@@ -19,7 +19,7 @@ flowchart LR
     E[...] --> W
     W --> |zink| Z{Zink Compiler}
     Z --> |zk support| T[(ZTime)]
-    Z --> |Huff IR| V[(EVM)]
+    Z --> |cranelift| V[(EVM)]
 ```
 
 ## Installation
