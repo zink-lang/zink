@@ -1,8 +1,0 @@
-[package]
-name = "zuff"
-version = "0.0.0"
-edition.workspace = true
-description = "Lexer of zink for the huff backend."
-license.workspace = true
-
-[dependencies]
