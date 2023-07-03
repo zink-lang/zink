@@ -9,9 +9,9 @@ members = [
   "cli",
   "codegen",
   "compiler",
+  "examples",
   "runtime",
-  "zink",
-  "examples/*"
+  "zink"
 ]
 
 [workspace.dependencies]

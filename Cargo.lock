@@ -3,13 +3,6 @@
 version = 3
 
 [[package]]
-name = "addition"
-version = "0.1.0"
-dependencies = [
- "zink",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -535,6 +528,13 @@ name = "etc"
 version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f7935cc590ee512e8073c4fe82b85e056216324e65aed24459204e3f6d9f72e"
+
+[[package]]
+name = "examples"
+version = "0.0.0"
+dependencies = [
+ "zink",
+]
 
 [[package]]
 name = "eyre"

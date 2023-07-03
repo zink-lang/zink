@@ -1,0 +1,13 @@
+[package]
+name = "examples"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+zink.workspace = true
+
+[[example]]
+name = "addition"
+path = "./addition.rs"
+crate-type = ["cdylib"]
