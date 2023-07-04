@@ -1525,7 +1525,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zgen"
+name = "zingen"
 version = "0.0.0"
 dependencies = [
  "anyhow",
@@ -1553,7 +1553,7 @@ dependencies = [
  "thiserror",
  "wasmtime-environ",
  "winch-codegen",
- "zgen",
+ "zingen",
 ]
 
 [[package]]

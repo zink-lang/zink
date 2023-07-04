@@ -19,3 +19,7 @@ color-eyre.workspace = true
 [[bin]]
 path = "bin/zinkc.rs"
 name = "zinkc"
+
+[[bin]]
+path = "bin/ek.rs"
+name = "ek"

@@ -12,7 +12,7 @@ use wasmtime_environ::{
     FunctionBodyData, ModuleEnvironment, ModuleTranslation, Tunables,
 };
 use winch_codegen::TargetIsa;
-use zgen::EvmIsa;
+use zingen::EvmIsa;
 
 mod config;
 pub mod result;

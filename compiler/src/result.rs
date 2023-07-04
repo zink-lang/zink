@@ -12,7 +12,7 @@ pub enum Error {
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
-    Codegen(#[from] zgen::Error),
+    Codegen(#[from] zingen::Error),
     #[error(transparent)]
     Wasm(#[from] wasmtime_environ::WasmError),
 }
