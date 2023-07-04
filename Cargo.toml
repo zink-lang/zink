@@ -10,9 +10,8 @@ members = [
   "codegen",
   "compiler",
   "examples",
-  "evm",
-  "runtime",
-  "zink"
+  "zink",
+  "zint"
 ]
 
 [workspace.dependencies]
@@ -35,11 +34,10 @@ winch-codegen = "0.8.1"
 
 # Local Dependencies.
 cli = { path = "./cli" }
-zinkc = { path = "./compiler" }
-runtime = { path = "runtime" }
-zink-std = { path = "./std" }
-zink = { path = "./zink" }
 zgen =  { path = "./codegen" }
+zinkc = { path = "./compiler" }
+zink = { path = "./zink" }
+zint = { path = "./zint" }
 
 [profile]
 dev = { panic = "abort"}

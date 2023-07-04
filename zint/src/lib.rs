@@ -1,4 +1,4 @@
-//! Zlink runtime.
+//! Zink testing framework.
 
 pub mod evm;
 
