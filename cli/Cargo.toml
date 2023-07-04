@@ -10,14 +10,14 @@ documentation = "https://docs.rs/zink-cli"
 
 [dependencies]
 anyhow.workspace = true
+cargo_metadata.workspace = true
 clap = { workspace = true, features = ["derive"] }
-zinkc.workspace = true
+color-eyre.workspace = true
 env_logger.workspace = true
 etc.workspace = true
-color-eyre.workspace = true
-cargo_metadata.workspace = true
-tracing.workspace = true
 thiserror.workspace = true
+zinkc.workspace = true
+tracing.workspace = true
 
 [[bin]]
 path = "bin/ek.rs"

@@ -18,8 +18,7 @@ flowchart LR
     D[\Javascript/] --> W
     E[...] --> W
     W --> |zink| Z{Zink Compiler}
-    Z --> |zk support| T[(ZTime)]
-    Z --> |cranelift| V[(EVM)]
+    Z --> V[(EVM)]
 ```
 
 ## Installation
