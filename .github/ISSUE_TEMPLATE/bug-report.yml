@@ -16,10 +16,15 @@ body:
     attributes:
       label: Which version of are you on?
       placeholder: "Run `zinkc --version` or get it from the Cargo.lock in your project"
-  - type: input
+  - type: dropdown
     attributes:
-      label: What operating system are you on?
-      placeholder: "for example, win"
+      label: Operating System
+      description: What operating system are you on?
+      options:
+        - Windows
+        - macOS (Intel)
+        - macOS (Apple Silicon)
+        - Linux
   - type: textarea
     attributes:
       label: Describe the bug
