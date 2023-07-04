@@ -7,11 +7,8 @@ license.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-etc.workspace = true
-log.workspace = true
 thiserror.workspace = true
-cargo_metadata.workspace = true
-zgen.workspace = true
+zingen.workspace = true
 cranelift-wasm.workspace = true
 wasmtime-environ.workspace = true
 winch-codegen.workspace = true

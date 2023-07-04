@@ -1,44 +1,37 @@
 //! Zinkc cli
-use crate::App;
+use crate::utils::{Profile, WasmBuilder};
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use etc::{Etc, FileSystem};
 use std::path::PathBuf;
-use zinkc::WasmBuilder;
 
-/// Command line interface for the zink compiler.
+/// Build contract
 #[derive(Debug, Parser)]
-#[command(name = "zinkc", version)]
-pub struct Zinkc {
+#[command(name = "build", version)]
+pub struct Build {
     /// The path to the wasm file or the rust project directory.
     /// ( only support cargo project as input for now )
     ///
     /// TODO: Support wasm file as input.
-    input: PathBuf,
+    pub input: PathBuf,
     /// Write output to <filename>
     #[clap(short, long, value_name = "filename")]
-    output: Option<PathBuf>,
+    pub output: Option<PathBuf>,
     /// Write output to compiler-chosen filename in <dir>
     #[clap(long, value_name = "dir")]
-    out_dir: Option<PathBuf>,
+    pub out_dir: Option<PathBuf>,
     /// Optimize with default optimizations
     #[clap(long)]
-    release: bool,
-    /// Verbose mode (-v, -vv, -vvv, etc.)
-    #[clap(short, long, action = clap::ArgAction::Count)]
-    verbose: u8,
+    pub release: bool,
 }
 
-impl App for Zinkc {
-    fn verbose(&self) -> u8 {
-        self.verbose
-    }
-
-    fn run(&self) -> Result<()> {
+impl Build {
+    /// Run build
+    pub fn run(&self) -> Result<()> {
         let profile = if self.release {
-            zinkc::Profile::Release
+            Profile::Release
         } else {
-            zinkc::Profile::Debug
+            Profile::Debug
         };
 
         // Get and check the input.

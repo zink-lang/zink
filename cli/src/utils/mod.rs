@@ -1,3 +1,11 @@
+pub use self::{
+    result::{Error, Result},
+    wasm::WasmBuilder,
+};
+
+mod result;
+mod wasm;
+
 /// Compliation profile.
 #[derive(PartialEq, Eq)]
 pub enum Profile {
@@ -21,12 +29,4 @@ impl AsRef<str> for Profile {
             Profile::Release => "release",
         }
     }
-}
-
-/// Target platform.
-pub enum Target {
-    /// Compile code to WebAssembly.
-    WASM,
-    /// Compile code to Ethereum Virtual Machine bytecode.
-    EVM,
 }

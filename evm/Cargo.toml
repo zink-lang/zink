@@ -1,6 +1,0 @@
-[package]
-name = "jetz"
-version = "0.0.0"
-edition.workspace = true
-description = "EVM Just In Time."
-license.workspace = true

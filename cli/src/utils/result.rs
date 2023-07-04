@@ -1,4 +1,4 @@
-//! Zinkc result
+//! Zinkup result
 
 /// Zinkc errors
 #[derive(Debug, thiserror::Error)]
@@ -6,9 +6,11 @@ pub enum Error {
     #[error(transparent)]
     Anyhow(#[from] anyhow::Error),
     #[error(transparent)]
-    Codegen(#[from] zingen::Error),
+    CargoMetadata(#[from] cargo_metadata::Error),
     #[error(transparent)]
-    Wasm(#[from] wasmtime_environ::WasmError),
+    Etc(#[from] etc::Error),
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
 }
 
 /// Zinkc result
