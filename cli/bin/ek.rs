@@ -1,4 +1,4 @@
-//! Zink Compiler
+//! Zink's package manager
 
 use clap::{Parser, Subcommand};
 use color_eyre::Result;

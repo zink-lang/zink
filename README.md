@@ -14,7 +14,7 @@ WebAssembly!
 flowchart LR
     R{{Rust}} --> W(WebAssembly)
     O[...] --> W
-    C --> Z{Zink Compiler}
+    W --> Z{Zink Compiler}
     Z --> V[(EVM)]
 ```
 
