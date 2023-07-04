@@ -11,6 +11,10 @@ pub enum Error {
     Etc(#[from] etc::Error),
     #[error(transparent)]
     Io(#[from] std::io::Error),
+    #[error(transparent)]
+    Codegen(#[from] zgen::Error),
+    #[error(transparent)]
+    Wasm(#[from] wasmtime_environ::WasmError),
 }
 
 /// Zinkc result

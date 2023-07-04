@@ -109,7 +109,7 @@ impl WasmBuilder {
             .with_extension("wasm");
 
         // copy the wasm file to the zink directory and the out directory.
-        for dir in [self.out_dir.clone(), zink.clone().into()] {
+        for dir in [self.out_dir.clone(), zink.into()] {
             let dst = dir.join(self.package.name.as_str()).with_extension("wasm");
             fs::copy(&src, dst)?;
         }

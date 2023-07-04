@@ -7,6 +7,6 @@ extern crate zink;
 
 /// Adds two numbers together.
 #[no_mangle]
-pub extern "C" fn add(x: u64, y: u64) -> u64 {
+pub extern "C" fn main(x: u64, y: u64) -> u64 {
     x + y
 }

@@ -1,0 +1,43 @@
+name: Bug Report
+description: File a bug/issue
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please ensure that the bug has not already been filed in the issue tracker.
+
+        Thanks for taking the time to report this bug!
+  - type: input
+    attributes:
+      label: Which library is the bug in?
+      placeholder: "For example, compiler"
+  - type: input
+    attributes:
+      label: Which version of are you on?
+      placeholder: "Run `zinkc --version` or get it from the Cargo.lock in your project"
+  - type: dropdown
+    attributes:
+      label: Operating System
+      description: What operating system are you on?
+      options:
+        - Windows
+        - macOS (Intel)
+        - macOS (Apple Silicon)
+        - Linux
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: "Please include the steps for reproducing it as well if it is possible."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: logs
+      value: |
+        <details>
+        <summary>Please include the logs as well if relevant.</summary>
+        <pre><code>
+        <!-- Paste your logs here -->
+        </code></pre>
+        </details>
