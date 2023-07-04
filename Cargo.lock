@@ -1429,6 +1429,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
+name = "winch-codegen"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "525fdd0d4e82d1bd3083bd87e8ca8014abfbdc5bf290d1d5371dac440d351e89"
+dependencies = [
+ "anyhow",
+ "cranelift-codegen",
+ "gimli",
+ "regalloc2",
+ "smallvec",
+ "target-lexicon",
+ "wasmparser",
+ "wasmtime-environ",
+]
+
+[[package]]
 name = "windows-sys"
 version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1516,10 +1532,13 @@ dependencies = [
 name = "zgen"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "cranelift-codegen",
  "cranelift-wasm",
+ "target-lexicon",
  "thiserror",
  "wasmtime-environ",
+ "winch-codegen",
 ]
 
 [[package]]
@@ -1544,9 +1563,13 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
+ "cranelift-wasm",
  "etc",
  "log",
  "thiserror",
+ "wasmtime-environ",
+ "winch-codegen",
+ "zgen",
 ]
 
 [[package]]
