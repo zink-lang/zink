@@ -19,9 +19,12 @@ pub mod result;
 mod wasm;
 
 /// Zink compiler.
+///
+/// TODO: support cranelift.
 pub struct Zinkc;
 
 impl Zinkc {
+    /// Compile webassembly binary to evm bytecode.
     pub fn compile(wasm: &[u8]) -> Result<Vec<u8>> {
         let mut translation = Self::translate(wasm)?;
         let body_inputs = std::mem::take(&mut translation.function_body_inputs);

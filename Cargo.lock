@@ -1546,18 +1546,6 @@ name = "zink"
 version = "0.0.0"
 
 [[package]]
-name = "zink-cli"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "clap",
- "color-eyre",
- "env_logger",
- "etc",
- "zinkc",
-]
-
-[[package]]
 name = "zinkc"
 version = "0.0.1"
 dependencies = [
@@ -1570,6 +1558,18 @@ dependencies = [
  "wasmtime-environ",
  "winch-codegen",
  "zgen",
+]
+
+[[package]]
+name = "zinkup"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "color-eyre",
+ "env_logger",
+ "etc",
+ "zinkc",
 ]
 
 [[package]]
