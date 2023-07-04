@@ -1,6 +1,6 @@
-//! WASM Compiler
+//! WASM Builder
 
-use crate::{Profile, Result};
+use crate::utils::{Profile, Result};
 use anyhow::anyhow;
 use cargo_metadata::{Metadata, MetadataCommand, Package};
 use etc::{Etc, FileSystem};
@@ -22,7 +22,7 @@ impl WasmBuilder {
         let mut metadata_command = MetadataCommand::new();
         let path = path.into();
 
-        log::trace!("parsing cargo metadata from: {path:?}");
+        tracing::trace!("parsing cargo metadata from: {path:?}");
         let metadata = if path.is_dir() {
             metadata_command.current_dir(&path)
         } else {
@@ -31,7 +31,7 @@ impl WasmBuilder {
         .exec()?;
 
         let manifest = Etc::from(path).find("Cargo.toml")?;
-        log::trace!("expected manifest: {manifest:?}");
+        tracing::trace!("expected manifest: {manifest:?}");
         let package = metadata
             .packages
             .iter()

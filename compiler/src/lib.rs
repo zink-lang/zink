@@ -1,10 +1,6 @@
 //! Zink compiler.
 
-pub use crate::{
-    config::{Profile, Target},
-    result::{Error, Result},
-    wasm::WasmBuilder,
-};
+pub use crate::result::{Error, Result};
 use anyhow::anyhow;
 use cranelift_wasm::{DefinedFuncIndex, TypeConvert};
 use wasmtime_environ::{
@@ -12,11 +8,9 @@ use wasmtime_environ::{
     FunctionBodyData, ModuleEnvironment, ModuleTranslation, Tunables,
 };
 use winch_codegen::TargetIsa;
-use zgen::EvmIsa;
+use zingen::EvmIsa;
 
-mod config;
 pub mod result;
-mod wasm;
 
 /// Zink compiler.
 ///

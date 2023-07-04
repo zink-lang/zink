@@ -10,9 +10,8 @@ members = [
   "codegen",
   "compiler",
   "examples",
-  "evm",
-  "runtime",
-  "zink"
+  "zink",
+  "zink/testing"
 ]
 
 [workspace.dependencies]
@@ -25,21 +24,20 @@ cranelift-codegen = "0.97.1"
 env_logger = "0.10.0"
 etc = "0.1.16"
 hex = "0.4.3"
-log = "0.4.19"
 revm-interpreter = "1.1.2"
 revm-primitives = "1.1.2"
 target-lexicon = "0.12.8"
 thiserror = "1.0.40"
 wasmtime-environ = "10.0.1"
 winch-codegen = "0.8.1"
+tracing = "0.1.37"
 
 # Local Dependencies.
-cli = { path = "./cli" }
-zinkc = { path = "./compiler" }
-runtime = { path = "runtime" }
-zink-std = { path = "./std" }
-zink = { path = "./zink" }
-zgen =  { path = "./codegen" }
+cli = { path = "cli" }
+zingen =  { path = "codegen" }
+zinkc = { path = "compiler" }
+zink = { path = "zink" }
+zint = { path = "zink/testing" }
 
 [profile]
 dev = { panic = "abort"}
