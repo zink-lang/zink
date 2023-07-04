@@ -12,12 +12,9 @@ WebAssembly!
 
 ```mermaid
 flowchart LR
-    A{{Rust}} --> W(WebAssembly)
-    B[[C]] --> W
-    C((Go)) --> W
-    D[\Javascript/] --> W
-    E[...] --> W
-    W --> |zink| Z{Zink Compiler}
+    R{{Rust}} --> W(WebAssembly)
+    O[...] --> W
+    C --> Z{Zink Compiler}
     Z --> V[(EVM)]
 ```
 
