@@ -73,7 +73,7 @@ impl Zinkc {
             .compile_function(
                 &sig,
                 &body,
-                &translation,
+                translation,
                 &mut validator.into_validator(Default::default()),
             )?
             .data()
