@@ -1,11 +1,12 @@
 //! Zink CLI
-pub use crate::zinkc::Zinkc;
+pub use crate::build::Build;
 use anyhow::Error;
 use clap::Parser;
 use color_eyre::{eyre::eyre, Result};
 use env_logger::{Builder, Env};
 
-mod zinkc;
+mod build;
+mod utils;
 
 /// Shared application interface.
 pub trait App: Parser {
