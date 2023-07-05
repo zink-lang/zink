@@ -1,6 +1,6 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{asm::Assmbler, stack::StackOffset};
+use crate::{asm::Assmbler, limits::StackOffset};
 
 /// EVM MacroAssembler.
 #[derive(Default)]
@@ -18,7 +18,15 @@ impl MacroAssembler {
     }
 
     /// Increments stack pointer offset.
-    pub fn push(&mut self, offset: impl Into<StackOffset>) {
+    pub fn increment_sp(&mut self, offset: impl Into<StackOffset>) {
         self.sp_offset += offset.into();
+    }
+
+    /// Add instruction combinations.
+    pub fn add(&mut self, lhs: u8, rhs: u8) {
+        self.asm.push::<2>();
+        self.increment_sp(2);
+        self.asm.emits([lhs, rhs]);
+        self.asm.add();
     }
 }

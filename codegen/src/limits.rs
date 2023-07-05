@@ -1,4 +1,6 @@
 //! EVM stack abstraction.
+//!
+//! TODO: refactor this module with Result as outputs.
 use std::ops::{Add, AddAssign};
 
 /// EVM stack limit.
@@ -11,14 +13,14 @@ macro_rules! limit {
     ($name:ident, $limit:expr, $error:literal, $desc:literal) => {
         #[doc = concat!(" ", $desc)]
         #[derive(Debug, Default, Clone, Copy)]
-        pub struct $name(u16);
+        pub struct $name(pub(crate) u16);
 
         impl Add for $name {
             type Output = Self;
 
             fn add(self, other: Self) -> Self {
                 let size = self.0 + other.0;
-                if size > STACK_LIMIT {
+                if size > $limit {
                     panic!($error);
                 }
 
@@ -34,7 +36,7 @@ macro_rules! limit {
 
         impl From<u16> for $name {
             fn from(offset: u16) -> $name {
-                StackOffset(offset)
+                $name(offset)
             }
         }
 
@@ -44,8 +46,10 @@ macro_rules! limit {
             }
         }
     };
-    ($(($name:ident, $limit:expr, $error:literal, $desc:literal),*)) => {
-        $(limit!($name, $limit, $error, $literal))*
+    ($(
+        ($name:ident, $limit:expr, $error:literal, $desc:literal)
+    ),+) => {
+        $(limit!($name, $limit, $error, $desc);)*
     };
 }
 

@@ -8,9 +8,9 @@ pub use crate::{
 };
 
 mod asm;
+mod limits;
 mod masm;
 mod result;
-mod stack;
 mod visitor;
 
 /// The code generation abstraction.
