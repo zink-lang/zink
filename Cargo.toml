@@ -8,6 +8,7 @@ license = "GPL-3.0-only"
 members = [
   "cli",
   "codegen",
+  "codegen/opcodes",
   "compiler",
   "examples",
   "zink",
