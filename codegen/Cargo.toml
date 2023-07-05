@@ -7,10 +7,7 @@ description = "Code generation library for zink."
 
 [dependencies]
 anyhow.workspace = true
-cranelift-wasm.workspace = true
-cranelift-codegen.workspace = true
-wasmtime-environ.workspace = true
-target-lexicon.workspace = true
+opcodes.workspace = true
 thiserror.workspace = true
-winch-codegen.workspace = true
+wasmtime-environ.workspace = true
 wasmparser.workspace = true

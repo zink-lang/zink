@@ -1545,13 +1545,10 @@ name = "zingen"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "cranelift-codegen",
- "cranelift-wasm",
- "target-lexicon",
+ "evm-opcodes",
  "thiserror",
  "wasmparser",
  "wasmtime-environ",
- "winch-codegen",
 ]
 
 [[package]]

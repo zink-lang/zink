@@ -36,6 +36,7 @@ wasmparser = "0.107.0"
 
 # Local Dependencies.
 cli = { path = "cli" }
+opcodes = { package = "evm-opcodes", path = "codegen/opcodes" }
 zingen =  { path = "codegen" }
 zinkc = { path = "compiler" }
 zink = { path = "zink" }

@@ -1,13 +1,20 @@
 //! Code generation library for zink.
+#![deny(missing_docs)]
 
 pub use crate::{
-    isa::EvmIsa,
+    asm::Assmbler,
+    masm::MacroAssembler,
     result::{Error, Result},
 };
 
-mod isa;
+mod asm;
+mod masm;
 mod result;
+mod stack;
 mod visitor;
 
 /// The code generation abstraction.
-pub struct CodeGen {}
+#[derive(Default)]
+pub struct CodeGen {
+    _asm: MacroAssembler,
+}
