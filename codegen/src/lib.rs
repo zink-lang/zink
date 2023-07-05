@@ -7,3 +7,7 @@ pub use crate::{
 
 mod isa;
 mod result;
+mod visitor;
+
+/// The code generation abstraction.
+pub struct CodeGen {}

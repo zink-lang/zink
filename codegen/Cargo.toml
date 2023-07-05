@@ -13,3 +13,4 @@ wasmtime-environ.workspace = true
 target-lexicon.workspace = true
 thiserror.workspace = true
 winch-codegen.workspace = true
+wasmparser.workspace = true
