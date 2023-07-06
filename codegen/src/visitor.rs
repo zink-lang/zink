@@ -11,14 +11,18 @@ macro_rules! define_visit_operator {
     ($( @$proposal:ident $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident)*) => {
         $(
             fn $visit(&mut self $($(,$arg: $argty)*)?) -> Self::Output {
-                todo!("unsupported operator: {}", stringify!($op))
+                println!("visit operator: {}", stringify!($op))
             }
         )*
     }
 }
 
 impl<'a> VisitOperator<'a> for CodeGen {
-    type Output = Vec<u8>;
+    type Output = ();
+
+    // fn visit_i32_add(&mut self) -> Self::Output {
+    //     // self.masm.add()
+    // }
 
     for_each_operator!(define_visit_operator);
 }

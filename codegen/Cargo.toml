@@ -9,5 +9,8 @@ description = "Code generation library for zink."
 anyhow.workspace = true
 opcodes.workspace = true
 thiserror.workspace = true
-wasmtime-environ.workspace = true
 wasmparser.workspace = true
+
+
+[dev-dependencies]
+wat.workspace = true

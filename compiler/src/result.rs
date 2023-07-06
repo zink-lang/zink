@@ -7,8 +7,6 @@ pub enum Error {
     Anyhow(#[from] anyhow::Error),
     #[error(transparent)]
     Codegen(#[from] zingen::Error),
-    #[error(transparent)]
-    Wasm(#[from] wasmtime_environ::WasmError),
 }
 
 /// Zinkc result

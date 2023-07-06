@@ -9,6 +9,3 @@ license.workspace = true
 anyhow.workspace = true
 thiserror.workspace = true
 zingen.workspace = true
-cranelift-wasm.workspace = true
-wasmtime-environ.workspace = true
-winch-codegen.workspace = true

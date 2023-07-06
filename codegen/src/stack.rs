@@ -1,55 +1,30 @@
 //! EVM stack abstraction.
-use std::ops::{Add, AddAssign};
 
-/// EVM stack limit.
-const STACK_LIMIT: u16 = 0x400;
+use std::collections::VecDeque;
 
-/// EVM buffer limit
-const BUFFER_LIMIT: u16 = 0x6000;
-
-macro_rules! limit {
-    ($name:ident, $limit:expr, $error:literal, $desc:literal) => {
-        #[doc = concat!(" ", $desc)]
-        #[derive(Debug, Default, Clone, Copy)]
-        pub struct $name(u16);
-
-        impl Add for $name {
-            type Output = Self;
-
-            fn add(self, other: Self) -> Self {
-                let size = self.0 + other.0;
-                if size > STACK_LIMIT {
-                    panic!($error);
-                }
-
-                $name(self.0 + other.0)
-            }
-        }
-
-        impl AddAssign for $name {
-            fn add_assign(&mut self, other: $name) {
-                *self = *self + other;
-            }
-        }
-
-        impl From<u16> for $name {
-            fn from(offset: u16) -> $name {
-                StackOffset(offset)
-            }
-        }
-
-        impl Into<u16> for $name {
-            fn into(self) -> u16 {
-                self.0
-            }
-        }
-    };
-    ($(($name:ident, $limit:expr, $error:literal, $desc:literal),*)) => {
-        $(limit!($name, $limit, $error, $literal))*
-    };
+/// The shadow stack used for compilation.
+pub struct Stack {
+    inner: VecDeque<[u8; 32]>,
 }
 
-limit! {
-    (StackOffset, STACK_LIMIT, "Stack overflow", "Stack offset"),
-    (BufferOffset, BUFFER_LIMIT, "Buffer limit exceeded", "Buffer offset")
+impl Stack {
+    /// Put a value on the top of the stack.
+    pub fn push(&mut self, value: [u8; 32]) {
+        self.inner.push_back(value);
+    }
+
+    /// Push values on the top of the stack.
+    pub fn pushn<const S: usize>(&mut self, value: [[u8; 32]; S]) {
+        self.inner.append(&mut value.into());
+    }
+
+    /// Pop a value from the top of the stack.
+    pub fn pop(&mut self) -> Option<[u8; 32]> {
+        self.inner.pop_back()
+    }
+
+    /// Pop values from the top of the stack.
+    pub fn popn(&mut self, size: usize) -> Option<Vec<[u8; 32]>> {
+        Some(self.inner.split_off(self.inner.len() - size).into())
+    }
 }
