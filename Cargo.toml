@@ -8,6 +8,7 @@ license = "GPL-3.0-only"
 members = [
   "cli",
   "codegen",
+  "codegen/opcodes",
   "compiler",
   "examples",
   "zink",
@@ -19,21 +20,23 @@ anyhow = "1.0.71"
 cargo_metadata = "0.15.4"
 clap = "4.3.10"
 color-eyre = "0.6.2"
-cranelift-wasm = "0.97.1"
-cranelift-codegen = "0.97.1"
-env_logger = "0.10.0"
 etc = "0.1.16"
 hex = "0.4.3"
 revm-interpreter = "1.1.2"
 revm-primitives = "1.1.2"
+smallvec = "1.11.0"
 target-lexicon = "0.12.8"
 thiserror = "1.0.40"
-wasmtime-environ = "10.0.1"
-winch-codegen = "0.8.1"
 tracing = "0.1.37"
+tracing-subscriber = "0.3.17"
+wasmparser = "0.107.0"
+wat = "1.0.66"
+
+
 
 # Local Dependencies.
 cli = { path = "cli" }
+opcodes = { package = "evm-opcodes", path = "codegen/opcodes" }
 zingen =  { path = "codegen" }
 zinkc = { path = "compiler" }
 zink = { path = "zink" }

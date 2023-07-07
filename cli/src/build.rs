@@ -12,7 +12,7 @@ pub struct Build {
     /// The path to the wasm file or the rust project directory.
     /// ( only support cargo project as input for now )
     ///
-    /// TODO: Support wasm file as input.
+    /// TODO: Support wasm file as input. (issue-19)
     pub input: PathBuf,
     /// Write output to <filename>
     #[clap(short, long, value_name = "filename")]

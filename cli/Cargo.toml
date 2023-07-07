@@ -13,11 +13,11 @@ anyhow.workspace = true
 cargo_metadata.workspace = true
 clap = { workspace = true, features = ["derive"] }
 color-eyre.workspace = true
-env_logger.workspace = true
 etc.workspace = true
 thiserror.workspace = true
 zinkc.workspace = true
 tracing.workspace = true
+tracing-subscriber.workspace = true
 
 [[bin]]
 path = "bin/ek.rs"
