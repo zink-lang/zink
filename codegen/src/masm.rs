@@ -8,7 +8,7 @@ pub struct MacroAssembler {
     /// Stack pointer offset.
     sp_offset: StackOffset,
     /// Low level assembler.
-    asm: Assmbler,
+    pub asm: Assmbler,
 }
 
 impl MacroAssembler {
@@ -22,11 +22,13 @@ impl MacroAssembler {
         self.sp_offset += offset.into();
     }
 
-    /// Add instruction combinations.
-    pub fn add(&mut self, lhs: u8, rhs: u8) {
-        self.asm.push::<2>();
-        self.increment_sp(2);
-        self.asm.emits([lhs, rhs]);
-        self.asm.add();
+    /// Get input data of current environment
+    pub fn calldata_load(&mut self, offset: u8) {
+        // FIXME:
+        //
+        // PUSH <SIZE> from offset.
+        self.asm.push::<1>();
+        self.asm.emit(offset);
+        self.asm.calldata_load();
     }
 }

@@ -8,9 +8,7 @@ description = "Code generation library for zink."
 [dependencies]
 anyhow.workspace = true
 opcodes.workspace = true
+smallvec.workspace = true
 thiserror.workspace = true
+tracing.workspace = true
 wasmparser.workspace = true
-
-
-[dev-dependencies]
-wat.workspace = true

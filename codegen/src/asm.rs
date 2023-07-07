@@ -4,6 +4,7 @@
 
 use crate::limits::BufferOffset;
 use opcodes::{OpCode as _, ShangHai as OpCode};
+use smallvec::SmallVec;
 
 /// Maximum size of a evm contract.
 const BUFFER_LIMIT: usize = 0x6000;
@@ -11,7 +12,7 @@ const BUFFER_LIMIT: usize = 0x6000;
 /// Low level assembler implementation for EVM.
 pub struct Assmbler {
     /// Buffer of the assembler.
-    buffer: [u8; BUFFER_LIMIT],
+    buffer: SmallVec<[u8; BUFFER_LIMIT]>,
     /// Offset of the buffer.
     offset: BufferOffset,
     /// Gas counter.
@@ -25,7 +26,7 @@ pub struct Assmbler {
 impl Default for Assmbler {
     fn default() -> Self {
         Self {
-            buffer: [0; BUFFER_LIMIT],
+            buffer: Default::default(),
             offset: 0.into(),
             gas: 0,
         }
@@ -47,7 +48,7 @@ impl Assmbler {
 
     /// Emit a byte.
     pub fn emit(&mut self, byte: u8) {
-        self.buffer[self.offset.0 as usize] = byte;
+        self.buffer.push(byte);
         self.offset += 1.into();
     }
 
@@ -74,9 +75,24 @@ impl Assmbler {
         }
     }
 
-    /// Emit Add.
+    /// Emit `ADD`
     pub fn add(&mut self) {
         self.emit_op(OpCode::ADD.into());
+    }
+
+    /// Emit `MSTORE`
+    pub fn mstore(&mut self) {
+        self.emit_op(OpCode::MSTORE.into());
+    }
+
+    /// Emit `MSTORE`
+    pub fn ret(&mut self) {
+        self.emit_op(OpCode::RETURN.into());
+    }
+
+    /// Emit `CALLDATALOAD`
+    pub fn calldata_load(&mut self) {
+        self.emit_op(OpCode::CALLDATALOAD.into());
     }
 
     /// Place n bytes on stack.

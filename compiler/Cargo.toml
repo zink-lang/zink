@@ -9,3 +9,7 @@ license.workspace = true
 anyhow.workspace = true
 thiserror.workspace = true
 zingen.workspace = true
+wasmparser.workspace = true
+
+[dev-dependencies]
+wat.workspace = true
