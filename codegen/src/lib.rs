@@ -5,7 +5,7 @@
 use crate::parser::ValidateThenVisit;
 pub use crate::{
     abi::LocalSlot,
-    asm::Assmbler,
+    asm::Assembler,
     context::Context,
     frame::Frame,
     local::DefinedLocals,
@@ -29,7 +29,7 @@ mod visitor;
 
 /// The code generation abstraction.
 ///
-/// TODO: add codegen context for backtrace.
+/// TODO: add codegen context for backtrace. (#21)
 pub struct CodeGen {
     masm: MacroAssembler,
 }

@@ -1,6 +1,6 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{asm::Assmbler, limits::StackOffset};
+use crate::{asm::Assembler, limits::StackOffset};
 
 /// EVM MacroAssembler.
 #[derive(Default)]
@@ -8,7 +8,7 @@ pub struct MacroAssembler {
     /// Stack pointer offset.
     sp_offset: StackOffset,
     /// Low level assembler.
-    pub asm: Assmbler,
+    pub asm: Assembler,
 }
 
 impl MacroAssembler {
@@ -24,7 +24,7 @@ impl MacroAssembler {
 
     /// Get input data of current environment
     pub fn calldata_load(&mut self, offset: u8) {
-        // FIXME:
+        // FIXME: (#23)
         //
         // PUSH <SIZE> from offset.
         self.asm.push::<1>();

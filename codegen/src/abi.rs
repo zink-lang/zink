@@ -32,7 +32,7 @@ pub(crate) fn ty_size(ty: &ValType) -> u32 {
     match *ty {
         ValType::I32 | ValType::F32 => 4,
         ValType::I64 | ValType::F64 => 8,
-        // TODO: support u128, u256
+        // TODO: align number implementations to 256 bits (issue #20)
         _ => unimplemented!("unknown unsupported type {:?}", ty),
     }
 }

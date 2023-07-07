@@ -1,6 +1,6 @@
 //! Low level assembler implementation for EVM.
 //!
-//! TODO: refactor this module with Result as outputs.
+//! TODO: refactor this module with Result as outputs. (issue-21)
 
 use crate::limits::BufferOffset;
 use opcodes::{OpCode as _, ShangHai as OpCode};
@@ -10,7 +10,7 @@ use smallvec::SmallVec;
 const BUFFER_LIMIT: usize = 0x6000;
 
 /// Low level assembler implementation for EVM.
-pub struct Assmbler {
+pub struct Assembler {
     /// Buffer of the assembler.
     buffer: SmallVec<[u8; BUFFER_LIMIT]>,
     /// Offset of the buffer.
@@ -19,11 +19,11 @@ pub struct Assmbler {
     ///
     /// This is used to calculate the gas cost of the generated code.
     ///
-    /// TODO: use a more precise type, eq `u256`.
+    /// TODO: use a more precise type, eq `u256`. (issue-20)
     gas: u128,
 }
 
-impl Default for Assmbler {
+impl Default for Assembler {
     fn default() -> Self {
         Self {
             buffer: Default::default(),
@@ -33,7 +33,7 @@ impl Default for Assmbler {
     }
 }
 
-impl Assmbler {
+impl Assembler {
     /// Buffer of the assembler.
     pub fn buffer(&self) -> &[u8] {
         &self.buffer
@@ -41,7 +41,7 @@ impl Assmbler {
 
     /// increment the gas counter.
     ///
-    /// TODO: use number bigger than `u256` for throwing proper errors.
+    /// TODO: use number bigger than `u256` for throwing proper errors. (issue-21)
     pub fn increment_gas(&mut self, gas: u128) {
         self.gas += gas;
     }

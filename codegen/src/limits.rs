@@ -1,6 +1,6 @@
 //! EVM stack abstraction.
 //!
-//! TODO: refactor this module with Result as outputs.
+//! TODO: refactor this module with Result as outputs. (#21)
 use std::ops::{Add, AddAssign};
 
 /// EVM stack limit.
