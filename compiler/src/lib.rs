@@ -1,31 +1,21 @@
 //! Zink compiler.
 
 pub use crate::result::{Error, Result};
+use tracing::trace;
+use wasmparser::{Parser, ValidPayload, Validator};
+use zingen::CodeGen;
 
 pub mod result;
 
-#[cfg(test)]
-mod tests {
-    use wasmparser::{Parser, ValidPayload, Validator};
-    use zingen::CodeGen;
+/// Zink Compiler
+pub struct Compiler;
 
-    #[test]
-    fn test_addition() {
-        let wasm = wat::parse_str(
-            r#"
-(module
-  (func (export "add") (param i32 i32) (result i32)
-    (local.get 0)
-    (local.get 1)
-    (i32.add)
-  )
-)
-"#,
-        )
-        .unwrap();
-
+impl Compiler {
+    /// Compile wasm moudle to evm bytecode.
+    pub fn compile(wasm: &[u8]) -> Vec<u8> {
         let mut validator = Validator::new();
 
+        let mut bin = Vec::new();
         let parser = Parser::new(0);
         for payload in parser.parse_all(&wasm) {
             let payload = validator.payload(&payload.unwrap()).unwrap();
@@ -49,8 +39,10 @@ mod tests {
                     .emit_operators(&mut ops_reader, &mut func_validator)
                     .unwrap();
 
-                println!("{:x?}", codegen.buffer());
+                bin.extend_from_slice(&codegen.buffer());
             }
         }
+
+        bin
     }
 }

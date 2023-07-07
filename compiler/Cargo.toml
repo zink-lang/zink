@@ -8,8 +8,11 @@ license.workspace = true
 [dependencies]
 anyhow.workspace = true
 thiserror.workspace = true
-zingen.workspace = true
+tracing.workspace = true
 wasmparser.workspace = true
+zingen.workspace = true
 
 [dev-dependencies]
+hex.workspace = true
 wat.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"]}

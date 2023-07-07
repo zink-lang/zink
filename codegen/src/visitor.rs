@@ -5,6 +5,7 @@
 //! and dispatches to the corresponding machine code emitter.
 
 use crate::CodeGen;
+use tracing::trace;
 use wasmparser::{for_each_operator, VisitOperator};
 
 /// A macro to define unsupported WebAssembly operators.
@@ -16,7 +17,7 @@ use wasmparser::{for_each_operator, VisitOperator};
 macro_rules! impl_visit_operator {
     ( @mvp End => visit_end $($rest:tt)* ) => {
         fn visit_end(&mut self) -> Self::Output {
-            println!("end");
+            trace!("end");
 
             // TODO:
             //
@@ -46,7 +47,7 @@ macro_rules! impl_visit_operator {
     };
     ( @mvp LocalGet { local_index: u32 } => visit_local_get $($rest:tt)* ) => {
         fn visit_local_get(&mut self, local_index: u32) -> Self::Output {
-            println!("local.get {}", local_index);
+            trace!("local.get {}", local_index);
             // TODO:
             //
             // 1. Check the function signature to validate stack availability.
@@ -59,7 +60,7 @@ macro_rules! impl_visit_operator {
     };
     ( @mvp I32Add => visit_i32_add $($rest:tt)* ) => {
         fn visit_i32_add(&mut self) -> Self::Output {
-            println!("i32.add");
+            trace!("i32.add");
             self.masm.asm.add();
         }
 
@@ -67,7 +68,7 @@ macro_rules! impl_visit_operator {
     };
     ( @$proposal:ident $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident $($rest:tt)* ) => {
         fn $visit(&mut self $($(, $arg: $argty)*)?) -> Self::Output {
-            println!("{}", stringify!($op));
+            trace!("{}", stringify!($op));
         }
 
         impl_visit_operator!($($rest)*);
