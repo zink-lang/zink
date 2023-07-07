@@ -31,10 +31,7 @@ macro_rules! validate_then_visit {
 
 fn visit_op_when_unreachable(op: Operator) -> bool {
     use Operator::*;
-    match op {
-        If { .. } | Block { .. } | Loop { .. } | Else | End => true,
-        _ => false,
-    }
+    matches!(op, If { .. } | Block { .. } | Loop { .. } | Else | End)
 }
 
 /// Trait to handle reachability state.

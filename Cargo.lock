@@ -1415,6 +1415,7 @@ dependencies = [
  "etc",
  "thiserror",
  "tracing",
+ "tracing-subscriber",
  "zinkc",
 ]
 

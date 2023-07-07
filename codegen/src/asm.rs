@@ -77,22 +77,22 @@ impl Assmbler {
 
     /// Emit `ADD`
     pub fn add(&mut self) {
-        self.emit_op(OpCode::ADD.into());
+        self.emit_op(OpCode::ADD);
     }
 
     /// Emit `MSTORE`
     pub fn mstore(&mut self) {
-        self.emit_op(OpCode::MSTORE.into());
+        self.emit_op(OpCode::MSTORE);
     }
 
     /// Emit `MSTORE`
     pub fn ret(&mut self) {
-        self.emit_op(OpCode::RETURN.into());
+        self.emit_op(OpCode::RETURN);
     }
 
     /// Emit `CALLDATALOAD`
     pub fn calldata_load(&mut self) {
-        self.emit_op(OpCode::CALLDATALOAD.into());
+        self.emit_op(OpCode::CALLDATALOAD);
     }
 
     /// Place n bytes on stack.

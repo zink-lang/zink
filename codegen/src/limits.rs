@@ -40,9 +40,9 @@ macro_rules! limit {
             }
         }
 
-        impl Into<u16> for $name {
-            fn into(self) -> u16 {
-                self.0
+        impl From<$name> for u16 {
+            fn from(name: $name) -> Self {
+                name.0
             }
         }
     };

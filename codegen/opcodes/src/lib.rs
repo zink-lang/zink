@@ -43,9 +43,9 @@ macro_rules! opcodes {
             }
         }
 
-        impl Into<u8> for $version {
-            fn into(self) -> u8 {
-                match self {
+        impl From<$version> for u8 {
+            fn from(version: $version) -> Self {
+                match version {
                     $(
                         $version::$name => $opcode,
                     )*

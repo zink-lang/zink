@@ -1,5 +1,5 @@
 //! Function frame.
-use crate::local::{DefinedLocals, DefinedLocalsRange, Locals};
+use crate::local::{DefinedLocalsRange, Locals};
 
 /// Frame handler abstraction.
 pub struct Frame {

@@ -8,13 +8,12 @@ pub use crate::{
     asm::Assmbler,
     context::Context,
     frame::Frame,
+    local::DefinedLocals,
     masm::MacroAssembler,
     result::{Error, Result},
     stack::Stack,
 };
-use wasmparser::{
-    BinaryReader, FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources,
-};
+use wasmparser::{FuncValidator, OperatorsReader, ValidatorResources};
 
 mod abi;
 mod asm;
@@ -33,6 +32,12 @@ mod visitor;
 /// TODO: add codegen context for backtrace.
 pub struct CodeGen {
     masm: MacroAssembler,
+}
+
+impl Default for CodeGen {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CodeGen {
@@ -63,9 +68,9 @@ impl CodeGen {
     // }
 
     /// Emit function operators
-    pub fn emit_operators<'a>(
+    pub fn emit_operators(
         &mut self,
-        ops: &mut OperatorsReader<'a>,
+        ops: &mut OperatorsReader<'_>,
         validator: &mut FuncValidator<ValidatorResources>,
     ) -> Result<()> {
         while !ops.eof() {

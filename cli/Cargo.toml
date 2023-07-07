@@ -17,6 +17,7 @@ etc.workspace = true
 thiserror.workspace = true
 zinkc.workspace = true
 tracing.workspace = true
+tracing-subscriber.workspace = true
 
 [[bin]]
 path = "bin/ek.rs"

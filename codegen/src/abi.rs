@@ -21,11 +21,11 @@ impl LocalSlot {
     }
 }
 
-/// A stack argument.
-pub struct Argument {}
-
-/// A function signature.
-pub struct Signature {}
+// /// A stack argument.
+// pub struct Argument {}
+//
+// /// A function signature.
+// pub struct Signature {}
 
 /// Returns the size in bytes of a given WebAssembly type.
 pub(crate) fn ty_size(ty: &ValType) -> u32 {

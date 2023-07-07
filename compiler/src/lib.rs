@@ -1,7 +1,6 @@
 //! Zink compiler.
 
 pub use crate::result::{Error, Result};
-use tracing::trace;
 use wasmparser::{Parser, ValidPayload, Validator};
 use zingen::CodeGen;
 
@@ -17,7 +16,7 @@ impl Compiler {
 
         let mut bin = Vec::new();
         let parser = Parser::new(0);
-        for payload in parser.parse_all(&wasm) {
+        for payload in parser.parse_all(wasm) {
             let payload = validator.payload(&payload.unwrap()).unwrap();
             if let ValidPayload::Func(to_validator, body) = payload {
                 let mut codegen = CodeGen::new();
@@ -39,7 +38,7 @@ impl Compiler {
                     .emit_operators(&mut ops_reader, &mut func_validator)
                     .unwrap();
 
-                bin.extend_from_slice(&codegen.buffer());
+                bin.extend_from_slice(codegen.buffer());
             }
         }
 
