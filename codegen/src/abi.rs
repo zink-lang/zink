@@ -19,21 +19,23 @@ impl LocalSlot {
     pub fn new(ty: ValType, offset: u32) -> Self {
         Self { offset, ty }
     }
-}
 
-// /// A stack argument.
-// pub struct Argument {}
-//
-// /// A function signature.
-// pub struct Signature {}
+    /// Get the size of the local slot.
+    pub fn size(&self) -> u32 {
+        let bytes = match self.ty {
+            ValType::I32 | ValType::F32 => 4,
+            ValType::I64 | ValType::F64 => 8,
+            // TODO: align number implementations to 256 bits (issue #20)
+            _ => unimplemented!("unknown unsupported type {:?}", self.ty),
+        };
 
-/// Returns the size in bytes of a given WebAssembly type.
-pub(crate) fn ty_size(ty: &ValType) -> u32 {
-    match *ty {
-        ValType::I32 | ValType::F32 => 4,
-        ValType::I64 | ValType::F64 => 8,
-        // TODO: align number implementations to 256 bits (issue #20)
-        _ => unimplemented!("unknown unsupported type {:?}", ty),
+        // rounding up to the nearest 32 bytes
+        let mut floor = bytes / 32;
+        if bytes % 32 != 0 {
+            floor += 1;
+        }
+
+        floor
     }
 }
 
