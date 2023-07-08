@@ -12,6 +12,7 @@ use wasmparser::{BinaryReader, FuncValidator, ValidatorResources};
 pub type Locals = SmallVec<[LocalSlot; 16]>;
 
 /// Function defined locals start and end in the frame.
+#[derive(Default)]
 pub struct DefinedLocalsRange(Range<u32>);
 
 /// An abstraction to read the defined locals from the Wasm binary for a function.

@@ -29,22 +29,16 @@ mod visitor;
 /// The code generation aqbstraction.
 ///
 /// TODO: add codegen context for backtrace. (#21)
+#[derive(Default)]
 pub struct CodeGen {
     masm: MacroAssembler,
-}
-
-impl Default for CodeGen {
-    fn default() -> Self {
-        Self::new()
-    }
+    _context: Context,
 }
 
 impl CodeGen {
     /// Create a new code generator.
     pub fn new() -> Self {
-        Self {
-            masm: MacroAssembler::default(),
-        }
+        Self::default()
     }
 
     /// Get the generated code.

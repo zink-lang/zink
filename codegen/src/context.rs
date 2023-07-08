@@ -1,8 +1,6 @@
 //! CodeGen context
 
-use wasmparser::Frame;
-
-use crate::Stack;
+use crate::{Frame, Stack};
 
 /// The code generation context.
 /// The code generation context is made up of three
@@ -17,6 +15,7 @@ use crate::Stack;
 /// generation process. The code generation context should
 /// be generally used as the single entry point to access
 /// the compound functionality provided by its elements.
+#[derive(Default)]
 pub struct Context {
     /// The current function's frame.
     pub frame: Frame,

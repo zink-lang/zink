@@ -2,6 +2,7 @@
 use crate::local::{DefinedLocalsRange, Locals};
 
 /// Frame handler abstraction.
+#[derive(Default)]
 pub struct Frame {
     /// The size of the entire local area; the arguments plus the function defined locals.
     pub locals_size: u32,

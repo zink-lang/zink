@@ -3,6 +3,7 @@
 use std::collections::VecDeque;
 
 /// The shadow stack used for compilation.
+#[derive(Default)]
 pub struct Stack {
     inner: VecDeque<[u8; 32]>,
 }

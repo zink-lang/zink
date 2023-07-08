@@ -64,7 +64,8 @@ impl MacroAssembler {
         };
 
         trace!("calldata_load: {:x?}", offset);
-        // Safety: have offset checks inside the assembler.
+
+        // NOTE: have offset checks inside the assembler.
         self.asm.push(offset.len() as u8)?;
         self.asm.emits(&offset);
         self.asm.calldata_load();

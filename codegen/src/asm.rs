@@ -10,6 +10,7 @@ use smallvec::SmallVec;
 const BUFFER_LIMIT: usize = 0x6000;
 
 /// Low level assembler implementation for EVM.
+#[derive(Default)]
 pub struct Assembler {
     /// Buffer of the assembler.
     buffer: SmallVec<[u8; BUFFER_LIMIT]>,
@@ -21,22 +22,13 @@ pub struct Assembler {
     gas: u128,
 }
 
-impl Default for Assembler {
-    fn default() -> Self {
-        Self {
-            buffer: Default::default(),
-            gas: 0,
-        }
-    }
-}
-
 impl Assembler {
     /// Buffer of the assembler.
     pub fn buffer(&self) -> &[u8] {
         &self.buffer
     }
 
-    /// increment the gas counter.
+    /// Increment the gas counter.
     ///
     /// TODO: use number bigger than `u256` for throwing proper errors. (issue-21)
     pub fn increment_gas(&mut self, gas: u128) {
