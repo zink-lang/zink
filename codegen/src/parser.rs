@@ -1,12 +1,12 @@
 //! Pre-visitor for parsing WASM.
 
-use anyhow::Result;
+use crate::Result;
 use wasmparser::{Operator, VisitOperator};
 
 use crate::CodeGen;
 
 /// A pre-visitor that validates the WASM and then visits it.
-pub struct ValidateThenVisit<'a, T, U>(pub T, pub &'a mut U);
+pub struct ValidateThenVisit<'a, T>(pub T, pub &'a mut CodeGen);
 
 macro_rules! validate_then_visit {
     ($( @$proposal:ident $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident)*) => {
@@ -22,7 +22,7 @@ macro_rules! validate_then_visit {
                 if true || visit_when_unreachable  {
                     Ok(self.1.$visit($($($arg),*)?))
                 } else {
-                    Ok(U::Output::default())
+                    Ok(Ok(()))
                 }
             }
         )*
@@ -46,13 +46,11 @@ impl ReachableState for CodeGen {
     }
 }
 
-impl<'a, T, U> VisitOperator<'a> for ValidateThenVisit<'_, T, U>
+impl<'a, T> VisitOperator<'a> for ValidateThenVisit<'_, T>
 where
     T: VisitOperator<'a, Output = wasmparser::Result<()>>,
-    U: VisitOperator<'a> + ReachableState,
-    U::Output: Default,
 {
-    type Output = Result<U::Output>;
+    type Output = Result<Result<()>>;
 
     wasmparser::for_each_operator!(validate_then_visit);
 }

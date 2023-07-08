@@ -45,6 +45,18 @@ macro_rules! limit {
                 name.0
             }
         }
+
+        impl TryFrom<usize> for $name {
+            type Error = &'static str;
+
+            fn try_from(value: usize) -> Result<Self, Self::Error> {
+                if value > $limit as usize {
+                    Err($error)
+                } else {
+                    Ok($name(value as u16))
+                }
+            }
+        }
     };
     ($(
         ($name:ident, $limit:expr, $error:literal, $desc:literal)

@@ -2,7 +2,7 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::limits::BufferOffset;
+use crate::{limits::BufferOffset, Error, Result};
 use opcodes::{OpCode as _, ShangHai as OpCode};
 use smallvec::SmallVec;
 
@@ -59,13 +59,18 @@ impl Assembler {
     }
 
     /// Emit bytes.
-    pub fn emits<const L: usize>(&mut self, bytes: [u8; L]) {
-        let dst = self.offset.0 as usize + L;
-        self.buffer[self.offset.0 as usize..dst].copy_from_slice(&bytes);
+    pub fn emits(&mut self, bytes: &[u8]) -> Result<()> {
+        let len = bytes.len();
+        let next_offset = self.offset.0 as usize + len;
+        self.buffer.extend_from_slice(bytes);
 
         // NOTE: This is safe because u16::MAX will reach the end of
         // the buffer definitely, zink compiler will panic on it.
-        self.offset += (L as u16).into();
+        self.offset = next_offset
+            .try_into()
+            .map_err(|_| Error::LocalIndexOutOfRange)?;
+
+        Ok(())
     }
 
     /// Emit opcodes.
@@ -96,8 +101,8 @@ impl Assembler {
     }
 
     /// Place n bytes on stack.
-    pub fn push<const S: u8>(&mut self) {
-        match S {
+    pub fn push(&mut self, n: u8) -> Result<()> {
+        match n {
             0 => self.emit_op(OpCode::PUSH0),
             1 => self.emit_op(OpCode::PUSH1),
             2 => self.emit_op(OpCode::PUSH2),
@@ -131,7 +136,9 @@ impl Assembler {
             30 => self.emit_op(OpCode::PUSH30),
             31 => self.emit_op(OpCode::PUSH31),
             32 => self.emit_op(OpCode::PUSH32),
-            _ => unreachable!("Invalid push size"),
+            _ => return Err(Error::StackIndexOutOfRange),
         }
+
+        Ok(())
     }
 }
