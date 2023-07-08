@@ -13,8 +13,8 @@ pub enum Error {
     #[error("Local index in function is out of range")]
     LocalIndexOutOfRange,
     /// Failed to index data on stack.
-    #[error("Stack index is out of range")]
-    StackIndexOutOfRange,
+    #[error("Stack index is out of range {0}, max is 32 (0x400)")]
+    StackIndexOutOfRange(u8),
 }
 
 /// Codegen result

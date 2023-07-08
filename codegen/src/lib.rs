@@ -19,7 +19,6 @@ mod abi;
 mod asm;
 mod context;
 mod frame;
-mod limits;
 mod local;
 mod masm;
 mod parser;
@@ -27,7 +26,7 @@ mod result;
 mod stack;
 mod visitor;
 
-/// The code generation abstraction.
+/// The code generation aqbstraction.
 ///
 /// TODO: add codegen context for backtrace. (#21)
 pub struct CodeGen {

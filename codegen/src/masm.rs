@@ -1,6 +1,6 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{asm::Assembler, limits::StackOffset, Error, Result};
+use crate::{asm::Assembler, Error, Result};
 use std::ops::{Deref, DerefMut};
 use tracing::trace;
 
@@ -8,7 +8,9 @@ use tracing::trace;
 #[derive(Default)]
 pub struct MacroAssembler {
     /// Stack pointer offset.
-    sp_offset: StackOffset,
+    ///
+    /// NOTE: `u16` is enough since the max stack size is 0x400.
+    sp_offset: u16,
     /// Low level assembler.
     pub asm: Assembler,
 }
@@ -29,8 +31,8 @@ impl DerefMut for MacroAssembler {
 
 impl MacroAssembler {
     /// Increments stack pointer offset.
-    pub fn increment_sp(&mut self, offset: impl Into<StackOffset>) {
-        self.sp_offset += offset.into();
+    pub fn increment_sp(&mut self, offset: u16) {
+        self.sp_offset += offset;
     }
 
     /// Get input data of current environment
@@ -62,12 +64,8 @@ impl MacroAssembler {
         };
 
         trace!("calldata_load: {:x?}", offset);
-        self.asm.push(
-            offset
-                .len()
-                .try_into()
-                .map_err(|_| Error::StackIndexOutOfRange)?,
-        )?;
+        // Safety: have offset checks inside the assembler.
+        self.asm.push(offset.len() as u8)?;
         self.asm.emits(&offset);
         self.asm.calldata_load();
 

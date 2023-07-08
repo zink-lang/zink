@@ -115,7 +115,7 @@ impl Assembler {
             30 => self.emit_op(OpCode::PUSH30),
             31 => self.emit_op(OpCode::PUSH31),
             32 => self.emit_op(OpCode::PUSH32),
-            _ => return Err(Error::StackIndexOutOfRange),
+            _ => return Err(Error::StackIndexOutOfRange(n)),
         }
 
         Ok(())
