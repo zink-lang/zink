@@ -2,7 +2,7 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::{limits::BufferOffset, Error, Result};
+use crate::{Error, Result};
 use opcodes::{OpCode as _, ShangHai as OpCode};
 use smallvec::SmallVec;
 
@@ -13,8 +13,6 @@ const BUFFER_LIMIT: usize = 0x6000;
 pub struct Assembler {
     /// Buffer of the assembler.
     buffer: SmallVec<[u8; BUFFER_LIMIT]>,
-    /// Offset of the buffer.
-    offset: BufferOffset,
     /// Gas counter.
     ///
     /// This is used to calculate the gas cost of the generated code.
@@ -27,7 +25,6 @@ impl Default for Assembler {
     fn default() -> Self {
         Self {
             buffer: Default::default(),
-            offset: 0.into(),
             gas: 0,
         }
     }
@@ -49,7 +46,11 @@ impl Assembler {
     /// Emit a byte.
     pub fn emit(&mut self, byte: u8) {
         self.buffer.push(byte);
-        self.offset += 1.into();
+    }
+
+    /// Emit bytes.
+    pub fn emits(&mut self, bytes: &[u8]) {
+        self.buffer.extend_from_slice(bytes);
     }
 
     /// Emit a single opcodes.
@@ -58,46 +59,24 @@ impl Assembler {
         self.increment_gas(opcode.gas().into());
     }
 
-    /// Emit bytes.
-    pub fn emits(&mut self, bytes: &[u8]) -> Result<()> {
-        let len = bytes.len();
-        let next_offset = self.offset.0 as usize + len;
-        self.buffer.extend_from_slice(bytes);
-
-        // NOTE: This is safe because u16::MAX will reach the end of
-        // the buffer definitely, zink compiler will panic on it.
-        self.offset = next_offset
-            .try_into()
-            .map_err(|_| Error::LocalIndexOutOfRange)?;
-
-        Ok(())
-    }
-
-    /// Emit opcodes.
-    pub fn emit_opcodes(&mut self, opcodes: &[OpCode]) {
-        for opcode in opcodes {
-            self.emit_op(*opcode);
-        }
-    }
-
     /// Emit `ADD`
     pub fn add(&mut self) {
-        self.emit_op(OpCode::ADD);
+        self.emit_op(OpCode::ADD)
     }
 
     /// Emit `MSTORE`
     pub fn mstore(&mut self) {
-        self.emit_op(OpCode::MSTORE);
+        self.emit_op(OpCode::MSTORE)
     }
 
     /// Emit `MSTORE`
     pub fn ret(&mut self) {
-        self.emit_op(OpCode::RETURN);
+        self.emit_op(OpCode::RETURN)
     }
 
     /// Emit `CALLDATALOAD`
     pub fn calldata_load(&mut self) {
-        self.emit_op(OpCode::CALLDATALOAD);
+        self.emit_op(OpCode::CALLDATALOAD)
     }
 
     /// Place n bytes on stack.

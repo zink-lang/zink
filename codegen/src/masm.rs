@@ -28,11 +28,6 @@ impl DerefMut for MacroAssembler {
 }
 
 impl MacroAssembler {
-    /// Buffer of the assembler.
-    pub fn buffer(&self) -> &[u8] {
-        self.asm.buffer()
-    }
-
     /// Increments stack pointer offset.
     pub fn increment_sp(&mut self, offset: impl Into<StackOffset>) {
         self.sp_offset += offset.into();
@@ -73,7 +68,7 @@ impl MacroAssembler {
                 .try_into()
                 .map_err(|_| Error::StackIndexOutOfRange)?,
         )?;
-        self.asm.emits(&offset)?;
+        self.asm.emits(&offset);
         self.asm.calldata_load();
 
         Ok(())

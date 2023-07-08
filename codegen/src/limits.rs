@@ -6,9 +6,6 @@ use std::ops::{Add, AddAssign};
 /// EVM stack limit.
 const STACK_LIMIT: u16 = 0x400;
 
-/// EVM buffer limit
-const BUFFER_LIMIT: u16 = 0x6000;
-
 macro_rules! limit {
     ($name:ident, $limit:expr, $error:literal, $desc:literal) => {
         #[doc = concat!(" ", $desc)]
@@ -66,6 +63,5 @@ macro_rules! limit {
 }
 
 limit! {
-    (StackOffset, STACK_LIMIT, "Stack overflow", "Stack offset"),
-    (BufferOffset, BUFFER_LIMIT, "Buffer limit exceeded", "Buffer offset")
+    (StackOffset, STACK_LIMIT, "Stack overflow", "Stack offset")
 }
