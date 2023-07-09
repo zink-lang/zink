@@ -1,12 +1,13 @@
 //! Code generation implementation.
-use crate::{parser::ValidateThenVisit, LocalSlot, MacroAssembler, Result};
+use crate::{
+    abi::Type, local::LocalSlot, masm::MacroAssembler, validator::ValidateThenVisit, Result,
+};
 use smallvec::SmallVec;
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
 /// The code generation abstraction.
 ///
 /// TODO: add codegen context for backtrace. (#21)
-#[derive(Default)]
 pub struct CodeGen {
     /// The macro assembler.
     pub masm: MacroAssembler,
@@ -16,15 +17,21 @@ pub struct CodeGen {
     ///
     /// ref: https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor
     pub locals: SmallVec<[LocalSlot; 16]>,
+    /// The function environment.
+    pub env: FuncType,
 }
 
 impl CodeGen {
     /// Create a new code generator.
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(env: FuncType) -> Self {
+        Self {
+            env,
+            locals: SmallVec::new(),
+            masm: MacroAssembler::default(),
+        }
     }
 
-    /// Get the generated code.
+    /// Get the generated buffer.
     pub fn buffer(&self) -> &[u8] {
         self.masm.buffer()
     }
@@ -33,14 +40,29 @@ impl CodeGen {
     ///
     /// 1. the function parameters.
     /// 2. function body locals.
-    /// 3. the function return value.
-    pub fn emit_locals<'a>(&mut self, sig: FuncType, locals: &mut LocalsReader<'a>) -> Result<()> {
+    pub fn emit_locals<'a>(
+        &mut self,
+        locals: &mut LocalsReader<'a>,
+        validator: &mut FuncValidator<ValidatorResources>,
+    ) -> Result<()> {
         let mut offset = 0;
 
-        while let Ok((_, val)) = locals.read() {
-            let slot = LocalSlot::new(val, offset);
-            let size = slot.size();
+        // Define locals in function parameters.
+        for param in self.env.params() {
+            self.locals.push(LocalSlot::new(offset, *param));
+            offset += param.align();
+        }
+
+        // Define locals in function body.
+        //
+        // Record the offset for validation.
+        while let Ok((count, val)) = locals.read() {
+            let validation_offset = locals.original_position();
+            let slot = LocalSlot::new(offset, val);
+            let size = slot.size() as usize;
+
             self.locals.push(slot);
+            validator.define_locals(validation_offset, count, val)?;
             offset += size;
         }
 
@@ -55,7 +77,8 @@ impl CodeGen {
     ) -> Result<()> {
         while !ops.eof() {
             let offset = ops.original_position();
-            let _ = ops.visit_operator(&mut ValidateThenVisit(validator.visitor(offset), self))?;
+            let mut validate_then_visit = ValidateThenVisit(validator.visitor(offset), self);
+            ops.visit_operator(&mut validate_then_visit)???;
         }
 
         Ok(())

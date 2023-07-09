@@ -3,9 +3,10 @@
 #![recursion_limit = "1024"]
 
 pub use crate::{
-    abi::LocalSlot,
+    abi::Type,
     asm::Assembler,
     codegen::CodeGen,
+    local::LocalSlot,
     masm::MacroAssembler,
     result::{Error, Result},
     stack::Stack,
@@ -14,8 +15,9 @@ pub use crate::{
 mod abi;
 mod asm;
 mod codegen;
+mod local;
 mod masm;
-mod parser;
 mod result;
 mod stack;
+mod validator;
 mod visitor;

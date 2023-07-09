@@ -1,6 +1,7 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{asm::Assembler, Error, Result};
+use crate::{asm::Assembler, Result};
+use smallvec::SmallVec;
 use std::ops::{Deref, DerefMut};
 use tracing::trace;
 
@@ -35,39 +36,13 @@ impl MacroAssembler {
         self.sp_offset += offset;
     }
 
-    /// Get input data of current environment
-    ///
-    /// convert the u32 index to u8 array for the
-    /// stack representation of EVM.
-    ///
-    /// NOTE:
-    ///
-    /// per stack item of evm is 32 bytes.
-    pub fn calldata_load(&mut self, index: u32) -> Result<()> {
-        let offset = if index != 0 {
-            index
-                .checked_mul(32)
-                .ok_or(Error::LocalIndexOutOfRange)?
-                .to_le_bytes()
-                .iter()
-                .rev()
-                .skip_while(|x| **x == 0)
-                .copied()
-                .collect::<Vec<_>>()
-                .iter()
-                .rev()
-                .copied()
-                .collect::<Vec<_>>()
-                .to_vec()
-        } else {
-            vec![0] // PUSH1 0x00
-        };
-
-        trace!("calldata_load: {:x?}", offset);
+    /// Get input data from the current environment.
+    pub fn calldata_load(&mut self, value: SmallVec<[u8; 32]>) -> Result<()> {
+        trace!("calldata_load: {:x?}", value);
 
         // NOTE: have offset checks inside the assembler.
-        self.asm.push(offset.len() as u8)?;
-        self.asm.emits(&offset);
+        self.asm.push(value.len() as u8)?;
+        self.asm.emits(&value);
         self.asm.calldata_load();
 
         Ok(())
