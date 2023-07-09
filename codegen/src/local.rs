@@ -1,55 +1,51 @@
-//! An abstraction to read the defined locals from the Wasm binary for a function.
+//! WASM local slot.
 
-use std::ops::Range;
+use crate::abi::Type;
+use smallvec::{smallvec, SmallVec};
+use wasmparser::ValType;
 
-use crate::{abi, LocalSlot, Result};
-use smallvec::SmallVec;
-use wasmparser::{BinaryReader, FuncValidator, ValidatorResources};
-
-/// Solidity's implementation uses 16 slots for locals, so we do the same.
+/// A local slot.
 ///
-/// ref: https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor
-pub type Locals = SmallVec<[LocalSlot; 16]>;
+/// Represents the type, location and addressing mode of a local
+/// in the stack's local and argument area.
+pub struct LocalSlot {
+    /// The type contained by this local slot.
+    inner: ValType,
 
-/// Function defined locals start and end in the frame.
-pub struct DefinedLocalsRange(Range<u32>);
-
-/// An abstraction to read the defined locals from the Wasm binary for a function.
-#[derive(Default)]
-pub struct DefinedLocals {
-    /// The defined locals for a function.
-    pub defined_locals: Locals,
-    /// The size of the defined locals.
-    pub stack_size: u32,
+    /// The offset of this local slot.
+    offset: usize,
 }
 
-impl DefinedLocals {
-    /// Compute the local slots for a Wasm function.
-    pub fn new(
-        reader: &mut BinaryReader<'_>,
-        validator: &mut FuncValidator<ValidatorResources>,
-    ) -> Result<Self> {
-        let mut next_stack = 0;
-        // The first 32 bits of a Wasm binary function describe the number of locals.
-        let local_count = reader.read_var_u32()?;
-        let mut slots: Locals = Default::default();
+impl LocalSlot {
+    /// Create a new local slot.
+    pub fn new(offset: usize, inner: ValType) -> Self {
+        Self { offset, inner }
+    }
+}
 
-        for _ in 0..local_count {
-            let position = reader.original_position();
-            let count = reader.read_var_u32()?;
-            let ty = reader.read()?;
-            validator.define_locals(position, count, ty)?;
+impl Type for LocalSlot {
+    fn is_number(&self) -> bool {
+        self.inner.is_number()
+    }
 
-            for _ in 0..count {
-                let ty_size = abi::ty_size(&ty);
-                next_stack = abi::align_to(next_stack, ty_size) + ty_size;
-                slots.push(LocalSlot::new(ty, next_stack));
-            }
+    fn size(&self) -> usize {
+        self.inner.size()
+    }
+
+    fn value(&self) -> SmallVec<[u8; 32]> {
+        if self.offset < u8::MAX as usize {
+            return smallvec![self.offset as u8];
         }
 
-        Ok(Self {
-            defined_locals: slots,
-            stack_size: next_stack,
-        })
+        let mut value = smallvec![];
+        let mut reminder = self.offset;
+        while reminder > u8::MAX as usize {
+            value.push(u8::MAX);
+            reminder -= u8::MAX as usize;
+        }
+
+        value.push(reminder as u8);
+        tracing::trace!("local slot offest: {}, value: {:?}", self.offset, value);
+        value
     }
 }

@@ -12,7 +12,7 @@ members = [
   "compiler",
   "examples",
   "zink",
-  "zink/testing"
+  "zint"
 ]
 
 [workspace.dependencies]

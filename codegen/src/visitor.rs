@@ -4,7 +4,7 @@
 //! `CodeGen`; which defines a visitor per op-code, which validates
 //! and dispatches to the corresponding machine code emitter.
 
-use crate::CodeGen;
+use crate::{abi::Type, CodeGen, Result};
 use tracing::trace;
 use wasmparser::{for_each_operator, VisitOperator};
 
@@ -21,26 +21,26 @@ macro_rules! impl_visit_operator {
 
             // TODO:
             //
-            // 1. check the stack out put of the current context
+            // 1. check the stack output of the current context
             // 2. check the stack availability of the parent context
             // 3. pop the stack
             //
             // Otherwise we return all of the data from stack.
-            self.masm.asm.push::<1>(); // PUSH1
-            self.masm.asm.emit(0); // 0x00
-            self.masm.asm.mstore(); // MSTORE
+            self.masm.push(1)?;    // PUSH1
+            self.masm.emit(0);     // 0x00
+            self.masm.mstore();    // MSTORE
 
             // Return from the stored memory.
             //
             // TODO:
             //
             // 1. get size from function signature
-            self.masm.asm.push::<1>(); // PUSH1
-            self.masm.asm.emit(32);     // 0x32 - 1 stack item
-            self.masm.asm.push::<1>(); // PUSH1
-            self.masm.asm.emit(0);     // 0x00  - from 0
-            self.masm.asm.ret();       // RET
-
+            self.masm.push(1)?;     // PUSH1
+            self.masm.emit(32);     // 0x32 - 1 stack item
+            self.masm.push(1)?;     // PUSH1
+            self.masm.emit(0);      // 0x00  - from 0
+            self.masm.ret();        // RET
+            Ok(())
         }
 
         impl_visit_operator!($($rest)*);
@@ -53,7 +53,8 @@ macro_rules! impl_visit_operator {
             // 1. Check the function signature to validate stack availability.
             // 2. Check the index
             // 3. Correct the implementation of local index => stack offset
-            self.masm.calldata_load(local_index as u8 * 32);
+            self.masm.calldata_load(self.locals[local_index as usize].value())?;
+            Ok(())
         }
 
         impl_visit_operator!($($rest)*);
@@ -62,6 +63,7 @@ macro_rules! impl_visit_operator {
         fn visit_i32_add(&mut self) -> Self::Output {
             trace!("i32.add");
             self.masm.asm.add();
+            Ok(())
         }
 
         impl_visit_operator!($($rest)*);
@@ -69,6 +71,7 @@ macro_rules! impl_visit_operator {
     ( @$proposal:ident $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident $($rest:tt)* ) => {
         fn $visit(&mut self $($(, $arg: $argty)*)?) -> Self::Output {
             trace!("{}", stringify!($op));
+            Ok(())
         }
 
         impl_visit_operator!($($rest)*);
@@ -77,7 +80,7 @@ macro_rules! impl_visit_operator {
 }
 
 impl<'a> VisitOperator<'a> for CodeGen {
-    type Output = ();
+    type Output = Result<()>;
 
     for_each_operator!(impl_visit_operator);
 }

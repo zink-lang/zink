@@ -2,7 +2,7 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::limits::BufferOffset;
+use crate::{Error, Result};
 use opcodes::{OpCode as _, ShangHai as OpCode};
 use smallvec::SmallVec;
 
@@ -10,11 +10,10 @@ use smallvec::SmallVec;
 const BUFFER_LIMIT: usize = 0x6000;
 
 /// Low level assembler implementation for EVM.
+#[derive(Default)]
 pub struct Assembler {
     /// Buffer of the assembler.
     buffer: SmallVec<[u8; BUFFER_LIMIT]>,
-    /// Offset of the buffer.
-    offset: BufferOffset,
     /// Gas counter.
     ///
     /// This is used to calculate the gas cost of the generated code.
@@ -23,23 +22,13 @@ pub struct Assembler {
     gas: u128,
 }
 
-impl Default for Assembler {
-    fn default() -> Self {
-        Self {
-            buffer: Default::default(),
-            offset: 0.into(),
-            gas: 0,
-        }
-    }
-}
-
 impl Assembler {
     /// Buffer of the assembler.
     pub fn buffer(&self) -> &[u8] {
         &self.buffer
     }
 
-    /// increment the gas counter.
+    /// Increment the gas counter.
     ///
     /// TODO: use number bigger than `u256` for throwing proper errors. (issue-21)
     pub fn increment_gas(&mut self, gas: u128) {
@@ -49,7 +38,11 @@ impl Assembler {
     /// Emit a byte.
     pub fn emit(&mut self, byte: u8) {
         self.buffer.push(byte);
-        self.offset += 1.into();
+    }
+
+    /// Emit bytes.
+    pub fn emits(&mut self, bytes: &[u8]) {
+        self.buffer.extend_from_slice(bytes);
     }
 
     /// Emit a single opcodes.
@@ -58,46 +51,29 @@ impl Assembler {
         self.increment_gas(opcode.gas().into());
     }
 
-    /// Emit bytes.
-    pub fn emits<const L: usize>(&mut self, bytes: [u8; L]) {
-        let dst = self.offset.0 as usize + L;
-        self.buffer[self.offset.0 as usize..dst].copy_from_slice(&bytes);
-
-        // NOTE: This is safe because u16::MAX will reach the end of
-        // the buffer definitely, zink compiler will panic on it.
-        self.offset += (L as u16).into();
-    }
-
-    /// Emit opcodes.
-    pub fn emit_opcodes(&mut self, opcodes: &[OpCode]) {
-        for opcode in opcodes {
-            self.emit_op(*opcode);
-        }
-    }
-
     /// Emit `ADD`
     pub fn add(&mut self) {
-        self.emit_op(OpCode::ADD);
+        self.emit_op(OpCode::ADD)
     }
 
     /// Emit `MSTORE`
     pub fn mstore(&mut self) {
-        self.emit_op(OpCode::MSTORE);
+        self.emit_op(OpCode::MSTORE)
     }
 
     /// Emit `MSTORE`
     pub fn ret(&mut self) {
-        self.emit_op(OpCode::RETURN);
+        self.emit_op(OpCode::RETURN)
     }
 
     /// Emit `CALLDATALOAD`
     pub fn calldata_load(&mut self) {
-        self.emit_op(OpCode::CALLDATALOAD);
+        self.emit_op(OpCode::CALLDATALOAD)
     }
 
     /// Place n bytes on stack.
-    pub fn push<const S: u8>(&mut self) {
-        match S {
+    pub fn push(&mut self, n: u8) -> Result<()> {
+        match n {
             0 => self.emit_op(OpCode::PUSH0),
             1 => self.emit_op(OpCode::PUSH1),
             2 => self.emit_op(OpCode::PUSH2),
@@ -131,7 +107,9 @@ impl Assembler {
             30 => self.emit_op(OpCode::PUSH30),
             31 => self.emit_op(OpCode::PUSH31),
             32 => self.emit_op(OpCode::PUSH32),
-            _ => unreachable!("Invalid push size"),
+            _ => return Err(Error::StackIndexOutOfRange(n)),
         }
+
+        Ok(())
     }
 }
