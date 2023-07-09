@@ -6,6 +6,7 @@ pub use crate::{
     abi::Type,
     asm::Assembler,
     codegen::CodeGen,
+    control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     local::LocalSlot,
     masm::MacroAssembler,
     result::{Error, Result},
@@ -15,6 +16,7 @@ pub use crate::{
 mod abi;
 mod asm;
 mod codegen;
+mod control;
 mod local;
 mod masm;
 mod result;

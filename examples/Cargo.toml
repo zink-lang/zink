@@ -11,3 +11,8 @@ zink.workspace = true
 name = "addition"
 path = "./addition.rs"
 crate-type = ["cdylib"]
+
+[[example]]
+name = "if"
+path = "./if.rs"
+crate-type = ["cdylib"]

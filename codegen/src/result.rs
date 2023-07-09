@@ -9,6 +9,9 @@ pub enum Error {
     /// Failed to push more data to the buffer.
     #[error("Buffer overflow: {0}, the limit of the binary buffer is 0x6000.")]
     BufferOverflow(usize),
+    /// Failed to pop control stack frame.
+    #[error("Control stack underflow")]
+    ControlStackUnderflow,
     /// Failed to define local variable since the index is out of range.
     #[error("Local index in function is out of range")]
     LocalIndexOutOfRange,

@@ -1,6 +1,7 @@
 //! Code generation implementation.
 use crate::{
-    abi::Type, local::LocalSlot, masm::MacroAssembler, validator::ValidateThenVisit, Result,
+    abi::Type, control::ControlStack, local::LocalSlot, masm::MacroAssembler,
+    validator::ValidateThenVisit, Result,
 };
 use smallvec::SmallVec;
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
@@ -9,22 +10,25 @@ use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, Validat
 ///
 /// TODO: add codegen context for backtrace. (#21)
 pub struct CodeGen {
-    /// The macro assembler.
-    pub masm: MacroAssembler,
+    /// Control stack frames.
+    pub control: ControlStack,
+    /// The function environment.
+    pub env: FuncType,
     /// The defined locals for a function.
     ///
     /// NOTE: Solidity's implementation uses 16 slots for locals.
     ///
     /// ref: https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor
     pub locals: SmallVec<[LocalSlot; 16]>,
-    /// The function environment.
-    pub env: FuncType,
+    /// The macro assembler.
+    pub masm: MacroAssembler,
 }
 
 impl CodeGen {
     /// Create a new code generator.
     pub fn new(env: FuncType) -> Self {
         Self {
+            control: ControlStack::default(),
             env,
             locals: SmallVec::new(),
             masm: MacroAssembler::default(),
