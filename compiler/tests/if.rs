@@ -9,7 +9,7 @@ mod common;
 #[test]
 fn singular() -> Result<()> {
     let wasm = common::load("if", "singular")?;
-    let bytecode = Compiler::compile(&wasm)?;
+    let _bytecode = Compiler::compile(&wasm)?;
 
     // assert_eq!(hex::encode(bytecode), "600060016000f3");
     Ok(())

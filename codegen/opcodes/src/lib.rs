@@ -36,7 +36,7 @@ macro_rules! opcodes {
             fn from(value: u8) -> Self {
                 match value {
                     $(
-                        $opcode => $version::$name,
+                        $opcode => Self::$name,
                     )*
                     _ => unreachable!("Invalid opcode."),
                 }
@@ -54,18 +54,10 @@ macro_rules! opcodes {
         }
 
         impl OpCode for $version {
-            fn since(&self) -> Upgrade {
-                match self {
-                    $(
-                        $version::$name => Upgrade::$since,
-                    )*
-                }
-            }
-
             fn group(&self) -> Group {
                 match self {
                     $(
-                        $version::$name => Group::$group,
+                        Self::$name => Group::$group,
                     )*
                 }
             }
@@ -73,7 +65,31 @@ macro_rules! opcodes {
             fn gas(&self) -> u16 {
                 match self {
                     $(
-                        $version::$name => $gas,
+                        Self::$name => $gas,
+                    )*
+                }
+            }
+
+            fn since(&self) -> Upgrade {
+                match self {
+                    $(
+                        Self::$name => Upgrade::$since,
+                    )*
+                }
+            }
+
+            fn stack_in(&self) -> u16 {
+                match self {
+                    $(
+                        Self::$name => $input,
+                    )*
+                }
+            }
+
+            fn stack_out(&self) -> u16 {
+                match self {
+                    $(
+                        Self::$name => $output,
                     )*
                 }
             }
@@ -127,6 +143,8 @@ pub enum Upgrade {
 
 /// Ethereum virtual machine opcode.
 pub trait OpCode: From<u8> + Into<u8> {
+    fn stack_in(&self) -> u16;
+    fn stack_out(&self) -> u16;
     fn since(&self) -> Upgrade;
     fn group(&self) -> Group;
     fn gas(&self) -> u16;

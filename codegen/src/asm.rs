@@ -7,7 +7,7 @@ use opcodes::{OpCode as _, ShangHai as OpCode};
 use smallvec::SmallVec;
 
 /// Maximum size of a evm contract.
-const BUFFER_LIMIT: usize = 0x6000;
+pub const BUFFER_LIMIT: usize = 0x6000;
 
 /// Low level assembler implementation for EVM.
 #[derive(Default)]
@@ -28,9 +28,14 @@ impl Assembler {
         &self.buffer
     }
 
+    /// Mutable buffer of the assembler.
+    pub fn buffer_mut(&mut self) -> &mut SmallVec<[u8; BUFFER_LIMIT]> {
+        &mut self.buffer
+    }
+
     /// Increment the gas counter.
     ///
-    /// TODO: use number bigger than `u256` for throwing proper errors. (issue-21)
+    /// TODO: use number bigger than `u256` for throwing proper errors. (#21)
     pub fn increment_gas(&mut self, gas: u128) {
         self.gas += gas;
     }
@@ -40,25 +45,32 @@ impl Assembler {
         self.buffer.push(byte);
     }
 
-    /// Emit bytes.
-    pub fn emits(&mut self, bytes: &[u8]) {
-        self.buffer.extend_from_slice(bytes);
-    }
-
     /// Emit a single opcodes.
     pub fn emit_op(&mut self, opcode: OpCode) {
+        tracing::trace!("emit: {opcode:?}");
         self.emit(opcode.into());
         self.increment_gas(opcode.gas().into());
     }
 
+    /// Emit bytes.
+    pub fn data(&mut self, bytes: &[u8]) {
+        self.buffer.extend_from_slice(bytes);
+    }
+
     /// Emit `ADD`
-    pub fn add(&mut self) {
-        self.emit_op(OpCode::ADD)
+    pub fn add(&mut self) -> Result<()> {
+        self.emit_op(OpCode::ADD);
+        Ok(())
     }
 
     /// Emit `MSTORE`
     pub fn mstore(&mut self) {
         self.emit_op(OpCode::MSTORE)
+    }
+
+    /// Emit `JUMP`
+    pub fn jumpi(&mut self) {
+        self.emit_op(OpCode::JUMP)
     }
 
     /// Emit `MSTORE`
