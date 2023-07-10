@@ -2,12 +2,15 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::{Error, Result};
+use crate::{abi::Offset, Error, Result, Stack};
 use opcodes::{OpCode as _, ShangHai as OpCode};
 use smallvec::SmallVec;
 
-/// Maximum size of a evm contract.
-const BUFFER_LIMIT: usize = 0x6000;
+/// Maximum size of a evm bytecode in bytes.
+pub const BUFFER_LIMIT: usize = 0x6000;
+
+/// Maximum size of memory in evm in bytes.
+pub const MEMORY_LIMIT: usize = 0x40;
 
 /// Low level assembler implementation for EVM.
 #[derive(Default)]
@@ -20,6 +23,10 @@ pub struct Assembler {
     ///
     /// TODO: use a more precise type, eq `u256`. (issue-20)
     gas: u128,
+    /// Virtual memory for compilation.
+    memory: SmallVec<[u8; MEMORY_LIMIT]>,
+    /// Virtual stack for compilation.
+    stack: Stack,
 }
 
 impl Assembler {
@@ -28,9 +35,14 @@ impl Assembler {
         &self.buffer
     }
 
+    /// Mutable buffer of the assembler.
+    pub fn buffer_mut(&mut self) -> &mut SmallVec<[u8; BUFFER_LIMIT]> {
+        &mut self.buffer
+    }
+
     /// Increment the gas counter.
     ///
-    /// TODO: use number bigger than `u256` for throwing proper errors. (issue-21)
+    /// TODO: use number bigger than `u256` for throwing proper errors. (#21)
     pub fn increment_gas(&mut self, gas: u128) {
         self.gas += gas;
     }
@@ -40,8 +52,8 @@ impl Assembler {
         self.buffer.push(byte);
     }
 
-    /// Emit bytes.
-    pub fn emits(&mut self, bytes: &[u8]) {
+    /// Emit n bytes.
+    pub fn emitn(&mut self, bytes: &[u8]) {
         self.buffer.extend_from_slice(bytes);
     }
 
@@ -52,18 +64,42 @@ impl Assembler {
     }
 
     /// Emit `ADD`
-    pub fn add(&mut self) {
-        self.emit_op(OpCode::ADD)
+    pub fn add(&mut self) -> Result<()> {
+        self.stack.pop()?;
+        self.emit_op(OpCode::ADD);
+
+        Ok(())
     }
 
     /// Emit `MSTORE`
-    pub fn mstore(&mut self) {
-        self.emit_op(OpCode::MSTORE)
+    ///
+    /// Use the current memory pointer as offset to store
+    /// data in memory.
+    pub fn mstore(&mut self) -> Result<u8> {
+        let offset = self.memory.len();
+        if offset > 32 {
+            return Err(Error::MemoryOutOfBounds);
+        }
+
+        // push offset to stack.
+        self.push(&offset.offset())?;
+
+        // emit mstore.
+        self.stack.popn(2)?;
+        self.emit_op(OpCode::MSTORE);
+        Ok(offset as u8)
+    }
+
+    /// Emit `JUMPI`
+    pub fn jumpi(&mut self) {
+        self.emit_op(OpCode::JUMP)
     }
 
     /// Emit `MSTORE`
-    pub fn ret(&mut self) {
-        self.emit_op(OpCode::RETURN)
+    pub fn ret(&mut self) -> Result<()> {
+        self.stack.popn(2)?;
+        self.emit_op(OpCode::RETURN);
+        Ok(())
     }
 
     /// Emit `CALLDATALOAD`
@@ -72,8 +108,9 @@ impl Assembler {
     }
 
     /// Place n bytes on stack.
-    pub fn push(&mut self, n: u8) -> Result<()> {
-        match n {
+    pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
+        let len = bytes.len();
+        match len {
             0 => self.emit_op(OpCode::PUSH0),
             1 => self.emit_op(OpCode::PUSH1),
             2 => self.emit_op(OpCode::PUSH2),
@@ -107,8 +144,12 @@ impl Assembler {
             30 => self.emit_op(OpCode::PUSH30),
             31 => self.emit_op(OpCode::PUSH31),
             32 => self.emit_op(OpCode::PUSH32),
-            _ => return Err(Error::StackIndexOutOfRange(n)),
+            _ => return Err(Error::StackIndexOutOfRange(len as u8)),
         }
+
+        // Place n bytes on stack.
+        self.emitn(bytes);
+        self.stack.pushn(bytes)?;
 
         Ok(())
     }

@@ -6,13 +6,9 @@ use wasmparser::ValType;
 /// The alignment mask for 32 bytes (32 - 1).
 const ALIGNMENT_MASK: usize = 31;
 
-// The maximum size of a custom number in EVM is `u256`
-// which still takes 32 bytes.
-const EVM_NUMBER_SIZE: u8 = 32;
-
 /// WASM type size for the stack representation of EVM.
 pub trait Type {
-    /// Alignment the size of this type to 32 bytes for the
+    /// Alignment the size of this type to bytes32 for the
     /// stack representation of EVM.
     ///
     /// See https://sites.google.com/site/theoryofoperatingsystems/labs/malloc/align8
@@ -20,24 +16,11 @@ pub trait Type {
         (self.size() + ALIGNMENT_MASK) & !ALIGNMENT_MASK
     }
 
-    /// If the value is number.
-    fn is_number(&self) -> bool;
-
     /// Size in bytes.
     fn size(&self) -> usize;
-
-    /// The Value that is about to be pushed on the stack.
-    fn value(&self) -> SmallVec<[u8; 32]>;
 }
 
 impl Type for ValType {
-    fn is_number(&self) -> bool {
-        match self {
-            ValType::I32 | ValType::I64 | ValType::F32 | ValType::F64 => true,
-            _ => unimplemented!("unknown unsupported type {self}"),
-        }
-    }
-
     fn size(&self) -> usize {
         match self {
             ValType::I32 | ValType::F32 => 4,
@@ -46,13 +29,53 @@ impl Type for ValType {
             _ => unimplemented!("unknown unsupported type {self}"),
         }
     }
+}
 
-    fn value(&self) -> SmallVec<[u8; 32]> {
-        match self {
-            // The maximum size of a custom number in EVM is `u256`
-            // which still takes 32 bytes.
-            n if n.is_number() => smallvec![EVM_NUMBER_SIZE],
-            _ => unimplemented!("unknown unsupported type {self}"),
-        }
+impl Type for &[ValType] {
+    fn size(&self) -> usize {
+        self.as_ref().iter().map(|t| t.align()).sum()
     }
+}
+
+/// Get the offset of this type in the lowest
+/// significant bytes.
+pub trait Offset {
+    type Output: AsRef<[u8]>;
+
+    /// Get the offset of this type in the
+    /// lowest significant bytes.
+    fn offset(&self) -> Self::Output;
+}
+
+macro_rules! offset {
+    ($number:ident, $size:expr) => {
+        impl Offset for $number {
+            type Output = SmallVec<[u8; $size]>;
+
+            fn offset(&self) -> Self::Output {
+                if *self == 0 {
+                    return smallvec![0];
+                }
+
+                self.to_le_bytes()
+                    .into_iter()
+                    .rev()
+                    .skip_while(|b| *b == 0)
+                    .collect::<Vec<_>>()
+                    .into_iter()
+                    .rev()
+                    .collect::<Vec<_>>()
+                    .into()
+            }
+        }
+    };
+    ($(($number:ident, $size:expr)),+) => {
+        $(offset!($number, $size);)+
+    };
+}
+
+offset! {
+    (usize, 8),
+    (u16, 2),
+    (u8, 1)
 }
