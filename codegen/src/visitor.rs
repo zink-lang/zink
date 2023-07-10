@@ -22,8 +22,6 @@ use wasmparser::{for_each_operator, VisitOperator};
 macro_rules! impl_visit_operator {
     ( @mvp End => visit_end $($rest:tt)* ) => {
         fn visit_end(&mut self) -> Self::Output {
-            trace!("end");
-
             // TODO:
             //
             // 1. check the stack output of the current context
@@ -31,20 +29,19 @@ macro_rules! impl_visit_operator {
             // 3. pop the stack
             //
             // Otherwise we return all of the data from stack.
-            self.masm.asm.push(1)?;    // PUSH1
-            self.masm.emit(0);     // 0x00
-            self.masm.mstore();   // MSTORE
+            self.masm.asm.push(&[0x00])?;      // PUSH1
+            self.masm.mstore()?;               // MSTORE
 
             // Return from the stored memory.
             //
             // TODO:
             //
             // 1. get size from function signature
-            self.masm.asm.push(1)?;     // PUSH1
-            self.masm.emit(32);     // 0x32 - 1 stack item
-            self.masm.asm.push(1)?;     // PUSH1
-            self.masm.emit(0);      // 0x00  - from 0
-            self.masm.ret();       // RET
+            self.masm.asm.push(&[32])?;
+            // 2. offset
+            self.masm.asm.push(&[0])?;
+            self.masm.ret()?;       // RET
+            trace!("end");
             Ok(())
         }
 
@@ -55,8 +52,7 @@ macro_rules! impl_visit_operator {
             trace!("local.get {}", local_index);
 
             if (local_index as usize) < self.env.params().len() {
-                // The size of the data index is always 32 bytes.
-                self.masm.push(32)?;
+                self.masm.push(&self.locals[local_index as usize].index())?;
                 self.masm.calldata_load();
             } else {
                 todo!("local.get {}", local_index);
@@ -87,19 +83,6 @@ macro_rules! impl_visit_operator {
     //         // self.masm.jumpi();
     //
     //         Ok(())
-    //     }
-    //
-    //     impl_visit_operator!($($rest)*);
-    // };
-    // ( @mvp End => visit_end $($rest:tt)* ) => {
-    //     fn visit_end(&mut self) -> Self::Output {
-    //         trace!("end");
-    //
-    //         // let frame = self.control.pop()?;
-    //         // let mut pc = frame.pc_offset() - 3;
-    //         // // self.masm.push();
-    //         // let label = frame.label();
-    //
     //     }
     //
     //     impl_visit_operator!($($rest)*);

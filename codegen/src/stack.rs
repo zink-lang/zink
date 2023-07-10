@@ -1,9 +1,10 @@
 //! The shadow stack used for compilation.
 
-use smallvec::SmallVec;
-
 use crate::{Error, Result};
-use std::collections::VecDeque;
+use std::{
+    collections::VecDeque,
+    fmt::{self, Debug, Formatter},
+};
 
 /// EVM stack limit in bytes.
 const STACK_LIMIT: u16 = 0x400;
@@ -13,47 +14,37 @@ const STACK_LIMIT: u16 = 0x400;
 pub struct Stack {
     /// Inner stack.
     inner: VecDeque<u8>,
-    /// Stack pointer (0x00 ~ 0x400) for bytes.
-    ///
-    /// - the 32th byte represents [0x10]
-    /// - the 256th byte represents [0xff]
-    /// - the 257th byte represents [0xff, 0x01]
-    /// - the 1024th byte represents [0xff; 1024]
-    ///
-    /// Save the stack pointer as cahce for the calculation
-    /// of address and checks.
-    pointer: u16,
+}
+
+impl Debug for Stack {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{:x?}", self.inner))
+    }
 }
 
 impl Stack {
-    /// Get the stack pointer.
-    pub fn ptr(&self) -> u16 {
-        self.pointer
-    }
-
-    /// Get the current stack address.
-    pub fn address(&self) -> SmallVec<[u8; 32]> {
-        let mut address = SmallVec::new();
-        let mut reminder = self.pointer;
-        while reminder > u8::MAX as u16 {
-            address.push(u8::MAX);
-            reminder -= u8::MAX as u16;
-        }
-        address.push(reminder as u8);
-        address
+    /// Get the length of the stack.
+    pub fn len(&self) -> u16 {
+        self.inner.len() as u16
     }
 
     /// Put a byte on the top of the stack.
     pub fn push(&mut self, byte: u8) -> Result<()> {
         self.inner.push_back(byte);
-        self.increment_ptr(&[byte])?;
+        if self.len() > STACK_LIMIT {
+            return Err(Error::StackOverflow(self.len()));
+        }
+
         Ok(())
     }
 
-    /// Push bytes on the top of the stack.
-    pub fn pushn<const S: usize>(&mut self, bytes: [u8; S]) -> Result<()> {
-        self.inner.append(&mut bytes.into());
-        self.increment_ptr(&bytes)?;
+    /// Put n (n < 32) bytes on the top of the stack.
+    pub fn pushn(&mut self, bytes: &[u8]) -> Result<()> {
+        self.inner.append(&mut bytes.to_vec().into());
+        if self.len() > STACK_LIMIT {
+            return Err(Error::StackOverflow(self.len()));
+        }
+
         Ok(())
     }
 
@@ -62,9 +53,8 @@ impl Stack {
         let byte = self
             .inner
             .pop_back()
-            .ok_or(Error::StackUnderflow(self.pointer))?;
+            .ok_or(Error::StackUnderflow(self.len()))?;
 
-        self.decrement_ptr(&[byte])?;
         Ok(byte)
     }
 
@@ -76,34 +66,10 @@ impl Stack {
                 self.inner
                     .len()
                     .checked_sub(size)
-                    .ok_or(Error::StackUnderflow(self.pointer))?,
+                    .ok_or(Error::StackUnderflow(self.len()))?,
             )
             .into();
 
-        self.decrement_ptr(&bytes)?;
         Ok(bytes)
-    }
-
-    /// Increment the stack pointer.
-    fn increment_ptr(&mut self, bytes: &[u8]) -> Result<()> {
-        for byte in bytes {
-            self.pointer += *byte as u16;
-            if self.pointer > STACK_LIMIT {
-                return Err(Error::StackOverflow(self.pointer));
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Decrement the stack pointer.
-    fn decrement_ptr(&mut self, bytes: &[u8]) -> Result<()> {
-        for byte in bytes {
-            self.pointer
-                .checked_sub(*byte as u16)
-                .ok_or(Error::StackUnderflow(self.pointer))?;
-        }
-
-        Ok(())
     }
 }

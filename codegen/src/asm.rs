@@ -2,7 +2,7 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::{Error, Result};
+use crate::{Error, Result, Stack};
 use opcodes::{OpCode as _, ShangHai as OpCode};
 use smallvec::SmallVec;
 
@@ -20,6 +20,8 @@ pub struct Assembler {
     ///
     /// TODO: use a more precise type, eq `u256`. (issue-20)
     gas: u128,
+    /// Virtual stack for compilation.
+    stack: Stack,
 }
 
 impl Assembler {
@@ -45,27 +47,33 @@ impl Assembler {
         self.buffer.push(byte);
     }
 
+    /// Emit n bytes.
+    pub fn emitn(&mut self, bytes: &[u8]) {
+        self.buffer.extend_from_slice(&bytes);
+    }
+
     /// Emit a single opcodes.
     pub fn emit_op(&mut self, opcode: OpCode) {
-        tracing::trace!("emit: {opcode:?}");
         self.emit(opcode.into());
         self.increment_gas(opcode.gas().into());
     }
 
-    /// Emit bytes.
-    pub fn data(&mut self, bytes: &[u8]) {
-        self.buffer.extend_from_slice(bytes);
-    }
-
     /// Emit `ADD`
+    ///
+    /// Arithmetic operation's stack outputs are alway 32 bytes.
+    /// the `pop()` here means popn(2) + push(32).
     pub fn add(&mut self) -> Result<()> {
+        self.stack.pop()?;
         self.emit_op(OpCode::ADD);
+
         Ok(())
     }
 
     /// Emit `MSTORE`
-    pub fn mstore(&mut self) {
-        self.emit_op(OpCode::MSTORE)
+    pub fn mstore(&mut self) -> Result<()> {
+        self.stack.popn(2)?;
+        self.emit_op(OpCode::MSTORE);
+        Ok(())
     }
 
     /// Emit `JUMP`
@@ -74,8 +82,10 @@ impl Assembler {
     }
 
     /// Emit `MSTORE`
-    pub fn ret(&mut self) {
-        self.emit_op(OpCode::RETURN)
+    pub fn ret(&mut self) -> Result<()> {
+        self.stack.popn(2)?;
+        self.emit_op(OpCode::RETURN);
+        Ok(())
     }
 
     /// Emit `CALLDATALOAD`
@@ -84,8 +94,9 @@ impl Assembler {
     }
 
     /// Place n bytes on stack.
-    pub fn push(&mut self, n: u8) -> Result<()> {
-        match n {
+    pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
+        let len = bytes.len();
+        match len {
             0 => self.emit_op(OpCode::PUSH0),
             1 => self.emit_op(OpCode::PUSH1),
             2 => self.emit_op(OpCode::PUSH2),
@@ -119,8 +130,12 @@ impl Assembler {
             30 => self.emit_op(OpCode::PUSH30),
             31 => self.emit_op(OpCode::PUSH31),
             32 => self.emit_op(OpCode::PUSH32),
-            _ => return Err(Error::StackIndexOutOfRange(n)),
+            _ => return Err(Error::StackIndexOutOfRange(len as u8)),
         }
+
+        // Place n bytes on stack.
+        self.emitn(&bytes);
+        self.stack.pushn(bytes)?;
 
         Ok(())
     }

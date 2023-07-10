@@ -32,28 +32,28 @@ impl DerefMut for MacroAssembler {
 }
 
 impl MacroAssembler {
-    /// Emit PUSH operation
-    fn emit_push(&mut self) -> Result<()> {
-        let address = self.stack.address();
-        self.asm.push(address.len() as u8)?;
-        self.asm.data(&address);
-
-        Ok(())
-    }
-
-    /// Push a byte on the stack, increments the stack pointer.
-    pub fn push(&mut self, byte: u8) -> Result<()> {
-        self.emit_push()?;
-        self.stack.push(byte)?;
-        Ok(())
-    }
-
-    /// Push bytes on the stack, increments the stack pointer.
-    pub fn pushn<const S: usize>(&mut self, bytes: [u8; S]) -> Result<()> {
-        self.emit_push()?;
-        self.stack.pushn(bytes)?;
-        Ok(())
-    }
+    // /// Emit PUSH operation
+    // fn emit_push(&mut self) -> Result<()> {
+    //     let address = self.stack.address();
+    //     self.asm.push(address.len() as u8)?;
+    //     self.asm.data(&address);
+    //
+    //     Ok(())
+    // }
+    //
+    // /// Push a byte on the stack, increments the stack pointer.
+    // pub fn push(&mut self, byte: u8) -> Result<()> {
+    //     self.emit_push()?;
+    //     self.stack.push(byte)?;
+    //     Ok(())
+    // }
+    //
+    // /// Push bytes on the stack, increments the stack pointer.
+    // pub fn pushn<const S: usize>(&mut self, bytes: [u8; S]) -> Result<()> {
+    //     self.emit_push()?;
+    //     self.stack.pushn(bytes)?;
+    //     Ok(())
+    // }
 
     /// Patch label with the current program counter.
     pub fn patch(&mut self, offset: u16, label: [u8; 3]) -> Result<()> {
