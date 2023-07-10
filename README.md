@@ -1,4 +1,4 @@
-## zink
+## The Zink Programming language
 
 [![zink][version-badge]][version-link]
 [![ci][ci-badge]][ci-link]
@@ -20,14 +20,15 @@ will check your logic first, and while compiling your WASM contract into EVM byt
 `zinkc` will precompute all of the stack and memory usages in your contracts to ensure
 they are safe in EVM bytecode as well!
 
-- **Gas Optimizations**: The gas optimizations are mainly provided by `wasm-opt` and 
-`zinkc` with different optimizations, your contracts will have the smallest size with
-strong performance in EVM bytecode at the end!
-  - `wasm-opt`: cleans the duplicated logic in your contracts and merge all instructions
+- **High Performance**: The performance optimizations are mainly provided by `wasm-opt` 
+and `zinkc` with different optimizations, your contracts will have the smallest size with
+**strong performance** in EVM bytecode at the end!
+  - `wasm-opt`: clean the duplicated logic in your contracts and merge all instructions
   that could be merged, for the full list of optimizations provided by `wasm-opt`, plz
   check [binary-optimizations][wasm-opt]
   - `zinkc`: derive the gas optimizations from `vyper` and `solidity`, all of the gas
-  optimizations provided by the two will be supported as well in `zinkc`.
+  optimizations provided by the two will be supported as well in `zinkc`, for the details
+  of gas optimizations in `zinkc`, plz check [gas-optimizations][].
 
 - **Compatible**: You can use all of the libraries in rust that supports `no_std` features!
 If you'd like to introduce zero-knowledge proof features for your contracts, just import
@@ -35,7 +36,7 @@ them without any other overkilling steps! You can use your solidity contracts as
 zink contracts and your zink contracts as part of your solidty contracts :)
 
 - **Easy Debugging**: No more need more than two programming langauges for developing your smart 
-contracts, except the native debugging tools of the rust ecosystem, zink will provide everything
+contracts, except the native debugging tools from the rust ecosystem, zink will provide everything
 you need for developing your contracts officially based on the stable projects in rust like
 `foundry` tools.
 
