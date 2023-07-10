@@ -1,7 +1,7 @@
 //! WASM local slot.
 
-use crate::abi::Type;
-use smallvec::{smallvec, SmallVec};
+use crate::abi::{Offset, Type};
+use smallvec::SmallVec;
 use wasmparser::ValType;
 
 /// A local slot.
@@ -26,21 +26,8 @@ impl LocalSlot {
 
     /// Get the offset of this local slot in the
     /// lowest significant bytes.
-    pub fn index(&self) -> SmallVec<[u8; 256]> {
-        if self.offset == 0 {
-            return smallvec![0];
-        }
-
-        self.offset
-            .to_le_bytes()
-            .into_iter()
-            .rev()
-            .skip_while(|b| *b == 0)
-            .collect::<Vec<_>>()
-            .into_iter()
-            .rev()
-            .collect::<Vec<_>>()
-            .into()
+    pub fn offset(&self) -> SmallVec<[u8; 8]> {
+        self.offset.offset()
     }
 }
 

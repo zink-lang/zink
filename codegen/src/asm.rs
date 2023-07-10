@@ -2,12 +2,15 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::{Error, Result, Stack};
+use crate::{abi::Offset, Error, Result, Stack};
 use opcodes::{OpCode as _, ShangHai as OpCode};
 use smallvec::SmallVec;
 
-/// Maximum size of a evm contract.
+/// Maximum size of a evm bytecode in bytes.
 pub const BUFFER_LIMIT: usize = 0x6000;
+
+/// Maximum size of memory in evm in bytes.
+pub const MEMORY_LIMIT: usize = 0x40;
 
 /// Low level assembler implementation for EVM.
 #[derive(Default)]
@@ -20,6 +23,8 @@ pub struct Assembler {
     ///
     /// TODO: use a more precise type, eq `u256`. (issue-20)
     gas: u128,
+    /// Virtual memory for compilation.
+    memory: SmallVec<[u8; MEMORY_LIMIT]>,
     /// Virtual stack for compilation.
     stack: Stack,
 }
@@ -49,7 +54,7 @@ impl Assembler {
 
     /// Emit n bytes.
     pub fn emitn(&mut self, bytes: &[u8]) {
-        self.buffer.extend_from_slice(&bytes);
+        self.buffer.extend_from_slice(bytes);
     }
 
     /// Emit a single opcodes.
@@ -70,10 +75,17 @@ impl Assembler {
     }
 
     /// Emit `MSTORE`
-    pub fn mstore(&mut self) -> Result<()> {
+    pub fn mstore(&mut self) -> Result<u8> {
+        let offset = self.memory.len();
+        if offset > 32 {
+            return Err(Error::MemoryOutOfBounds);
+        }
+
+        self.push(&offset.offset())?;
+
         self.stack.popn(2)?;
         self.emit_op(OpCode::MSTORE);
-        Ok(())
+        Ok(offset as u8)
     }
 
     /// Emit `JUMP`
@@ -134,7 +146,7 @@ impl Assembler {
         }
 
         // Place n bytes on stack.
-        self.emitn(&bytes);
+        self.emitn(bytes);
         self.stack.pushn(bytes)?;
 
         Ok(())

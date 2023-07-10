@@ -23,6 +23,11 @@ impl Debug for Stack {
 }
 
 impl Stack {
+    /// If the stack is empty.
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
+
     /// Get the length of the stack.
     pub fn len(&self) -> u16 {
         self.inner.len() as u16
@@ -59,17 +64,12 @@ impl Stack {
     }
 
     /// Pop values from the top of the stack.
-    pub fn popn(&mut self, size: usize) -> Result<Vec<u8>> {
-        let bytes: Vec<u8> = self
-            .inner
-            .split_off(
-                self.inner
-                    .len()
-                    .checked_sub(size)
-                    .ok_or(Error::StackUnderflow(self.len()))?,
-            )
-            .into();
-
-        Ok(bytes)
+    pub fn popn(&mut self, size: usize) -> Result<VecDeque<u8>> {
+        Ok(self.inner.split_off(
+            self.inner
+                .len()
+                .checked_sub(size)
+                .ok_or(Error::StackUnderflow(self.len()))?,
+        ))
     }
 }

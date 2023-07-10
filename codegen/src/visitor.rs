@@ -5,7 +5,7 @@
 //! and dispatches to the corresponding machine code emitter.
 
 use crate::{
-    // abi::Type,
+    abi::{Offset, Type},
     // control::{ControlStackFrame, ControlStackFrameType},
     CodeGen,
     Result,
@@ -21,26 +21,21 @@ use wasmparser::{for_each_operator, VisitOperator};
 /// matching an unsupported operator.
 macro_rules! impl_visit_operator {
     ( @mvp End => visit_end $($rest:tt)* ) => {
+        /// Handle instruction end for different situations.
+        ///
+        /// TODO: (#28)
+        ///
+        /// - End of control flow instructions.
+        /// - End of function.
+        /// - End of program.
         fn visit_end(&mut self) -> Self::Output {
-            // TODO:
-            //
-            // 1. check the stack output of the current context
-            // 2. check the stack availability of the parent context
-            // 3. pop the stack
-            //
-            // Otherwise we return all of the data from stack.
-            self.masm.asm.push(&[0x00])?;      // PUSH1
-            self.masm.mstore()?;               // MSTORE
+            let offset = self.masm.mstore()?.offset();
+            let size = self.env.results().align().offset();
 
-            // Return from the stored memory.
-            //
-            // TODO:
-            //
-            // 1. get size from function signature
-            self.masm.asm.push(&[32])?;
-            // 2. offset
-            self.masm.asm.push(&[0])?;
-            self.masm.ret()?;       // RET
+            self.masm.asm.push(&size)?;
+            self.masm.asm.push(&offset)?;
+            self.masm.ret()?;
+
             trace!("end");
             Ok(())
         }
@@ -52,7 +47,7 @@ macro_rules! impl_visit_operator {
             trace!("local.get {}", local_index);
 
             if (local_index as usize) < self.env.params().len() {
-                self.masm.push(&self.locals[local_index as usize].index())?;
+                self.masm.push(&self.locals[local_index as usize].offset())?;
                 self.masm.calldata_load();
             } else {
                 todo!("local.get {}", local_index);

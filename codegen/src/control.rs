@@ -77,11 +77,10 @@ pub struct ControlStack {
 impl ControlStack {
     /// Get the current frame.
     pub fn current(&self) -> Result<ControlStackFrame> {
-        Ok(self
-            .stack
+        self.stack
             .last()
             .cloned()
-            .ok_or_else(|| Error::ControlStackUnderflow)?)
+            .ok_or_else(|| Error::ControlStackUnderflow)
     }
 
     /// Push a block control stack frame.

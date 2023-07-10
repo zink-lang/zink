@@ -44,9 +44,9 @@ impl CodeGen {
     ///
     /// 1. the function parameters.
     /// 2. function body locals.
-    pub fn emit_locals<'a>(
+    pub fn emit_locals(
         &mut self,
-        locals: &mut LocalsReader<'a>,
+        locals: &mut LocalsReader<'_>,
         validator: &mut FuncValidator<ValidatorResources>,
     ) -> Result<()> {
         let mut offset = 0;
@@ -63,7 +63,7 @@ impl CodeGen {
         while let Ok((count, val)) = locals.read() {
             let validation_offset = locals.original_position();
             let slot = LocalSlot::new(offset, val);
-            let size = slot.size() as usize;
+            let size = slot.size();
 
             self.locals.push(slot);
             validator.define_locals(validation_offset, count, val)?;

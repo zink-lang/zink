@@ -1,5 +1,6 @@
 //! WASM ABI
 
+use smallvec::{smallvec, SmallVec};
 use wasmparser::ValType;
 
 /// The alignment mask for 32 bytes (32 - 1).
@@ -31,4 +32,53 @@ impl Type for ValType {
             _ => unimplemented!("unknown unsupported type {self}"),
         }
     }
+}
+
+impl Type for &[ValType] {
+    fn size(&self) -> usize {
+        self.as_ref().iter().map(|t| t.align()).sum()
+    }
+}
+
+/// Get the offset of this type in the lowest
+/// significant bytes.
+pub trait Offset {
+    type Output: AsRef<[u8]>;
+
+    /// Get the offset of this type in the
+    /// lowest significant bytes.
+    fn offset(&self) -> Self::Output;
+}
+
+macro_rules! offset {
+    ($number:ident, $size:expr) => {
+        impl Offset for $number {
+            type Output = SmallVec<[u8; $size]>;
+
+            fn offset(&self) -> Self::Output {
+                if *self == 0 {
+                    return smallvec![0];
+                }
+
+                self.to_le_bytes()
+                    .into_iter()
+                    .rev()
+                    .skip_while(|b| *b == 0)
+                    .collect::<Vec<_>>()
+                    .into_iter()
+                    .rev()
+                    .collect::<Vec<_>>()
+                    .into()
+            }
+        }
+    };
+    ($(($number:ident, $size:expr)),+) => {
+        $(offset!($number, $size);)+
+    };
+}
+
+offset! {
+    (usize, 8),
+    (u16, 2),
+    (u8, 1)
 }
