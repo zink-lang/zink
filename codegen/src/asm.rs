@@ -64,9 +64,6 @@ impl Assembler {
     }
 
     /// Emit `ADD`
-    ///
-    /// Arithmetic operation's stack outputs are alway 32 bytes.
-    /// the `pop()` here means popn(2) + push(32).
     pub fn add(&mut self) -> Result<()> {
         self.stack.pop()?;
         self.emit_op(OpCode::ADD);
@@ -75,20 +72,25 @@ impl Assembler {
     }
 
     /// Emit `MSTORE`
+    ///
+    /// Use the current memory pointer as offset to store
+    /// data in memory.
     pub fn mstore(&mut self) -> Result<u8> {
         let offset = self.memory.len();
         if offset > 32 {
             return Err(Error::MemoryOutOfBounds);
         }
 
+        // push offset to stack.
         self.push(&offset.offset())?;
 
+        // emit mstore.
         self.stack.popn(2)?;
         self.emit_op(OpCode::MSTORE);
         Ok(offset as u8)
     }
 
-    /// Emit `JUMP`
+    /// Emit `JUMPI`
     pub fn jumpi(&mut self) {
         self.emit_op(OpCode::JUMP)
     }

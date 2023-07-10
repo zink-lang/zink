@@ -8,11 +8,8 @@ const ALIGNMENT_MASK: usize = 31;
 
 /// WASM type size for the stack representation of EVM.
 pub trait Type {
-    /// Alignment the size of this type to 32 bytes for the
+    /// Alignment the size of this type to bytes32 for the
     /// stack representation of EVM.
-    ///
-    /// `u16` here is enough since the maximum stack size of
-    /// EVM is 0x400 bytes.
     ///
     /// See https://sites.google.com/site/theoryofoperatingsystems/labs/malloc/align8
     fn align(&self) -> usize {

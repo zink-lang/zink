@@ -9,47 +9,35 @@ WebAssemly Gonna Make It!
 
 Zink is not a programming language in strict, The naming of `Zink` means `zinc`, `ink`, 
 `zk`, `link`, it mainly provides an optimizing compiler `zinkc` which can compile WASM 
-into the EVM bytecode, with `zinkc`, the source code of your smart contract could be any 
-language you like! 
+into the EVM bytecode with optimizations, with `zinkc`, the source code of your smart 
+contract could be any language you like! 
 
-Here we highly recommand you to choose `rust` as the language of your smart contracts which 
-will unlock all of the following features:
+Here we highly recommand you to choose `rust` as the language of your smart contracts 
+which will unlock all of the following features:
 
-- **Safe**: `rustc` is wathcing you! before compling your contracts 
-into WASM, `rustc` and the debugging tools ( for example clippy ) in rust will check 
-your logic first,  which will be the first process auditing your smart contracts!
+- **Safe**: `rustc` is wathcing you! Before compiling your contracts into WASM, `rustc` 
+will check your logic first, and while compiling your WASM contract into EVM bytecode, 
+`zinkc` will precompute all of the stack and memory usages in your contracts to ensure
+they are safe in EVM bytecode as well!
 
-- **Small Size**: Benifits from the development of WASM, there is a lot of tools which
-have already in production can reduce the size of your WASM files with optimizations.
+- **Gas Optimizations**: The gas optimizations are mainly provided by `wasm-opt` and 
+`zinkc` with different optimizations, your contracts will have the smallest size with
+strong performance in EVM bytecode at the end!
+  - `wasm-opt`: cleans the duplicated logic in your contracts and merge all instructions
+  that could be merged, for the full list of optimizations provided by `wasm-opt`, plz
+  check [binary-optimizations][wasm-opt]
+  - `zinkc`: derive the gas optimizations from `vyper` and `solidity`, all of the gas
+  optimizations provided by the two will be supported as well in `zinkc`.
 
-- **High Performance**: `zinkc` is an optimizing compiler that not only translate WASM into 
-EVM bytecode but with optimizations, stack and memory will be checkd at the compilation time, 
-variables, control flow...everything will be optmized as well if it is safe and possible, 
-furthermore, `zinkc` can optimize the arithmetic operations in your contracts with tail 
-recursion as well!
+- **Compatible**: You can use all of the libraries in rust that supports `no_std` features!
+If you'd like to introduce zero-knowledge proof features for your contracts, just import
+them without any other overkilling steps! You can use your solidity contracts as part of your 
+zink contracts and your zink contracts as part of your solidty contracts :)
 
-- **Gas Optimizations**: After `rustc`, `wasm-opt` and the custom optimizations in `zinkc`, 
-`zinkc` will provide complation flags for diving it deeper just like other smart contract 
-languages, all of the gas optimization flags in solidity and vyper will be supported in
-`zinkc` as well!
-
-- **Debugging**: No more need more than two programming langauges for developing your smart 
+- **Easy Debugging**: No more need more than two programming langauges for developing your smart 
 contracts, except the native debugging tools of the rust ecosystem, zink will provide everything
 you need for developing your contracts officially based on the stable projects in rust like
-`foundry` tools. Also, it is easy to develop code analysing tools for your zink contracts based 
-on the libraries provided by the rust and wasm ecosystems.
-
-- **Extensible**: You can use all of the libraries in rust that supports `no_std` features!
-If you'd like to introduce zero-knowledge proof features for your contracts, just import
-them without any other overkilling steps!
-
-- **Compatible**: You can use your solidity contracts as part of your zink contracts and 
-your zink contracts as part of your solidty contracts :)
-
-- **Smart**: Write once, run anywhere! Since we have WASM as our middle language, Zink
-will support the interfaces of the smart contract platforms that running WASM contracts by 
-default! What if the target platform doesn't support WASM? Zink has its own IR for compling 
-WASM into different platforms' bytecode as well!
+`foundry` tools.
 
 
 ```mermaid
@@ -123,3 +111,5 @@ GPL-3.0-only
 [version-link]: https://docs.rs/zink/latest/zink/
 [ci-badge]: https://img.shields.io/github/actions/workflow/status/clearloop/zink/CI.yml
 [ci-link]: https://github.com/clearloop/zink/actions/workflows/CI.yml
+[rustc-codegen]: https://doc.rust-lang.org/rustc/codegen-options/index.html
+[wasm-opt]: https://github.com/WebAssembly/binaryen#binaryen-optimizations
