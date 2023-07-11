@@ -36,7 +36,7 @@ macro_rules! impl_visit_operator {
                 }
             } else {
                 self.masm.memory_write(self.env.results())?;
-                self.masm.ret()?;
+                self.masm._return()?;
             }
 
             Ok(())
@@ -50,7 +50,7 @@ macro_rules! impl_visit_operator {
 
             if (local_index as usize) < self.env.params().len() {
                 self.masm.push(&self.locals[local_index as usize].offset())?;
-                self.masm.calldata_load()?;
+                self.masm._calldataload()?;
             } else {
                 todo!("local.get {}", local_index);
             }
@@ -63,7 +63,7 @@ macro_rules! impl_visit_operator {
     ( @mvp I32Add => visit_i32_add $($rest:tt)* ) => {
         fn visit_i32_add(&mut self) -> Self::Output {
             trace!("i32.add");
-            self.masm.asm.add()?;
+            self.masm.asm._add()?;
             Ok(())
         }
 
@@ -76,7 +76,7 @@ macro_rules! impl_visit_operator {
             let frame = ControlStackFrame::new(ControlStackFrameType::If, self.masm.pc_offset(), blockty);
             self.masm.push(&frame.label())?;
             self.control.push(frame);
-            self.masm.jumpi()?;
+            self.masm._jumpi()?;
 
             Ok(())
         }

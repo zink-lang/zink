@@ -395,6 +395,9 @@ checksum = "4f7935cc590ee512e8073c4fe82b85e056216324e65aed24459204e3f6d9f72e"
 [[package]]
 name = "evm-opcodes"
 version = "0.0.0"
+dependencies = [
+ "paste",
+]
 
 [[package]]
 name = "examples"
@@ -691,6 +694,12 @@ dependencies = [
  "quote",
  "syn 1.0.109",
 ]
+
+[[package]]
+name = "paste"
+version = "1.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4b27ab7be369122c218afc2079489cdcb4b517c0a3fc386ff11e1fedfcc2b35"
 
 [[package]]
 name = "pin-project-lite"

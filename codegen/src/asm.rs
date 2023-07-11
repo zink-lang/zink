@@ -2,8 +2,8 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::{abi::Offset, Error, Result, Stack};
-use opcodes::{OpCode as _, ShangHai as OpCode};
+use crate::{Error, Result, Stack};
+use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
 use smallvec::{smallvec, SmallVec};
 
 /// Maximum size of a evm bytecode in bytes.
@@ -24,7 +24,7 @@ pub struct Assembler {
     /// TODO: use a more precise type, eq `u256`. (issue-20)
     gas: u128,
     /// Virtual memory for compilation.
-    memory: SmallVec<[u8; MEMORY_LIMIT]>,
+    pub memory: SmallVec<[u8; MEMORY_LIMIT]>,
     /// Virtual stack for compilation.
     stack: Stack,
 }
@@ -58,6 +58,9 @@ impl Assembler {
     }
 
     /// Emit a single opcode.
+    ///
+    /// Mock the stack input and ouput for checking
+    /// the stack usages.
     pub fn emit_op(&mut self, opcode: OpCode) -> Result<()> {
         self.stack.popn(opcode.stack_in() as usize)?;
         self.emit(opcode.into());
@@ -65,52 +68,6 @@ impl Assembler {
         self.stack
             .pushn(smallvec![smallvec![42]; opcode.stack_out() as usize])?;
 
-        Ok(())
-    }
-
-    /// Emit `ADD`
-    pub fn add(&mut self) -> Result<()> {
-        self.emit_op(OpCode::ADD)?;
-        Ok(())
-    }
-
-    /// Emit `MSTORE`
-    ///
-    /// Use the current memory pointer as offset to store
-    /// data in memory.
-    pub fn mstore(&mut self) -> Result<u8> {
-        let offset = self.memory.len();
-        if offset > 32 {
-            return Err(Error::MemoryOutOfBounds);
-        }
-
-        // push offset to stack.
-        self.push(&offset.offset())?;
-
-        // emit mstore.
-        // self.stack.popn(2)?;
-        self.emit_op(OpCode::MSTORE)?;
-        Ok(offset as u8)
-    }
-
-    /// Emit `JUMPI`
-    pub fn jumpi(&mut self) -> Result<()> {
-        self.emit_op(OpCode::JUMP)?;
-        Ok(())
-    }
-
-    /// Emit `MSTORE`
-    pub fn ret(&mut self) -> Result<()> {
-        self.emit_op(OpCode::RETURN)?;
-        Ok(())
-    }
-
-    /// Emit `CALLDATALOAD`
-    pub fn calldata_load(&mut self) -> Result<()> {
-        self.emit_op(OpCode::CALLDATALOAD)?;
-
-        // mock the stack output of calldataload
-        tracing::trace!("stack: {:?}", self.stack);
         Ok(())
     }
 
@@ -156,7 +113,22 @@ impl Assembler {
 
         // Place n bytes on stack.
         self.emitn(bytes);
-
         Ok(())
     }
+}
+
+macro_rules! impl_opcodes {
+    ($($name:ident => $opcode:ident),+) => {
+        $(
+            #[doc = concat!(" Emit", stringify!($opcode))]
+            pub fn $name(&mut self) -> Result<()> {
+                self.emit_op(OpCode::$opcode)?;
+                Ok(())
+            }
+        )*
+    };
+}
+
+impl Assembler {
+    for_each_shanghai_operator!(impl_opcodes);
 }

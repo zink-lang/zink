@@ -94,6 +94,17 @@ macro_rules! opcodes {
                 }
             }
         }
+
+        paste::paste! {
+            #[macro_export]
+            macro_rules! [<for_each_ $version:lower _operator>] {
+                ($mac:ident) => {
+                    $mac! {
+                        $([<_ $name:lower>] => $name),+
+                    }
+                }
+            }
+        }
     };
 }
 

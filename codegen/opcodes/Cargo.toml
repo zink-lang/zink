@@ -7,3 +7,6 @@ license.workspace = true
 documentation = "https://docs.rs/evm-opcode"
 homepage = "https://github.com/clearloop/zink/tree/main/opcode"
 repository = "https://github.com/clearloop/zink/"
+
+[dependencies]
+paste.workspace = true
