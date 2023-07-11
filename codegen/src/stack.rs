@@ -1,17 +1,20 @@
 //! The shadow stack used for compilation.
 
 use crate::{Error, Result};
-use smallvec::{smallvec, SmallVec};
+use smallvec::SmallVec;
 use std::fmt::{self, Debug, Formatter};
 
 /// EVM stack limit in stack items.
 const STACK_LIMIT: usize = 0xc;
 
+/// Stack item.
+pub type StackItem = SmallVec<[u8; 32]>;
+
 /// The shadow stack used for compilation.
 #[derive(Default)]
 pub struct Stack {
     /// Inner stack.
-    inner: SmallVec<[SmallVec<[u8; 32]>; STACK_LIMIT]>,
+    inner: SmallVec<[StackItem; STACK_LIMIT]>,
 }
 
 impl Debug for Stack {
@@ -31,9 +34,9 @@ impl Stack {
         self.inner.len()
     }
 
-    /// Put a byte on the top of the stack.
-    pub fn push(&mut self, byte: u8) -> Result<()> {
-        self.inner.push(smallvec![byte]);
+    /// Push an item on the top of the stack.
+    pub fn push(&mut self, item: StackItem) -> Result<()> {
+        self.inner.push(item);
         if self.len() > STACK_LIMIT {
             return Err(Error::StackOverflow(self.len()));
         }
@@ -41,9 +44,9 @@ impl Stack {
         Ok(())
     }
 
-    /// Put n (n < 32) bytes on the top of the stack.
-    pub fn pushn(&mut self, bytes: &[u8]) -> Result<()> {
-        self.inner.push(bytes.into());
+    /// Put n items on the top of the stack.
+    pub fn pushn(&mut self, mut items: SmallVec<[StackItem; STACK_LIMIT]>) -> Result<()> {
+        self.inner.append(&mut items);
         if self.len() > STACK_LIMIT {
             return Err(Error::StackOverflow(self.len()));
         }
@@ -51,15 +54,15 @@ impl Stack {
         Ok(())
     }
 
-    /// Pop a value from the top of the stack.
-    pub fn pop(&mut self) -> Result<SmallVec<[u8; 32]>> {
+    /// Pop an item from the top of the stack.
+    pub fn pop(&mut self) -> Result<StackItem> {
         let byte = self.inner.pop().ok_or(Error::StackUnderflow(self.len()))?;
 
         Ok(byte)
     }
 
-    /// Pop values from the top of the stack.
-    pub fn popn(&mut self, size: usize) -> Result<SmallVec<[SmallVec<[u8; 32]>; 32]>> {
+    /// Pop items from the top of the stack.
+    pub fn popn(&mut self, size: usize) -> Result<SmallVec<[StackItem; STACK_LIMIT]>> {
         let len = self
             .len()
             .checked_sub(size)

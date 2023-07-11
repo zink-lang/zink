@@ -53,14 +53,32 @@ impl MacroAssembler {
         );
 
         *self.asm.buffer_mut() = new_buffer;
+        self._jumpdest()?;
+
         Ok(())
     }
 
     /// Store data in memory.
     pub fn memory_write(&mut self, ty: impl Offset) -> Result<()> {
-        let mem_offset = self.mstore()?.offset();
-        self.asm.push(ty.offset().as_ref())?;
-        self.asm.push(&mem_offset)?;
+        let offset = self.memory.len();
+        if offset > 32 {
+            return Err(Error::MemoryOutOfBounds);
+        }
+
+        // use the current memory pointer as offset
+        // to store the data.
+        let offset = offset.offset();
+        self.push(&offset)?;
+        self._mstore()?;
+
+        // mock the memory usages.
+        let value = ty.offset();
+        self.memory.extend_from_slice(value.as_ref());
+
+        // NOTE: post logic for memory write, leave the
+        // data size and memory offset on the stack.
+        self.push(value.as_ref())?; // push value
+        self.push(&offset)?; // push offset
 
         Ok(())
     }

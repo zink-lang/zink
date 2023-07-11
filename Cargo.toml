@@ -22,6 +22,7 @@ clap = "4.3.10"
 color-eyre = "0.6.2"
 etc = "0.1.16"
 hex = "0.4.3"
+paste = "1.0.13"
 revm-interpreter = "1.1.2"
 revm-primitives = "1.1.2"
 smallvec = "1.11.0"
@@ -31,8 +32,6 @@ tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
 wasmparser = "0.107.0"
 wat = "1.0.66"
-
-
 
 # Local Dependencies.
 cli = { path = "cli" }
