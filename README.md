@@ -7,38 +7,29 @@
 Yet another programming language that targets the Ethereum Virtual Machine, yes, 
 WebAssemly Gonna Make It! 
 
-Zink is not a programming language in strict, The naming of `Zink` means `zinc`, `ink`, 
-`zk`, `link`, it mainly provides an optimizing compiler `zinkc` which can compile WASM 
-into the EVM bytecode with optimizations, with `zinkc`, the source code of your smart 
-contract could be any language you like! 
-
-Here we highly recommand you to choose `rust` as the language of your smart contracts 
-which will unlock all of the following features:
+The Zink project mainly provides an optimizing compiler `zinkc` which can compile WASM 
+to the EVM bytecode with optimizations, the source code of your smart contract could be 
+any language you like! but here we highly recommand you to choose `rust` as the language 
+of your smart contracts which will unlock all of the following features:
 
 - **Safe**: `rustc` is wathcing you! Before compiling your contracts into WASM, `rustc` 
 will check your logic first, and while compiling your WASM contract into EVM bytecode, 
 `zinkc` will precompute all of the stack and memory usages in your contracts to ensure
 they are safe in EVM bytecode as well!
 
-- **High Performance**: The performance optimizations are mainly provided by `wasm-opt` 
-and `zinkc` with different optimizations, your contracts will have the smallest size with
-**strong performance** in EVM bytecode at the end!
-  - `wasm-opt`: clean the duplicated logic in your contracts and merge all instructions
-  that could be merged, for the full list of optimizations provided by `wasm-opt`, plz
-  check [binary-optimizations][wasm-opt]
-  - `zinkc`: derive the gas optimizations from `vyper` and `solidity`, all of the gas
-  optimizations provided by the two will be supported as well in `zinkc`, for the details
-  of gas optimizations in `zinkc`, plz check [gas-optimizations][].
+- **High Performance**: The performance optimizations are provided by the three of `rustc`,
+`wasm-opt` and `zinkc`, your contracts will have the smallest size with **strong performance** 
+in EVM bytecode at the end! More details plz check [Optimizations][./docs/optimizations.md].
 
-- **Compatible**: You can use all of the libraries in rust that supports `no_std` features!
-If you'd like to introduce zero-knowledge proof features for your contracts, just import
-them without any other overkilling steps! You can use your solidity contracts as part of your 
+- **Compatible**: You can use all of the libraries in rust that supports `no_std` feature!
+introducing zero-knowledge proof features for your contracts could be done easily without 
+any other overkilling steps! Besides, you can use your solidity contracts as part of your 
 zink contracts and your zink contracts as part of your solidty contracts :)
 
-- **Easy Debugging**: No more need more than two programming langauges for developing your smart 
-contracts, except the native debugging tools from the rust ecosystem, zink will provide everything
-you need for developing your contracts officially based on the stable projects in rust like
-`foundry` tools.
+- **Easy Debugging**: No more need more than two programming langauges for developing your 
+smart contracts, except the native debugging tools from the rust ecosystem, zink will provide 
+everything you need for developing your contracts officially based on the stable projects in 
+rust like `foundry` tools.
 
 
 ```mermaid

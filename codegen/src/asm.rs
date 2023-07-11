@@ -57,7 +57,7 @@ impl Assembler {
         self.buffer.extend_from_slice(bytes);
     }
 
-    /// Emit a single opcodes.
+    /// Emit a single opcode.
     pub fn emit_op(&mut self, opcode: OpCode) {
         self.emit(opcode.into());
         self.increment_gas(opcode.gas().into());
@@ -91,8 +91,10 @@ impl Assembler {
     }
 
     /// Emit `JUMPI`
-    pub fn jumpi(&mut self) {
-        self.emit_op(OpCode::JUMP)
+    pub fn jumpi(&mut self) -> Result<()> {
+        self.stack.popn(2)?;
+        self.emit_op(OpCode::JUMP);
+        Ok(())
     }
 
     /// Emit `MSTORE`

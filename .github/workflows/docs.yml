@@ -17,7 +17,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: |
           cargo doc --all-features --lib --no-deps
-          echo '<meta http-equiv="refresh" content="0; URL=https://zink-lang.org/zinkc" />' > target/doc/index.html
+          echo '<meta http-equiv="refresh" content="0; URL=https://clearloop.github.io/zink/zinkc" />' > target/doc/index.html
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

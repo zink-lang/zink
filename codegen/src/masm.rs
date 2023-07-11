@@ -1,7 +1,9 @@
 //! MacroAssembler used by the code generation.
 
 use crate::{
+    abi::Offset,
     asm::{Assembler, BUFFER_LIMIT},
+    control::ControlStackFrame,
     Error, Result, Stack,
 };
 use smallvec::SmallVec;
@@ -33,24 +35,37 @@ impl DerefMut for MacroAssembler {
 
 impl MacroAssembler {
     /// Patch label with the current program counter.
-    pub fn patch(&mut self, offset: u16, label: [u8; 3]) -> Result<()> {
-        let offset = offset as usize;
-        let pc_offset = self.pc_offset() as usize - 3;
-        let buffer = self.asm.buffer();
+    pub fn patch(&mut self, frame: &ControlStackFrame) -> Result<()> {
+        let label = frame.label();
+        let pc_offset = (self.pc_offset() as usize)
+            .checked_sub(label.len())
+            .ok_or(Error::LabelMismatch)?;
 
-        let mut new_buffer: SmallVec<[u8; BUFFER_LIMIT]> = buffer[..offset].into();
-        new_buffer.extend_from_slice(&pc_offset.to_le_bytes());
+        // Patch buffer.
+        let buffer = self.asm.buffer();
+        let mut new_buffer: SmallVec<[u8; BUFFER_LIMIT]> =
+            buffer[..=frame.original_pc_offset as usize].into();
+        new_buffer.extend_from_slice(&pc_offset.offset());
         new_buffer.extend_from_slice(
-            buffer[offset..]
-                .strip_prefix(&label)
-                .ok_or_else(|| Error::LabelMismatch)?,
+            buffer[(frame.original_pc_offset as usize + 1)..]
+                .strip_prefix(label.as_ref())
+                .ok_or(Error::LabelMismatch)?,
         );
 
         *self.asm.buffer_mut() = new_buffer;
         Ok(())
     }
 
-    /// Get the program counter offset.
+    /// Store data in memory.
+    pub fn memory_write(&mut self, ty: impl Offset) -> Result<()> {
+        let mem_offset = self.mstore()?.offset();
+        self.asm.push(ty.offset().as_ref())?;
+        self.asm.push(&mem_offset)?;
+
+        Ok(())
+    }
+
+    /// Get the current program counter offset.
     pub fn pc_offset(&self) -> u16 {
         self.asm.buffer().len() as u16
     }

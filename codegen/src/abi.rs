@@ -1,7 +1,7 @@
 //! WASM ABI
 
 use smallvec::{smallvec, SmallVec};
-use wasmparser::ValType;
+use wasmparser::{BlockType, ValType};
 
 /// The alignment mask for 32 bytes (32 - 1).
 const ALIGNMENT_MASK: usize = 31;
@@ -28,12 +28,6 @@ impl Type for ValType {
             // TODO: align number implementations to 256 bits (issue #20)
             _ => unimplemented!("unknown unsupported type {self}"),
         }
-    }
-}
-
-impl Type for &[ValType] {
-    fn size(&self) -> usize {
-        self.as_ref().iter().map(|t| t.align()).sum()
     }
 }
 
@@ -76,6 +70,31 @@ macro_rules! offset {
 
 offset! {
     (usize, 8),
+    (u32, 4),
     (u16, 2),
     (u8, 1)
+}
+
+impl Offset for BlockType {
+    type Output = SmallVec<[u8; 8]>;
+
+    fn offset(&self) -> Self::Output {
+        match self {
+            BlockType::Empty => Default::default(),
+            BlockType::Type(val) => val.size().offset(),
+            BlockType::FuncType(val) => Self::Output::from_slice(&val.offset()),
+        }
+    }
+}
+
+impl Offset for &[ValType] {
+    type Output = SmallVec<[u8; 8]>;
+
+    fn offset(&self) -> Self::Output {
+        self.as_ref()
+            .iter()
+            .map(|t| t.align())
+            .sum::<usize>()
+            .offset()
+    }
 }
