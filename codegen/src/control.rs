@@ -1,5 +1,5 @@
 //! Data structures for control flow emission.
-use crate::{Error, Result};
+use crate::{abi::Offset, Error, Result};
 use smallvec::{smallvec, SmallVec};
 use wasmparser::BlockType;
 
@@ -24,7 +24,7 @@ pub struct ControlStackFrame {
     /// The type of the control stack frame.
     ty: ControlStackFrameType,
     /// The program counter offset at the beginning of if.
-    original_pc_offset: u16,
+    pub original_pc_offset: u16,
     /// The return values of the block.
     result: BlockType,
 }
@@ -49,19 +49,23 @@ impl ControlStackFrame {
     pub fn label(&self) -> SmallVec<[u8; 3]> {
         let mut label = smallvec![];
         label.push(self.ty as u8);
-        label.extend_from_slice(&self.original_pc_offset.to_le_bytes());
+        label.extend_from_slice(&self.pc_offset());
 
         label
     }
 
     /// Get the offset of the orginal program counter.
-    pub fn pc_offset(&self) -> u16 {
-        self.original_pc_offset
+    pub fn pc_offset(&self) -> SmallVec<[u8; 2]> {
+        self.original_pc_offset.offset()
     }
 
     /// Get the result type of the control stack frame.
-    pub fn result(&self) -> BlockType {
-        self.result
+    pub fn result(&self) -> Option<BlockType> {
+        if matches!(self.result, BlockType::Empty) {
+            return None;
+        }
+
+        Some(self.result)
     }
 }
 
@@ -75,14 +79,6 @@ pub struct ControlStack {
 }
 
 impl ControlStack {
-    /// Get the current frame.
-    pub fn current(&self) -> Result<ControlStackFrame> {
-        self.stack
-            .last()
-            .cloned()
-            .ok_or_else(|| Error::ControlStackUnderflow)
-    }
-
     /// Push a block control stack frame.
     pub fn push(&mut self, frame: ControlStackFrame) {
         self.stack.push(frame);

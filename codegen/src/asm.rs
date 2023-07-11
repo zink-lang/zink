@@ -91,8 +91,10 @@ impl Assembler {
     }
 
     /// Emit `JUMPI`
-    pub fn jumpi(&mut self) {
-        self.emit_op(OpCode::JUMP)
+    pub fn jumpi(&mut self) -> Result<()> {
+        self.stack.popn(2)?;
+        self.emit_op(OpCode::JUMP);
+        Ok(())
     }
 
     /// Emit `MSTORE`

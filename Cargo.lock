@@ -1402,6 +1402,7 @@ dependencies = [
  "wasmparser",
  "wat",
  "zingen",
+ "zint",
 ]
 
 [[package]]

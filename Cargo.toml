@@ -40,7 +40,7 @@ opcodes = { package = "evm-opcodes", path = "codegen/opcodes" }
 zingen =  { path = "codegen" }
 zinkc = { path = "compiler" }
 zink = { path = "zink" }
-zint = { path = "zink/testing" }
+zint = { path = "zint" }
 
 [profile]
 dev = { panic = "abort"}

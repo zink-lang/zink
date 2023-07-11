@@ -16,3 +16,4 @@ zingen.workspace = true
 hex.workspace = true
 wat.workspace = true
 tracing-subscriber = { workspace = true, features = ["env-filter"]}
+zint.workspace = true
