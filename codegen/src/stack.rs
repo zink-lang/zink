@@ -1,19 +1,17 @@
 //! The shadow stack used for compilation.
 
 use crate::{Error, Result};
-use std::{
-    collections::VecDeque,
-    fmt::{self, Debug, Formatter},
-};
+use smallvec::{smallvec, SmallVec};
+use std::fmt::{self, Debug, Formatter};
 
-/// EVM stack limit in bytes.
-const STACK_LIMIT: u16 = 0x400;
+/// EVM stack limit in stack items.
+const STACK_LIMIT: usize = 0xc;
 
 /// The shadow stack used for compilation.
 #[derive(Default)]
 pub struct Stack {
     /// Inner stack.
-    inner: VecDeque<u8>,
+    inner: SmallVec<[SmallVec<[u8; 32]>; STACK_LIMIT]>,
 }
 
 impl Debug for Stack {
@@ -29,13 +27,13 @@ impl Stack {
     }
 
     /// Get the length of the stack.
-    pub fn len(&self) -> u16 {
-        self.inner.len() as u16
+    pub fn len(&self) -> usize {
+        self.inner.len()
     }
 
     /// Put a byte on the top of the stack.
     pub fn push(&mut self, byte: u8) -> Result<()> {
-        self.inner.push_back(byte);
+        self.inner.push(smallvec![byte]);
         if self.len() > STACK_LIMIT {
             return Err(Error::StackOverflow(self.len()));
         }
@@ -45,7 +43,7 @@ impl Stack {
 
     /// Put n (n < 32) bytes on the top of the stack.
     pub fn pushn(&mut self, bytes: &[u8]) -> Result<()> {
-        self.inner.append(&mut bytes.to_vec().into());
+        self.inner.push(bytes.into());
         if self.len() > STACK_LIMIT {
             return Err(Error::StackOverflow(self.len()));
         }
@@ -54,22 +52,21 @@ impl Stack {
     }
 
     /// Pop a value from the top of the stack.
-    pub fn pop(&mut self) -> Result<u8> {
-        let byte = self
-            .inner
-            .pop_back()
-            .ok_or(Error::StackUnderflow(self.len()))?;
+    pub fn pop(&mut self) -> Result<SmallVec<[u8; 32]>> {
+        let byte = self.inner.pop().ok_or(Error::StackUnderflow(self.len()))?;
 
         Ok(byte)
     }
 
     /// Pop values from the top of the stack.
-    pub fn popn(&mut self, size: usize) -> Result<VecDeque<u8>> {
-        Ok(self.inner.split_off(
-            self.inner
-                .len()
-                .checked_sub(size)
-                .ok_or(Error::StackUnderflow(self.len()))?,
-        ))
+    pub fn popn(&mut self, size: usize) -> Result<SmallVec<[SmallVec<[u8; 32]>; 32]>> {
+        let len = self
+            .len()
+            .checked_sub(size)
+            .ok_or(Error::StackUnderflow(self.len()))?;
+
+        let popped = self.inner[len..].into();
+        self.inner = self.inner[..len].into();
+        Ok(popped)
     }
 }

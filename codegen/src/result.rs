@@ -25,11 +25,11 @@ pub enum Error {
     #[error("Stack index is out of range {0}, max is 32 (0x400)")]
     StackIndexOutOfRange(u8),
     /// Failed to increment stack pointer.
-    #[error("Stack overflow, max is 0x400, got {0}")]
-    StackOverflow(u16),
+    #[error("Stack overflow, max is 12 stack items, got {0}")]
+    StackOverflow(usize),
     /// Failed to decrement stack pointer.
     #[error("Stack underflow, current stack ptr is {0}")]
-    StackUnderflow(u16),
+    StackUnderflow(usize),
 }
 
 /// Codegen result
