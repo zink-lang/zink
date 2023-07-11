@@ -4,7 +4,7 @@
 
 use crate::{abi::Offset, Error, Result, Stack};
 use opcodes::{OpCode as _, ShangHai as OpCode};
-use smallvec::SmallVec;
+use smallvec::{smallvec, SmallVec};
 
 /// Maximum size of a evm bytecode in bytes.
 pub const BUFFER_LIMIT: usize = 0x6000;
@@ -58,16 +58,19 @@ impl Assembler {
     }
 
     /// Emit a single opcode.
-    pub fn emit_op(&mut self, opcode: OpCode) {
+    pub fn emit_op(&mut self, opcode: OpCode) -> Result<()> {
+        self.stack.popn(opcode.stack_in() as usize)?;
         self.emit(opcode.into());
         self.increment_gas(opcode.gas().into());
+        self.stack
+            .pushn(smallvec![smallvec![42]; opcode.stack_out() as usize])?;
+
+        Ok(())
     }
 
     /// Emit `ADD`
     pub fn add(&mut self) -> Result<()> {
-        self.stack.pop()?;
-        self.emit_op(OpCode::ADD);
-
+        self.emit_op(OpCode::ADD)?;
         Ok(())
     }
 
@@ -85,28 +88,30 @@ impl Assembler {
         self.push(&offset.offset())?;
 
         // emit mstore.
-        self.stack.popn(2)?;
-        self.emit_op(OpCode::MSTORE);
+        // self.stack.popn(2)?;
+        self.emit_op(OpCode::MSTORE)?;
         Ok(offset as u8)
     }
 
     /// Emit `JUMPI`
     pub fn jumpi(&mut self) -> Result<()> {
-        self.stack.popn(2)?;
-        self.emit_op(OpCode::JUMP);
+        self.emit_op(OpCode::JUMP)?;
         Ok(())
     }
 
     /// Emit `MSTORE`
     pub fn ret(&mut self) -> Result<()> {
-        self.stack.popn(2)?;
-        self.emit_op(OpCode::RETURN);
+        self.emit_op(OpCode::RETURN)?;
         Ok(())
     }
 
     /// Emit `CALLDATALOAD`
-    pub fn calldata_load(&mut self) {
-        self.emit_op(OpCode::CALLDATALOAD)
+    pub fn calldata_load(&mut self) -> Result<()> {
+        self.emit_op(OpCode::CALLDATALOAD)?;
+
+        // mock the stack output of calldataload
+        tracing::trace!("stack: {:?}", self.stack);
+        Ok(())
     }
 
     /// Place n bytes on stack.
@@ -147,11 +152,10 @@ impl Assembler {
             31 => self.emit_op(OpCode::PUSH31),
             32 => self.emit_op(OpCode::PUSH32),
             _ => return Err(Error::StackIndexOutOfRange(len as u8)),
-        }
+        }?;
 
         // Place n bytes on stack.
         self.emitn(bytes);
-        self.stack.pushn(bytes)?;
 
         Ok(())
     }

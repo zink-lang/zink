@@ -50,7 +50,7 @@ macro_rules! impl_visit_operator {
 
             if (local_index as usize) < self.env.params().len() {
                 self.masm.push(&self.locals[local_index as usize].offset())?;
-                self.masm.calldata_load();
+                self.masm.calldata_load()?;
             } else {
                 todo!("local.get {}", local_index);
             }
