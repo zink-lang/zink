@@ -28,7 +28,7 @@ impl MacroAssembler {
     /// Patch label with the current program counter.
     pub fn patch(&mut self, frame: &ControlStackFrame) -> Result<usize> {
         let original_pc = frame.pc_offset() as usize;
-        let target_pc = self.pc_offset().clone() as usize;
+        let target_pc = self.pc_offset() as usize;
         let buffer = self.asm.buffer_mut();
 
         crate::patch(buffer, original_pc, target_pc)
