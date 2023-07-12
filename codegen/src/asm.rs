@@ -6,7 +6,6 @@ use crate::{Buffer, Error, Result};
 use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
 
 /// Low level assembler implementation for EVM.
-#[derive(Default)]
 pub struct Assembler {
     /// Buffer of the assembler.
     buffer: Buffer,
@@ -23,6 +22,16 @@ pub struct Assembler {
 }
 
 impl Assembler {
+    /// New assembler
+    pub fn new(sp: u8) -> Self {
+        Self {
+            buffer: Buffer::new(),
+            gas: 0,
+            mp: 0,
+            sp,
+        }
+    }
+
     /// Buffer of the assembler.
     pub fn buffer(&self) -> &[u8] {
         &self.buffer

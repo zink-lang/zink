@@ -19,17 +19,22 @@ pub struct CodeGen {
     pub(crate) masm: MacroAssembler,
     /// The jump table.
     pub(crate) table: JumpTable,
+    /// If this function is the main function.
+    pub(crate) is_main: bool,
 }
 
 impl CodeGen {
     /// Create a new code generator.
-    pub fn new(env: FuncType) -> Self {
+    pub fn new(env: FuncType, is_main: bool) -> Self {
+        let stack_pointer = env.params().len() as u8;
+
         Self {
             control: ControlStack::default(),
             env,
             locals: Default::default(),
-            masm: MacroAssembler::default(),
+            masm: MacroAssembler::new(stack_pointer),
             table: Default::default(),
+            is_main,
         }
     }
 

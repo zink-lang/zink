@@ -1,10 +1,9 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{abi::ToLSBytes, asm::Assembler, control::ControlStackFrame, Result};
+use crate::{abi::ToLSBytes, asm::Assembler, Result};
 use std::ops::{Deref, DerefMut};
 
 /// EVM MacroAssembler.
-#[derive(Default)]
 pub struct MacroAssembler {
     /// Low level assembler.
     pub asm: Assembler,
@@ -25,13 +24,11 @@ impl DerefMut for MacroAssembler {
 }
 
 impl MacroAssembler {
-    /// Patch label with the current program counter.
-    pub fn patch(&mut self, frame: &ControlStackFrame) -> Result<usize> {
-        let original_pc = frame.pc_offset() as usize;
-        let target_pc = self.pc_offset() as usize;
-        let buffer = self.asm.buffer_mut();
-
-        crate::patch(buffer, original_pc, target_pc)
+    /// New macro assembler.
+    pub fn new(sp: u8) -> Self {
+        Self {
+            asm: Assembler::new(sp),
+        }
     }
 
     /// Store data in memory.
