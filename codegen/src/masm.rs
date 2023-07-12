@@ -4,8 +4,9 @@ use crate::{
     abi::Offset,
     asm::{Assembler, BUFFER_LIMIT},
     control::ControlStackFrame,
-    Error, Result, Stack,
+    Error, Result,
 };
+use opcodes::ShangHai as OpCode;
 use smallvec::SmallVec;
 use std::ops::{Deref, DerefMut};
 
@@ -14,9 +15,6 @@ use std::ops::{Deref, DerefMut};
 pub struct MacroAssembler {
     /// Low level assembler.
     pub asm: Assembler,
-
-    /// Virtual stack for compilation.
-    pub stack: Stack,
 }
 
 impl Deref for MacroAssembler {
@@ -35,27 +33,26 @@ impl DerefMut for MacroAssembler {
 
 impl MacroAssembler {
     /// Patch label with the current program counter.
-    pub fn patch(&mut self, frame: &ControlStackFrame) -> Result<()> {
-        let label = frame.label();
-        let pc_offset = (self.pc_offset() as usize)
-            .checked_sub(label.len())
-            .ok_or(Error::LabelMismatch)?;
+    pub fn patch(&mut self, frame: &ControlStackFrame) -> Result<SmallVec<[u8; 2]>> {
+        let frame_offset = frame.pc_offset() as usize;
+        // Current buffer offset + JUMPDEST + next-opcode.
+        let pc_offset = (self.pc_offset() + 2).offset();
 
         // Patch buffer.
         let buffer = self.asm.buffer();
-        let mut new_buffer: SmallVec<[u8; BUFFER_LIMIT]> =
-            buffer[..=frame.original_pc_offset as usize].into();
-        new_buffer.extend_from_slice(&pc_offset.offset());
-        new_buffer.extend_from_slice(
-            buffer[(frame.original_pc_offset as usize + 1)..]
-                .strip_prefix(label.as_ref())
-                .ok_or(Error::LabelMismatch)?,
-        );
+        let mut new_buffer: SmallVec<[u8; BUFFER_LIMIT]> = buffer[..frame_offset].into();
+        match pc_offset.len() {
+            1 => new_buffer.push(OpCode::PUSH1.into()),
+            2 => new_buffer.push(OpCode::PUSH2.into()),
+            _ => return Err(Error::InvalidPC),
+        }
+        new_buffer.extend_from_slice(&pc_offset);
+        new_buffer.extend_from_slice(&buffer[frame_offset..]);
 
         *self.asm.buffer_mut() = new_buffer;
         self._jumpdest()?;
 
-        Ok(())
+        Ok(pc_offset)
     }
 
     /// Store data in memory.

@@ -1,6 +1,6 @@
 //! Data structures for control flow emission.
-use crate::{abi::Offset, Error, Result};
-use smallvec::{smallvec, SmallVec};
+use crate::{Error, Result};
+use smallvec::SmallVec;
 use wasmparser::BlockType;
 
 /// The type of the control stack frame.
@@ -22,7 +22,7 @@ pub enum ControlStackFrameType {
 #[derive(Clone)]
 pub struct ControlStackFrame {
     /// The type of the control stack frame.
-    ty: ControlStackFrameType,
+    pub ty: ControlStackFrameType,
     /// The program counter offset at the beginning of if.
     pub original_pc_offset: u16,
     /// The return values of the block.
@@ -39,24 +39,17 @@ impl ControlStackFrame {
         }
     }
 
-    /// The maximum code size of a EVM contract is 0x6000 bytes.
-    /// so `u16` for the label should be enough.
-    ///
-    /// This label will be placed right before the control flow
-    /// instruction `JUMP` momentarilly, and be replaced by the
-    /// actual jump destination when mactching instruction `End`
-    /// afterwards.
-    pub fn label(&self) -> SmallVec<[u8; 3]> {
-        let mut label = smallvec![];
-        label.push(self.ty as u8);
-        label.extend_from_slice(&self.pc_offset());
-
-        label
+    /// Get the offset of the orginal program counter.
+    pub fn pc_offset(&self) -> u16 {
+        self.original_pc_offset
     }
 
-    /// Get the offset of the orginal program counter.
-    pub fn pc_offset(&self) -> SmallVec<[u8; 2]> {
-        self.original_pc_offset.offset()
+    /// The stack item length of the results.
+    pub fn results(&self) -> usize {
+        match self.result {
+            BlockType::Empty | BlockType::FuncType(_) => 0,
+            BlockType::Type(_) => 1,
+        }
     }
 
     /// Get the result type of the control stack frame.
@@ -75,7 +68,7 @@ pub struct ControlStack {
     /// Stack frames for control flow.
     ///
     /// The 32 is set arbitrarily, we can adjust it as we see fit.
-    stack: SmallVec<[ControlStackFrame; 32]>,
+    pub stack: SmallVec<[ControlStackFrame; 32]>,
 }
 
 impl ControlStack {
@@ -85,8 +78,6 @@ impl ControlStack {
     }
 
     /// Pop a control stack frame.
-    ///
-    /// TODO: update the offsets of all frames.
     pub fn pop(&mut self) -> Result<ControlStackFrame> {
         self.stack.pop().ok_or_else(|| Error::ControlStackUnderflow)
     }

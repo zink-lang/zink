@@ -12,6 +12,9 @@ pub enum Error {
     /// Failed to pop control stack frame.
     #[error("Control stack underflow")]
     ControlStackUnderflow,
+    /// Failed to construct program counter for jump.
+    #[error("Invalid program counter")]
+    InvalidPC,
     /// Failed to patch jump destination.
     #[error("Invalid frame label")]
     LabelMismatch,
@@ -28,8 +31,8 @@ pub enum Error {
     #[error("Stack overflow, max is 12 stack items, got {0}")]
     StackOverflow(usize),
     /// Failed to decrement stack pointer.
-    #[error("Stack underflow, current stack ptr is {0}")]
-    StackUnderflow(usize),
+    #[error("Stack underflow, current stack items {0}, expect {1}")]
+    StackUnderflow(usize, usize),
 }
 
 /// Codegen result

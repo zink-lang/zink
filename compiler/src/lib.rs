@@ -7,6 +7,7 @@ use zingen::CodeGen;
 pub mod result;
 
 /// Zink Compiler
+#[derive(Default)]
 pub struct Compiler;
 
 impl Compiler {
@@ -23,7 +24,7 @@ impl Compiler {
                 let sig = func_validator
                     .resources()
                     .type_of_function(0)
-                    // TODO: Add backtrace here for the function index.
+                    // TODO: Add backtrace here for the function index. (#21)
                     .ok_or(Error::InvalidFunctionSignature)?
                     .clone();
                 let mut codegen = CodeGen::new(sig);

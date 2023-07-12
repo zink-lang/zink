@@ -26,7 +26,7 @@ pub struct Assembler {
     /// Virtual memory for compilation.
     pub memory: SmallVec<[u8; MEMORY_LIMIT]>,
     /// Virtual stack for compilation.
-    stack: Stack,
+    pub stack: Stack,
 }
 
 impl Assembler {
@@ -66,7 +66,7 @@ impl Assembler {
         self.emit(opcode.into());
         self.increment_gas(opcode.gas().into());
         self.stack
-            .pushn(smallvec![smallvec![42]; opcode.stack_out() as usize])?;
+            .pushn(smallvec![Default::default(); opcode.stack_out() as usize])?;
 
         Ok(())
     }
@@ -111,7 +111,6 @@ impl Assembler {
             _ => return Err(Error::StackIndexOutOfRange(len as u8)),
         }?;
 
-        // Place n bytes on stack.
         self.emitn(bytes);
         Ok(())
     }

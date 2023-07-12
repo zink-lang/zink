@@ -16,8 +16,7 @@ pub struct CodeGen {
     pub env: FuncType,
     /// The defined locals for a function.
     ///
-    /// NOTE: Solidity's implementation uses 16 slots for locals.
-    ///
+    /// Solidity's implementation uses 16 slots for locals.
     /// ref: https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor
     pub locals: SmallVec<[LocalSlot; 16]>,
     /// The macro assembler.

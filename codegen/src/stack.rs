@@ -56,7 +56,10 @@ impl Stack {
 
     /// Pop an item from the top of the stack.
     pub fn pop(&mut self) -> Result<StackItem> {
-        let byte = self.inner.pop().ok_or(Error::StackUnderflow(self.len()))?;
+        let byte = self
+            .inner
+            .pop()
+            .ok_or(Error::StackUnderflow(self.len(), 1))?;
 
         Ok(byte)
     }
@@ -66,7 +69,7 @@ impl Stack {
         let len = self
             .len()
             .checked_sub(size)
-            .ok_or(Error::StackUnderflow(self.len()))?;
+            .ok_or(Error::StackUnderflow(self.len(), size))?;
 
         let popped = self.inner[len..].into();
         self.inner = self.inner[..len].into();

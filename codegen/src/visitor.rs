@@ -30,9 +30,13 @@ macro_rules! impl_visit_operator {
             trace!("end");
 
             if let Ok(frame) = self.control.pop() {
-                self.masm.patch(&frame)?;
+                let len = self.masm.patch(&frame)?.len();
                 if let Some(ty) = frame.result() {
                     self.masm.memory_write(ty)?;
+                }
+
+                for frame in self.control.stack.iter_mut() {
+                    frame.original_pc_offset += len as u16 + 1;
                 }
             } else {
                 self.masm.memory_write(self.env.results())?;
@@ -73,9 +77,14 @@ macro_rules! impl_visit_operator {
         fn visit_if(&mut self, blockty: wasmparser::BlockType) -> Self::Output {
             trace!("If");
 
+            // push the frame to the control stack
             let frame = ControlStackFrame::new(ControlStackFrameType::If, self.masm.pc_offset(), blockty);
-            self.masm.push(&frame.label())?;
             self.control.push(frame);
+
+            // mock the stack output of the counter
+            //
+            // the program counter instructions should be patched afterwards.
+            self.masm.asm.stack.push(Default::default())?;
             self.masm._jumpi()?;
 
             Ok(())
