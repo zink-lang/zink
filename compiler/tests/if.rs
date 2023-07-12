@@ -10,7 +10,9 @@ mod common;
 #[test]
 fn basic() -> Result<()> {
     let wasm = common::load("if", "basic")?;
-    let bytecode = Compiler::compile(&wasm)?;
+    let bytecode = Compiler::default().compile(&wasm)?;
+
+    tracing::trace!("{:x?}", bytecode);
 
     // Skip the condition.
     let (ret, _) = EVM::run(&bytecode, &[0; 32]);

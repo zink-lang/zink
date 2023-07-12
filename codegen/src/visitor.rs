@@ -29,15 +29,16 @@ macro_rules! impl_visit_operator {
         fn visit_end(&mut self) -> Self::Output {
             trace!("end");
 
+            // If inside a frame, pop the frame and patch
+            // the program counter.
             if let Ok(frame) = self.control.pop() {
-                let len = self.masm.patch(&frame)?.len();
-                if let Some(ty) = frame.result() {
-                    self.masm.memory_write(ty)?;
+                let len = self.masm.patch(&frame)?;
+                for frame in self.control.stack.iter_mut() {
+                    frame.original_pc_offset += len as u16;
                 }
 
-                for frame in self.control.stack.iter_mut() {
-                    frame.original_pc_offset += len as u16 + 1;
-                }
+                // Emit JUMPDEST after at the end of the control flow.
+                self.masm._jumpdest()?;
             } else {
                 self.masm.memory_write(self.env.results())?;
                 self.masm._return()?;
@@ -53,7 +54,7 @@ macro_rules! impl_visit_operator {
             trace!("local.get {}", local_index);
 
             if (local_index as usize) < self.env.params().len() {
-                self.masm.push(&self.locals[local_index as usize].offset())?;
+                self.masm.push(&self.locals[local_index as usize].to_ls_bytes())?;
                 self.masm._calldataload()?;
             } else {
                 todo!("local.get {}", local_index);

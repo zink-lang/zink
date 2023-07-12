@@ -1,9 +1,8 @@
 //! Code generation implementation.
 use crate::{
     abi::Type, control::ControlStack, local::LocalSlot, masm::MacroAssembler,
-    validator::ValidateThenVisit, Result,
+    validator::ValidateThenVisit, Buffer, Labels, Locals, Result,
 };
-use smallvec::SmallVec;
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
 /// The code generation abstraction.
@@ -11,16 +10,15 @@ use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, Validat
 /// TODO: add codegen context for backtrace. (#21)
 pub struct CodeGen {
     /// Control stack frames.
-    pub control: ControlStack,
+    pub(crate) control: ControlStack,
     /// The function environment.
-    pub env: FuncType,
+    pub(crate) env: FuncType,
     /// The defined locals for a function.
-    ///
-    /// Solidity's implementation uses 16 slots for locals.
-    /// ref: https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor
-    pub locals: SmallVec<[LocalSlot; 16]>,
+    pub(crate) locals: Locals,
     /// The macro assembler.
-    pub masm: MacroAssembler,
+    pub(crate) masm: MacroAssembler,
+    /// Function labels
+    labels: Labels,
 }
 
 impl CodeGen {
@@ -29,14 +27,10 @@ impl CodeGen {
         Self {
             control: ControlStack::default(),
             env,
-            locals: SmallVec::new(),
+            locals: Default::default(),
             masm: MacroAssembler::default(),
+            labels: Default::default(),
         }
-    }
-
-    /// Get the generated buffer.
-    pub fn buffer(&self) -> &[u8] {
-        self.masm.buffer()
     }
 
     /// Emit function locals
@@ -85,5 +79,13 @@ impl CodeGen {
         }
 
         Ok(())
+    }
+
+    /// Finish code generation.
+    pub fn finish<B>(self) -> B
+    where
+        B: From<(Buffer, Labels)>,
+    {
+        B::from((self.masm.buffer().into(), self.labels))
     }
 }

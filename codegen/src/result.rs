@@ -13,8 +13,8 @@ pub enum Error {
     #[error("Control stack underflow")]
     ControlStackUnderflow,
     /// Failed to construct program counter for jump.
-    #[error("Invalid program counter")]
-    InvalidPC,
+    #[error("Invalid program counter {0}")]
+    InvalidPC(usize),
     /// Failed to patch jump destination.
     #[error("Invalid frame label")]
     LabelMismatch,

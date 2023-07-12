@@ -9,7 +9,7 @@ mod common;
 #[test]
 fn params() -> Result<()> {
     let wasm = common::load("call", "params")?;
-    let _bytecode = Compiler::compile(&wasm)?;
+    let _bytecode = Compiler::default().compile(&wasm)?;
 
     // // Skip the condition.
     // let (ret, _) = EVM::run(&bytecode, &[0; 32]);

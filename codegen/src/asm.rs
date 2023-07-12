@@ -2,18 +2,14 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::{Error, Result};
+use crate::{Buffer, Error, Result};
 use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
-use smallvec::SmallVec;
-
-/// Maximum size of a evm bytecode in bytes.
-pub const BUFFER_LIMIT: usize = 0x6000;
 
 /// Low level assembler implementation for EVM.
 #[derive(Default)]
 pub struct Assembler {
     /// Buffer of the assembler.
-    buffer: SmallVec<[u8; BUFFER_LIMIT]>,
+    buffer: Buffer,
     /// Gas counter.
     ///
     /// This is used to calculate the gas cost of the generated code.
@@ -33,7 +29,7 @@ impl Assembler {
     }
 
     /// Mutable buffer of the assembler.
-    pub fn buffer_mut(&mut self) -> &mut SmallVec<[u8; BUFFER_LIMIT]> {
+    pub fn buffer_mut(&mut self) -> &mut Buffer {
         &mut self.buffer
     }
 
