@@ -84,7 +84,7 @@ macro_rules! impl_visit_operator {
             // mock the stack output of the counter
             //
             // the program counter instructions should be patched afterwards.
-            self.masm.asm.stack.push(Default::default())?;
+            self.masm.asm.increment_sp(1)?;
             self.masm._jumpi()?;
 
             Ok(())

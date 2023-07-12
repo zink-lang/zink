@@ -29,10 +29,10 @@ pub enum Error {
     StackIndexOutOfRange(u8),
     /// Failed to increment stack pointer.
     #[error("Stack overflow, max is 12 stack items, got {0}")]
-    StackOverflow(usize),
+    StackOverflow(u8),
     /// Failed to decrement stack pointer.
-    #[error("Stack underflow, current stack items {0}, expect {1}")]
-    StackUnderflow(usize, usize),
+    #[error("Stack underflow, current stack items {0}, expect at least {1}")]
+    StackUnderflow(u8, u8),
 }
 
 /// Codegen result

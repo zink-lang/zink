@@ -10,7 +10,6 @@ pub use crate::{
     local::LocalSlot,
     masm::MacroAssembler,
     result::{Error, Result},
-    stack::Stack,
 };
 
 mod abi;
@@ -20,6 +19,5 @@ mod control;
 mod local;
 mod masm;
 mod result;
-mod stack;
 mod validator;
 mod visitor;
