@@ -32,10 +32,14 @@ macro_rules! impl_visit_operator {
             // If inside a frame, pop the frame and patch
             // the program counter.
             if let Ok(frame) = self.control.pop() {
-                let len = self.masm.patch(&frame)?;
-                for frame in self.control.stack.iter_mut() {
-                    frame.original_pc_offset += len as u16;
-                }
+                self.table.label(frame.original_pc_offset, self.masm.pc_offset())?;
+                // let len = self.masm.patch(&frame)?;
+                // for frame in self.control.stack.iter_mut() {
+                //     frame.original_pc_offset += len as u16;
+                // }
+
+                // TODO: Check the stack output and make decisions
+                // how to handle the results.
 
                 // Emit JUMPDEST after at the end of the control flow.
                 self.masm._jumpdest()?;

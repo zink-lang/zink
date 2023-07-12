@@ -1,21 +1,22 @@
 //! Zink compiler
 
-use crate::{buffer::Buffer, Error, Result};
+use crate::{Error, Result};
 use wasmparser::{
     FuncToValidate, FunctionBody, Parser, ValidPayload, Validator, ValidatorResources,
     WasmModuleResources,
 };
-use zingen::CodeGen;
+use zingen::{Buffer, CodeGen, JumpTable, BUFFER_LIMIT};
 
 /// Zink Compiler
 #[derive(Default)]
 pub struct Compiler {
-    inner: Vec<Buffer>,
+    buffer: Buffer,
+    table: JumpTable,
 }
 
 impl Compiler {
     /// Compile wasm moudle to evm bytecode.
-    pub fn compile(mut self, wasm: &[u8]) -> Result<Vec<u8>> {
+    pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
         let mut validator = Validator::new();
         for payload in Parser::new(0).parse_all(wasm) {
             let payload = validator.payload(&payload?)?;
@@ -24,7 +25,7 @@ impl Compiler {
             }
         }
 
-        Ok(self.finish())
+        self.finish()
     }
 
     /// Compile WASM function.
@@ -48,28 +49,29 @@ impl Compiler {
         codegen.emit_locals(&mut locals_reader, &mut func_validator)?;
         codegen.emit_operators(&mut ops_reader, &mut func_validator)?;
 
-        self.emit_buffer(codegen.finish());
+        self.emit_buffer(codegen)?;
         Ok(())
     }
 
     /// Finish compilation.
-    pub fn finish(mut self) -> Vec<u8> {
-        self.patch();
+    pub fn finish(mut self) -> Result<Buffer> {
+        self.table.patch(&mut self.buffer)?;
 
-        self.inner
-            .into_iter()
-            .map(|b| b.buffer().into())
-            .collect::<Vec<Vec<u8>>>()
-            .into_iter()
-            .flatten()
-            .collect()
+        Ok(self.buffer)
     }
 
     /// Emit buffer to the inner buffer.
-    fn emit_buffer(&mut self, buffer: Buffer) {
-        self.inner.push(buffer);
-    }
+    fn emit_buffer(&mut self, codegen: CodeGen) -> Result<()> {
+        let buffer = codegen.finish(&mut self.table, self.buffer.len() as u16)?;
+        if !self.buffer.is_empty() {
+            self.buffer.push(0x5b);
+        }
 
-    /// Patch labels to fix jump offsets.
-    fn patch(&mut self) {}
+        self.buffer.extend_from_slice(&buffer);
+        if buffer.len() > BUFFER_LIMIT {
+            return Err(Error::BufferOverflow(buffer.len()));
+        }
+
+        Ok(())
+    }
 }

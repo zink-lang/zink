@@ -12,6 +12,15 @@ pub enum Error {
     /// Failed to pop control stack frame.
     #[error("Control stack underflow")]
     ControlStackUnderflow,
+    /// Failed to register program counter to function index.
+    #[error("Function {0} already exists in jump table")]
+    DuplicateFunc(u32),
+    /// Failed to merge jump table.
+    #[error("Program counter {0} already exists in jump table")]
+    DuplicateJump(u16),
+    /// Failed to find function index in jump table.
+    #[error("Function {0} not found in jump table")]
+    FuncNotFound(u32),
     /// Failed to construct program counter for jump.
     #[error("Invalid program counter {0}")]
     InvalidPC(usize),

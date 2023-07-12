@@ -19,46 +19,32 @@ pub enum ControlStackFrameType {
 
 /// Holds the necessary metadata to support the smission
 /// of control flow instructions.
+///
+/// NOTE: The output of control flow should be placed on
+/// the stack, so we don't need to store the result type.
 #[derive(Clone)]
 pub struct ControlStackFrame {
     /// The type of the control stack frame.
-    pub ty: ControlStackFrameType,
+    _ty: ControlStackFrameType,
     /// The program counter offset at the beginning of if.
     pub original_pc_offset: u16,
     /// The return values of the block.
-    result: BlockType,
+    _result: BlockType,
 }
 
 impl ControlStackFrame {
     /// Create a new control stack frame.
     pub fn new(ty: ControlStackFrameType, original_pc_offset: u16, result: BlockType) -> Self {
         Self {
-            ty,
+            _ty: ty,
             original_pc_offset,
-            result,
+            _result: result,
         }
     }
 
     /// Get the offset of the orginal program counter.
     pub fn pc_offset(&self) -> u16 {
         self.original_pc_offset
-    }
-
-    /// The stack item length of the results.
-    pub fn results(&self) -> usize {
-        match self.result {
-            BlockType::Empty | BlockType::FuncType(_) => 0,
-            BlockType::Type(_) => 1,
-        }
-    }
-
-    /// Get the result type of the control stack frame.
-    pub fn result(&self) -> Option<BlockType> {
-        if matches!(self.result, BlockType::Empty) {
-            return None;
-        }
-
-        Some(self.result)
     }
 }
 

@@ -7,18 +7,19 @@ pub use crate::{
     asm::Assembler,
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
+    jump::JumpTable,
     local::LocalSlot,
     masm::MacroAssembler,
     result::{Error, Result},
 };
 use opcodes::ShangHai as OpCode;
 use smallvec::SmallVec;
-use std::collections::BTreeMap;
 
 pub mod abi;
 mod asm;
 mod codegen;
 mod control;
+mod jump;
 mod local;
 mod masm;
 mod result;
@@ -27,9 +28,6 @@ mod visitor;
 
 /// Maximum size of a evm bytecode in bytes.
 pub const BUFFER_LIMIT: usize = 0x6000;
-
-/// Function call labels.
-pub type Labels = BTreeMap<u16, u32>;
 
 /// Code generation buffer.
 pub type Buffer = SmallVec<[u8; BUFFER_LIMIT]>;
@@ -69,7 +67,7 @@ pub fn patch(buffer: &mut Buffer, original_pc: usize, target_pc: usize) -> Resul
     }
 
     // Check PC range.
-    if pc > 0xffff {
+    if pc > BUFFER_LIMIT {
         return Err(Error::InvalidPC(pc));
     }
 

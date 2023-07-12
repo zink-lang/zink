@@ -1,7 +1,7 @@
 //! Code generation implementation.
 use crate::{
-    abi::Type, control::ControlStack, local::LocalSlot, masm::MacroAssembler,
-    validator::ValidateThenVisit, Buffer, Labels, Locals, Result,
+    abi::Type, control::ControlStack, jump::JumpTable, local::LocalSlot, masm::MacroAssembler,
+    validator::ValidateThenVisit, Buffer, Locals, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
@@ -17,8 +17,8 @@ pub struct CodeGen {
     pub(crate) locals: Locals,
     /// The macro assembler.
     pub(crate) masm: MacroAssembler,
-    /// Function labels
-    labels: Labels,
+    /// The jump table.
+    pub(crate) table: JumpTable,
 }
 
 impl CodeGen {
@@ -29,7 +29,7 @@ impl CodeGen {
             env,
             locals: Default::default(),
             masm: MacroAssembler::default(),
-            labels: Default::default(),
+            table: Default::default(),
         }
     }
 
@@ -82,10 +82,9 @@ impl CodeGen {
     }
 
     /// Finish code generation.
-    pub fn finish<B>(self) -> B
-    where
-        B: From<(Buffer, Labels)>,
-    {
-        B::from((self.masm.buffer().into(), self.labels))
+    pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
+        jump_table.merge(self.table, pc)?;
+
+        Ok(self.masm.buffer().into())
     }
 }
