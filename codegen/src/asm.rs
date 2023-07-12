@@ -2,31 +2,24 @@
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
-use crate::{Error, Result, Stack};
+use crate::{Buffer, Error, Result};
 use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
-use smallvec::{smallvec, SmallVec};
-
-/// Maximum size of a evm bytecode in bytes.
-pub const BUFFER_LIMIT: usize = 0x6000;
-
-/// Maximum size of memory in evm in bytes.
-pub const MEMORY_LIMIT: usize = 0x40;
 
 /// Low level assembler implementation for EVM.
 #[derive(Default)]
 pub struct Assembler {
     /// Buffer of the assembler.
-    buffer: SmallVec<[u8; BUFFER_LIMIT]>,
+    buffer: Buffer,
     /// Gas counter.
     ///
     /// This is used to calculate the gas cost of the generated code.
     ///
     /// TODO: use a more precise type, eq `u256`. (issue-20)
     gas: u128,
-    /// Virtual memory for compilation.
-    pub memory: SmallVec<[u8; MEMORY_LIMIT]>,
-    /// Virtual stack for compilation.
-    stack: Stack,
+    /// Memory pointer, maximum 32, 64-bit words.
+    pub mp: u8,
+    /// Stack pointer, maximum 12 items.
+    sp: u8,
 }
 
 impl Assembler {
@@ -36,7 +29,7 @@ impl Assembler {
     }
 
     /// Mutable buffer of the assembler.
-    pub fn buffer_mut(&mut self) -> &mut SmallVec<[u8; BUFFER_LIMIT]> {
+    pub fn buffer_mut(&mut self) -> &mut Buffer {
         &mut self.buffer
     }
 
@@ -45,6 +38,44 @@ impl Assembler {
     /// TODO: use number bigger than `u256` for throwing proper errors. (#21)
     pub fn increment_gas(&mut self, gas: u128) {
         self.gas += gas;
+    }
+
+    /// Increment stack pointer
+    pub fn increment_sp(&mut self, items: u8) -> Result<()> {
+        self.sp += items;
+        if self.sp > 12 {
+            return Err(Error::StackOverflow(self.sp));
+        }
+
+        Ok(())
+    }
+
+    /// Decrement stack pointer
+    pub fn decrement_sp(&mut self, items: u8) -> Result<()> {
+        self.sp = self
+            .sp
+            .checked_sub(items)
+            .ok_or(Error::StackUnderflow(self.sp, items))?;
+        Ok(())
+    }
+
+    /// Increment memory pointer
+    pub fn increment_mp(&mut self, offset: u8) -> Result<()> {
+        self.mp += offset;
+        if self.mp > 32 {
+            return Err(Error::MemoryOutOfBounds);
+        }
+
+        Ok(())
+    }
+
+    /// Decrement memory pointer
+    pub fn decrement_mp(&mut self, offset: u8) -> Result<()> {
+        self.mp = self
+            .mp
+            .checked_sub(offset)
+            .ok_or(Error::MemoryOutOfBounds)?;
+        Ok(())
     }
 
     /// Emit a byte.
@@ -62,11 +93,10 @@ impl Assembler {
     /// Mock the stack input and ouput for checking
     /// the stack usages.
     pub fn emit_op(&mut self, opcode: OpCode) -> Result<()> {
-        self.stack.popn(opcode.stack_in() as usize)?;
+        self.decrement_sp(opcode.stack_in() as u8)?;
         self.emit(opcode.into());
         self.increment_gas(opcode.gas().into());
-        self.stack
-            .pushn(smallvec![smallvec![42]; opcode.stack_out() as usize])?;
+        self.increment_sp(opcode.stack_out() as u8)?;
 
         Ok(())
     }
@@ -111,7 +141,6 @@ impl Assembler {
             _ => return Err(Error::StackIndexOutOfRange(len as u8)),
         }?;
 
-        // Place n bytes on stack.
         self.emitn(bytes);
         Ok(())
     }

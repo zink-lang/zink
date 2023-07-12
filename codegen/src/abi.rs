@@ -33,20 +33,20 @@ impl Type for ValType {
 
 /// Get the offset of this type in the lowest
 /// significant bytes.
-pub trait Offset {
+pub trait ToLSBytes {
+    /// Output buffer
     type Output: AsRef<[u8]>;
 
-    /// Get the offset of this type in the
-    /// lowest significant bytes.
-    fn offset(&self) -> Self::Output;
+    /// Convert self to the lowest significant bytes.
+    fn to_ls_bytes(&self) -> Self::Output;
 }
 
 macro_rules! offset {
     ($number:ident, $size:expr) => {
-        impl Offset for $number {
+        impl ToLSBytes for $number {
             type Output = SmallVec<[u8; $size]>;
 
-            fn offset(&self) -> Self::Output {
+            fn to_ls_bytes(&self) -> Self::Output {
                 if *self == 0 {
                     return smallvec![0];
                 }
@@ -75,26 +75,26 @@ offset! {
     (u8, 1)
 }
 
-impl Offset for BlockType {
+impl ToLSBytes for BlockType {
     type Output = SmallVec<[u8; 8]>;
 
-    fn offset(&self) -> Self::Output {
+    fn to_ls_bytes(&self) -> Self::Output {
         match self {
             BlockType::Empty => Default::default(),
-            BlockType::Type(val) => val.size().offset(),
-            BlockType::FuncType(val) => Self::Output::from_slice(&val.offset()),
+            BlockType::Type(val) => val.size().to_ls_bytes(),
+            BlockType::FuncType(val) => Self::Output::from_slice(&val.to_ls_bytes()),
         }
     }
 }
 
-impl Offset for &[ValType] {
+impl ToLSBytes for &[ValType] {
     type Output = SmallVec<[u8; 8]>;
 
-    fn offset(&self) -> Self::Output {
+    fn to_ls_bytes(&self) -> Self::Output {
         self.as_ref()
             .iter()
             .map(|t| t.align())
             .sum::<usize>()
-            .offset()
+            .to_ls_bytes()
     }
 }

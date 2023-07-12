@@ -18,6 +18,8 @@ flowchart LR
     Z --> V[(EVM)]
 ```
 
+## Features
+
 Here we highly recommand you to choose `rust` as the language of your smart contracts 
 which will unlock all of the following features:
 
@@ -37,59 +39,6 @@ part of your solidty contracts :)
 zink will provide everything you need for developing your contracts officially based on the 
 stable projects in rust like the `foundry` tools.
 
-
-## Installation
-
-> Zink tools are still under development, the following examples
-> will be updated frequently before `v0.1.0`.
-
-```shell
-cargo install zinkup
-elko --help
-Package manager of zink project
-
-Usage: elko [OPTIONS] <INPUT>
-
-Arguments:
-  <INPUT>  The path to the wasm file or the rust project directory. ( only support cargo project as input for now )
-
-Options:
-  -o, --output <filename>  Write output to <filename>
-      --out-dir <dir>      Write output to compiler-chosen filename in <dir>
-      --release            Optimize with default optimizations
-  -v, --verbose...         Verbose mode (-v, -vv, -vvv, etc.)
-  -h, --help               Print help (see more with '--help')
-  -V, --version            Print version
-```
-
-## Example
-
-We can start an empty project with <kbd>cargo new</kbd>, for example, we just created a new
-project named `addition` (see `examples/addition`), and this is the `lib.rs` of our project.
-
-```rust
-//! Addition example.
-#![cfg_attr(target_arch = "wasm32", no_std)]
-
-// for panic handler.
-#[cfg(all(target_arch = "wasm32", not(test)))]
-extern crate zink;
-
-/// Adds two numbers together.
-#[no_mangle]
-pub extern "C" fn add(x: u64, y: u64) -> u64 {
-    x + y
-}
-```
-
-Now, let's run zinkc to compile this project into evm bytecode (TODO)
-
-```shell
-cd addition
-zinkc . --out-dir bin
-ls bin
-addition.wasm addition.bin
-```
 
 ## LICENSE
 

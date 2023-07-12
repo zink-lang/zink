@@ -1,12 +1,6 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{
-    abi::Offset,
-    asm::{Assembler, BUFFER_LIMIT},
-    control::ControlStackFrame,
-    Error, Result, Stack,
-};
-use smallvec::SmallVec;
+use crate::{abi::ToLSBytes, asm::Assembler, control::ControlStackFrame, Result};
 use std::ops::{Deref, DerefMut};
 
 /// EVM MacroAssembler.
@@ -14,9 +8,6 @@ use std::ops::{Deref, DerefMut};
 pub struct MacroAssembler {
     /// Low level assembler.
     pub asm: Assembler,
-
-    /// Virtual stack for compilation.
-    pub stack: Stack,
 }
 
 impl Deref for MacroAssembler {
@@ -35,47 +26,27 @@ impl DerefMut for MacroAssembler {
 
 impl MacroAssembler {
     /// Patch label with the current program counter.
-    pub fn patch(&mut self, frame: &ControlStackFrame) -> Result<()> {
-        let label = frame.label();
-        let pc_offset = (self.pc_offset() as usize)
-            .checked_sub(label.len())
-            .ok_or(Error::LabelMismatch)?;
+    pub fn patch(&mut self, frame: &ControlStackFrame) -> Result<usize> {
+        let original_pc = frame.pc_offset() as usize;
+        let target_pc = self.pc_offset() as usize;
+        let buffer = self.asm.buffer_mut();
 
-        // Patch buffer.
-        let buffer = self.asm.buffer();
-        let mut new_buffer: SmallVec<[u8; BUFFER_LIMIT]> =
-            buffer[..=frame.original_pc_offset as usize].into();
-        new_buffer.extend_from_slice(&pc_offset.offset());
-        new_buffer.extend_from_slice(
-            buffer[(frame.original_pc_offset as usize + 1)..]
-                .strip_prefix(label.as_ref())
-                .ok_or(Error::LabelMismatch)?,
-        );
-
-        *self.asm.buffer_mut() = new_buffer;
-        self._jumpdest()?;
-
-        Ok(())
+        crate::patch(buffer, original_pc, target_pc)
     }
 
     /// Store data in memory.
-    pub fn memory_write(&mut self, ty: impl Offset) -> Result<()> {
-        let offset = self.memory.len();
-        if offset > 32 {
-            return Err(Error::MemoryOutOfBounds);
-        }
-
+    pub fn memory_write(&mut self, ty: impl ToLSBytes) -> Result<()> {
         // use the current memory pointer as offset
         // to store the data.
-        let offset = offset.offset();
+        let offset = self.mp.to_ls_bytes();
         self.push(&offset)?;
         self._mstore()?;
 
         // mock the memory usages.
-        let value = ty.offset();
-        self.memory.extend_from_slice(value.as_ref());
+        let value = ty.to_ls_bytes();
+        self.increment_mp(value.as_ref().len() as u8)?;
 
-        // NOTE: post logic for memory write, leave the
+        // post logic for memory write, leave the
         // data size and memory offset on the stack.
         self.push(value.as_ref())?; // push value
         self.push(&offset)?; // push offset

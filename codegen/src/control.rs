@@ -1,6 +1,6 @@
 //! Data structures for control flow emission.
-use crate::{abi::Offset, Error, Result};
-use smallvec::{smallvec, SmallVec};
+use crate::{Error, Result};
+use smallvec::SmallVec;
 use wasmparser::BlockType;
 
 /// The type of the control stack frame.
@@ -19,53 +19,32 @@ pub enum ControlStackFrameType {
 
 /// Holds the necessary metadata to support the smission
 /// of control flow instructions.
+///
+/// NOTE: The output of control flow should be placed on
+/// the stack, so we don't need to store the result type.
 #[derive(Clone)]
 pub struct ControlStackFrame {
     /// The type of the control stack frame.
-    ty: ControlStackFrameType,
+    _ty: ControlStackFrameType,
     /// The program counter offset at the beginning of if.
     pub original_pc_offset: u16,
     /// The return values of the block.
-    result: BlockType,
+    _result: BlockType,
 }
 
 impl ControlStackFrame {
     /// Create a new control stack frame.
     pub fn new(ty: ControlStackFrameType, original_pc_offset: u16, result: BlockType) -> Self {
         Self {
-            ty,
+            _ty: ty,
             original_pc_offset,
-            result,
+            _result: result,
         }
-    }
-
-    /// The maximum code size of a EVM contract is 0x6000 bytes.
-    /// so `u16` for the label should be enough.
-    ///
-    /// This label will be placed right before the control flow
-    /// instruction `JUMP` momentarilly, and be replaced by the
-    /// actual jump destination when mactching instruction `End`
-    /// afterwards.
-    pub fn label(&self) -> SmallVec<[u8; 3]> {
-        let mut label = smallvec![];
-        label.push(self.ty as u8);
-        label.extend_from_slice(&self.pc_offset());
-
-        label
     }
 
     /// Get the offset of the orginal program counter.
-    pub fn pc_offset(&self) -> SmallVec<[u8; 2]> {
-        self.original_pc_offset.offset()
-    }
-
-    /// Get the result type of the control stack frame.
-    pub fn result(&self) -> Option<BlockType> {
-        if matches!(self.result, BlockType::Empty) {
-            return None;
-        }
-
-        Some(self.result)
+    pub fn pc_offset(&self) -> u16 {
+        self.original_pc_offset
     }
 }
 
@@ -75,7 +54,7 @@ pub struct ControlStack {
     /// Stack frames for control flow.
     ///
     /// The 32 is set arbitrarily, we can adjust it as we see fit.
-    stack: SmallVec<[ControlStackFrame; 32]>,
+    pub stack: SmallVec<[ControlStackFrame; 32]>,
 }
 
 impl ControlStack {
@@ -85,8 +64,6 @@ impl ControlStack {
     }
 
     /// Pop a control stack frame.
-    ///
-    /// TODO: update the offsets of all frames.
     pub fn pop(&mut self) -> Result<ControlStackFrame> {
         self.stack.pop().ok_or_else(|| Error::ControlStackUnderflow)
     }

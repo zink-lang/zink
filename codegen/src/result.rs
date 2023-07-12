@@ -12,6 +12,18 @@ pub enum Error {
     /// Failed to pop control stack frame.
     #[error("Control stack underflow")]
     ControlStackUnderflow,
+    /// Failed to register program counter to function index.
+    #[error("Function {0} already exists in jump table")]
+    DuplicateFunc(u32),
+    /// Failed to merge jump table.
+    #[error("Program counter {0} already exists in jump table")]
+    DuplicateJump(u16),
+    /// Failed to find function index in jump table.
+    #[error("Function {0} not found in jump table")]
+    FuncNotFound(u32),
+    /// Failed to construct program counter for jump.
+    #[error("Invalid program counter {0}")]
+    InvalidPC(usize),
     /// Failed to patch jump destination.
     #[error("Invalid frame label")]
     LabelMismatch,
@@ -26,10 +38,10 @@ pub enum Error {
     StackIndexOutOfRange(u8),
     /// Failed to increment stack pointer.
     #[error("Stack overflow, max is 12 stack items, got {0}")]
-    StackOverflow(usize),
+    StackOverflow(u8),
     /// Failed to decrement stack pointer.
-    #[error("Stack underflow, current stack ptr is {0}")]
-    StackUnderflow(usize),
+    #[error("Stack underflow, current stack items {0}, expect at least {1}")]
+    StackUnderflow(u8, u8),
 }
 
 /// Codegen result

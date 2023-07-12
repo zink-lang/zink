@@ -1405,6 +1405,7 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "hex",
+ "smallvec",
  "thiserror",
  "tracing",
  "tracing-subscriber",

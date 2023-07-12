@@ -1,9 +1,8 @@
 //! Code generation implementation.
 use crate::{
-    abi::Type, control::ControlStack, local::LocalSlot, masm::MacroAssembler,
-    validator::ValidateThenVisit, Result,
+    abi::Type, control::ControlStack, jump::JumpTable, local::LocalSlot, masm::MacroAssembler,
+    validator::ValidateThenVisit, Buffer, Locals, Result,
 };
-use smallvec::SmallVec;
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
 /// The code generation abstraction.
@@ -11,17 +10,15 @@ use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, Validat
 /// TODO: add codegen context for backtrace. (#21)
 pub struct CodeGen {
     /// Control stack frames.
-    pub control: ControlStack,
+    pub(crate) control: ControlStack,
     /// The function environment.
-    pub env: FuncType,
+    pub(crate) env: FuncType,
     /// The defined locals for a function.
-    ///
-    /// NOTE: Solidity's implementation uses 16 slots for locals.
-    ///
-    /// ref: https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor
-    pub locals: SmallVec<[LocalSlot; 16]>,
+    pub(crate) locals: Locals,
     /// The macro assembler.
-    pub masm: MacroAssembler,
+    pub(crate) masm: MacroAssembler,
+    /// The jump table.
+    pub(crate) table: JumpTable,
 }
 
 impl CodeGen {
@@ -30,14 +27,10 @@ impl CodeGen {
         Self {
             control: ControlStack::default(),
             env,
-            locals: SmallVec::new(),
+            locals: Default::default(),
             masm: MacroAssembler::default(),
+            table: Default::default(),
         }
-    }
-
-    /// Get the generated buffer.
-    pub fn buffer(&self) -> &[u8] {
-        self.masm.buffer()
     }
 
     /// Emit function locals
@@ -86,5 +79,12 @@ impl CodeGen {
         }
 
         Ok(())
+    }
+
+    /// Finish code generation.
+    pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
+        jump_table.merge(self.table, pc)?;
+
+        Ok(self.masm.buffer().into())
     }
 }
