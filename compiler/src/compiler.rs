@@ -55,7 +55,6 @@ impl Compiler {
         }
 
         codegen.emit_operators(&mut ops_reader, &mut func_validator)?;
-
         self.emit_buffer(func_index, codegen)?;
         Ok(())
     }
