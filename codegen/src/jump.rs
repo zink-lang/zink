@@ -49,6 +49,7 @@ impl JumpTable {
     /// Merge other jump table into this one, update the program
     /// counter of the target jump table.
     pub fn merge(&mut self, mut table: Self, pc: u16) -> Result<()> {
+        tracing::trace!("merge jump table");
         table.update_pc(pc as usize)?;
 
         for (pc, jump) in table.jump.into_iter() {
@@ -68,13 +69,15 @@ impl JumpTable {
 
     /// Patch program counter to all registered labels.
     pub fn patch(&mut self, buffer: &mut Buffer) -> Result<()> {
+        tracing::trace!("patching jump table");
         while let Some((pc, jump)) = self.jump.pop_first() {
             let target = match jump {
                 Jump::Label(label) => label,
                 Jump::Func(func) => *self.func.get(&func).ok_or(Error::FuncNotFound(func))?,
             };
 
-            tracing::trace!("{target}");
+            tracing::trace!("jump target: {target}");
+            tracing::trace!("buffer: {:x?}", buffer);
 
             self.update_pc(crate::patch(buffer, pc as usize, target as usize)?)?;
         }
@@ -85,6 +88,7 @@ impl JumpTable {
     /// Update program counter for all items.
     pub fn update_pc(&mut self, pc: usize) -> Result<()> {
         let pc: u16 = pc.try_into().map_err(|_| Error::InvalidPC(pc))?;
+        tracing::trace!("update pc to {}", pc);
 
         self.jump = self
             .jump

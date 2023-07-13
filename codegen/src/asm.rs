@@ -24,8 +24,13 @@ pub struct Assembler {
 impl Assembler {
     /// New assembler
     pub fn new(sp: u8) -> Self {
+        let mut buffer = Buffer::new();
+        if sp != 0 {
+            buffer.push(OpCode::JUMPDEST.into());
+        }
+
         Self {
-            buffer: Buffer::new(),
+            buffer,
             gas: 0,
             mp: 0,
             sp,

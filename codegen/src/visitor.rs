@@ -53,11 +53,14 @@ impl<'a> VisitOperator<'a> for CodeGen {
         trace!("call {}", function_index);
         self.table.call(self.masm.pc_offset(), function_index)?;
 
+        trace!("function pc: {}", self.masm.pc_offset());
+
         // mock the stack output of the counter
         //
         // the program counter instructions should be patched afterwards.
         self.masm.asm.increment_sp(1)?;
         self.masm._jump()?;
+        self.masm._jumpdest()?;
         Ok(())
     }
 

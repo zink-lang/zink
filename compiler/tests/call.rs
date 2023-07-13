@@ -12,8 +12,6 @@ fn params() -> Result<()> {
     let wasm = common::load("call", "params")?;
     let bytecode = Compiler::default().compile(&wasm)?;
 
-    tracing::trace!("{:x?}", bytecode);
-
     #[rustfmt::skip]
     let expected = [
         0x60, 0x0, 0x35,  // PUSH1 0x00 CALLDATALOAD
@@ -30,6 +28,9 @@ fn params() -> Result<()> {
         0x60, 0x09,       // PUSH1 0x09
         0x56,             // JUMP
     ];
+
+    tracing::trace!("{:x?}", bytecode);
+    tracing::trace!("{:x?}", expected);
 
     // Skip the condition.
     let input = [vec![0; 31], vec![1; 1], vec![0; 31], vec![2; 1]].concat();

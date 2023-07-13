@@ -26,7 +26,10 @@ pub struct CodeGen {
 impl CodeGen {
     /// Create a new code generator.
     pub fn new(env: FuncType, is_main: bool) -> Self {
-        let stack_pointer = env.params().len() as u8;
+        let mut stack_pointer = 0;
+        if !is_main {
+            stack_pointer = env.params().len() as u8;
+        }
 
         Self {
             control: ControlStack::default(),
@@ -89,7 +92,6 @@ impl CodeGen {
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
         jump_table.merge(self.table, pc)?;
-
         Ok(self.masm.buffer().into())
     }
 }
