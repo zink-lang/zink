@@ -14,10 +14,10 @@ pub struct Build {
     ///
     /// TODO: Support wasm file as input. (issue-19)
     pub input: PathBuf,
-    /// Write output to <filename>
+    /// Write output to \<filename\>
     #[clap(short, long, value_name = "filename")]
     pub output: Option<PathBuf>,
-    /// Write output to compiler-chosen filename in <dir>
+    /// Write output to compiler-chosen filename in \<dir\>
     #[clap(long, value_name = "dir")]
     pub out_dir: Option<PathBuf>,
     /// Optimize with default optimizations

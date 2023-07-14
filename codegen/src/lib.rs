@@ -33,7 +33,7 @@ pub const BUFFER_LIMIT: usize = 0x6000;
 pub type Buffer = SmallVec<[u8; BUFFER_LIMIT]>;
 
 /// Solidity's implementation uses 16 slots for locals.
-/// ref: https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor
+/// ref: <https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor>
 pub type Locals = SmallVec<[LocalSlot; 16]>;
 
 /// Patch program counter to buffer.

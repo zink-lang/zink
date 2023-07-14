@@ -17,5 +17,5 @@ This guide is intended to serve a number of purposes and within you'll find:
 
 [zink]: https://github.com/clearloop/zink
 [zinkc]: https://github.com/clearloop/zink/tree/main/compiler 
-[rustdocs]: https://clearloop.github.io/zink
+[rustdocs]: https://docs.zink-lang.org/rustdocs
 [source]: https://github.com/clearloop/zink/tree/main/docs
