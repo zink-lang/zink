@@ -3,6 +3,8 @@ name: Docs
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [main]
 
 jobs:
   deploy:
@@ -14,11 +16,30 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v3
+
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v1
+        with:
+          mdbook-version: 'latest'
+
+      - name: Build the book
+        run: cd docs && mdbook build
+
       - uses: dtolnay/rust-toolchain@nightly
-      - run: RUSTDOCFLAGS="--enable-index-page -Zunstable-options" cargo doc
+
+      - name: Build rust docs
+        run: |
+          RUSTDOCFLAGS="--enable-index-page -Zunstable-options" cargo doc \
+          --workspace \
+          --no-deps \
+          --document-private-items
+
+      - name: Assemble docs
+        run: mv target/doc docs/book/api
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
+        # if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/doc
-          force_orphan: true
+          publish_dir: ./docs/book
