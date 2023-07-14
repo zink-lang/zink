@@ -12,3 +12,4 @@ smallvec.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 wasmparser.workspace = true
+paste.workspace = true

@@ -8,6 +8,7 @@ use crate::{
     control::{ControlStackFrame, ControlStackFrameType},
     CodeGen, Result,
 };
+use paste::paste;
 use tracing::trace;
 use wasmparser::{for_each_operator, VisitOperator};
 
@@ -18,19 +19,7 @@ use wasmparser::{for_each_operator, VisitOperator};
 /// 2. Defines the visitor function and panics when
 /// matching an unsupported operator.
 macro_rules! impl_visit_operator {
-    ( @mvp Call { function_index: u32 } => visit_call $($rest:tt)* ) => {
-        impl_visit_operator!($($rest)*);
-    };
-    ( @mvp End => visit_end $($rest:tt)* ) => {
-        impl_visit_operator!($($rest)*);
-    };
-    ( @mvp LocalGet { local_index: u32 } => visit_local_get $($rest:tt)* ) => {
-        impl_visit_operator!($($rest)*);
-    };
-    ( @mvp I32Add => visit_i32_add $($rest:tt)* ) => {
-        impl_visit_operator!($($rest)*);
-    };
-    ( @mvp If { blockty: $crate::BlockType } => visit_if $($rest:tt)* ) => {
+    ( @mvp $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident $($rest:tt)* ) => {
         impl_visit_operator!($($rest)*);
     };
     ( @$proposal:ident $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident $($rest:tt)* ) => {
@@ -42,6 +31,105 @@ macro_rules! impl_visit_operator {
         impl_visit_operator!($($rest)*);
     };
     () => {};
+}
+
+/// Implement arithmetic operators for types.
+macro_rules! impl_arithmetic_ops {
+    ($op:tt) => {
+        paste! {
+            fn [< visit_i32_ $op >](&mut self) -> Self::Output {
+                trace!("i32.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $op >]()?;
+
+                Ok(())
+            }
+
+            fn [< visit_i64_ $op >](&mut self) -> Self::Output {
+                trace!("i64.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $op >]()?;
+
+                Ok(())
+            }
+
+            impl_arithmetic_ops!(@float $op, $op);
+        }
+    };
+    (@signed $wasm:tt, $evm:tt $($suffix:tt)?) => {
+        paste! {
+            fn [< visit_i32_ $wasm $($suffix)? >](&mut self) -> Self::Output {
+                trace!("i32.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $evm >]()?;
+
+                Ok(())
+            }
+
+            fn [< visit_i64_ $wasm $($suffix)? >](&mut self) -> Self::Output {
+                trace!("i64.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $evm >]()?;
+
+                Ok(())
+            }
+        }
+    };
+    (@unsigned $wasm:tt, $evm:tt $($suffix:tt)?) => {
+        paste! {
+            fn [< visit_i32_ $wasm $($suffix)? >](&mut self) -> Self::Output {
+                trace!("i32.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $evm >]()?;
+
+                Ok(())
+            }
+
+            fn [< visit_i64_ $wasm $($suffix)? >](&mut self) -> Self::Output {
+                trace!("i64.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $evm >]()?;
+
+                Ok(())
+            }
+        }
+    };
+    (@integer $wasm:tt, $evm:tt) => {
+        impl_arithmetic_ops!(@signed $wasm, $evm _s);
+
+        impl_arithmetic_ops!(@unsigned $wasm, $evm _u);
+    };
+    (@float $wasm:tt, $evm:tt) => {
+        paste! {
+            fn [< visit_f32_ $wasm >](&mut self) -> Self::Output {
+                trace!("f32.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $evm >]()?;
+
+                Ok(())
+            }
+
+            fn [< visit_f64_ $wasm >](&mut self) -> Self::Output {
+                trace!("f64.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $evm >]()?;
+
+                Ok(())
+            }
+        }
+    };
+    (@map $wasm:tt, $evm:tt) => {
+        paste! {
+            impl_arithmetic_ops!(@integer $wasm, $evm);
+
+            impl_arithmetic_ops!(@float $wasm, $evm);
+        }
+    };
+    (
+        @common[$($op:tt),+],
+        @xdr[$($xdr:tt),+],
+        @signed[$($signed:tt),+],
+        @integer[$($integer:tt),+],
+        @map[$($wasm:tt => $evm:tt),+],
+    ) => {
+        $(impl_arithmetic_ops!($op);)+
+        $(impl_arithmetic_ops!(@map $xdr, $xdr);)+
+        $(impl_arithmetic_ops!(@signed $signed, $signed);)+
+        $(impl_arithmetic_ops!(@integer $integer, $integer);)+
+        $(impl_arithmetic_ops!(@map $wasm, $evm);)+
+    };
 }
 
 impl<'a> VisitOperator<'a> for CodeGen {
@@ -121,12 +209,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
         Ok(())
     }
 
-    fn visit_i32_add(&mut self) -> Self::Output {
-        trace!("i32.add");
-        self.masm.asm._add()?;
-        Ok(())
-    }
-
     fn visit_if(&mut self, blockty: wasmparser::BlockType) -> Self::Output {
         trace!("If");
 
@@ -142,5 +224,13 @@ impl<'a> VisitOperator<'a> for CodeGen {
         self.masm._jumpi()?;
 
         Ok(())
+    }
+
+    impl_arithmetic_ops! {
+        @common[add, sub, mul, eq],
+        @xdr[div, lt, gt],
+        @signed[or, xor, shl],
+        @integer[shr],
+        @map[ge => sgt, le => slt],
     }
 }

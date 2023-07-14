@@ -12,8 +12,6 @@ fn basic() -> Result<()> {
     let wasm = common::load("if", "basic")?;
     let bytecode = Compiler::default().compile(&wasm)?;
 
-    tracing::trace!("{:x?}", bytecode);
-
     // Skip the condition.
     let (ret, _) = EVM::run(&bytecode, &[0; 32]);
     assert_eq!(ret, [0; 32]);
