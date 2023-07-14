@@ -14,10 +14,8 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
-      - run: |
-          cargo doc --all-features --lib --no-deps
-          echo '<meta http-equiv="refresh" content="0; URL=https://clearloop.github.io/zink/zinkc" />' > target/doc/index.html
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: RUSTDOCFLAGS="--enable-index-page -Zunstable-options" cargo doc
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
