@@ -10,7 +10,7 @@ use crate::{
 };
 use paste::paste;
 use tracing::trace;
-use wasmparser::{for_each_operator, VisitOperator};
+use wasmparser::{for_each_operator, BlockType, Ieee32, Ieee64, MemArg, VisitOperator};
 
 /// A macro to define unsupported WebAssembly operators.
 ///
@@ -224,6 +224,344 @@ impl<'a> VisitOperator<'a> for CodeGen {
         self.masm._jumpi()?;
 
         Ok(())
+    }
+
+    fn visit_unreachable(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_nop(&mut self) -> Self::Output {
+        // Perform nothing.
+        Ok(())
+    }
+    fn visit_block(&mut self, _: BlockType) -> Self::Output {
+        todo!()
+    }
+    fn visit_loop(&mut self, _: BlockType) -> Self::Output {
+        todo!()
+    }
+    fn visit_else(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_br(&mut self, _: u32) -> Self::Output {
+        todo!()
+    }
+    fn visit_br_if(&mut self, _: u32) -> Self::Output {
+        todo!()
+    }
+    fn visit_br_table(&mut self, _: wasmparser::BrTable<'a>) -> Self::Output {
+        todo!()
+    }
+    fn visit_return(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_call_indirect(&mut self, _: u32, _: u32, _: u8) -> Self::Output {
+        todo!()
+    }
+    fn visit_drop(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_select(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_local_set(&mut self, _: u32) -> Self::Output {
+        todo!()
+    }
+    fn visit_local_tee(&mut self, _: u32) -> Self::Output {
+        todo!()
+    }
+    fn visit_global_get(&mut self, _: u32) -> Self::Output {
+        todo!()
+    }
+    fn visit_global_set(&mut self, _: u32) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_load(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_load(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_load(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_load(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_load8_s(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_load8_u(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_load16_s(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_load16_u(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_load8_s(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_load8_u(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_load16_s(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_load16_u(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_load32_s(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_load32_u(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_store(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_store(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_store(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_store(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_store8(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_store16(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_store8(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_store16(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_store32(&mut self, _: MemArg) -> Self::Output {
+        todo!()
+    }
+    fn visit_memory_size(&mut self, _: u32, _: u8) -> Self::Output {
+        todo!()
+    }
+    fn visit_memory_grow(&mut self, _: u32, _: u8) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_const(&mut self, _: i32) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_const(&mut self, _: i64) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_const(&mut self, _: Ieee32) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_const(&mut self, _: Ieee64) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_eqz(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_ne(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_eqz(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_ne(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_ne(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_ne(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_clz(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_ctz(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_popcnt(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_rem_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_rem_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_and(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_rotl(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_rotr(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_clz(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_ctz(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_popcnt(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_rem_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_rem_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_and(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_rotl(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_rotr(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_abs(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_neg(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_ceil(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_floor(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_trunc(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_nearest(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_sqrt(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_min(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_max(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_copysign(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_abs(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_neg(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_ceil(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_floor(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_trunc(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_nearest(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_sqrt(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_min(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_max(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_copysign(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_wrap_i64(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_trunc_f32_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_trunc_f32_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_trunc_f64_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_trunc_f64_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_extend_i32_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_extend_i32_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_trunc_f32_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_trunc_f32_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_trunc_f64_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_trunc_f64_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_convert_i32_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_convert_i32_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_convert_i64_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_convert_i64_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_demote_f64(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_convert_i32_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_convert_i32_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_convert_i64_s(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_convert_i64_u(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_promote_f32(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i32_reinterpret_f32(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_i64_reinterpret_f64(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f32_reinterpret_i32(&mut self) -> Self::Output {
+        todo!()
+    }
+    fn visit_f64_reinterpret_i64(&mut self) -> Self::Output {
+        todo!()
     }
 
     impl_arithmetic_ops! {
