@@ -24,13 +24,13 @@ pub struct JumpTable {
 
 impl JumpTable {
     /// Register a function.
-    pub fn func(&mut self, pc: u16, func: u32) -> Result<()> {
+    pub fn call(&mut self, pc: u16, func: u32) -> Result<()> {
         self.jump.insert(pc, Jump::Func(func));
         Ok(())
     }
 
     /// Register program counter to the function table.
-    pub fn func_offset(&mut self, func: u32, offset: u16) -> Result<()> {
+    pub fn call_offset(&mut self, func: u32, offset: u16) -> Result<()> {
         if self.func.insert(func, offset).is_some() {
             return Err(Error::DuplicateFunc(func));
         }
@@ -83,7 +83,6 @@ impl JumpTable {
     /// Update program counter for all items.
     pub fn update_pc(&mut self, pc: usize) -> Result<()> {
         let pc: u16 = pc.try_into().map_err(|_| Error::InvalidPC(pc))?;
-
         self.jump = self
             .jump
             .iter()

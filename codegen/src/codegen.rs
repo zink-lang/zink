@@ -19,18 +19,27 @@ pub struct CodeGen {
     pub(crate) masm: MacroAssembler,
     /// The jump table.
     pub(crate) table: JumpTable,
+    /// If this function is the main function.
+    pub(crate) is_main: bool,
 }
 
 impl CodeGen {
     /// Create a new code generator.
-    pub fn new(env: FuncType) -> Self {
-        Self {
+    pub fn new(env: FuncType, is_main: bool) -> Result<Self> {
+        let mut params_count = 0;
+        if !is_main {
+            // TODO: handle empty params.
+            params_count = env.params().len() as u8;
+        }
+
+        Ok(Self {
             control: ControlStack::default(),
             env,
             locals: Default::default(),
-            masm: MacroAssembler::default(),
+            masm: MacroAssembler::new(params_count)?,
             table: Default::default(),
-        }
+            is_main,
+        })
     }
 
     /// Emit function locals
@@ -84,7 +93,6 @@ impl CodeGen {
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
         jump_table.merge(self.table, pc)?;
-
         Ok(self.masm.buffer().into())
     }
 }

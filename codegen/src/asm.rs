@@ -6,7 +6,6 @@ use crate::{Buffer, Error, Result};
 use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
 
 /// Low level assembler implementation for EVM.
-#[derive(Default)]
 pub struct Assembler {
     /// Buffer of the assembler.
     buffer: Buffer,
@@ -23,6 +22,16 @@ pub struct Assembler {
 }
 
 impl Assembler {
+    /// New assembler
+    pub fn new(sp: u8) -> Self {
+        Self {
+            buffer: Buffer::new(),
+            gas: 0,
+            mp: 0,
+            sp,
+        }
+    }
+
     /// Buffer of the assembler.
     pub fn buffer(&self) -> &[u8] {
         &self.buffer
@@ -98,50 +107,6 @@ impl Assembler {
         self.increment_gas(opcode.gas().into());
         self.increment_sp(opcode.stack_out() as u8)?;
 
-        Ok(())
-    }
-
-    /// Place n bytes on stack.
-    pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
-        let len = bytes.len();
-        match len {
-            0 => self.emit_op(OpCode::PUSH0),
-            1 => self.emit_op(OpCode::PUSH1),
-            2 => self.emit_op(OpCode::PUSH2),
-            3 => self.emit_op(OpCode::PUSH3),
-            4 => self.emit_op(OpCode::PUSH4),
-            5 => self.emit_op(OpCode::PUSH5),
-            6 => self.emit_op(OpCode::PUSH6),
-            7 => self.emit_op(OpCode::PUSH7),
-            8 => self.emit_op(OpCode::PUSH8),
-            9 => self.emit_op(OpCode::PUSH9),
-            10 => self.emit_op(OpCode::PUSH10),
-            11 => self.emit_op(OpCode::PUSH11),
-            12 => self.emit_op(OpCode::PUSH12),
-            13 => self.emit_op(OpCode::PUSH13),
-            14 => self.emit_op(OpCode::PUSH14),
-            15 => self.emit_op(OpCode::PUSH15),
-            16 => self.emit_op(OpCode::PUSH16),
-            17 => self.emit_op(OpCode::PUSH17),
-            18 => self.emit_op(OpCode::PUSH18),
-            19 => self.emit_op(OpCode::PUSH19),
-            20 => self.emit_op(OpCode::PUSH20),
-            21 => self.emit_op(OpCode::PUSH21),
-            22 => self.emit_op(OpCode::PUSH22),
-            23 => self.emit_op(OpCode::PUSH23),
-            24 => self.emit_op(OpCode::PUSH24),
-            25 => self.emit_op(OpCode::PUSH25),
-            26 => self.emit_op(OpCode::PUSH26),
-            27 => self.emit_op(OpCode::PUSH27),
-            28 => self.emit_op(OpCode::PUSH28),
-            29 => self.emit_op(OpCode::PUSH29),
-            30 => self.emit_op(OpCode::PUSH30),
-            31 => self.emit_op(OpCode::PUSH31),
-            32 => self.emit_op(OpCode::PUSH32),
-            _ => return Err(Error::StackIndexOutOfRange(len as u8)),
-        }?;
-
-        self.emitn(bytes);
         Ok(())
     }
 }
