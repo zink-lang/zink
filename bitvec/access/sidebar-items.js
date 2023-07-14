@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["BitSafeU16","BitSafeU32","BitSafeU64","BitSafeU8","BitSafeUsize"],"trait":["BitAccess","BitSafe"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AnalysisKind","CreateScheme","TransactTo"],"struct":["BlockEnv","CfgEnv","Env","TxEnv"]};

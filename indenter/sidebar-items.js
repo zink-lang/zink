@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Format"],"fn":["indented"],"struct":["Indented"],"type":["Inserter"]};

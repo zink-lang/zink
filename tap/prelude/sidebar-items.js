@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"trait":["Conv","Pipe","Tap","TapFallible","TapOptional","TryConv"]};

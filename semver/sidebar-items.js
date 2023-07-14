@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Op"],"struct":["BuildMetadata","Comparator","Error","Prerelease","Version","VersionReq"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["css","xterm"],"struct":["Black","Blue","BrightBlack","BrightBlue","BrightCyan","BrightGreen","BrightMagenta","BrightRed","BrightWhite","BrightYellow","CustomColor","Cyan","Default","Green","Magenta","Red","White","Yellow"]};

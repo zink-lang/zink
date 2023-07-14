@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["div","div_2x1","div_3x2","div_nx1","div_nx1_normalized","div_nx2","div_nx2_normalized","div_nxm","div_nxm_normalized","reciprocal","reciprocal_2"]};

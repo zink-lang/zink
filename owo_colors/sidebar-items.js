@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AnsiColors","CssColors","DynColors","Effect","XtermColors"],"fn":["style"],"mod":["colored","colors","styles"],"struct":["BgColorDisplay","BgDynColorDisplay","ComboColorDisplay","FgColorDisplay","FgDynColorDisplay","ParseColorError","Rgb","Style","Styled","StyledList"],"trait":["Color","DynColor","OwoColorize"]};

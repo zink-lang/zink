@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["bits_of","elts"],"trait":["BitRegister"]};

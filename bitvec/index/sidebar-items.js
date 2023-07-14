@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["BitEnd","BitIdx","BitIdxError","BitMask","BitPos","BitSel"]};

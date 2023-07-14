@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["EVMError","Eval","ExecutionResult","Halt","InvalidTransaction","OutOfGasError","Output"],"struct":["ResultAndState"],"type":["EVMResult"]};

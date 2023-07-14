@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["SpecId"],"struct":["BerlinSpec","ByzantiumSpec","FrontierSpec","HomesteadSpec","IstanbulSpec","LatestSpec","LondonSpec","MergeSpec","PetersburgSpec","ShanghaiSpec","SpuriousDragonSpec","TangerineSpec"],"trait":["Spec"]};

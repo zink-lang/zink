@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["BUFFER_LIMIT"],"enum":["ControlStackFrameType","Error"],"fn":["patch"],"mod":["abi"],"struct":["Assembler","CodeGen","ControlStack","ControlStackFrame","JumpTable","LocalSlot","MacroAssembler"],"type":["Buffer","Locals","Result"]};

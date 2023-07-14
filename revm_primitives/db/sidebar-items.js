@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["components"],"struct":["RefDBWrapper"],"trait":["Database","DatabaseCommit","DatabaseRef"]};

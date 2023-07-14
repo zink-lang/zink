@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CargoOpt","DependencyKind","Edition","Error","Message"],"fn":["parse_messages"],"mod":["diagnostic"],"struct":["Artifact","ArtifactProfile","BuildFinished","BuildScript","CompilerMessage","DepKindInfo","Dependency","MessageIter","Metadata","MetadataCommand","Node","NodeDep","Package","PackageId","Resolve","Source","Target"],"type":["Result"]};

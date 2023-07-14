@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["construct_fixed_hash","impl_fixed_hash_conversions"]};

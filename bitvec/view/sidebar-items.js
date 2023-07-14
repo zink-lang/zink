@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"trait":["AsBits","AsMutBits","BitView","BitViewSized"]};
