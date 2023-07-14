@@ -135,7 +135,7 @@ impl MacroAssembler {
             14 => self.asm._swap14(),
             15 => self.asm._swap15(),
             16 => self.asm._swap16(),
-            _ => Err(Error::StackIndexOutOfRange(index as u8)),
+            _ => Err(Error::StackIndexOutOfRange(index)),
         }
     }
 
