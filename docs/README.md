@@ -23,7 +23,7 @@ of 16 slots for reaching down the expression stack of EVM.
 
 ## Function Calls
 
-### Calling convention
+### Calling Convention
 
 There we two ways to handle the calling convention, for storing PC 
 
