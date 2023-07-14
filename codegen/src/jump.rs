@@ -1,6 +1,7 @@
 //! Jump table implementation.
 
-use crate::{Buffer, Error, Result, BUFFER_LIMIT};
+use crate::{abi::ToLSBytes, Buffer, Error, Result, BUFFER_LIMIT};
+use opcodes::ShangHai as OpCode;
 use std::collections::BTreeMap;
 
 /// Jump types
@@ -66,15 +67,15 @@ impl JumpTable {
         Ok(())
     }
 
-    /// Patch program counter to all registered labels.
-    pub fn patch(&mut self, buffer: &mut Buffer) -> Result<()> {
+    /// Relocate program counter to all registered labels.
+    pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
         while let Some((pc, jump)) = self.jump.pop_first() {
             let target = match jump {
                 Jump::Label(label) => label,
                 Jump::Func(func) => *self.func.get(&func).ok_or(Error::FuncNotFound(func))?,
             };
 
-            self.update_pc(crate::patch(buffer, pc as usize, target as usize)?)?;
+            self.update_pc(Self::relocate_pc(buffer, pc as usize, target as usize)?)?;
         }
 
         Ok(())
@@ -109,5 +110,52 @@ impl JumpTable {
             .collect::<Result<_>>()?;
 
         Ok(())
+    }
+
+    /// Relocate program counter to buffer.
+    pub fn relocate_pc(buffer: &mut Buffer, original_pc: usize, target_pc: usize) -> Result<usize> {
+        let mut pc = target_pc;
+        let mut new_buffer: Buffer = buffer[..original_pc].into();
+        let rest_buffer: Buffer = buffer[original_pc..].into();
+
+        // Update the target program counter
+        {
+            // The maximum size of the PC is 2 bytes, whatever PUSH1 or PUSH2
+            // takes 1 more byte.
+            pc += 1;
+
+            // Update the program counter for the edge cases.
+            //
+            // Start from 0xff, the lowest significant bytes of the target
+            // program counter will take 2 bytes instead of 1 byte.
+            //
+            // | PC   | PC BYTES | TARGET PC |
+            // |------|----------|-----------|
+            // | 0xfe | 1        |      0xff |
+            // | 0xff | 2        |     0x101 |
+            pc += if pc > 0xfe {
+                new_buffer.push(OpCode::PUSH2.into());
+                2
+            } else {
+                new_buffer.push(OpCode::PUSH1.into());
+                1
+            }
+        }
+
+        // Check PC range.
+        if pc > BUFFER_LIMIT {
+            return Err(Error::InvalidPC(pc));
+        }
+
+        new_buffer.extend_from_slice(&pc.to_ls_bytes());
+        new_buffer.extend_from_slice(&rest_buffer);
+
+        // Check buffer size.
+        if new_buffer.len() > BUFFER_LIMIT {
+            return Err(Error::BufferOverflow(new_buffer.len()));
+        }
+
+        *buffer = new_buffer;
+        Ok(pc)
     }
 }

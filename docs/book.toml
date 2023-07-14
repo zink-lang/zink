@@ -1,0 +1,26 @@
+[book]
+title = "The Zink Project"
+authors = ["clearloop"]
+multilingual = false
+src = "."
+
+[rust]
+edition = "2021"
+
+[output.html]
+cname = "docs.zink-lang.org"
+git-repository-url = "https://github.com/clearloop/zink"
+git-repository-icon = "fa-github"
+default-theme = "dark"
+preferred-dark-theme = "navy"
+curly-quotes = true
+mathjax-support = false
+edit-url-template = "https://github.com/clearloop/zink/edit/main/docs/{path}"
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.print]
+enable = true
+page-break = true

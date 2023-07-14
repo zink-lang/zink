@@ -1,9 +1,11 @@
 //! Ethereum virtual machine opcode
+#![deny(missing_docs)]
 
 mod shanghai;
 
 pub use shanghai::ShangHai;
 
+/// Ethereum virtual machine opcode generator.
 #[macro_export]
 macro_rules! opcodes {
     ($name:ident, $desc:literal) => {
@@ -96,6 +98,7 @@ macro_rules! opcodes {
         }
 
         paste::paste! {
+            #[doc = concat!(" For each ", stringify!($version), " operator.")]
             #[macro_export]
             macro_rules! [<for_each_ $version:lower _operator>] {
                 ($mac:ident) => {
@@ -154,9 +157,18 @@ pub enum Upgrade {
 
 /// Ethereum virtual machine opcode.
 pub trait OpCode: From<u8> + Into<u8> {
+    /// The stack input count.
     fn stack_in(&self) -> u16;
+
+    /// The stack output count.
     fn stack_out(&self) -> u16;
+
+    /// The OpCode is available since.
     fn since(&self) -> Upgrade;
+
+    /// The group of the OpCode.
     fn group(&self) -> Group;
+
+    /// The basic gas cost of the OpCode.
     fn gas(&self) -> u16;
 }

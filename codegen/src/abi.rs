@@ -11,7 +11,7 @@ pub trait Type {
     /// Alignment the size of this type to bytes32 for the
     /// stack representation of EVM.
     ///
-    /// See https://sites.google.com/site/theoryofoperatingsystems/labs/malloc/align8
+    /// See <https://sites.google.com/site/theoryofoperatingsystems/labs/malloc/align8>
     fn align(&self) -> usize {
         (self.size() + ALIGNMENT_MASK) & !ALIGNMENT_MASK
     }
