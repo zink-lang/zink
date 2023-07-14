@@ -1,4 +1,6 @@
-//! Zink CLI
+//! Zink command line tool
+#![deny(missing_docs)]
+
 pub use crate::build::Build;
 use anyhow::Error;
 use clap::Parser;

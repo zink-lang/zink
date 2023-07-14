@@ -1,10 +1,11 @@
 //! Zink's package manager
+#![deny(missing_docs)]
 
 use clap::{Parser, Subcommand};
 use color_eyre::Result;
 use zinkup::{App, Build};
 
-/// ek commands
+/// elko commands
 #[derive(Debug, Subcommand)]
 enum Command {
     Build(Build),
@@ -33,6 +34,7 @@ impl App for Ek {
     }
 }
 
+/// The main function.
 fn main() -> Result<()> {
     Ek::start()
 }
