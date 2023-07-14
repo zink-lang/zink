@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["CALL_STACK_LIMIT","MAX_CODE_SIZE","MAX_INITCODE_SIZE","OPCODE_JUMPMAP","STACK_LIMIT"],"macro":["return_ok","return_revert"],"mod":["analysis","gas","inner_models","instruction_result","opcode"],"struct":["BytecodeLocked","Contract","DummyHost","Interpreter","Memory","OpCode","Stack"],"trait":["Host"]};

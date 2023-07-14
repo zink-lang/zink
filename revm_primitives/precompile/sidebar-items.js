@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PrecompileError"],"type":["CustomPrecompileFn","PrecompileResult","StandardPrecompileFn"]};

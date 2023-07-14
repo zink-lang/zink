@@ -1,0 +1,289 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/opcodes/src/shanghai.rs`."><title>shanghai.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="evm_opcodes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0-nightly (7bd81ee19 2023-07-13)" data-channel="nightly" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../evm_opcodes/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<a href="#2" id="2">2</a>
+<a href="#3" id="3">3</a>
+<a href="#4" id="4">4</a>
+<a href="#5" id="5">5</a>
+<a href="#6" id="6">6</a>
+<a href="#7" id="7">7</a>
+<a href="#8" id="8">8</a>
+<a href="#9" id="9">9</a>
+<a href="#10" id="10">10</a>
+<a href="#11" id="11">11</a>
+<a href="#12" id="12">12</a>
+<a href="#13" id="13">13</a>
+<a href="#14" id="14">14</a>
+<a href="#15" id="15">15</a>
+<a href="#16" id="16">16</a>
+<a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
+<a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a>
+<a href="#47" id="47">47</a>
+<a href="#48" id="48">48</a>
+<a href="#49" id="49">49</a>
+<a href="#50" id="50">50</a>
+<a href="#51" id="51">51</a>
+<a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Instructions for ShangHai (上海).
+
+</span><span class="kw">use crate</span>::{opcodes, Group, OpCode, Upgrade};
+
+<span class="macro">opcodes! </span>{
+    ShangHai,
+    (<span class="number">0x00</span>, STOP, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">&quot;Halts execution.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x01</span>, ADD, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Addition operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x02</span>, MUL, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Multiplication operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x03</span>, SUB, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Subtraction operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x04</span>, DIV, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Integer division operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x05</span>, SDIV, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Signed integer division operation (truncated).&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x06</span>, MOD, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Modulo remainder operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x07</span>, SMOD, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Signed modulo remainder operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x08</span>, ADDMOD, <span class="number">8</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="string">&quot;Modulo addition operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x09</span>, MULMOD, <span class="number">8</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="string">&quot;Modulo multiplication operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x0a</span>, EXP, <span class="number">10</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Exponential operation.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x0b</span>, SIGNEXTEND, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Extend length of two&#39;s complement signed integer.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x10</span>, LT, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Less-than comparision.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x11</span>, GT, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Greater-than comparision.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x12</span>, SLT, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Signed less-than comparision.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x13</span>, SGT, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Signed greater-than comparision.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x14</span>, EQ, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Equality comparision.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x15</span>, ISZERO, <span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">&quot;Simple not operator.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x16</span>, AND, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Bitwise AND operation.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x17</span>, OR, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Bitwise OR operation.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x18</span>, XOR, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Bitwise XOR operation.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x19</span>, NOT, <span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">&quot;Bitwise NOT operation.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x1a</span>, BYTE, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Retrieve single byte from word.&quot;</span>, Frontier, ComparisonBitwiseLogic),
+    (<span class="number">0x20</span>, SHA3, <span class="number">30</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="string">&quot;Compute Keccak-256 hash.&quot;</span>, Frontier, StopArithmetic),
+    (<span class="number">0x30</span>, ADDRESS, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get address of currently executing account.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x31</span>, BALANCE, <span class="number">20</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">&quot;Get balance of the given account.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x32</span>, ORIGIN, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get execution origination address.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x33</span>, CALLER, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get caller address.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x34</span>, CALLVALUE, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get deposited value by the instruction/transaction responsible for this execution.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x35</span>, CALLDATALOAD, <span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">&quot;Get input data of current environment.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x36</span>, CALLDATASIZE, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get size of input data in current environment.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x37</span>, CALLDATACOPY, <span class="number">3</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="string">&quot;Copy input data in current environment to memory.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x38</span>, CODESIZE, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get size of code running in current environment.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x39</span>, CODECOPY, <span class="number">3</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="string">&quot;Copy code running in current environment to memory.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x3a</span>, GASPRICE, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get price of gas in current environment&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x3b</span>, EXTCODESIZE, <span class="number">20</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">&quot;Get size of an account&#39;s code.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x3c</span>, EXTCODECOPY, <span class="number">20</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="string">&quot;Copy an account&#39;s code to memory.&quot;</span>, Frontier, EnvironmentalInformation),
+    (<span class="number">0x3d</span>, RETURNDATASIZE, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get size of output data from the previous call from the current environment.&quot;</span>, Byzantium, EnvironmentalInformation),
+    (<span class="number">0x3e</span>, RETURNDATACOPY, <span class="number">3</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="string">&quot;Copy output data from the previous call to memory.&quot;</span>, Byzantium, EnvironmentalInformation),
+    (<span class="number">0x40</span>, BLOCKHASH, <span class="number">20</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">&quot;Get the hash of one of the 256 most recent complete blocks.&quot;</span>, Frontier, BlockInformation),
+    (<span class="number">0x41</span>, COINBASE, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get the block&#39;s beneficiary address.&quot;</span>, Frontier, BlockInformation),
+    (<span class="number">0x42</span>, TIMESTAMP, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get the block&#39;s timestamp.&quot;</span>, Frontier, BlockInformation),
+    (<span class="number">0x43</span>, NUMBER, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get the block&#39;s number.&quot;</span>, Frontier, BlockInformation),
+    (<span class="number">0x44</span>, DIFFICULTY, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get the block&#39;s difficulty.&quot;</span>, Frontier, BlockInformation),
+    (<span class="number">0x45</span>, GASLIMIT, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get the block&#39;s gas limit.&quot;</span>, Frontier, BlockInformation),
+    (<span class="number">0x50</span>, POP, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="string">&quot;Remove item from stack.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x51</span>, MLOAD, <span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">&quot;Load word from memory.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x52</span>, MSTORE, <span class="number">3</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">&quot;Save word to memory.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x53</span>, MSTORE8, <span class="number">3</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">&quot;Save byte to memory.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x54</span>, SLOAD, <span class="number">50</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">&quot;Load word from storage.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x55</span>, SSTORE, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">&quot;Save word to storage.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x56</span>, JUMP, <span class="number">8</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="string">&quot;Alter the program counter.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x57</span>, JUMPI, <span class="number">10</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">&quot;Conditionally alter the program counter.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x58</span>, PC, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get the value of the program counter prior to the increment corresponding to this instruction.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x59</span>, MSIZE, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get the size of active memory in bytes.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x5a</span>, GAS, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Get the amount of available gas, including the corresponding reduction the amount of available gas.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x5b</span>, JUMPDEST, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">&quot;Mark a valid destination for jumps.&quot;</span>, Frontier, StackMemoryStorageFlow),
+    (<span class="number">0x5f</span>, PUSH0, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 0 byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x60</span>, PUSH1, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 1 byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x61</span>, PUSH2, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 2-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x62</span>, PUSH3, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 3-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x63</span>, PUSH4, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 4-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x64</span>, PUSH5, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 5-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x65</span>, PUSH6, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 6-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x66</span>, PUSH7, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 7-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x67</span>, PUSH8, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 8-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x68</span>, PUSH9, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 9-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x69</span>, PUSH10, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 10-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x6a</span>, PUSH11, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 11-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x6b</span>, PUSH12, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 12-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x6c</span>, PUSH13, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 13-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x6d</span>, PUSH14, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 14-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x6e</span>, PUSH15, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 15-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x6f</span>, PUSH16, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 16-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x70</span>, PUSH17, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 17-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x71</span>, PUSH18, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 18-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x72</span>, PUSH19, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 19-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x73</span>, PUSH20, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 20-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x74</span>, PUSH21, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 21-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x75</span>, PUSH22, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 22-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x76</span>, PUSH23, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 23-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x77</span>, PUSH24, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 24-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x78</span>, PUSH25, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 25-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x79</span>, PUSH26, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 26-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x7a</span>, PUSH27, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 27-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x7b</span>, PUSH28, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 28-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x7c</span>, PUSH29, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 29-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x7d</span>, PUSH30, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 30-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x7e</span>, PUSH31, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 31-byte item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x7f</span>, PUSH32, <span class="number">3</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">&quot;Place 32-byte (full word) item on stack.&quot;</span>, Frontier, Push),
+    (<span class="number">0x80</span>, DUP1, <span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="string">&quot;Duplicate 1st stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x81</span>, DUP2, <span class="number">3</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="string">&quot;Duplicate 2nd stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x82</span>, DUP3, <span class="number">3</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="string">&quot;Duplicate 3rd stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x83</span>, DUP4, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="string">&quot;Duplicate 4th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x84</span>, DUP5, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="string">&quot;Duplicate 5th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x85</span>, DUP6, <span class="number">3</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="string">&quot;Duplicate 6th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x86</span>, DUP7, <span class="number">3</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="string">&quot;Duplicate 7th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x87</span>, DUP8, <span class="number">3</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="string">&quot;Duplicate 8th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x88</span>, DUP9, <span class="number">3</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="string">&quot;Duplicate 9th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x89</span>, DUP10, <span class="number">3</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="string">&quot;Duplicate 10th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x8a</span>, DUP11, <span class="number">3</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="string">&quot;Duplicate 11th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x8b</span>, DUP12, <span class="number">3</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="string">&quot;Duplicate 12th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x8c</span>, DUP13, <span class="number">3</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="string">&quot;Duplicate 13th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x8d</span>, DUP14, <span class="number">3</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="string">&quot;Duplicate 14th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x8e</span>, DUP15, <span class="number">3</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="string">&quot;Duplicate 15th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x8f</span>, DUP16, <span class="number">3</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="string">&quot;Duplicate 16th stack item.&quot;</span>, Frontier, Duplication),
+    (<span class="number">0x90</span>, SWAP1, <span class="number">3</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="string">&quot;Exchange 1st and 2nd stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x91</span>, SWAP2, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="string">&quot;Exchange 1st and 3rd stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x92</span>, SWAP3, <span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="string">&quot;Exchange 1st and 4th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x93</span>, SWAP4, <span class="number">3</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="string">&quot;Exchange 1st and 5th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x94</span>, SWAP5, <span class="number">3</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="string">&quot;Exchange 1st and 6th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x95</span>, SWAP6, <span class="number">3</span>, <span class="number">7</span>, <span class="number">7</span>, <span class="string">&quot;Exchange 1st and 7th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x96</span>, SWAP7, <span class="number">3</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="string">&quot;Exchange 1st and 8th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x97</span>, SWAP8, <span class="number">3</span>, <span class="number">9</span>, <span class="number">9</span>, <span class="string">&quot;Exchange 1st and 9th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x98</span>, SWAP9, <span class="number">3</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="string">&quot;Exchange 1st and 10th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x99</span>, SWAP10, <span class="number">3</span>, <span class="number">11</span>, <span class="number">11</span>, <span class="string">&quot;Exchange 1st and 11th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x9a</span>, SWAP11, <span class="number">3</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="string">&quot;Exchange 1st and 12th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x9b</span>, SWAP12, <span class="number">3</span>, <span class="number">13</span>, <span class="number">13</span>, <span class="string">&quot;Exchange 1st and 13th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x9c</span>, SWAP13, <span class="number">3</span>, <span class="number">14</span>, <span class="number">14</span>, <span class="string">&quot;Exchange 1st and 14th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x9d</span>, SWAP14, <span class="number">3</span>, <span class="number">15</span>, <span class="number">15</span>, <span class="string">&quot;Exchange 1st and 15th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x9e</span>, SWAP15, <span class="number">3</span>, <span class="number">16</span>, <span class="number">16</span>, <span class="string">&quot;Exchange 1st and 16th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0x9f</span>, SWAP16, <span class="number">3</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="string">&quot;Exchange 1st and 17th stack items.&quot;</span>, Frontier, Exchange),
+    (<span class="number">0xa0</span>, LOG0, <span class="number">375</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">&quot;Append log record with no topics.&quot;</span>, Frontier, Logging),
+    (<span class="number">0xa1</span>, LOG1, <span class="number">750</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="string">&quot;Append log record with one topic.&quot;</span>, Frontier, Logging),
+    (<span class="number">0xa2</span>, LOG2, <span class="number">1125</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="string">&quot;Append log record with two topics.&quot;</span>, Frontier, Logging),
+    (<span class="number">0xa3</span>, LOG3, <span class="number">1500</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="string">&quot;Append log record with three topics.&quot;</span>, Frontier, Logging),
+    (<span class="number">0xa4</span>, LOG4, <span class="number">1875</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="string">&quot;Append log record with four topics.&quot;</span>, Frontier, Logging),
+    (<span class="number">0xf0</span>, CREATE, <span class="number">32000</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="string">&quot;Create a new account with associated&quot;</span>, Frontier, System),
+    (<span class="number">0xf1</span>, CALL, <span class="number">100</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="string">&quot;Message-call into an account.&quot;</span>, Frontier, System),
+    (<span class="number">0xf2</span>, CALLCODE, <span class="number">100</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="string">&quot;Message-call into this account with alternative account’s code.&quot;</span>, Frontier, System),
+    (<span class="number">0xf3</span>, RETURN, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">&quot;Halt execution returning output data.&quot;</span>, Frontier, System),
+    (<span class="number">0xf4</span>, DELEGATECALL, <span class="number">40</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="string">&quot;Message-call into this account with an alternative account’s code, but persisting into this account with an alternative account’s code, but persisting into this account’s storage and context.&quot;</span>, Frontier, System),
+    (<span class="number">0xf5</span>, CREATE2, <span class="number">32000</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="string">&quot;Create a new account with associated code at a specified address.&quot;</span>, Constantinople, System),
+    (<span class="number">0xfa</span>, STATICCALL, <span class="number">40</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="string">&quot;Static message-call into an account.&quot;</span>, Byzantium, System),
+    (<span class="number">0xfd</span>, REVERT, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">&quot;Stop execution and revert state changes, without consuming all provided gas and providing a reason.&quot;</span>, Byzantium, System),
+    (<span class="number">0xfe</span>, INVALID, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">&quot;Designated invalid instruction.&quot;</span>, Frontier, System),
+    (<span class="number">0xff</span>, SELFDESTRUCT, <span class="number">5000</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="string">&quot;Halt execution and register account for later deletion.&quot;</span>, Frontier, System)
+}
+</code></pre></div></section></main></body></html>

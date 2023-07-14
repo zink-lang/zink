@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CallScheme","CreateScheme"],"struct":["CallContext","CallInputs","CreateInputs","SelfDestructResult","Transfer"]};

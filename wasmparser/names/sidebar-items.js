@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["KebabNameKind"],"struct":["KebabName","KebabStr","KebabString"]};
