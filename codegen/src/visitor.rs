@@ -51,13 +51,16 @@ impl<'a> VisitOperator<'a> for CodeGen {
 
     fn visit_call(&mut self, function_index: u32) -> Self::Output {
         trace!("call {}", function_index);
-        self.table.call(self.masm.pc_offset(), function_index)?;
+        // record the current program counter and
+        // pass it to the callee function.
+        self.masm._pc()?;
 
-        trace!("function pc: {}", self.masm.pc_offset());
+        // register the call index to the jump table.
+        self.table.call(self.masm.pc_offset(), function_index)?;
 
         // mock the stack output of the counter
         //
-        // the program counter instructions should be patched afterwards.
+        // the program counter instructions should be relocated afterwards.
         self.masm.asm.increment_sp(1)?;
         self.masm._jump()?;
         self.masm._jumpdest()?;
@@ -74,6 +77,11 @@ impl<'a> VisitOperator<'a> for CodeGen {
     fn visit_end(&mut self) -> Self::Output {
         trace!("end");
         if !self.is_main {
+            // TODO: handle the length of results > u8::MAX.
+            self.masm.shift_pc(self.env.results().len() as u8, false)?;
+            self.masm.push(&[0x04])?;
+            self.masm._add()?;
+            self.masm._jump()?;
             return Ok(());
         }
 

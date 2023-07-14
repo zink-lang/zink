@@ -25,20 +25,21 @@ pub struct CodeGen {
 
 impl CodeGen {
     /// Create a new code generator.
-    pub fn new(env: FuncType, is_main: bool) -> Self {
-        let mut stack_pointer = 0;
+    pub fn new(env: FuncType, is_main: bool) -> Result<Self> {
+        let mut params_count = 0;
         if !is_main {
-            stack_pointer = env.params().len() as u8;
+            // TODO: handle empty params.
+            params_count = env.params().len() as u8;
         }
 
-        Self {
+        Ok(Self {
             control: ControlStack::default(),
             env,
             locals: Default::default(),
-            masm: MacroAssembler::new(stack_pointer),
+            masm: MacroAssembler::new(params_count)?,
             table: Default::default(),
             is_main,
-        }
+        })
     }
 
     /// Emit function locals

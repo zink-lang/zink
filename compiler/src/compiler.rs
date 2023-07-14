@@ -46,7 +46,7 @@ impl Compiler {
             .clone();
 
         let is_main = func_index == 0;
-        let mut codegen = CodeGen::new(sig, is_main);
+        let mut codegen = CodeGen::new(sig, is_main)?;
         let mut locals_reader = body.get_locals_reader()?;
         let mut ops_reader = body.get_operators_reader()?;
 
