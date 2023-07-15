@@ -35,35 +35,14 @@ macro_rules! impl_visit_operator {
 
 /// Implement arithmetic operators for types.
 macro_rules! impl_arithmetic_ops {
-    ($op:tt) => {
-        paste! {
-            fn [< visit_i32_ $op >](&mut self) -> Self::Output {
-                trace!("i32.{}", stringify!($op).to_lowercase());
-                self.masm.asm.[< _ $op >]()?;
+    ($op:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        impl_arithmetic_ops!(@signed $op, $op);
 
-                Ok(())
-            }
-
-            fn [< visit_i64_ $op >](&mut self) -> Self::Output {
-                trace!("i64.{}", stringify!($op).to_lowercase());
-                self.masm.asm.[< _ $op >]()?;
-
-                Ok(())
-            }
-
-            impl_arithmetic_ops!(@float $op, $op);
-        }
+        impl_arithmetic_ops!(@float $op, $op);
     };
-    (@signed $wasm:tt, $evm:tt $($suffix:tt)?) => {
+    (@signed64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste! {
-            fn [< visit_i32_ $wasm $($suffix)? >](&mut self) -> Self::Output {
-                trace!("i32.{}", stringify!($op).to_lowercase());
-                self.masm.asm.[< _ $evm >]()?;
-
-                Ok(())
-            }
-
-            fn [< visit_i64_ $wasm $($suffix)? >](&mut self) -> Self::Output {
+            fn [< visit_i64_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
                 trace!("i64.{}", stringify!($op).to_lowercase());
                 self.masm.asm.[< _ $evm >]()?;
 
@@ -71,16 +50,28 @@ macro_rules! impl_arithmetic_ops {
             }
         }
     };
-    (@unsigned $wasm:tt, $evm:tt $($suffix:tt)?) => {
+    (@signed $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste! {
-            fn [< visit_i32_ $wasm $($suffix)? >](&mut self) -> Self::Output {
+            fn [< visit_i32_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
                 trace!("i32.{}", stringify!($op).to_lowercase());
                 self.masm.asm.[< _ $evm >]()?;
 
                 Ok(())
             }
 
-            fn [< visit_i64_ $wasm $($suffix)? >](&mut self) -> Self::Output {
+            impl_arithmetic_ops!(@signed64 $wasm, $evm $(, { $($arg: $argty),* })?);
+        }
+    };
+    (@unsigned $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        paste! {
+            fn [< visit_i32_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
+                trace!("i32.{}", stringify!($op).to_lowercase());
+                self.masm.asm.[< _ $evm >]()?;
+
+                Ok(())
+            }
+
+            fn [< visit_i64_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
                 trace!("i64.{}", stringify!($op).to_lowercase());
                 self.masm.asm.[< _ $evm >]()?;
 
@@ -88,21 +79,23 @@ macro_rules! impl_arithmetic_ops {
             }
         }
     };
-    (@integer $wasm:tt, $evm:tt) => {
-        impl_arithmetic_ops!(@signed $wasm, $evm _s);
+    (@integer $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        paste!{
+            impl_arithmetic_ops!(@signed [< $wasm _s >], $evm);
 
-        impl_arithmetic_ops!(@unsigned $wasm, $evm _u);
+            impl_arithmetic_ops!(@unsigned [< $wasm _u >], $evm);
+        }
     };
-    (@float $wasm:tt, $evm:tt) => {
+    (@float $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste! {
-            fn [< visit_f32_ $wasm >](&mut self) -> Self::Output {
+            fn [< visit_f32_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
                 trace!("f32.{}", stringify!($op).to_lowercase());
                 self.masm.asm.[< _ $evm >]()?;
 
                 Ok(())
             }
 
-            fn [< visit_f64_ $wasm >](&mut self) -> Self::Output {
+            fn [< visit_f64_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
                 trace!("f64.{}", stringify!($op).to_lowercase());
                 self.masm.asm.[< _ $evm >]()?;
 
@@ -110,12 +103,27 @@ macro_rules! impl_arithmetic_ops {
             }
         }
     };
-    (@map $wasm:tt, $evm:tt) => {
+    (@mem_integer $mem:tt) => {
         paste! {
-            impl_arithmetic_ops!(@integer $wasm, $evm);
-
-            impl_arithmetic_ops!(@float $wasm, $evm);
+            impl_arithmetic_ops!(@signed [< $mem _s >], $mem, { _arg: MemArg });
+            impl_arithmetic_ops!(@unsigned [< $mem _u >], $mem, { _arg: MemArg });
         }
+    };
+    (@mem_i64 $mem:tt) => {
+        paste! {
+            impl_arithmetic_ops!(@signed64 [< $mem _s >], $mem, { _arg: MemArg });
+            impl_arithmetic_ops!(@signed64 [< $mem _u >], $mem, { _arg: MemArg });
+        }
+    };
+    (@mem $mem:tt) => {
+        impl_arithmetic_ops!(@signed $mem, $mem, { _arg: MemArg });
+
+        impl_arithmetic_ops!(@float $mem, $mem, { _arg: MemArg });
+    };
+    (@map $wasm:tt, $evm:tt) => {
+        impl_arithmetic_ops!(@integer $wasm, $evm);
+
+        impl_arithmetic_ops!(@float $wasm, $evm);
     };
     (
         @common[$($op:tt),+],
@@ -123,12 +131,18 @@ macro_rules! impl_arithmetic_ops {
         @signed[$($signed:tt),+],
         @integer[$($integer:tt),+],
         @map[$($wasm:tt => $evm:tt),+],
+        @mem[$($mem:tt),+],
+        @mem_integer[$($mem_signed:tt),+],
+        @mem_i64[$($mem_i64:tt),+],
     ) => {
         $(impl_arithmetic_ops!($op);)+
         $(impl_arithmetic_ops!(@map $xdr, $xdr);)+
         $(impl_arithmetic_ops!(@signed $signed, $signed);)+
         $(impl_arithmetic_ops!(@integer $integer, $integer);)+
         $(impl_arithmetic_ops!(@map $wasm, $evm);)+
+        $(impl_arithmetic_ops!(@mem $mem);)+
+        $(impl_arithmetic_ops!(@mem_integer $mem_signed);)+
+        $(impl_arithmetic_ops!(@mem_i64 $mem_i64);)+
     };
 }
 
@@ -226,13 +240,20 @@ impl<'a> VisitOperator<'a> for CodeGen {
         Ok(())
     }
 
+    // Mark as invalid for now.
+    //
+    // TODO: recheck this implementation, if it is okay,
+    // provide more docs.
     fn visit_unreachable(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_nop(&mut self) -> Self::Output {
-        // Perform nothing.
+        self.masm._invalid()?;
         Ok(())
     }
+
+    // Perform nothing in EVM bytecode.
+    fn visit_nop(&mut self) -> Self::Output {
+        Ok(())
+    }
+
     fn visit_block(&mut self, _: BlockType) -> Self::Output {
         todo!()
     }
@@ -273,48 +294,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
         todo!()
     }
     fn visit_global_set(&mut self, _: u32) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_load(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_load(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_load(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_load(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_load8_s(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_load8_u(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_load16_s(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_load16_u(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_load8_s(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_load8_u(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_load16_s(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_load16_u(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_load32_s(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_load32_u(&mut self, _: MemArg) -> Self::Output {
         todo!()
     }
     fn visit_i32_store(&mut self, _: MemArg) -> Self::Output {
@@ -570,5 +549,8 @@ impl<'a> VisitOperator<'a> for CodeGen {
         @signed[or, xor, shl],
         @integer[shr],
         @map[ge => sgt, le => slt],
+        @mem[load],
+        @mem_integer[load8, load16],
+        @mem_i64[load32],
     }
 }
