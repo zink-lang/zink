@@ -62,14 +62,14 @@ impl Assembler {
 
     /// The memory size instruction returns the current
     /// size of memory.
-    pub fn memory_size(&mut self) -> Result<()> {
+    pub fn _memory_size(&mut self, _: u32, _: u8) -> Result<()> {
         todo!()
     }
 
     /// The memory grow instruction grows memory by a given
     /// delta and returns the previous size, or -1 if enough
     /// memory cannot be allocated.
-    pub fn memory_grow(&mut self) -> Result<()> {
+    pub fn _memory_grow(&mut self, _: u32, _: u8) -> Result<()> {
         todo!()
     }
 }

@@ -10,7 +10,11 @@ use crate::{
 };
 use paste::paste;
 use tracing::trace;
-use wasmparser::{for_each_operator, BlockType, Ieee32, Ieee64, MemArg, VisitOperator};
+use wasmparser::{for_each_operator, BlockType, BrTable, Ieee32, Ieee64, MemArg, VisitOperator};
+
+mod control;
+mod local;
+mod system;
 
 /// A macro to define unsupported WebAssembly operators.
 ///
@@ -34,11 +38,7 @@ macro_rules! impl_visit_operator {
 }
 
 /// Implement arithmetic operators for types.
-macro_rules! impl_arithmetic_ops {
-    ($op:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_arithmetic_ops!(@signed $op, $op);
-        impl_arithmetic_ops!(@float $op, $op);
-    };
+macro_rules! impl_wasm_instructions {
     (@basic $ty:tt, $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste! {
             fn [< visit_ $ty _ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
@@ -50,37 +50,51 @@ macro_rules! impl_arithmetic_ops {
         }
     };
     (@integer32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_arithmetic_ops!(@basic i32, $wasm, $evm $(, { $($arg: $argty),* })?);
+        impl_wasm_instructions!(@basic i32, $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@integer64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_arithmetic_ops!(@basic i64, $wasm, $evm $(, { $($arg: $argty),* })?);
-    };
-    (@float32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_arithmetic_ops!(@basic f32, $wasm, $evm $(, { $($arg: $argty),* })?);
-    };
-    (@float64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_arithmetic_ops!(@basic f64, $wasm, $evm $(, { $($arg: $argty),* })?);
+        impl_wasm_instructions!(@basic i64, $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@signed $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_arithmetic_ops!(@integer32 $wasm, $evm $(, { $($arg: $argty),* })?);
-        impl_arithmetic_ops!(@integer64 $wasm, $evm $(, { $($arg: $argty),* })?);
+        impl_wasm_instructions!(@integer32 $wasm, $evm $(, { $($arg: $argty),* })?);
+        impl_wasm_instructions!(@integer64 $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@integer $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste!{
-            impl_arithmetic_ops!(@signed [< $wasm _s >], $evm $(, { $($arg: $argty),* })?);
-            impl_arithmetic_ops!(@signed [< $wasm _u >], $evm $(, { $($arg: $argty),* })?);
+            impl_wasm_instructions!(@signed [< $wasm _s >], $evm $(, { $($arg: $argty),* })?);
+            impl_wasm_instructions!(@signed [< $wasm _u >], $evm $(, { $($arg: $argty),* })?);
         }
     };
+    (@float32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        impl_wasm_instructions!(@basic f32, $wasm, $evm $(, { $($arg: $argty),* })?);
+    };
+    (@float64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        impl_wasm_instructions!(@basic f64, $wasm, $evm $(, { $($arg: $argty),* })?);
+    };
     (@float $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_arithmetic_ops!(@float32 $wasm, $evm $(, { $($arg: $argty),* })?);
-        impl_arithmetic_ops!(@float64 $wasm, $evm $(, { $($arg: $argty),* })?);
+        impl_wasm_instructions!(@float32 $wasm, $evm $(, { $($arg: $argty),* })?);
+        impl_wasm_instructions!(@float64 $wasm, $evm $(, { $($arg: $argty),* })?);
+    };
+    (@signed_and_float $op:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        impl_wasm_instructions!(@signed $op, $op);
+        impl_wasm_instructions!(@float $op, $op);
+    };
+    (@field ($($field:ident).*) $op:tt $($arg:tt: $argty:ty),* ) => {
+        paste! {
+            fn [< visit_ $op >](&mut self, $($arg: $argty),*) -> Self::Output {
+                trace!("{}", stringify!($op));
+                self.$($field.)*[< _ $op >]($($arg),*)?;
+
+                Ok(())
+            }
+        }
     };
     (
-        common: [$($op:tt),+],
         xdr: [$($xdr:tt),+],
         signed: [$($signed:tt),+],
         integer: [$($integer:tt),+],
         float: [$($float:tt),+],
+        signed_and_float: [$($op:tt),+],
         map: {
             all: [$($wasm:tt => $evm:tt),+],
             integer: [$($map_int_wasm:tt => $map_int_evm:tt),+],
@@ -92,58 +106,79 @@ macro_rules! impl_arithmetic_ops {
             signed: [$($mem_signed:tt),+],
             signed64: [$($mem_signed64:tt),+],
             signed_and_float: [$($mem_signed_and_float:tt),+],
+        },
+        asm: {
+            $( $asm:tt $(: { $($aarg:ident: $aargty:ty),+ })? ),+
+        },
+        masm: {
+            $( $masm:tt $(: { $($marg:ident: $margty:ty),+ })? ),+
+        },
+        global: {
+            $( $global:tt $(: { $($garg:ident: $gargty:ty),+ })? ),+
         }
     ) => {
         paste! {
-            $(impl_arithmetic_ops!($op);)+
+            $(impl_wasm_instructions!(@signed_and_float $op);)+
 
             $(
-                impl_arithmetic_ops!(@signed [< $xdr _s >], [< s $xdr >]);
-                impl_arithmetic_ops!(@signed [< $xdr _u >], $xdr);
-                impl_arithmetic_ops!(@float $xdr, $xdr);
+                impl_wasm_instructions!(@signed [< $xdr _s >], [< s $xdr >]);
+                impl_wasm_instructions!(@signed [< $xdr _u >], $xdr);
+                impl_wasm_instructions!(@float $xdr, $xdr);
             )+
 
-            $(impl_arithmetic_ops!(@signed $signed, $signed);)+
-            $(impl_arithmetic_ops!(@integer $integer, $integer);)+
-            $(impl_arithmetic_ops!(@float $float, $float);)+
+            $(impl_wasm_instructions!(@signed $signed, $signed);)+
+            $(impl_wasm_instructions!(@integer $integer, $integer);)+
+            $(impl_wasm_instructions!(@float $float, $float);)+
 
             $(
-                impl_arithmetic_ops!(@integer $wasm, $evm);
-                impl_arithmetic_ops!(@float $wasm, $evm);
-            )+
-
-            $(
-                impl_arithmetic_ops!(@signed [< $map_int_wasm _s >], [< s $map_int_evm >]);
-                impl_arithmetic_ops!(@signed [< $map_int_wasm _u >], $map_int_evm);
+                impl_wasm_instructions!(@integer $wasm, $evm);
+                impl_wasm_instructions!(@float $wasm, $evm);
             )+
 
             $(
-                impl_arithmetic_ops!(@signed $mem, $mem, { _arg: MemArg });
-                impl_arithmetic_ops!(@float $mem, $mem, { _arg: MemArg });
-            )+
-
-
-            $(
-                impl_arithmetic_ops!(@integer $mem_integer, $mem_integer, { _arg: MemArg });
+                impl_wasm_instructions!(@signed [< $map_int_wasm _s >], [< s $map_int_evm >]);
+                impl_wasm_instructions!(@signed [< $map_int_wasm _u >], $map_int_evm);
             )+
 
             $(
-                impl_arithmetic_ops!(@integer64 [< $mem_integer64 _s >], $mem_integer64, { _arg: MemArg });
-                impl_arithmetic_ops!(@integer64 [< $mem_integer64 _u >], $mem_integer64, { _arg: MemArg });
+                impl_wasm_instructions!(@signed $mem, $mem, { _arg: MemArg });
+                impl_wasm_instructions!(@float $mem, $mem, { _arg: MemArg });
             )+
 
 
             $(
-                impl_arithmetic_ops!(@signed $mem_signed, $mem_signed, { _arg: MemArg });
+                impl_wasm_instructions!(@integer $mem_integer, $mem_integer, { _arg: MemArg });
             )+
 
             $(
-                impl_arithmetic_ops!(@signed $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
-                impl_arithmetic_ops!(@float $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+                impl_wasm_instructions!(@integer64 [< $mem_integer64 _s >], $mem_integer64, { _arg: MemArg });
+                impl_wasm_instructions!(@integer64 [< $mem_integer64 _u >], $mem_integer64, { _arg: MemArg });
+            )+
+
+
+            $(
+                impl_wasm_instructions!(@signed $mem_signed, $mem_signed, { _arg: MemArg });
             )+
 
             $(
-                impl_arithmetic_ops!(@integer64 $mem_signed64, $mem_signed64, { _arg: MemArg });
+                impl_wasm_instructions!(@signed $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+                impl_wasm_instructions!(@float $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+            )+
+
+            $(
+                impl_wasm_instructions!(@integer64 $mem_signed64, $mem_signed64, { _arg: MemArg });
+            )+
+
+            $(
+                impl_wasm_instructions!(@field (masm.asm) $asm $( $($aarg: $aargty),+ )?);
+            )+
+
+            $(
+                impl_wasm_instructions!(@field (masm) $masm $( $($marg: $margty),+ )?);
+            )+
+
+            $(
+                impl_wasm_instructions!(@field () $global $( $($garg: $gargty),+ )?);
             )+
         }
     };
@@ -257,133 +292,16 @@ impl<'a> VisitOperator<'a> for CodeGen {
         Ok(())
     }
 
-    fn visit_block(&mut self, _: BlockType) -> Self::Output {
-        todo!()
-    }
-    fn visit_loop(&mut self, _: BlockType) -> Self::Output {
-        todo!()
-    }
-    fn visit_else(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_br(&mut self, _: u32) -> Self::Output {
-        todo!()
-    }
-    fn visit_br_if(&mut self, _: u32) -> Self::Output {
-        todo!()
-    }
-    fn visit_br_table(&mut self, _: wasmparser::BrTable<'a>) -> Self::Output {
-        todo!()
-    }
-    fn visit_return(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_call_indirect(&mut self, _: u32, _: u32, _: u8) -> Self::Output {
-        todo!()
-    }
-    fn visit_drop(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_select(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_local_set(&mut self, _: u32) -> Self::Output {
-        todo!()
-    }
-    fn visit_local_tee(&mut self, _: u32) -> Self::Output {
-        todo!()
-    }
-    fn visit_global_get(&mut self, _: u32) -> Self::Output {
-        todo!()
-    }
-    fn visit_global_set(&mut self, _: u32) -> Self::Output {
-        todo!()
-    }
-    fn visit_memory_size(&mut self, _: u32, _: u8) -> Self::Output {
-        todo!()
-    }
-    fn visit_memory_grow(&mut self, _: u32, _: u8) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_const(&mut self, _: i32) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_const(&mut self, _: i64) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_const(&mut self, _: Ieee32) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_const(&mut self, _: Ieee64) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_trunc(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_trunc(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_wrap_i64(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_trunc_f32_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_trunc_f32_u(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_trunc_f64_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_trunc_f64_u(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_extend_i32_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_extend_i32_u(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_trunc_f32_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_trunc_f32_u(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_trunc_f64_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_trunc_f64_u(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_demote_f64(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_promote_f32(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_reinterpret_f32(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_reinterpret_f64(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_reinterpret_i32(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_reinterpret_i64(&mut self) -> Self::Output {
-        todo!()
-    }
-
-    impl_arithmetic_ops! {
-        common: [add, sub, mul, eq, ne],
+    impl_wasm_instructions! {
         xdr: [div, lt, gt],
         signed: [and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
-        integer: [shr],
+        integer: [shr, trunc_f32, trunc_f64],
         float: [
             abs, ceil, copysign, floor, max, min, nearest, neg, sqrt,
-            convert_i32_s, convert_i32_u, convert_i64_s, convert_i64_u
+            convert_i32_s, convert_i32_u, convert_i64_s, convert_i64_u,
+            trunc
         ],
+        signed_and_float: [add, sub, mul, eq, ne],
         map: {
             all: [ge => sgt, le => slt],
             integer: [rem => mod],
@@ -395,6 +313,76 @@ impl<'a> VisitOperator<'a> for CodeGen {
             signed: [store8, store16],
             signed64: [store32],
             signed_and_float: [store],
+        },
+        asm: {
+            drop,
+            memory_grow: {
+                mem: u32,
+                mem_byte: u8
+            },
+            memory_size: {
+                mem: u32,
+                mem_byte: u8
+            }
+        },
+        masm: {
+            i32_const: {
+                value: i32
+            },
+            i64_const: {
+                value: i64
+            },
+            f32_const: {
+                value: Ieee32
+            },
+            f64_const: {
+                value: Ieee64
+            },
+            i32_wrap_i64,
+            i64_extend_i32_s,
+            i64_extend_i32_u,
+            f32_demote_f64,
+            f64_promote_f32,
+            i32_reinterpret_f32,
+            i64_reinterpret_f64,
+            f32_reinterpret_i32,
+            f64_reinterpret_i64,
+            return
+        },
+        global: {
+            else, select,
+            block: {
+                blockty: BlockType
+            },
+            loop: {
+                blockty: BlockType
+            },
+            br: {
+                relative_depth: u32
+            },
+            br_if: {
+                relative_depth: u32
+            },
+            br_table: {
+                table: BrTable<'_>
+            },
+            local_set: {
+                local_index: u32
+            },
+            local_tee: {
+                local_index: u32
+            },
+            global_get: {
+                global_index: u32
+            },
+            global_set: {
+                global_index: u32
+            },
+            call_indirect: {
+                type_index: u32,
+                table_index: u32,
+                table_byte: u8
+            }
         }
     }
 }

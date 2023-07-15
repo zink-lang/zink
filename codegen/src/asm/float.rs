@@ -69,8 +69,8 @@ impl Assembler {
         todo!()
     }
 
-    // ///
-    // pub fn _reinterpret_f32(&mut self) -> Result<()> {
-    //     todo!()
-    // }
+    /// Round to nearest integer towards zero
+    pub fn _trunc(&mut self) -> Result<()> {
+        todo!()
+    }
 }

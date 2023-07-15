@@ -39,4 +39,14 @@ impl Assembler {
     pub fn _popcnt(&mut self) -> Result<()> {
         todo!()
     }
+
+    /// Truncate a 32-bit float to an integer
+    pub fn _trunc_f32(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Truncate a 64-bit float to an integer
+    pub fn _trunc_f64(&mut self) -> Result<()> {
+        todo!()
+    }
 }
