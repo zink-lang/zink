@@ -104,9 +104,6 @@ macro_rules! map_wasm_operators {
             signed64: [$($mem_signed64:tt),+],
             signed_and_float: [$($mem_signed_and_float:tt),+],
         },
-        asm: {
-            $( $asm:tt $(: { $($aarg:ident: $aargty:ty),+ })? ),+
-        },
         masm: {
             $( $masm:tt $(: { $($marg:ident: $margty:ty),+ })? ),+
         },
@@ -167,10 +164,6 @@ macro_rules! map_wasm_operators {
             )+
 
             $(
-                map_wasm_operators!(@field (masm.asm) $asm $( $($aarg: $aargty),+ )?);
-            )+
-
-            $(
                 map_wasm_operators!(@field (masm) $masm $( $($marg: $margty),+ )?);
             )+
 
@@ -208,7 +201,7 @@ impl<'a> VisitOperator<'a> for CodeGen {
             signed64: [store32],
             signed_and_float: [store],
         },
-        asm: {
+        masm: {
             drop,
             memory_grow: {
                 mem: u32,
@@ -217,9 +210,7 @@ impl<'a> VisitOperator<'a> for CodeGen {
             memory_size: {
                 mem: u32,
                 mem_byte: u8
-            }
-        },
-        masm: {
+            },
             i32_const: {
                 value: i32
             },

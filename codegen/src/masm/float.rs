@@ -1,8 +1,8 @@
 //! Float Instructions
 
-use crate::{Assembler, Result};
+use crate::{MacroAssembler, Result};
 
-impl Assembler {
+impl MacroAssembler {
     /// Maximum of two values
     pub fn _max(&mut self) -> Result<()> {
         todo!()

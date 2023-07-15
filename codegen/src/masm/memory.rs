@@ -1,9 +1,9 @@
 //! Memory Instructions
 
-use crate::{Assembler, Result};
+use crate::{MacroAssembler, Result};
 use tracing::trace;
 
-impl Assembler {
+impl MacroAssembler {
     /// Load n bytes to extend self as another number type.
     ///
     /// Just for adapting the WASM instructions, this method makes

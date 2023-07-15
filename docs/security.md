@@ -1,6 +1,19 @@
 # Security
 
-## Memory Operations
+## Mapping of Instructions
+
+### Type Conversions
+
+WASM have `i32`, `i64`, `f32`, `f64` as number types while EVM bytecode
+only supports arithmetic operations for 256-bits integers.
+
+> TODO: Add more risk conditions.
+
+### Stack Operations
+
+> TBA
+
+### Memory Operations
 
 The memory related operations in WASM are dangerous for Zink's implementation.
 
@@ -19,8 +32,6 @@ The instructions need to be checked:
 - `i64.store16`
 - `memory.size`
 - `memory.grow`
-
-### Solution
 
 TODO: check if it is possible to manage this issue with handling `memory.size` and `memory.grow`
 in a proper way.

@@ -5,13 +5,6 @@
 use crate::{Buffer, Error, Result};
 use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
 
-mod cmp;
-// mod control;
-mod float;
-mod integer;
-mod memory;
-mod stack;
-
 /// Low level assembler implementation for EVM.
 pub struct Assembler {
     /// Buffer of the assembler.

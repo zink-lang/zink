@@ -4,6 +4,12 @@ use crate::{abi::ToLSBytes, asm::Assembler, Error, Result};
 use std::ops::{Deref, DerefMut};
 use wasmparser::{Ieee32, Ieee64};
 
+mod cmp;
+mod float;
+mod integer;
+mod memory;
+mod stack;
+
 /// EVM MacroAssembler.
 pub struct MacroAssembler {
     /// Low level assembler.

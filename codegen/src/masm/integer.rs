@@ -1,8 +1,8 @@
 // Signed Integer instructions
 
-use crate::{Assembler, Result};
+use crate::{MacroAssembler, Result};
 
-impl Assembler {
+impl MacroAssembler {
     /// sign-agnostic rotate left
     ///
     /// Return the result of rotating i1 left by k bits.

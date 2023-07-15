@@ -1,9 +1,9 @@
 // Comparison Instructions
 
-use crate::{Assembler, Result};
+use crate::{MacroAssembler, Result};
 use opcodes::ShangHai as OpCode;
 
-impl Assembler {
+impl MacroAssembler {
     /// Sign-agnostic compare unequal.
     pub fn _ne(&mut self) -> Result<()> {
         self.emit_op(OpCode::EQ)?;
