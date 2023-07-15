@@ -37,7 +37,6 @@ macro_rules! impl_visit_operator {
 macro_rules! impl_arithmetic_ops {
     ($op:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         impl_arithmetic_ops!(@signed $op, $op);
-
         impl_arithmetic_ops!(@float $op, $op);
     };
     (@signed64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
@@ -82,7 +81,6 @@ macro_rules! impl_arithmetic_ops {
     (@integer $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste!{
             impl_arithmetic_ops!(@signed [< $wasm _s >], $evm);
-
             impl_arithmetic_ops!(@unsigned [< $wasm _u >], $evm);
         }
     };
@@ -355,88 +353,10 @@ impl<'a> VisitOperator<'a> for CodeGen {
     fn visit_f64_const(&mut self, _: Ieee64) -> Self::Output {
         todo!()
     }
-    fn visit_i32_clz(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_ctz(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_popcnt(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_and(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_rotl(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_rotr(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_clz(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_ctz(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_popcnt(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_and(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_rotl(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_rotr(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_abs(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_neg(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_ceil(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_floor(&mut self) -> Self::Output {
-        todo!()
-    }
     fn visit_f32_trunc(&mut self) -> Self::Output {
         todo!()
     }
-    fn visit_f32_nearest(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_sqrt(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_copysign(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_abs(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_neg(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_ceil(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_floor(&mut self) -> Self::Output {
-        todo!()
-    }
     fn visit_f64_trunc(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_nearest(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_sqrt(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_copysign(&mut self) -> Self::Output {
         todo!()
     }
     fn visit_i32_wrap_i64(&mut self) -> Self::Output {
@@ -518,9 +438,9 @@ impl<'a> VisitOperator<'a> for CodeGen {
     impl_arithmetic_ops! {
         @common[add, sub, mul, eq, ne],
         @xdr[div, lt, gt],
-        @signed[or, xor, shl, eqz],
+        @signed[and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
         @integer[shr],
-        @float[max, min],
+        @float[abs, ceil, copysign, floor, max, min, nearest, neg, sqrt],
         @map[ge => sgt, le => slt],
         @map_integer[rem => mod],
         @mem[load],
