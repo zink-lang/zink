@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">5.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html"><strong aria-hidden="true">6.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">7.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">8.</strong> Contributing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorial/gas-optimizations.html"><strong aria-hidden="true">2.1.</strong> Gas Optimizations</a></li></ol></li><li class="chapter-item expanded "><a href="styles/index.html"><strong aria-hidden="true">3.</strong> Styles</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">5.</strong> Command Line Tool</a></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -184,12 +184,65 @@ contracts on Ethereum.</p>
 </ul>
 <p>…and more! The source for this guide <a href="https://github.com/clearloop/zink/tree/main/docs">lives on GitHub</a> and contributions are welcome!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="tutorial"><a class="header" href="#tutorial">Tutorial</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="gas-optimizations"><a class="header" href="#gas-optimizations">Gas Optimizations</a></h1>
+<h3 id="1-do-not-use-"><a class="header" href="#1-do-not-use-">1. Do not use <code>!=</code></a></h3>
+<p>Since EVM opcodes don’t have <code>NE</code>, <code>!=</code> means <code>Opcode::EQ</code> + <code>Opcode::ISZERO</code>, 
+if it is possible to use <code>==</code> instead, never try <code>!=</code>.S</p>
+<div class="table-wrapper"><table><thead><tr><th>OPCODE</th><th>NAME</th><th>MINIMUM GAS</th><th>STACK INPUT</th><th>STACK OUTPUT</th><th>DESCRIPTION</th></tr></thead><tbody>
+<tr><td>0x14</td><td>EQ</td><td>3</td><td><code>a</code> <code>b</code></td><td><code>a == b</code></td><td>Equality comparison</td></tr>
+<tr><td>0x15</td><td>ISZERO</td><td>3</td><td><code>a</code></td><td><code>a == 0</code></td><td>Simple not operator</td></tr>
+</tbody></table>
+</div>
+<pre><code>// `==` costs 3 in total
+EQ  // 3
+
+// `!=` costs in total
+EQ  // 3
+NOT // 2
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="styles"><a class="header" href="#styles">Styles</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="examples"><a class="header" href="#examples">Examples</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-line-tool"><a class="header" href="#command-line-tool">Command Line Tool</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="stability"><a class="header" href="#stability">Stability</a></h1>
+<blockquote>
+<p>This project is still under development, please DO NOT use it in production.</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="security"><a class="header" href="#security">Security</a></h1>
+<h2 id="mapping-of-instructions"><a class="header" href="#mapping-of-instructions">Mapping of Instructions</a></h2>
+<h3 id="type-conversions"><a class="header" href="#type-conversions">Type Conversions</a></h3>
+<p>WASM have <code>i32</code>, <code>i64</code>, <code>f32</code>, <code>f64</code> as number types while EVM bytecode
+only supports arithmetic operations for 256-bits integers.</p>
+<blockquote>
+<p>TODO: Add more risk conditions.</p>
+</blockquote>
+<h3 id="stack-operations"><a class="header" href="#stack-operations">Stack Operations</a></h3>
+<blockquote>
+<p>TBA</p>
+</blockquote>
+<h3 id="memory-operations"><a class="header" href="#memory-operations">Memory Operations</a></h3>
+<p>The memory related operations in WASM are dangerous for Zink’s implementation.</p>
+<p>WASM is using 32-bits offsets from the MVP spec while EVM is using 256-bits offsets,
+so it may cause memory overwrite problems.</p>
+<p>The instructions need to be checked:</p>
+<ul>
+<li><code>i32.store</code></li>
+<li><code>i64.store</code></li>
+<li><code>f32.store</code></li>
+<li><code>f64.store</code></li>
+<li><code>i32.store8</code></li>
+<li><code>i64.store8</code></li>
+<li><code>i32.store16</code></li>
+<li><code>i64.store16</code></li>
+<li><code>memory.size</code></li>
+<li><code>memory.grow</code></li>
+</ul>
+<p>TODO: check if it is possible to manage this issue with handling <code>memory.size</code> and <code>memory.grow</code>
+in a proper way.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="benchmarks"><a class="header" href="#benchmarks">Benchmarks</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="operators"><a class="header" href="#operators">Operators</a></h1>
+<p>TODO: Add tables WASM operators VS EVM operators</p>
 
                     </main>
 

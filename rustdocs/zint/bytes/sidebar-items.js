@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["impl_bytes32"],"trait":["Bytes32"]};

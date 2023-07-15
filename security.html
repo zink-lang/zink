@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">5.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html" class="active"><strong aria-hidden="true">6.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">7.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">8.</strong> Contributing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorial/gas-optimizations.html"><strong aria-hidden="true">2.1.</strong> Gas Optimizations</a></li></ol></li><li class="chapter-item expanded "><a href="styles/index.html"><strong aria-hidden="true">3.</strong> Styles</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">5.</strong> Command Line Tool</a></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html" class="active"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -173,6 +173,36 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="security"><a class="header" href="#security">Security</a></h1>
+<h2 id="mapping-of-instructions"><a class="header" href="#mapping-of-instructions">Mapping of Instructions</a></h2>
+<h3 id="type-conversions"><a class="header" href="#type-conversions">Type Conversions</a></h3>
+<p>WASM have <code>i32</code>, <code>i64</code>, <code>f32</code>, <code>f64</code> as number types while EVM bytecode
+only supports arithmetic operations for 256-bits integers.</p>
+<blockquote>
+<p>TODO: Add more risk conditions.</p>
+</blockquote>
+<h3 id="stack-operations"><a class="header" href="#stack-operations">Stack Operations</a></h3>
+<blockquote>
+<p>TBA</p>
+</blockquote>
+<h3 id="memory-operations"><a class="header" href="#memory-operations">Memory Operations</a></h3>
+<p>The memory related operations in WASM are dangerous for Zink’s implementation.</p>
+<p>WASM is using 32-bits offsets from the MVP spec while EVM is using 256-bits offsets,
+so it may cause memory overwrite problems.</p>
+<p>The instructions need to be checked:</p>
+<ul>
+<li><code>i32.store</code></li>
+<li><code>i64.store</code></li>
+<li><code>f32.store</code></li>
+<li><code>f64.store</code></li>
+<li><code>i32.store8</code></li>
+<li><code>i64.store8</code></li>
+<li><code>i32.store16</code></li>
+<li><code>i64.store16</code></li>
+<li><code>memory.size</code></li>
+<li><code>memory.grow</code></li>
+</ul>
+<p>TODO: check if it is possible to manage this issue with handling <code>memory.size</code> and <code>memory.grow</code>
+in a proper way.</p>
 
                     </main>
 
