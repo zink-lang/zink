@@ -4,10 +4,7 @@
 //! `CodeGen`; which defines a visitor per op-code, which validates
 //! and dispatches to the corresponding machine code emitter.
 
-use crate::{
-    control::{ControlStackFrame, ControlStackFrameType},
-    CodeGen, Result,
-};
+use crate::{CodeGen, Result};
 use paste::paste;
 use tracing::trace;
 use wasmparser::{for_each_operator, BlockType, BrTable, Ieee32, Ieee64, MemArg, VisitOperator};
@@ -38,46 +35,46 @@ macro_rules! impl_visit_operator {
 }
 
 /// Implement arithmetic operators for types.
-macro_rules! impl_wasm_instructions {
+macro_rules! map_wasm_operators {
     (@basic $ty:tt, $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste! {
             fn [< visit_ $ty _ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
-                trace!("{}.{}", stringify!($ty), stringify!($op));
-                self.masm.asm.[< _ $evm >]()?;
+                trace!("{}.{}", stringify!($ty), stringify!($evm));
+                self.masm.[< _ $evm >]()?;
 
                 Ok(())
             }
         }
     };
     (@integer32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_wasm_instructions!(@basic i32, $wasm, $evm $(, { $($arg: $argty),* })?);
+        map_wasm_operators!(@basic i32, $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@integer64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_wasm_instructions!(@basic i64, $wasm, $evm $(, { $($arg: $argty),* })?);
+        map_wasm_operators!(@basic i64, $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@signed $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_wasm_instructions!(@integer32 $wasm, $evm $(, { $($arg: $argty),* })?);
-        impl_wasm_instructions!(@integer64 $wasm, $evm $(, { $($arg: $argty),* })?);
+        map_wasm_operators!(@integer32 $wasm, $evm $(, { $($arg: $argty),* })?);
+        map_wasm_operators!(@integer64 $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@integer $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste!{
-            impl_wasm_instructions!(@signed [< $wasm _s >], $evm $(, { $($arg: $argty),* })?);
-            impl_wasm_instructions!(@signed [< $wasm _u >], $evm $(, { $($arg: $argty),* })?);
+            map_wasm_operators!(@signed [< $wasm _s >], $evm $(, { $($arg: $argty),* })?);
+            map_wasm_operators!(@signed [< $wasm _u >], $evm $(, { $($arg: $argty),* })?);
         }
     };
     (@float32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_wasm_instructions!(@basic f32, $wasm, $evm $(, { $($arg: $argty),* })?);
+        map_wasm_operators!(@basic f32, $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@float64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_wasm_instructions!(@basic f64, $wasm, $evm $(, { $($arg: $argty),* })?);
+        map_wasm_operators!(@basic f64, $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@float $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_wasm_instructions!(@float32 $wasm, $evm $(, { $($arg: $argty),* })?);
-        impl_wasm_instructions!(@float64 $wasm, $evm $(, { $($arg: $argty),* })?);
+        map_wasm_operators!(@float32 $wasm, $evm $(, { $($arg: $argty),* })?);
+        map_wasm_operators!(@float64 $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@signed_and_float $op:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        impl_wasm_instructions!(@signed $op, $op);
-        impl_wasm_instructions!(@float $op, $op);
+        map_wasm_operators!(@signed $op, $op);
+        map_wasm_operators!(@float $op, $op);
     };
     (@field ($($field:ident).*) $op:tt $($arg:tt: $argty:ty),* ) => {
         paste! {
@@ -118,67 +115,67 @@ macro_rules! impl_wasm_instructions {
         }
     ) => {
         paste! {
-            $(impl_wasm_instructions!(@signed_and_float $op);)+
+            $(map_wasm_operators!(@signed_and_float $op);)+
 
             $(
-                impl_wasm_instructions!(@signed [< $xdr _s >], [< s $xdr >]);
-                impl_wasm_instructions!(@signed [< $xdr _u >], $xdr);
-                impl_wasm_instructions!(@float $xdr, $xdr);
+                map_wasm_operators!(@signed [< $xdr _s >], [< s $xdr >]);
+                map_wasm_operators!(@signed [< $xdr _u >], $xdr);
+                map_wasm_operators!(@float $xdr, $xdr);
             )+
 
-            $(impl_wasm_instructions!(@signed $signed, $signed);)+
-            $(impl_wasm_instructions!(@integer $integer, $integer);)+
-            $(impl_wasm_instructions!(@float $float, $float);)+
+            $(map_wasm_operators!(@signed $signed, $signed);)+
+            $(map_wasm_operators!(@integer $integer, $integer);)+
+            $(map_wasm_operators!(@float $float, $float);)+
 
             $(
-                impl_wasm_instructions!(@integer $wasm, $evm);
-                impl_wasm_instructions!(@float $wasm, $evm);
-            )+
-
-            $(
-                impl_wasm_instructions!(@signed [< $map_int_wasm _s >], [< s $map_int_evm >]);
-                impl_wasm_instructions!(@signed [< $map_int_wasm _u >], $map_int_evm);
+                map_wasm_operators!(@integer $wasm, $evm);
+                map_wasm_operators!(@float $wasm, $evm);
             )+
 
             $(
-                impl_wasm_instructions!(@signed $mem, $mem, { _arg: MemArg });
-                impl_wasm_instructions!(@float $mem, $mem, { _arg: MemArg });
-            )+
-
-
-            $(
-                impl_wasm_instructions!(@integer $mem_integer, $mem_integer, { _arg: MemArg });
+                map_wasm_operators!(@signed [< $map_int_wasm _s >], [< s $map_int_evm >]);
+                map_wasm_operators!(@signed [< $map_int_wasm _u >], $map_int_evm);
             )+
 
             $(
-                impl_wasm_instructions!(@integer64 [< $mem_integer64 _s >], $mem_integer64, { _arg: MemArg });
-                impl_wasm_instructions!(@integer64 [< $mem_integer64 _u >], $mem_integer64, { _arg: MemArg });
+                map_wasm_operators!(@signed $mem, $mem, { _arg: MemArg });
+                map_wasm_operators!(@float $mem, $mem, { _arg: MemArg });
             )+
 
 
             $(
-                impl_wasm_instructions!(@signed $mem_signed, $mem_signed, { _arg: MemArg });
+                map_wasm_operators!(@integer $mem_integer, $mem_integer, { _arg: MemArg });
             )+
 
             $(
-                impl_wasm_instructions!(@signed $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
-                impl_wasm_instructions!(@float $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+                map_wasm_operators!(@integer64 [< $mem_integer64 _s >], $mem_integer64, { _arg: MemArg });
+                map_wasm_operators!(@integer64 [< $mem_integer64 _u >], $mem_integer64, { _arg: MemArg });
+            )+
+
+
+            $(
+                map_wasm_operators!(@signed $mem_signed, $mem_signed, { _arg: MemArg });
             )+
 
             $(
-                impl_wasm_instructions!(@integer64 $mem_signed64, $mem_signed64, { _arg: MemArg });
+                map_wasm_operators!(@signed $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+                map_wasm_operators!(@float $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
             )+
 
             $(
-                impl_wasm_instructions!(@field (masm.asm) $asm $( $($aarg: $aargty),+ )?);
+                map_wasm_operators!(@integer64 $mem_signed64, $mem_signed64, { _arg: MemArg });
             )+
 
             $(
-                impl_wasm_instructions!(@field (masm) $masm $( $($marg: $margty),+ )?);
+                map_wasm_operators!(@field (masm.asm) $asm $( $($aarg: $aargty),+ )?);
             )+
 
             $(
-                impl_wasm_instructions!(@field () $global $( $($garg: $gargty),+ )?);
+                map_wasm_operators!(@field (masm) $masm $( $($marg: $margty),+ )?);
+            )+
+
+            $(
+                map_wasm_operators!(@field () $global $( $($garg: $gargty),+ )?);
             )+
         }
     };
@@ -189,110 +186,7 @@ impl<'a> VisitOperator<'a> for CodeGen {
 
     for_each_operator!(impl_visit_operator);
 
-    fn visit_call(&mut self, function_index: u32) -> Self::Output {
-        trace!("call {}", function_index);
-        // record the current program counter and
-        // pass it to the callee function.
-        self.masm._pc()?;
-
-        // register the call index to the jump table.
-        self.table.call(self.masm.pc_offset(), function_index)?;
-
-        // mock the stack output of the counter
-        //
-        // the program counter instructions should be relocated afterwards.
-        self.masm.asm.increment_sp(1)?;
-        self.masm._jump()?;
-        self.masm._jumpdest()?;
-        Ok(())
-    }
-
-    /// Handle instruction end for different situations.
-    ///
-    /// TODO: (#28)
-    ///
-    /// - End of control flow instructions.
-    /// - End of function.
-    /// - End of program.
-    fn visit_end(&mut self) -> Self::Output {
-        trace!("end");
-        if !self.is_main {
-            // TODO: handle the length of results > u8::MAX.
-            self.masm.shift_pc(self.env.results().len() as u8, false)?;
-            self.masm.push(&[0x04])?;
-            self.masm._add()?;
-            self.masm._jump()?;
-            return Ok(());
-        }
-
-        // If inside a frame, pop the frame and patch
-        // the program counter.
-        if let Ok(frame) = self.control.pop() {
-            self.table
-                .label(frame.original_pc_offset, self.masm.pc_offset())?;
-
-            // TODO: Check the stack output and make decisions
-            // how to handle the results.
-
-            // Emit JUMPDEST after at the end of the control flow.
-            self.masm._jumpdest()?;
-        } else {
-            self.masm.memory_write(self.env.results())?;
-            self.masm._return()?;
-        }
-
-        Ok(())
-    }
-
-    fn visit_local_get(&mut self, local_index: u32) -> Self::Output {
-        if !self.is_main {
-            return Ok(());
-        }
-
-        trace!("local.get {}", local_index);
-        if (local_index as usize) < self.env.params().len() {
-            self.masm
-                .push(&self.locals[local_index as usize].to_ls_bytes())?;
-            self.masm._calldataload()?;
-        } else {
-            todo!("local.get {}", local_index);
-        }
-
-        Ok(())
-    }
-
-    fn visit_if(&mut self, blockty: wasmparser::BlockType) -> Self::Output {
-        trace!("If");
-
-        // push the frame to the control stack
-        let frame =
-            ControlStackFrame::new(ControlStackFrameType::If, self.masm.pc_offset(), blockty);
-        self.control.push(frame);
-
-        // mock the stack output of the counter
-        //
-        // the program counter instructions should be patched afterwards.
-        self.masm.asm.increment_sp(1)?;
-        self.masm._jumpi()?;
-
-        Ok(())
-    }
-
-    // Mark as invalid for now.
-    //
-    // TODO: recheck this implementation, if it is okay,
-    // provide more docs.
-    fn visit_unreachable(&mut self) -> Self::Output {
-        self.masm._invalid()?;
-        Ok(())
-    }
-
-    // Perform nothing in EVM bytecode.
-    fn visit_nop(&mut self) -> Self::Output {
-        Ok(())
-    }
-
-    impl_wasm_instructions! {
+    map_wasm_operators! {
         xdr: [div, lt, gt],
         signed: [and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
         integer: [shr, trunc_f32, trunc_f64],
@@ -350,7 +244,10 @@ impl<'a> VisitOperator<'a> for CodeGen {
             return
         },
         global: {
-            else, select,
+            else, select, end, nop, unreachable,
+            if: {
+                blockty: BlockType
+            },
             block: {
                 blockty: BlockType
             },
@@ -366,6 +263,9 @@ impl<'a> VisitOperator<'a> for CodeGen {
             br_table: {
                 table: BrTable<'_>
             },
+            local_get: {
+                local_index: u32
+            },
             local_set: {
                 local_index: u32
             },
@@ -377,6 +277,9 @@ impl<'a> VisitOperator<'a> for CodeGen {
             },
             global_set: {
                 global_index: u32
+            },
+            call: {
+                func_index: u32
             },
             call_indirect: {
                 type_index: u32,

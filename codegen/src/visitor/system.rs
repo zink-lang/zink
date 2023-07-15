@@ -1,6 +1,7 @@
 //! System instructions
 
 use crate::{CodeGen, Result};
+use tracing::trace;
 
 impl CodeGen {
     /// The call indirect instruction calls a function indirectly
@@ -12,5 +13,24 @@ impl CodeGen {
         _table_byte: u8,
     ) -> Result<()> {
         todo!()
+    }
+
+    /// The call instruction calls a function specified by its index.
+    pub fn _call(&mut self, function_index: u32) -> Result<()> {
+        trace!("call {}", function_index);
+        // record the current program counter and
+        // pass it to the callee function.
+        self.masm._pc()?;
+
+        // register the call index to the jump table.
+        self.table.call(self.masm.pc_offset(), function_index)?;
+
+        // mock the stack output of the counter
+        //
+        // the program counter operators should be relocated afterwards.
+        self.masm.asm.increment_sp(1)?;
+        self.masm._jump()?;
+        self.masm._jumpdest()?;
+        Ok(())
     }
 }

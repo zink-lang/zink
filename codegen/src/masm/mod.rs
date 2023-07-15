@@ -171,6 +171,9 @@ impl MacroAssembler {
     /// The return instruction is a shortcut for an unconditional
     /// branch to the outermost block, which implicitly is the body
     /// of the current function.
+    ///
+    /// NOTE: This `return` could be different from the `return` in
+    /// the EVM.
     pub fn _return(&mut self) -> Result<()> {
         todo!()
     }
