@@ -163,4 +163,27 @@ impl Assembler {
         trace!("load32");
         Ok(())
     }
+
+    /// Sign-agnostic compare unequal.
+    pub fn _ne(&mut self) -> Result<()> {
+        self.emit_op(OpCode::EQ)?;
+        self.emit_op(OpCode::ISZERO)?;
+        Ok(())
+    }
+
+    /// Simple not operator
+    pub fn _eqz(&mut self) -> Result<()> {
+        self.emit_op(OpCode::ISZERO)?;
+        Ok(())
+    }
+
+    /// Maximum of two values
+    pub fn _max(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Minium of two values
+    pub fn _min(&mut self) -> Result<()> {
+        todo!()
+    }
 }

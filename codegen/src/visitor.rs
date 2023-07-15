@@ -117,29 +117,43 @@ macro_rules! impl_arithmetic_ops {
     };
     (@mem $mem:tt) => {
         impl_arithmetic_ops!(@signed $mem, $mem, { _arg: MemArg });
-
         impl_arithmetic_ops!(@float $mem, $mem, { _arg: MemArg });
     };
     (@map $wasm:tt, $evm:tt) => {
         impl_arithmetic_ops!(@integer $wasm, $evm);
-
         impl_arithmetic_ops!(@float $wasm, $evm);
+    };
+    (@map_integer $wasm:tt, $evm:tt) => {
+        paste! {
+            impl_arithmetic_ops!(@signed [< $wasm _s >], [< s $evm >]);
+            impl_arithmetic_ops!(@unsigned [< $wasm _u >], $evm);
+        }
+    };
+    (@xdr $op:tt) => {
+        paste! {
+            impl_arithmetic_ops!(@map_integer $op, $op);
+            impl_arithmetic_ops!(@float $op, $op);
+        }
     };
     (
         @common[$($op:tt),+],
         @xdr[$($xdr:tt),+],
         @signed[$($signed:tt),+],
         @integer[$($integer:tt),+],
+        @float[$($float:tt),+],
         @map[$($wasm:tt => $evm:tt),+],
+        @map_integer[$($map_int_wasm:tt => $map_int_evm:tt),+],
         @mem[$($mem:tt),+],
         @mem_integer[$($mem_signed:tt),+],
         @mem_i64[$($mem_i64:tt),+],
     ) => {
         $(impl_arithmetic_ops!($op);)+
-        $(impl_arithmetic_ops!(@map $xdr, $xdr);)+
+        $(impl_arithmetic_ops!(@xdr $xdr);)+
         $(impl_arithmetic_ops!(@signed $signed, $signed);)+
         $(impl_arithmetic_ops!(@integer $integer, $integer);)+
+        $(impl_arithmetic_ops!(@float $float, $float);)+
         $(impl_arithmetic_ops!(@map $wasm, $evm);)+
+        $(impl_arithmetic_ops!(@map_integer $map_int_wasm, $map_int_evm);)+
         $(impl_arithmetic_ops!(@mem $mem);)+
         $(impl_arithmetic_ops!(@mem_integer $mem_signed);)+
         $(impl_arithmetic_ops!(@mem_i64 $mem_i64);)+
@@ -341,24 +355,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
     fn visit_f64_const(&mut self, _: Ieee64) -> Self::Output {
         todo!()
     }
-    fn visit_i32_eqz(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_ne(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_eqz(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_ne(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_ne(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_ne(&mut self) -> Self::Output {
-        todo!()
-    }
     fn visit_i32_clz(&mut self) -> Self::Output {
         todo!()
     }
@@ -366,12 +362,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
         todo!()
     }
     fn visit_i32_popcnt(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_rem_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_rem_u(&mut self) -> Self::Output {
         todo!()
     }
     fn visit_i32_and(&mut self) -> Self::Output {
@@ -390,12 +380,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
         todo!()
     }
     fn visit_i64_popcnt(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_rem_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_rem_u(&mut self) -> Self::Output {
         todo!()
     }
     fn visit_i64_and(&mut self) -> Self::Output {
@@ -428,12 +412,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
     fn visit_f32_sqrt(&mut self) -> Self::Output {
         todo!()
     }
-    fn visit_f32_min(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_max(&mut self) -> Self::Output {
-        todo!()
-    }
     fn visit_f32_copysign(&mut self) -> Self::Output {
         todo!()
     }
@@ -456,12 +434,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
         todo!()
     }
     fn visit_f64_sqrt(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_min(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_max(&mut self) -> Self::Output {
         todo!()
     }
     fn visit_f64_copysign(&mut self) -> Self::Output {
@@ -544,11 +516,13 @@ impl<'a> VisitOperator<'a> for CodeGen {
     }
 
     impl_arithmetic_ops! {
-        @common[add, sub, mul, eq],
+        @common[add, sub, mul, eq, ne],
         @xdr[div, lt, gt],
-        @signed[or, xor, shl],
+        @signed[or, xor, shl, eqz],
         @integer[shr],
+        @float[max, min],
         @map[ge => sgt, le => slt],
+        @map_integer[rem => mod],
         @mem[load],
         @mem_integer[load8, load16],
         @mem_i64[load32],
