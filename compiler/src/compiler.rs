@@ -61,7 +61,7 @@ impl Compiler {
 
     /// Finish compilation.
     pub fn finish(mut self) -> Result<Buffer> {
-        self.table.patch(&mut self.buffer)?;
+        self.table.relocate(&mut self.buffer)?;
 
         Ok(self.buffer)
     }

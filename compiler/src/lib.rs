@@ -1,4 +1,5 @@
 //! Zink compiler.
+#![deny(missing_docs)]
 
 pub use crate::{
     compiler::Compiler,

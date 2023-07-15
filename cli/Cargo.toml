@@ -20,5 +20,5 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 
 [[bin]]
-path = "bin/ek.rs"
-name = "ek"
+path = "bin/elko.rs"
+name = "elko"
