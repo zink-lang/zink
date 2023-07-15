@@ -123,6 +123,7 @@ macro_rules! impl_opcodes {
     };
 }
 
+/// Basic instruction implementations
 impl Assembler {
     for_each_shanghai_operator!(impl_opcodes);
 }

@@ -3,6 +3,7 @@
 
 use anyhow::Result;
 use zinkc::Compiler;
+use zint::{Bytes32, EVM};
 
 mod common;
 
@@ -11,6 +12,11 @@ fn i32_add() -> Result<()> {
     let wasm = common::load("i32add", "params")?;
     let bytecode = Compiler::default().compile(&wasm)?;
 
-    assert_eq!(hex::encode(bytecode), "6000356020350160005260206000f3");
+    tracing::trace!("bytecode: {:x?}", &bytecode);
+
+    let input = [1.to_bytes32(), 2.to_bytes32()].concat();
+    let (ret, _) = EVM::run(&bytecode, &input);
+
+    assert_eq!(ret, [3.to_bytes32()].concat());
     Ok(())
 }

@@ -1,6 +1,6 @@
 # Zink 
 
-> This project is under development, plz DO NOT use it in production.
+> This project is still under development, plz DO NOT use it in production.
 
 [![zink][version-badge]][version-link]
 [![ci][ci-badge]][ci-link]
@@ -23,9 +23,9 @@ flowchart LR
 Here we highly recommand you to choose `rust` as the language of your smart contracts 
 which will unlock all of the following features:
 
-- **Safe**: `rustc` is wathcing you! After compiling your rust code into WASM, `zinkc` 
-will precompute all of the stack and memory usages in your contracts to ensure try are
-safe in EVM bytecode as well!
+- **Safe**: `rustc` is wathcing you! Furthermore, after compiling your rust code into WASM, 
+`zinkc` will precompute all of the stack and memory usages in your contracts to ensure they
+are safe in EVM bytecode as well!
 
 - **High Performance**: The optimizations are provided by the three of `rustc`, `wasm-opt` 
 and `zinkc`, your contracts will have the smallest size with **strong performance** in EVM 
