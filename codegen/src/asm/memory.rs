@@ -39,4 +39,37 @@ impl Assembler {
         trace!("load32");
         Ok(())
     }
+
+    /// Store n bytes in memory.
+    pub fn _store(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Wrap self to i8 and store 1 byte
+    pub fn _store8(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Wrap self to i16 and store 2 bytes
+    pub fn _store16(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Wrap self to i32 and store 4 bytes
+    pub fn _store32(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// The memory size instruction returns the current
+    /// size of memory.
+    pub fn memory_size(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// The memory grow instruction grows memory by a given
+    /// delta and returns the previous size, or -1 if enough
+    /// memory cannot be allocated.
+    pub fn memory_grow(&mut self) -> Result<()> {
+        todo!()
+    }
 }

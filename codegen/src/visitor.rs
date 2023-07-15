@@ -39,122 +39,113 @@ macro_rules! impl_arithmetic_ops {
         impl_arithmetic_ops!(@signed $op, $op);
         impl_arithmetic_ops!(@float $op, $op);
     };
-    (@signed64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+    (@basic $ty:tt, $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste! {
-            fn [< visit_i64_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
-                trace!("i64.{}", stringify!($op).to_lowercase());
+            fn [< visit_ $ty _ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
+                trace!("{}.{}", stringify!($ty), stringify!($op));
                 self.masm.asm.[< _ $evm >]()?;
 
                 Ok(())
             }
         }
+    };
+    (@integer32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        impl_arithmetic_ops!(@basic i32, $wasm, $evm $(, { $($arg: $argty),* })?);
+    };
+    (@integer64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        impl_arithmetic_ops!(@basic i64, $wasm, $evm $(, { $($arg: $argty),* })?);
+    };
+    (@float32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        impl_arithmetic_ops!(@basic f32, $wasm, $evm $(, { $($arg: $argty),* })?);
+    };
+    (@float64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        impl_arithmetic_ops!(@basic f64, $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@signed $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        paste! {
-            fn [< visit_i32_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
-                trace!("i32.{}", stringify!($op).to_lowercase());
-                self.masm.asm.[< _ $evm >]()?;
-
-                Ok(())
-            }
-
-            impl_arithmetic_ops!(@signed64 $wasm, $evm $(, { $($arg: $argty),* })?);
-        }
-    };
-    (@unsigned $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        paste! {
-            fn [< visit_i32_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
-                trace!("i32.{}", stringify!($op).to_lowercase());
-                self.masm.asm.[< _ $evm >]()?;
-
-                Ok(())
-            }
-
-            fn [< visit_i64_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
-                trace!("i64.{}", stringify!($op).to_lowercase());
-                self.masm.asm.[< _ $evm >]()?;
-
-                Ok(())
-            }
-        }
+        impl_arithmetic_ops!(@integer32 $wasm, $evm $(, { $($arg: $argty),* })?);
+        impl_arithmetic_ops!(@integer64 $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (@integer $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste!{
-            impl_arithmetic_ops!(@signed [< $wasm _s >], $evm);
-            impl_arithmetic_ops!(@unsigned [< $wasm _u >], $evm);
+            impl_arithmetic_ops!(@signed [< $wasm _s >], $evm $(, { $($arg: $argty),* })?);
+            impl_arithmetic_ops!(@signed [< $wasm _u >], $evm $(, { $($arg: $argty),* })?);
         }
     };
     (@float $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        paste! {
-            fn [< visit_f32_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
-                trace!("f32.{}", stringify!($op).to_lowercase());
-                self.masm.asm.[< _ $evm >]()?;
-
-                Ok(())
-            }
-
-            fn [< visit_f64_ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
-                trace!("f64.{}", stringify!($op).to_lowercase());
-                self.masm.asm.[< _ $evm >]()?;
-
-                Ok(())
-            }
-        }
-    };
-    (@mem_integer $mem:tt) => {
-        paste! {
-            impl_arithmetic_ops!(@signed [< $mem _s >], $mem, { _arg: MemArg });
-            impl_arithmetic_ops!(@unsigned [< $mem _u >], $mem, { _arg: MemArg });
-        }
-    };
-    (@mem_i64 $mem:tt) => {
-        paste! {
-            impl_arithmetic_ops!(@signed64 [< $mem _s >], $mem, { _arg: MemArg });
-            impl_arithmetic_ops!(@signed64 [< $mem _u >], $mem, { _arg: MemArg });
-        }
-    };
-    (@mem $mem:tt) => {
-        impl_arithmetic_ops!(@signed $mem, $mem, { _arg: MemArg });
-        impl_arithmetic_ops!(@float $mem, $mem, { _arg: MemArg });
-    };
-    (@map $wasm:tt, $evm:tt) => {
-        impl_arithmetic_ops!(@integer $wasm, $evm);
-        impl_arithmetic_ops!(@float $wasm, $evm);
-    };
-    (@map_integer $wasm:tt, $evm:tt) => {
-        paste! {
-            impl_arithmetic_ops!(@signed [< $wasm _s >], [< s $evm >]);
-            impl_arithmetic_ops!(@unsigned [< $wasm _u >], $evm);
-        }
-    };
-    (@xdr $op:tt) => {
-        paste! {
-            impl_arithmetic_ops!(@map_integer $op, $op);
-            impl_arithmetic_ops!(@float $op, $op);
-        }
+        impl_arithmetic_ops!(@float32 $wasm, $evm $(, { $($arg: $argty),* })?);
+        impl_arithmetic_ops!(@float64 $wasm, $evm $(, { $($arg: $argty),* })?);
     };
     (
-        @common[$($op:tt),+],
-        @xdr[$($xdr:tt),+],
-        @signed[$($signed:tt),+],
-        @integer[$($integer:tt),+],
-        @float[$($float:tt),+],
-        @map[$($wasm:tt => $evm:tt),+],
-        @map_integer[$($map_int_wasm:tt => $map_int_evm:tt),+],
-        @mem[$($mem:tt),+],
-        @mem_integer[$($mem_signed:tt),+],
-        @mem_i64[$($mem_i64:tt),+],
+        common: [$($op:tt),+],
+        xdr: [$($xdr:tt),+],
+        signed: [$($signed:tt),+],
+        integer: [$($integer:tt),+],
+        float: [$($float:tt),+],
+        map: {
+            all: [$($wasm:tt => $evm:tt),+],
+            integer: [$($map_int_wasm:tt => $map_int_evm:tt),+],
+        },
+        mem: {
+            all: [$($mem:tt),+],
+            integer: [$($mem_integer:tt),+],
+            integer64: [$($mem_integer64:tt),+],
+            signed: [$($mem_signed:tt),+],
+            signed64: [$($mem_signed64:tt),+],
+            signed_and_float: [$($mem_signed_and_float:tt),+],
+        }
     ) => {
-        $(impl_arithmetic_ops!($op);)+
-        $(impl_arithmetic_ops!(@xdr $xdr);)+
-        $(impl_arithmetic_ops!(@signed $signed, $signed);)+
-        $(impl_arithmetic_ops!(@integer $integer, $integer);)+
-        $(impl_arithmetic_ops!(@float $float, $float);)+
-        $(impl_arithmetic_ops!(@map $wasm, $evm);)+
-        $(impl_arithmetic_ops!(@map_integer $map_int_wasm, $map_int_evm);)+
-        $(impl_arithmetic_ops!(@mem $mem);)+
-        $(impl_arithmetic_ops!(@mem_integer $mem_signed);)+
-        $(impl_arithmetic_ops!(@mem_i64 $mem_i64);)+
+        paste! {
+            $(impl_arithmetic_ops!($op);)+
+
+            $(
+                impl_arithmetic_ops!(@signed [< $xdr _s >], [< s $xdr >]);
+                impl_arithmetic_ops!(@signed [< $xdr _u >], $xdr);
+                impl_arithmetic_ops!(@float $xdr, $xdr);
+            )+
+
+            $(impl_arithmetic_ops!(@signed $signed, $signed);)+
+            $(impl_arithmetic_ops!(@integer $integer, $integer);)+
+            $(impl_arithmetic_ops!(@float $float, $float);)+
+
+            $(
+                impl_arithmetic_ops!(@integer $wasm, $evm);
+                impl_arithmetic_ops!(@float $wasm, $evm);
+            )+
+
+            $(
+                impl_arithmetic_ops!(@signed [< $map_int_wasm _s >], [< s $map_int_evm >]);
+                impl_arithmetic_ops!(@signed [< $map_int_wasm _u >], $map_int_evm);
+            )+
+
+            $(
+                impl_arithmetic_ops!(@signed $mem, $mem, { _arg: MemArg });
+                impl_arithmetic_ops!(@float $mem, $mem, { _arg: MemArg });
+            )+
+
+
+            $(
+                impl_arithmetic_ops!(@integer $mem_integer, $mem_integer, { _arg: MemArg });
+            )+
+
+            $(
+                impl_arithmetic_ops!(@integer64 [< $mem_integer64 _s >], $mem_integer64, { _arg: MemArg });
+                impl_arithmetic_ops!(@integer64 [< $mem_integer64 _u >], $mem_integer64, { _arg: MemArg });
+            )+
+
+
+            $(
+                impl_arithmetic_ops!(@signed $mem_signed, $mem_signed, { _arg: MemArg });
+            )+
+
+            $(
+                impl_arithmetic_ops!(@signed $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+                impl_arithmetic_ops!(@float $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+            )+
+
+            $(
+                impl_arithmetic_ops!(@integer64 $mem_signed64, $mem_signed64, { _arg: MemArg });
+            )+
+        }
     };
 }
 
@@ -308,33 +299,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
     fn visit_global_set(&mut self, _: u32) -> Self::Output {
         todo!()
     }
-    fn visit_i32_store(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_store(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_store(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_store(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_store8(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i32_store16(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_store8(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_store16(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
-    fn visit_i64_store32(&mut self, _: MemArg) -> Self::Output {
-        todo!()
-    }
     fn visit_memory_size(&mut self, _: u32, _: u8) -> Self::Output {
         todo!()
     }
@@ -392,31 +356,7 @@ impl<'a> VisitOperator<'a> for CodeGen {
     fn visit_i64_trunc_f64_u(&mut self) -> Self::Output {
         todo!()
     }
-    fn visit_f32_convert_i32_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_convert_i32_u(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_convert_i64_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f32_convert_i64_u(&mut self) -> Self::Output {
-        todo!()
-    }
     fn visit_f32_demote_f64(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_convert_i32_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_convert_i32_u(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_convert_i64_s(&mut self) -> Self::Output {
-        todo!()
-    }
-    fn visit_f64_convert_i64_u(&mut self) -> Self::Output {
         todo!()
     }
     fn visit_f64_promote_f32(&mut self) -> Self::Output {
@@ -436,15 +376,25 @@ impl<'a> VisitOperator<'a> for CodeGen {
     }
 
     impl_arithmetic_ops! {
-        @common[add, sub, mul, eq, ne],
-        @xdr[div, lt, gt],
-        @signed[and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
-        @integer[shr],
-        @float[abs, ceil, copysign, floor, max, min, nearest, neg, sqrt],
-        @map[ge => sgt, le => slt],
-        @map_integer[rem => mod],
-        @mem[load],
-        @mem_integer[load8, load16],
-        @mem_i64[load32],
+        common: [add, sub, mul, eq, ne],
+        xdr: [div, lt, gt],
+        signed: [and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
+        integer: [shr],
+        float: [
+            abs, ceil, copysign, floor, max, min, nearest, neg, sqrt,
+            convert_i32_s, convert_i32_u, convert_i64_s, convert_i64_u
+        ],
+        map: {
+            all: [ge => sgt, le => slt],
+            integer: [rem => mod],
+        },
+        mem: {
+            all: [load],
+            integer: [load8, load16],
+            integer64: [load32],
+            signed: [store8, store16],
+            signed64: [store32],
+            signed_and_float: [store],
+        }
     }
 }

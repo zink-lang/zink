@@ -48,4 +48,29 @@ impl Assembler {
     pub fn _copysign(&mut self) -> Result<()> {
         todo!()
     }
+
+    /// Convert a signed 32-bit integer to a (32-bit/64-bit) float
+    pub fn _convert_i32_s(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Convert an unsigned 32-bit integer to a (32-bit/64-bit) float
+    pub fn _convert_i32_u(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Convert a signed 32-bit integer to a (32-bit/64-bit) float
+    pub fn _convert_i64_s(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Convert a unsigned 32-bit integer to a (32-bit/64-bit) float
+    pub fn _convert_i64_u(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    // ///
+    // pub fn _reinterpret_f32(&mut self) -> Result<()> {
+    //     todo!()
+    // }
 }
