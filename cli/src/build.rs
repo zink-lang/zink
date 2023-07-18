@@ -1,19 +1,18 @@
-//! Zinkc cli
+//! Command `Build`.
+#![cfg(feature = "elko")]
 use crate::utils::{Profile, WasmBuilder};
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use etc::{Etc, FileSystem};
-use std::path::PathBuf;
+use std::{env, fs, path::PathBuf};
+use zinkc::Compiler;
 
-/// Build contract
+/// Build zink project to EVM bytecode.
 #[derive(Debug, Parser)]
 #[command(name = "build", version)]
 pub struct Build {
-    /// The path to the wasm file or the rust project directory.
-    /// ( only support cargo project as input for now )
-    ///
-    /// TODO: Support wasm file as input. (issue-19)
-    pub input: PathBuf,
+    /// The path of the cargo project.
+    pub input: Option<PathBuf>,
     /// Write output to \<filename\>
     #[clap(short, long, value_name = "filename")]
     pub output: Option<PathBuf>,
@@ -35,9 +34,13 @@ impl Build {
         };
 
         // Get and check the input.
-        let input = &self.input;
+        let input = if let Some(input) = self.input.as_ref() {
+            input.clone()
+        } else {
+            env::current_dir()?
+        };
         {
-            if Etc::new(input)?.find("Cargo.toml").is_err() {
+            if Etc::new(&input)?.find("Cargo.toml").is_err() {
                 return Ok(());
             }
 
@@ -51,16 +54,23 @@ impl Build {
         // Build the wasm.
         let mut builder = WasmBuilder::new(input)?;
         {
-            if let Some(out_dir) = self.out_dir.clone() {
-                builder.out_dir(out_dir);
+            if let Some(out_dir) = self.out_dir.as_ref() {
+                builder.with_out_dir(out_dir);
             }
 
-            if let Some(output) = self.output.clone() {
-                builder.output(output);
+            if let Some(output) = self.output.as_ref() {
+                builder.with_output(output);
             }
+
+            builder.with_profile(profile).build()?;
         }
 
-        builder.profile(profile).build()?;
+        // Compile the wasm to evm bytecode.
+        let wasm = fs::read(builder.output()?)?;
+        let bin = Compiler::default().compile(&wasm)?;
+        let dst = builder.output()?.with_extension("bin");
+        fs::write(dst, bin)?;
+
         Ok(())
     }
 }

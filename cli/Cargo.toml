@@ -1,24 +1,40 @@
 [package]
 name = "zinkup"
-version = "0.0.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 description = "Zink CLI"
 license.workspace = true
 homepage = "https://github.com/clearloop/zink"
 repository = "https://github.com/clearloop/zink.git"
 documentation = "https://docs.rs/zink-cli"
 
-[dependencies]
-anyhow.workspace = true
-cargo_metadata.workspace = true
-clap = { workspace = true, features = ["derive"] }
-color-eyre.workspace = true
-etc.workspace = true
-thiserror.workspace = true
-zinkc.workspace = true
-tracing.workspace = true
-tracing-subscriber.workspace = true
-
 [[bin]]
 path = "bin/elko.rs"
 name = "elko"
+required-features = ["elko"]
+
+[[bin]]
+path = "bin/zinkc.rs"
+name = "zinkc"
+required-features = ["zinkc"]
+
+[dependencies]
+anyhow.workspace = true
+cargo_metadata = { workspace = true, optional = true }
+clap = { workspace = true, features = ["derive"] }
+color-eyre.workspace = true
+colored = { workspace = true, optional = true }
+etc = { workspace = true, optional = true }
+semver = { workspace = true, optional = true }
+serde = { workspace = true, optional = true, features = [ "derive" ] }
+thiserror = { workspace = true, optional = true }
+toml = { workspace = true, optional = true }
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["std", "env-filter"] }
+wasm-opt = { workspace = true, optional = true }
+zinkc = { workspace = true, optional = true }
+
+[features]
+default = ["elko", "zinkc"]
+elko = [ "cargo_metadata", "colored", "etc", "semver", "serde", "thiserror", "toml", "wasm-opt", "zinkc" ]
+zinkc = [ "dep:zinkc" ]

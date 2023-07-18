@@ -3,18 +3,19 @@
 
 use clap::{Parser, Subcommand};
 use color_eyre::Result;
-use zinkup::{App, Build};
+use zinkup::{App, Build, New};
 
 /// elko commands
 #[derive(Debug, Subcommand)]
 enum Command {
+    New(New),
     Build(Build),
 }
 
 /// Zink's package manager
 #[derive(Debug, Parser)]
-#[command(name = "ek", version)]
-pub struct Ek {
+#[command(name = "elko", version)]
+pub struct Elko {
     #[command(subcommand)]
     command: Command,
     /// Verbose mode (-v, -vv, -vvv, etc.)
@@ -22,7 +23,7 @@ pub struct Ek {
     verbose: u8,
 }
 
-impl App for Ek {
+impl App for Elko {
     fn verbose(&self) -> u8 {
         self.verbose
     }
@@ -30,11 +31,12 @@ impl App for Ek {
     fn run(&self) -> anyhow::Result<()> {
         match &self.command {
             Command::Build(build) => build.run(),
+            Command::New(new) => new.run(),
         }
     }
 }
 
 /// The main function.
 fn main() -> Result<()> {
-    Ek::start()
+    Elko::start()
 }

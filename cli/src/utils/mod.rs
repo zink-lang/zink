@@ -1,15 +1,22 @@
+//! CLI Utils
+#![cfg(feature = "elko")]
+
 pub use self::{
+    manifest::Manifest,
     result::{Error, Result},
     wasm::WasmBuilder,
 };
 
+mod manifest;
 mod result;
 mod wasm;
 
 /// Compliation profile.
 #[derive(PartialEq, Eq)]
 pub enum Profile {
+    /// Debug profile.
     Debug,
+    /// Release profile.
     Release,
 }
 

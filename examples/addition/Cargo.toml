@@ -1,0 +1,10 @@
+[package]
+name = "addition"
+version = "0.1.0"
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+zink.workspace = true
