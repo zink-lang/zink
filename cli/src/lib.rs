@@ -5,10 +5,10 @@ pub use crate::build::Build;
 use anyhow::Error;
 use clap::Parser;
 use color_eyre::{eyre::eyre, Result};
-use tracing_subscriber::EnvFilter;
+use tracing_subscriber::filter::EnvFilter;
 
 mod build;
-mod utils;
+pub mod utils;
 
 /// Shared application interface.
 pub trait App: Parser {

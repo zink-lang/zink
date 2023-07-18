@@ -1,3 +1,5 @@
+//! CLI Utils
+
 pub use self::{
     result::{Error, Result},
     wasm::WasmBuilder,
@@ -9,7 +11,9 @@ mod wasm;
 /// Compliation profile.
 #[derive(PartialEq, Eq)]
 pub enum Profile {
+    /// Debug profile.
     Debug,
+    /// Release profile.
     Release,
 }
 

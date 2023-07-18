@@ -4,16 +4,16 @@ use crate::utils::{Profile, Result};
 use anyhow::anyhow;
 use cargo_metadata::{Metadata, MetadataCommand, Package};
 use etc::{Etc, FileSystem};
-use std::{env, fs, path::PathBuf, process::Command};
+use std::{fs, path::PathBuf, process::Command};
+use wasm_opt::OptimizationOptions;
 
 /// WASM Builder
 pub struct WasmBuilder {
     profile: Profile,
     metadata: Metadata,
     package: Package,
-    #[allow(unused)]
-    output: PathBuf,
-    out_dir: PathBuf,
+    output: Option<PathBuf>,
+    out_dir: Option<PathBuf>,
 }
 
 impl WasmBuilder {
@@ -39,33 +39,68 @@ impl WasmBuilder {
             .ok_or(anyhow!("package {manifest:?} not found"))?
             .clone();
 
-        let out_dir = env::current_dir()?;
-        let output = out_dir.join(package.name.as_str());
-
         Ok(Self {
             profile: Profile::Debug,
             metadata,
             package,
-            output,
-            out_dir: env::current_dir()?,
+            output: None,
+            out_dir: None,
         })
     }
 
+    /// Get the profile.
+    pub fn profile(&self) -> &Profile {
+        &self.profile
+    }
+
     /// Set the profile.
-    pub fn profile(&mut self, profile: impl Into<Profile>) -> &mut Self {
+    pub fn with_profile(&mut self, profile: impl Into<Profile>) -> &mut Self {
         self.profile = profile.into();
         self
     }
 
-    /// Set the output directory.
-    pub fn out_dir(&mut self, out_dir: impl Into<PathBuf>) -> &mut Self {
-        self.out_dir = out_dir.into();
+    /// Get the output filename.
+    pub fn output(&self) -> Result<PathBuf> {
+        let out_dir = self.out_dir()?;
+        let output = if let Some(output) = self.output.as_ref() {
+            output.into()
+        } else {
+            out_dir
+                .join(self.package.name.as_str())
+                .with_extension("wasm")
+        };
+
+        Ok(output)
+    }
+
+    /// Set the output filename.
+    pub fn with_output(&mut self, output: impl Into<PathBuf>) -> &mut Self {
+        self.output = Some(output.into());
         self
     }
 
-    /// Set the output file.
-    pub fn output(&mut self, output: impl Into<PathBuf>) -> &mut Self {
-        self.output = output.into();
+    /// Get the output directory.
+    pub fn out_dir(&self) -> Result<PathBuf> {
+        let out_dir: PathBuf = if let Some(out_dir) = self.out_dir.as_ref() {
+            out_dir.into()
+        } else {
+            let out_dir = self
+                .metadata
+                .target_directory
+                .join("zink")
+                .join(self.profile.as_ref());
+            if !out_dir.exists() {
+                fs::create_dir_all(&out_dir)?;
+            }
+            out_dir.into()
+        };
+
+        Ok(out_dir)
+    }
+
+    /// Set the output directory.
+    pub fn with_out_dir(&mut self, out_dir: impl Into<PathBuf>) -> &mut Self {
+        self.out_dir = Some(out_dir.into());
         self
     }
 
@@ -96,23 +131,20 @@ impl WasmBuilder {
 
     /// Post processing the built WASM files.
     fn post(&self) -> Result<()> {
-        let target = self.metadata.target_directory.clone();
-        let zink = target.join("zink").join(self.profile.as_ref());
-        if !zink.exists() {
-            fs::create_dir_all(&zink)?;
-        }
-
-        let src = target
+        let src = self
+            .metadata
+            .target_directory
             .join("wasm32-unknown-unknown")
             .join(self.profile.as_ref())
             .join(self.package.name.as_str())
             .with_extension("wasm");
 
-        // copy the wasm file to the zink directory and the out directory.
-        for dir in [self.out_dir.clone(), zink.into()] {
-            let dst = dir.join(self.package.name.as_str()).with_extension("wasm");
-            fs::copy(&src, dst)?;
-        }
+        // run the wasm optimizer
+        OptimizationOptions::new_opt_level_4()
+            .debug_info(true)
+            .mvp_features_only()
+            .set_converge()
+            .run(&src, &self.output()?)?;
 
         Ok(())
     }
