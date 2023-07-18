@@ -49,6 +49,6 @@ GPL-3.0-only
 [version-badge]: https://img.shields.io/crates/v/zink
 [version-link]: https://docs.rs/zink/latest/zink/
 [ci-badge]: https://img.shields.io/github/actions/workflow/status/clearloop/zink/CI.yml
-[ci-link]: https://github.com/clearloop/zink/actions/workflows/CI.yml
+[ci-link]: https://github.com/clearloop/zink/actions/workflows/main.yml
 [rustc-codegen]: https://doc.rust-lang.org/rustc/codegen-options/index.html
 [wasm-opt]: https://github.com/WebAssembly/binaryen#binaryen-optimizations

@@ -2,8 +2,5 @@
 name = "zink"
 version.workspace = true
 edition.workspace = true
-description = "WASM that targets the Ethereum Virtual Machine"
+description = "Standard library for zink projects."
 license.workspace = true
-
-[features]
-std = []

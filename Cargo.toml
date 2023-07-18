@@ -10,7 +10,7 @@ members = [
   "codegen",
   "codegen/opcodes",
   "compiler",
-  "examples",
+  "examples/*",
   "zink",
   "zint"
 ]
