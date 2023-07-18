@@ -22,6 +22,21 @@ pub extern "C" fn addition(x: u64, y: u64) -> u64 {
     x + y
 }
 "#;
+const README: &str = r#"
+# ${name}
+
+> An EVM contract written in Rust with [The Zink Project][zink].
+
+## Getting Started
+
+```
+cargo install zinkup
+elko build
+ls target/zink/${name}.bin
+```
+
+[zink]: https://github.com/clearloop/zink
+"#;
 
 /// Create a new zink project.
 #[derive(Debug, Parser)]
@@ -69,6 +84,12 @@ impl New {
         fs::write(
             src.join("lib.rs"),
             ADDITION.trim_start().replace(NAME, &name),
+        )?;
+
+        // Create README
+        fs::write(
+            self.path.join("README.md"),
+            README.trim_start().replace(NAME, &name),
         )?;
 
         println!("{} zink project `{}`", "Created".green().bold(), name);

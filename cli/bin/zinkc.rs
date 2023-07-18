@@ -5,7 +5,7 @@ use clap::Parser;
 use color_eyre::Result;
 use zinkup::{App, Compile};
 
-/// Zink's package manager
+/// Zink Compiler
 #[derive(Debug, Parser)]
 #[command(name = "zinkc", version)]
 pub struct Zinkc {
