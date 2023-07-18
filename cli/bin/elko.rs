@@ -3,11 +3,12 @@
 
 use clap::{Parser, Subcommand};
 use color_eyre::Result;
-use zinkup::{App, Build};
+use zinkup::{App, Build, New};
 
 /// elko commands
 #[derive(Debug, Subcommand)]
 enum Command {
+    New(New),
     Build(Build),
 }
 
@@ -30,6 +31,7 @@ impl App for Elko {
     fn run(&self) -> anyhow::Result<()> {
         match &self.command {
             Command::Build(build) => build.run(),
+            Command::New(new) => new.run(),
         }
     }
 }

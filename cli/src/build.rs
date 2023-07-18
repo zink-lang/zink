@@ -1,4 +1,5 @@
 //! Command `Build`.
+#![cfg(feature = "elko")]
 use crate::utils::{Profile, WasmBuilder};
 use anyhow::{anyhow, Result};
 use clap::Parser;
@@ -6,7 +7,7 @@ use etc::{Etc, FileSystem};
 use std::{env, fs, path::PathBuf};
 use zinkc::Compiler;
 
-/// Build contract
+/// Build zink project to EVM bytecode.
 #[derive(Debug, Parser)]
 #[command(name = "build", version)]
 pub struct Build {

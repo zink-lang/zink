@@ -1,11 +1,12 @@
 //! Command `Compile`.
+#![cfg(feature = "zinkc")]
 
 use anyhow::Result;
 use clap::Parser;
 use std::{env, fs, path::PathBuf};
 use zinkc::Compiler;
 
-/// Command `Compile`.
+/// Compile WASM to EVM bytecode.
 #[derive(Debug, Parser)]
 #[command(name = "build", version)]
 pub struct Compile {

@@ -144,7 +144,7 @@ impl WasmBuilder {
             .debug_info(true)
             .mvp_features_only()
             .set_converge()
-            .run(&src, &self.output()?)?;
+            .run(src, self.output()?)?;
 
         Ok(())
     }

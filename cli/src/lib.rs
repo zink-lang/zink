@@ -1,15 +1,24 @@
 //! Zink command line tool
 #![deny(missing_docs)]
 
-pub use crate::{build::Build, compile::Compile};
 use anyhow::Error;
 use clap::Parser;
 use color_eyre::{eyre::eyre, Result};
+pub use commands::*;
 use tracing_subscriber::filter::EnvFilter;
 
 mod build;
 mod compile;
+mod new;
 pub mod utils;
+
+mod commands {
+    #[cfg(feature = "elko")]
+    pub use crate::{build::Build, new::New};
+
+    #[cfg(feature = "zinkc")]
+    pub use crate::compile::Compile;
+}
 
 /// Shared application interface.
 pub trait App: Parser {
