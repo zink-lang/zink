@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Command"],"fn":["main"],"struct":["Ek"]};
+window.SIDEBAR_ITEMS = {"enum":["Command"],"fn":["main"],"struct":["Elko"]};

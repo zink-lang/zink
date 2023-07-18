@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Profile"],"mod":["result","wasm"]};
+window.SIDEBAR_ITEMS = {"enum":["Error","Profile"],"mod":["manifest","result","wasm"],"struct":["Manifest","WasmBuilder"],"type":["Result"]};

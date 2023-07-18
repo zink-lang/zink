@@ -1,4 +1,5 @@
 (function() {var implementors = {
-"elko":[["impl FromArgMatches for <a class=\"struct\" href=\"elko/struct.Ek.html\" title=\"struct elko::Ek\">Ek</a>"],["impl FromArgMatches for <a class=\"enum\" href=\"elko/enum.Command.html\" title=\"enum elko::Command\">Command</a>"]],
-"zinkup":[["impl FromArgMatches for <a class=\"struct\" href=\"zinkup/build/struct.Build.html\" title=\"struct zinkup::build::Build\">Build</a>"]]
+"elko":[["impl FromArgMatches for <a class=\"struct\" href=\"elko/struct.Elko.html\" title=\"struct elko::Elko\">Elko</a>"],["impl FromArgMatches for <a class=\"enum\" href=\"elko/enum.Command.html\" title=\"enum elko::Command\">Command</a>"]],
+"zinkc":[["impl FromArgMatches for <a class=\"struct\" href=\"zinkc/struct.Zinkc.html\" title=\"struct zinkc::Zinkc\">Zinkc</a>"]],
+"zinkup":[["impl FromArgMatches for <a class=\"struct\" href=\"zinkup/compile/struct.Compile.html\" title=\"struct zinkup::compile::Compile\">Compile</a>"],["impl FromArgMatches for <a class=\"struct\" href=\"zinkup/build/struct.Build.html\" title=\"struct zinkup::build::Build\">Build</a>"],["impl FromArgMatches for <a class=\"struct\" href=\"zinkup/new/struct.New.html\" title=\"struct zinkup::new::New\">New</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
