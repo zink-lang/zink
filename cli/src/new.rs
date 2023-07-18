@@ -56,8 +56,7 @@ impl New {
         } else {
             self.path
                 .file_name()
-                .map(|n| n.to_str())
-                .flatten()
+                .and_then(|n| n.to_str())
                 .ok_or_else(|| anyhow!("Invalid project path"))?
                 .into()
         };
