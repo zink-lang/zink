@@ -1,4 +1,4 @@
-//! Build command
+//! Command `Build`.
 use crate::utils::{Profile, WasmBuilder};
 use anyhow::{anyhow, Result};
 use clap::Parser;
@@ -10,10 +10,7 @@ use zinkc::Compiler;
 #[derive(Debug, Parser)]
 #[command(name = "build", version)]
 pub struct Build {
-    /// The path to the wasm file or the rust project directory.
-    /// ( only support cargo project as input for now )
-    ///
-    /// TODO: Support wasm file as input. (issue-19)
+    /// The path of the cargo project.
     pub input: Option<PathBuf>,
     /// Write output to \<filename\>
     #[clap(short, long, value_name = "filename")]

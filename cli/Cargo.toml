@@ -23,3 +23,7 @@ zinkc.workspace = true
 [[bin]]
 path = "bin/elko.rs"
 name = "elko"
+
+[[bin]]
+path = "bin/zinkc.rs"
+name = "zinkc"

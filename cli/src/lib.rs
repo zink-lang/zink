@@ -1,13 +1,14 @@
 //! Zink command line tool
 #![deny(missing_docs)]
 
-pub use crate::build::Build;
+pub use crate::{build::Build, compile::Compile};
 use anyhow::Error;
 use clap::Parser;
 use color_eyre::{eyre::eyre, Result};
 use tracing_subscriber::filter::EnvFilter;
 
 mod build;
+mod compile;
 pub mod utils;
 
 /// Shared application interface.
