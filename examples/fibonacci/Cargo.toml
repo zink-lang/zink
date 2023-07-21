@@ -1,0 +1,12 @@
+[package]
+name = "fibonacci"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+zink.workspace = true

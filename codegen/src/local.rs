@@ -11,28 +11,48 @@ use wasmparser::ValType;
 pub struct LocalSlot {
     /// The type contained by this local slot.
     inner: ValType,
-
-    /// The offset of this local slot.
-    ///
-    /// TODO: make this offset to u256. (#20)
-    offset: usize,
-}
-
-impl LocalSlot {
-    /// Create a new local slot.
-    pub fn new(offset: usize, inner: ValType) -> Self {
-        Self { offset, inner }
-    }
-
-    /// Get the offset of this local slot in the
-    /// lowest significant bytes.
-    pub fn to_ls_bytes(&self) -> SmallVec<[u8; 8]> {
-        self.offset.to_ls_bytes()
-    }
 }
 
 impl Type for LocalSlot {
     fn size(&self) -> usize {
         self.inner.size()
+    }
+}
+
+impl From<ValType> for LocalSlot {
+    fn from(inner: ValType) -> Self {
+        Self { inner }
+    }
+}
+
+/// Solidity's implementation uses 16 slots for locals.
+/// ref: <https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor>
+#[derive(Default)]
+pub struct Locals {
+    inner: SmallVec<[LocalSlot; 16]>,
+}
+
+impl Locals {
+    /// Get local from index.
+    pub fn get(&self, index: usize) -> &LocalSlot {
+        &self.inner[index]
+    }
+
+    /// Get the lower significant bytes of the offset of a local.
+    ///
+    /// TODO: considering if it is necessary to store the offset
+    /// of each slots. (guess not)
+    pub fn offset_of(&self, index: usize) -> SmallVec<[u8; 32]> {
+        self.inner[..index]
+            .iter()
+            .fold(0, |acc, x| acc + x.align())
+            .to_ls_bytes()
+            .to_vec()
+            .into()
+    }
+
+    /// Push a local slot.
+    pub fn push(&mut self, slot: impl Into<LocalSlot>) {
+        self.inner.push(slot.into())
     }
 }

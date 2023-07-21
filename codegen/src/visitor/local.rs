@@ -9,11 +9,11 @@ impl CodeGen {
         if !self.is_main {
             return Ok(());
         }
+        let local_index = local_index as usize;
 
         trace!("local.get {}", local_index);
-        if (local_index as usize) < self.env.params().len() {
-            self.masm
-                .push(&self.locals[local_index as usize].to_ls_bytes())?;
+        if local_index < self.env.params().len() {
+            self.masm.push(&self.locals.offset_of(local_index))?;
             self.masm._calldataload()?;
         } else {
             todo!("local.get {}", local_index);
