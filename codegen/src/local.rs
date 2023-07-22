@@ -38,6 +38,11 @@ impl LocalSlot {
     pub fn ty(&self) -> &LocalSlotType {
         &self.ty
     }
+
+    /// Get the value type of this local slot.
+    pub fn val_ty(&self) -> &ValType {
+        &self.inner
+    }
 }
 
 impl Type for LocalSlot {
@@ -55,8 +60,10 @@ pub struct Locals {
 
 impl Locals {
     /// Get local from index.
-    pub fn get(&self, index: usize) -> &LocalSlot {
-        &self.inner[index]
+    pub fn get(&self, index: usize) -> Result<&LocalSlot> {
+        self.inner
+            .get(index)
+            .ok_or_else(|| Error::InvalidLocalIndex(index))
     }
 
     /// Get the lower significant bytes of the byte offset of a local.
@@ -66,27 +73,18 @@ impl Locals {
     /// - **Variable**: If the local is a variable, the offset is relative to the offset
     /// of the memory.
     pub fn offset_of(&self, index: usize) -> Result<SmallVec<[u8; 32]>> {
-        let local = self
-            .inner
-            .get(index)
-            .ok_or_else(|| Error::InvalidLocalIndex(index))?;
-
+        let local = self.get(index)?;
         let offset = if local.ty() == &LocalSlotType::Parameter {
-            self.inner[..index]
-                .iter()
-                .fold(0, |acc, x| acc + x.align())
-                .to_ls_bytes()
-                .to_vec()
-                .into()
+            self.inner[..index].iter().fold(0, |acc, x| acc + x.align())
         } else {
             self.inner[..index]
                 .iter()
                 .filter(|x| x.ty() == &LocalSlotType::Variable)
-                .fold(0, |acc, x| acc + x.size())
-                .to_ls_bytes()
-                .to_vec()
-                .into()
-        };
+                .fold(0, |acc, x| acc + x.align())
+        }
+        .to_ls_bytes()
+        .to_vec()
+        .into();
 
         Ok(offset)
     }

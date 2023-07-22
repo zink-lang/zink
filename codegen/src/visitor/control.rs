@@ -1,7 +1,7 @@
 //! Control flow visitors
 
 use crate::{
-    abi::Type,
+    abi::ToLSBytes,
     control::{ControlStackFrame, ControlStackFrameType},
     CodeGen, Error, Result,
 };
@@ -104,15 +104,12 @@ impl CodeGen {
             // Emit JUMPDEST after at the end of the control flow.
             self.masm._jumpdest()?;
         } else {
-            let value = self.masm.memory_write(self.env.results())?;
-            let offset = self.masm.mp_offset(|mp| {
-                tracing::trace!("mp: {:?}", mp);
-                tracing::trace!("mp: {:?}", value.len());
-                mp.checked_sub(value.len().align())
-                    .ok_or_else(|| Error::InvalidMP(0))
-            })?;
+            let size = self.masm.memory_write(self.env.results())?;
+            let offset = self
+                .masm
+                .mp_offset(|mp| mp.checked_sub(size).ok_or_else(|| Error::InvalidMP(0)))?;
 
-            self.masm.push(&value)?;
+            self.masm.push(&size.to_ls_bytes())?;
             self.masm.push(&offset)?;
             self.masm.asm._return()?;
         }

@@ -20,7 +20,7 @@ pub trait Type {
     fn size(&self) -> usize;
 }
 
-impl Type for ValType {
+impl Type for &ValType {
     fn size(&self) -> usize {
         match self {
             ValType::I32 | ValType::F32 => 4,
@@ -28,6 +28,18 @@ impl Type for ValType {
             // TODO: align number implementations to 256 bits (issue #20)
             _ => unimplemented!("unknown unsupported type {self}"),
         }
+    }
+}
+
+impl Type for ValType {
+    fn size(&self) -> usize {
+        (&self).size()
+    }
+}
+
+impl Type for &[ValType] {
+    fn size(&self) -> usize {
+        self.as_ref().iter().map(|t| t.align()).sum::<usize>()
     }
 }
 
@@ -95,6 +107,14 @@ impl ToLSBytes for BlockType {
             BlockType::Type(val) => val.size().to_ls_bytes(),
             BlockType::FuncType(val) => Self::Output::from_slice(&val.to_ls_bytes()),
         }
+    }
+}
+
+impl ToLSBytes for &ValType {
+    type Output = SmallVec<[u8; 8]>;
+
+    fn to_ls_bytes(&self) -> Self::Output {
+        self.align().to_ls_bytes()
     }
 }
 

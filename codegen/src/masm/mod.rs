@@ -58,19 +58,27 @@ impl MacroAssembler {
         Ok(masm)
     }
 
-    /// Store data in memory.
-    pub fn memory_write(&mut self, ty: impl ToLSBytes) -> Result<Vec<u8>> {
-        // use the current memory pointer as offset
-        // to store the data.
+    /// Store data in memory with at current memory byte pointer.
+    pub fn memory_write(&mut self, ty: impl Type) -> Result<usize> {
         let offset = self.mp.to_ls_bytes();
-        self.push(&offset)?;
-        self._mstore()?;
 
         // mock the memory usages.
-        let value = ty.to_ls_bytes();
-        self.increment_mp(value.as_ref().len().align())?;
+        let size = ty.size();
+        self.increment_mp(size)?;
 
-        Ok(value.as_ref().into())
+        // write memory
+        self.memory_write_at(&offset)?;
+        Ok(size)
+    }
+
+    /// Store data in memory at offset.
+    ///
+    /// Returns the size in the lowest significant bytes.
+    pub fn memory_write_at(&mut self, offset: &[u8]) -> Result<()> {
+        self.push(offset)?;
+        self._mstore()?;
+
+        Ok(())
     }
 
     /// Get the current program counter offset.
@@ -194,10 +202,6 @@ impl MacroAssembler {
 
     /// Push a 32-bit integer value on the stack.
     pub fn _i32_const(&mut self, value: i32) -> Result<()> {
-        // TODO:
-        //
-        // 1. push value to locals
-        // 2. save value in memory.
         self.push(value.to_ls_bytes().as_ref())?;
         Ok(())
     }

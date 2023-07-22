@@ -70,10 +70,13 @@ impl CodeGen {
         // Record the offset for validation.
         while let Ok((count, val)) = locals.read() {
             let validation_offset = locals.original_position();
-            self.locals
-                .push(LocalSlot::new(val, LocalSlotType::Variable));
+            for _ in 0..count {
+                self.locals
+                    .push(LocalSlot::new(val, LocalSlotType::Variable));
+                self.masm.increment_mp(val.align())?;
+            }
+
             validator.define_locals(validation_offset, count, val)?;
-            self.masm.increment_mp(val.align())?;
         }
 
         tracing::trace!("locals: {:?}", self.locals);

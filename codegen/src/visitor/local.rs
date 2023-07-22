@@ -10,22 +10,27 @@ impl CodeGen {
         }
 
         let local_index = local_index as usize;
-        self.masm.push(&self.locals.offset_of(local_index)?)?;
+        let offset = self.locals.offset_of(local_index)?;
+        self.masm.push(&offset)?;
 
         if local_index < self.env.params().len() {
             // Get function parameters
             self.masm._calldataload()?;
         } else {
             // Get local variables
-            todo!("local.get {}", local_index);
+            self.masm._mload()?;
         }
 
         Ok(())
     }
 
     /// This instruction sets the value of a variable.
-    pub fn _local_set(&mut self, _index: u32) -> Result<()> {
-        todo!()
+    pub fn _local_set(&mut self, index: u32) -> Result<()> {
+        let index = index as usize;
+        let offset = self.locals.offset_of(index)?;
+
+        self.masm.memory_write_at(&offset)?;
+        Ok(())
     }
 
     /// This _local_tee is like _local_set, but it also returns the value.
