@@ -1,11 +1,14 @@
 //! WASM local slot.
 
-use crate::abi::{ToLSBytes, Type};
+use crate::{
+    abi::{ToLSBytes, Type},
+    Error, Result,
+};
 use smallvec::SmallVec;
 use wasmparser::ValType;
 
 /// The type of a local slot.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum LocalSlotType {
     /// A function parameter.
     Parameter,
@@ -58,15 +61,34 @@ impl Locals {
 
     /// Get the lower significant bytes of the byte offset of a local.
     ///
-    /// TODO: considering if it is necessary to store the offset
-    /// of each slots. (guess not)
-    pub fn offset_of(&self, index: usize) -> SmallVec<[u8; 32]> {
-        self.inner[..index]
-            .iter()
-            .fold(0, |acc, x| acc + x.align())
-            .to_ls_bytes()
-            .to_vec()
-            .into()
+    /// - **Parameter**: If the local is a parameter, the offset is relative to the offset
+    /// of the calldata.
+    /// - **Variable**: If the local is a variable, the offset is relative to the offset
+    /// of the memory.
+    pub fn offset_of(&self, index: usize) -> Result<SmallVec<[u8; 32]>> {
+        let local = self
+            .inner
+            .get(index)
+            .ok_or_else(|| Error::InvalidLocalIndex(index))?;
+
+        let offset = if local.ty() == &LocalSlotType::Parameter {
+            self.inner[..index]
+                .iter()
+                .fold(0, |acc, x| acc + x.align())
+                .to_ls_bytes()
+                .to_vec()
+                .into()
+        } else {
+            self.inner[..index]
+                .iter()
+                .filter(|x| x.ty() == &LocalSlotType::Variable)
+                .fold(0, |acc, x| acc + x.size())
+                .to_ls_bytes()
+                .to_vec()
+                .into()
+        };
+
+        Ok(offset)
     }
 
     /// Push a local slot.

@@ -192,6 +192,16 @@ impl MacroAssembler {
         todo!()
     }
 
+    /// Push a 32-bit integer value on the stack.
+    pub fn _i32_const(&mut self, value: i32) -> Result<()> {
+        // TODO:
+        //
+        // 1. push value to locals
+        // 2. save value in memory.
+        self.push(value.to_ls_bytes().as_ref())?;
+        Ok(())
+    }
+
     /// Push a 64-bit integer value on the stack.
     pub fn _i64_const(&mut self, _value: i64) -> Result<()> {
         todo!()

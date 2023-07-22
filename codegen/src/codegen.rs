@@ -1,5 +1,6 @@
 //! Code generation implementation.
 use crate::{
+    abi::Type,
     control::ControlStack,
     jump::JumpTable,
     local::{LocalSlot, LocalSlotType, Locals},
@@ -72,6 +73,7 @@ impl CodeGen {
             self.locals
                 .push(LocalSlot::new(val, LocalSlotType::Variable));
             validator.define_locals(validation_offset, count, val)?;
+            self.masm.increment_mp(val.align())?;
         }
 
         tracing::trace!("locals: {:?}", self.locals);
