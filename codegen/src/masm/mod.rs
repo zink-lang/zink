@@ -1,6 +1,7 @@
 //! MacroAssembler used by the code generation.
 
 use crate::{abi::ToLSBytes, asm::Assembler, Error, Result};
+use smallvec::SmallVec;
 use std::ops::{Deref, DerefMut};
 use wasmparser::{Ieee32, Ieee64};
 
@@ -54,7 +55,7 @@ impl MacroAssembler {
     }
 
     /// Store data in memory.
-    pub fn memory_write(&mut self, ty: impl ToLSBytes) -> Result<()> {
+    pub fn memory_write(&mut self, ty: impl ToLSBytes) -> Result<Vec<u8>> {
         // use the current memory pointer as offset
         // to store the data.
         let offset = self.mp.to_ls_bytes();
@@ -65,12 +66,7 @@ impl MacroAssembler {
         let value = ty.to_ls_bytes();
         self.increment_mp(value.as_ref().len() as u8)?;
 
-        // post logic for memory write, leave the
-        // data size and memory offset on the stack.
-        self.push(value.as_ref())?; // push value
-        self.push(&offset)?; // push offset
-
-        Ok(())
+        Ok(value.as_ref().into())
     }
 
     /// Get the current program counter offset.
@@ -120,6 +116,14 @@ impl MacroAssembler {
 
         self.asm.emitn(bytes);
         Ok(())
+    }
+
+    /// Get byte offset of the memory pointer.
+    pub fn mp_offset<F>(&self, f: F) -> Result<SmallVec<[u8; 1]>>
+    where
+        F: Fn(u8) -> Result<u8>,
+    {
+        Ok(f(self.mp)?.to_ls_bytes())
     }
 
     /// Swap memory by target index.
@@ -182,12 +186,6 @@ impl MacroAssembler {
     /// the EVM.
     pub fn _return(&mut self) -> Result<()> {
         todo!()
-    }
-
-    /// Push a 32-bit integer value on the stack.
-    pub fn _i32_const(&mut self, value: i32) -> Result<()> {
-        self.push(value.to_ls_bytes().as_ref())?;
-        Ok(())
     }
 
     /// Push a 64-bit integer value on the stack.

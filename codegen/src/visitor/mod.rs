@@ -79,9 +79,19 @@ macro_rules! map_wasm_operators {
     (@field ($($field:ident).*) $op:tt $($arg:tt: $argty:ty),* ) => {
         paste! {
             fn [< visit_ $op >](&mut self, $($arg: $argty),*) -> Self::Output {
-                trace!("{}", stringify!($op));
-                self.$($field.)*[< _ $op >]($($arg),*)?;
+                let mut log = stringify!($op).to_string();
+                log = log.replace('_', ".");
 
+                $(
+                    let fmt = &format!(" {:?}", $arg);
+                    if fmt != " Empty" {
+                        log.push_str(&fmt);
+                    }
+                )*
+
+                trace!("{}", log);
+
+                self.$($field.)*[< _ $op >]($($arg),*)?;
                 Ok(())
             }
         }
@@ -211,9 +221,6 @@ impl<'a> VisitOperator<'a> for CodeGen {
                 mem: u32,
                 mem_byte: u8
             },
-            i32_const: {
-                value: i32
-            },
             i64_const: {
                 value: i64
             },
@@ -235,6 +242,9 @@ impl<'a> VisitOperator<'a> for CodeGen {
             return
         },
         global: {
+            i32_const: {
+                value: i32
+            },
             else, select, end, nop, unreachable,
             if: {
                 blockty: BlockType

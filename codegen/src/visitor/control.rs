@@ -2,7 +2,7 @@
 
 use crate::{
     control::{ControlStackFrame, ControlStackFrameType},
-    CodeGen, Result,
+    CodeGen, Error, Result,
 };
 // use tracing::trace;
 use wasmparser::{BlockType, BrTable};
@@ -103,7 +103,14 @@ impl CodeGen {
             // Emit JUMPDEST after at the end of the control flow.
             self.masm._jumpdest()?;
         } else {
-            self.masm.memory_write(self.env.results())?;
+            let value = self.masm.memory_write(self.env.results())?;
+            let offset = self.masm.mp_offset(|mp| {
+                mp.checked_sub(value.len() as u8)
+                    .ok_or_else(|| Error::InvalidMP(0))
+            })?;
+
+            self.masm.push(&value)?;
+            self.masm.push(&offset)?;
             self.masm.asm._return()?;
         }
 

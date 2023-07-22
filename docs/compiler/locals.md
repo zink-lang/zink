@@ -1,10 +1,15 @@
 # Locals
 
+
 There are two usages of locals in zink.
 
-1. The parameters of functions will be loaded as locals.
-2. local defined variables.
+1. The parameters of functions are loaded as locals.
+2. local defined variables in functions.
 
+
+| fn params   | local variables |
+|-------------|-----------------|
+| locals[..n] | locals[n..]     |
 
 ## Function Parameters
 

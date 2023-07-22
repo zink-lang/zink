@@ -8,6 +8,7 @@ use wasmparser::ValType;
 ///
 /// Represents the type, location and addressing mode of a local
 /// in the stack's local and argument area.
+#[derive(Debug)]
 pub struct LocalSlot {
     /// The type contained by this local slot.
     inner: ValType,
@@ -25,9 +26,17 @@ impl From<ValType> for LocalSlot {
     }
 }
 
+impl From<i32> for LocalSlot {
+    fn from(_inner: i32) -> Self {
+        Self {
+            inner: ValType::I32,
+        }
+    }
+}
+
 /// Solidity's implementation uses 16 slots for locals.
 /// ref: <https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor>
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Locals {
     inner: SmallVec<[LocalSlot; 16]>,
 }
