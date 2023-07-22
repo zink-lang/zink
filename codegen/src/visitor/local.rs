@@ -1,7 +1,7 @@
 //! Local instructions
 
 use crate::{CodeGen, Result};
-use tracing::trace;
+// use tracing::trace;
 
 impl CodeGen {
     /// This instruction gets the value of a variable.
@@ -11,11 +11,12 @@ impl CodeGen {
         }
         let local_index = local_index as usize;
 
-        trace!("local.get {}", local_index);
         if local_index < self.env.params().len() {
+            // Get function parameters
             self.masm.push(&self.locals.offset_of(local_index))?;
             self.masm._calldataload()?;
         } else {
+            // Get local variables
             todo!("local.get {}", local_index);
         }
 

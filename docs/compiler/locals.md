@@ -57,3 +57,7 @@ in `zinkc`.
 
 It is a waste of resources but sadly this is also how EVM works ))
 
+
+## Local Variables
+
+

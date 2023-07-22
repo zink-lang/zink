@@ -24,6 +24,9 @@ pub enum Error {
     /// Failed to construct program counter for jump.
     #[error("Invalid program counter {0}")]
     InvalidPC(usize),
+    /// Failed to get frame info of the given depth.
+    #[error("Invalid contract stack fram depth {0}")]
+    InvalidDepth(usize),
     /// Failed to patch jump destination.
     #[error("Invalid frame label")]
     LabelMismatch,

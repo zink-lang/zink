@@ -13,7 +13,7 @@ mod stack;
 /// EVM MacroAssembler.
 pub struct MacroAssembler {
     /// Low level assembler.
-    pub asm: Assembler,
+    pub(crate) asm: Assembler,
 }
 
 impl Deref for MacroAssembler {
@@ -185,8 +185,9 @@ impl MacroAssembler {
     }
 
     /// Push a 32-bit integer value on the stack.
-    pub fn _i32_const(&mut self, _value: i32) -> Result<()> {
-        todo!()
+    pub fn _i32_const(&mut self, value: i32) -> Result<()> {
+        self.push(value.to_ls_bytes().as_ref())?;
+        Ok(())
     }
 
     /// Push a 64-bit integer value on the stack.

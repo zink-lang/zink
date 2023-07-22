@@ -4,15 +4,13 @@ use crate::{
     control::{ControlStackFrame, ControlStackFrameType},
     CodeGen, Result,
 };
-use tracing::trace;
+// use tracing::trace;
 use wasmparser::{BlockType, BrTable};
 
 impl CodeGen {
     /// The beginning of an if construct with an implicit block.
     pub fn _if(&mut self, blockty: BlockType) -> Result<()> {
-        trace!("If");
-
-        // push the frame to the control stack
+        // push an `If` frame to the control stack
         let frame =
             ControlStackFrame::new(ControlStackFrameType::If, self.masm.pc_offset(), blockty);
         self.control.push(frame);
@@ -34,8 +32,12 @@ impl CodeGen {
 
     /// A block with a label which may be used to
     /// form loops.
-    pub fn _loop(&mut self, _blockty: BlockType) -> Result<()> {
-        todo!()
+    pub fn _loop(&mut self, blockty: BlockType) -> Result<()> {
+        let frame =
+            ControlStackFrame::new(ControlStackFrameType::Loop, self.masm.pc_offset(), blockty);
+        self.control.push(frame);
+
+        Ok(())
     }
 
     /// Marks an else block of an if.
@@ -80,7 +82,6 @@ impl CodeGen {
     /// - End of function.
     /// - End of program.
     pub fn _end(&mut self) -> Result<()> {
-        trace!("end");
         if !self.is_main {
             // TODO: handle the length of results > u8::MAX.
             self.masm.shift_pc(self.env.results().len() as u8, false)?;
@@ -90,7 +91,7 @@ impl CodeGen {
             return Ok(());
         }
 
-        // If inside a frame, pop the frame and patch
+        // If inside an if frame, pop the frame and patch
         // the program counter.
         if let Ok(frame) = self.control.pop() {
             self.table
