@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="styles/index.html"><strong aria-hidden="true">3.</strong> Styles</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">5.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cli/elko.html"><strong aria-hidden="true">5.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cli/elko.html"><strong aria-hidden="true">4.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="compiler/locals.html"><strong aria-hidden="true">5.1.</strong> Locals</a></li></ol></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -203,9 +203,7 @@ to generate it:</p>
 Created zink project `my-awesome-contract`
 </code></pre>
 <p>open <code>my-awesome-contract/src/lib.rs</code></p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>//! my-awesome-project
+<pre><code class="language-rust">//! my-awesome-project
 #![no_std]
 
 // For the panic handler.
@@ -216,8 +214,7 @@ extern crate zink;
 #[no_mangle]
 pub extern &quot;C&quot; fn addition(x: u64, y: u64) -&gt; u64 {
     x + y
-}
-<span class="boring">}</span></code></pre></pre>
+}</code></pre>
 <p>you’ll see a standard <code>WASM</code> library in rust:</p>
 <ol>
 <li><code>#![no_std]</code> means we don’t need the std library in this project.</li>
@@ -262,7 +259,6 @@ mv my-awesome-project.bin target/zink
 <li>Test suite</li>
 <li>…</li>
 </ol>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="styles"><a class="header" href="#styles">Styles</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="examples"><a class="header" href="#examples">Examples</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-line-tool"><a class="header" href="#command-line-tool">Command Line Tool</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="elko---zinks-package-manager"><a class="header" href="#elko---zinks-package-manager"><code>elko</code> - Zink’s package manager</a></h1>
@@ -285,6 +281,56 @@ Options:
   -h, --help        Print help
   -V, --version     Print version
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="compiler"><a class="header" href="#compiler">Compiler</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="locals"><a class="header" href="#locals">Locals</a></h1>
+<p>There are two usages of locals in zink.</p>
+<ol>
+<li>The parameters of functions are loaded as locals.</li>
+<li>local defined variables in functions.</li>
+</ol>
+<div class="table-wrapper"><table><thead><tr><th>fn params</th><th>local variables</th></tr></thead><tbody>
+<tr><td>locals[..n]</td><td>locals[n..]</td></tr>
+</tbody></table>
+</div>
+<h2 id="function-parameters"><a class="header" href="#function-parameters">Function Parameters</a></h2>
+<p>Let’s go through the <code>add-two</code> example:</p>
+<pre><code class="language-wasm">(module
+    (func (param (;0;) i32) (param (;1;) i32) (result i32)
+    (local.get 0)
+    (local.get 1)
+    (i32.add)
+    )
+)
+</code></pre>
+<p><code>(param (;0;) i32)</code> and <code>(param (;1;) i32)</code> will be pushed to the function 
+locals with index <code>0</code> and index <code>1</code> with their type <code>i32</code> recorded.</p>
+<p><code>zinkc</code> gets the defined local at index <code>0</code> when reaching <code>(local.get 0)</code>,
+at index <code>1</code> for <code>(local.get 1)</code>, for example, for <code>(local.get 0)</code>, it will
+be translated to:</p>
+<pre><code>PUSH1 0x00
+CALLDATALOAD
+</code></pre>
+<p>for <code>(local.get 1)</code>, that would be</p>
+<pre><code>PUSH1 0x20
+CALLDATALOAD
+</code></pre>
+<p>You may have problem why we <code>PUSH1 0x20</code> while getting local at index <code>1</code>, the
+anwser is that this offset is calculated by the size of the parameters.</p>
+<p>The <code>CALLDATALOAD</code> operator has stack input <code>i</code> and output <code>data[i]</code> while <code>data[i]</code>
+is a <code>32-byte</code> value starting from the given offset of the calldata, so the minimal
+size of our types will be <code>32-byte</code>, therefore, we align all types sizes to <code>32-byte</code>
+in <code>zinkc</code>.</p>
+<blockquote>
+<p>WARN: We don’t care about the originals offset of the parameters in WASM bcz we will
+serialize them into our locals and calcualte the offsets on our own when need anyway. </p>
+</blockquote>
+<div class="table-wrapper"><table><thead><tr><th>type</th><th>size</th><th>aligned size</th></tr></thead><tbody>
+<tr><td><code>i32</code></td><td><code>[u8;4]</code></td><td><code>[u8;32]</code></td></tr>
+<tr><td><code>i64</code></td><td><code>[u8;8]</code></td><td><code>[u8;32]</code></td></tr>
+</tbody></table>
+</div>
+<p>It is a waste of resources but sadly this is also how EVM works ))</p>
+<h2 id="local-variables"><a class="header" href="#local-variables">Local Variables</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="stability"><a class="header" href="#stability">Stability</a></h1>
 <blockquote>
 <p>This project is still under development, please DO NOT use it in production.</p>
@@ -324,8 +370,11 @@ in a proper way.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="operators"><a class="header" href="#operators">Operators</a></h1>
-<p>TODO: Add tables WASM operators VS EVM operators</p>
-
+<div class="table-wrapper"><table><thead><tr><th>WASM</th><th>Description</th><th>EVM</th><th>Implementation</th></tr></thead><tbody>
+<tr><td><code>i32.const</code></td><td>Push a 32-bit integer value one the stack</td><td><code>\</code></td><td>Push a 256-bit value on the stack</td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+</tbody></table>
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

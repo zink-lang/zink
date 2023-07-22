@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["LocalSlot"]};
+window.SIDEBAR_ITEMS = {"enum":["LocalSlotType"],"struct":["LocalSlot","Locals"]};

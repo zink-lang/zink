@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["addition","elko","evm_opcodes","if_else","zingen","zink","zinkc","zinkup","zint"];
+window.ALL_CRATES = ["addition","elko","evm_opcodes","fibonacci","if_else","zingen","zink","zinkc","zinkup","zint"];

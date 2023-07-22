@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/create-zink-project.html" class="active"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="../tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="../styles/index.html"><strong aria-hidden="true">3.</strong> Styles</a></li><li class="chapter-item expanded "><a href="../examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="../cli.html"><strong aria-hidden="true">5.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../cli/elko.html"><strong aria-hidden="true">5.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="../stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="../security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="../benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="../contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="../appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/create-zink-project.html" class="active"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="../tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="../examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="../cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../cli/elko.html"><strong aria-hidden="true">4.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="../compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../compiler/locals.html"><strong aria-hidden="true">5.1.</strong> Locals</a></li></ol></li><li class="chapter-item expanded "><a href="../stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="../security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="../benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="../contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="../appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -143,9 +143,6 @@
                         <a href="https://github.com/clearloop/zink" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/clearloop/zink/edit/main/docs/./tutorial/create-zink-project.md" title="Suggest an edit" aria-label="Suggest an edit">
-                            <i id="git-edit-button" class="fa fa-edit"></i>
-                        </a>
 
                     </div>
                 </div>
@@ -191,9 +188,7 @@ to generate it:</p>
 Created zink project `my-awesome-contract`
 </code></pre>
 <p>open <code>my-awesome-contract/src/lib.rs</code></p>
-<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>//! my-awesome-project
+<pre><code class="language-rust">//! my-awesome-project
 #![no_std]
 
 // For the panic handler.
@@ -204,8 +199,7 @@ extern crate zink;
 #[no_mangle]
 pub extern &quot;C&quot; fn addition(x: u64, y: u64) -&gt; u64 {
     x + y
-}
-<span class="boring">}</span></code></pre></pre>
+}</code></pre>
 <p>you’ll see a standard <code>WASM</code> library in rust:</p>
 <ol>
 <li><code>#![no_std]</code> means we don’t need the std library in this project.</li>
