@@ -1,8 +1,75 @@
-// Signed Integer instructions
+// Integer instructions
 
-use crate::{MacroAssembler, Result};
+use crate::{MacroAssembler, Result, ToLSBytes};
+use wasmparser::{Ieee32, Ieee64};
 
 impl MacroAssembler {
+    /// Push a 32-bit integer value on the stack.
+    pub fn _i32_const(&mut self, value: i32) -> Result<()> {
+        self.push(value.to_ls_bytes().as_ref())?;
+        Ok(())
+    }
+
+    /// Push a 64-bit integer value on the stack.
+    pub fn _i64_const(&mut self, _value: i64) -> Result<()> {
+        todo!()
+    }
+
+    /// Push a 32-bit float value on the stack.
+    pub fn _f32_const(&mut self, _value: Ieee32) -> Result<()> {
+        todo!()
+    }
+
+    /// Push a 64-bit float value on the stack.
+    pub fn _f64_const(&mut self, _value: Ieee64) -> Result<()> {
+        todo!()
+    }
+
+    /// wrap a 64-bit integer to a 32-bit integer.
+    pub fn _i32_wrap_i64(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Extend a signed 32-bit integer to a 64-bit integer.
+    pub fn _i64_extend_i32_s(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Extend an unsigned 32-bit integer to a 64-bit integer.
+    pub fn _i64_extend_i32_u(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Truncate a 64-bit float to a signed 32-bit integer.
+    pub fn _f32_demote_f64(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Truncate a 64-bit float to an unsigned 32-bit integer.
+    pub fn _f64_promote_f32(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Convert a signed 32-bit integer to a 32-bit float.
+    pub fn _i32_reinterpret_f32(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Convert a signed 64-bit integer to a 64-bit float.
+    pub fn _i64_reinterpret_f64(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Convert a 32-bit float to a signed 32-bit integer.
+    pub fn _f32_reinterpret_i32(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    /// Convert a 64-bit float to a signed 64-bit integer.
+    pub fn _f64_reinterpret_i64(&mut self) -> Result<()> {
+        todo!()
+    }
+
     /// sign-agnostic rotate left
     ///
     /// Return the result of rotating i1 left by k bits.

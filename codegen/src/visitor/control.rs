@@ -5,7 +5,6 @@ use crate::{
     control::{ControlStackFrame, ControlStackFrameType},
     CodeGen, Error, Result,
 };
-// use tracing::trace;
 use wasmparser::{BlockType, BrTable};
 
 impl CodeGen {
