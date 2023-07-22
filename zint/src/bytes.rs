@@ -13,8 +13,18 @@ macro_rules! impl_bytes32 {
             impl Bytes32 for $ty {
                 fn to_bytes32(&self) -> [u8; 32] {
                     let mut bytes = [0u8; 32];
-                    let le_bytes = self.to_le_bytes();
-                    bytes[(32 - le_bytes.len())..].copy_from_slice(&le_bytes);
+                    let ls_bytes = {
+                        self.to_le_bytes()
+                            .into_iter()
+                            .rev()
+                            .skip_while(|b| *b == 0)
+                            .collect::<Vec<_>>()
+                            .into_iter()
+                            .rev()
+                            .collect::<Vec<_>>()
+                    };
+
+                    bytes[(32 - ls_bytes.len())..].copy_from_slice(&ls_bytes);
                     bytes
                 }
             }

@@ -21,9 +21,18 @@ pub enum Error {
     /// Failed to find function index in jump table.
     #[error("Function {0} not found in jump table")]
     FuncNotFound(u32),
+    /// Failed to get local with given index.
+    #[error("Invalid local index {0}")]
+    InvalidLocalIndex(usize),
+    /// Failed to get the offset of the given memory pointer.
+    #[error("Invalid memory pointer {0}")]
+    InvalidMP(u8),
     /// Failed to construct program counter for jump.
     #[error("Invalid program counter {0}")]
     InvalidPC(usize),
+    /// Failed to get frame info of the given depth.
+    #[error("Invalid contract stack fram depth {0}")]
+    InvalidDepth(usize),
     /// Failed to patch jump destination.
     #[error("Invalid frame label")]
     LabelMismatch,

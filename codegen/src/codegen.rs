@@ -1,7 +1,12 @@
 //! Code generation implementation.
 use crate::{
-    abi::Type, control::ControlStack, jump::JumpTable, local::LocalSlot, masm::MacroAssembler,
-    validator::ValidateThenVisit, Buffer, Locals, Result,
+    abi::Type,
+    control::ControlStack,
+    jump::JumpTable,
+    local::{LocalSlot, LocalSlotType, Locals},
+    masm::MacroAssembler,
+    validator::ValidateThenVisit,
+    Buffer, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
@@ -46,17 +51,18 @@ impl CodeGen {
     ///
     /// 1. the function parameters.
     /// 2. function body locals.
+    ///
+    /// NOTE: we don't care about the origin offset of the locals.
+    /// bcz we will serialize the locals to an index map anyway.
     pub fn emit_locals(
         &mut self,
         locals: &mut LocalsReader<'_>,
         validator: &mut FuncValidator<ValidatorResources>,
     ) -> Result<()> {
-        let mut offset = 0;
-
         // Define locals in function parameters.
         for param in self.env.params() {
-            self.locals.push(LocalSlot::new(offset, *param));
-            offset += param.align();
+            self.locals
+                .push(LocalSlot::new(*param, LocalSlotType::Parameter));
         }
 
         // Define locals in function body.
@@ -64,13 +70,16 @@ impl CodeGen {
         // Record the offset for validation.
         while let Ok((count, val)) = locals.read() {
             let validation_offset = locals.original_position();
-            let slot = LocalSlot::new(offset, val);
-            let size = slot.size();
+            for _ in 0..count {
+                self.locals
+                    .push(LocalSlot::new(val, LocalSlotType::Variable));
+                self.masm.increment_mp(val.align())?;
+            }
 
-            self.locals.push(slot);
             validator.define_locals(validation_offset, count, val)?;
-            offset += size;
         }
+
+        tracing::trace!("locals: {:?}", self.locals);
 
         Ok(())
     }

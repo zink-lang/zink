@@ -1,8 +1,12 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{abi::ToLSBytes, asm::Assembler, Error, Result};
+use crate::{
+    abi::{ToLSBytes, Type},
+    asm::Assembler,
+    Error, Result,
+};
+use smallvec::SmallVec;
 use std::ops::{Deref, DerefMut};
-use wasmparser::{Ieee32, Ieee64};
 
 mod cmp;
 mod float;
@@ -13,7 +17,7 @@ mod stack;
 /// EVM MacroAssembler.
 pub struct MacroAssembler {
     /// Low level assembler.
-    pub asm: Assembler,
+    pub(crate) asm: Assembler,
 }
 
 impl Deref for MacroAssembler {
@@ -53,22 +57,25 @@ impl MacroAssembler {
         Ok(masm)
     }
 
-    /// Store data in memory.
-    pub fn memory_write(&mut self, ty: impl ToLSBytes) -> Result<()> {
-        // use the current memory pointer as offset
-        // to store the data.
+    /// Store data in memory with at current memory byte pointer.
+    pub fn memory_write(&mut self, ty: impl Type) -> Result<usize> {
         let offset = self.mp.to_ls_bytes();
-        self.push(&offset)?;
-        self._mstore()?;
 
         // mock the memory usages.
-        let value = ty.to_ls_bytes();
-        self.increment_mp(value.as_ref().len() as u8)?;
+        let size = ty.size();
+        self.increment_mp(size)?;
 
-        // post logic for memory write, leave the
-        // data size and memory offset on the stack.
-        self.push(value.as_ref())?; // push value
-        self.push(&offset)?; // push offset
+        // write memory
+        self.memory_write_at(&offset)?;
+        Ok(size)
+    }
+
+    /// Store data in memory at offset.
+    ///
+    /// Returns the size in the lowest significant bytes.
+    pub fn memory_write_at(&mut self, offset: &[u8]) -> Result<()> {
+        self.push(offset)?;
+        self._mstore()?;
 
         Ok(())
     }
@@ -120,6 +127,14 @@ impl MacroAssembler {
 
         self.asm.emitn(bytes);
         Ok(())
+    }
+
+    /// Get byte offset of the memory pointer.
+    pub fn mp_offset<F>(&self, f: F) -> Result<SmallVec<[u8; 8]>>
+    where
+        F: Fn(usize) -> Result<usize>,
+    {
+        Ok(f(self.mp)?.to_ls_bytes())
     }
 
     /// Swap memory by target index.
@@ -181,71 +196,6 @@ impl MacroAssembler {
     /// NOTE: This `return` could be different from the `return` in
     /// the EVM.
     pub fn _return(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Push a 32-bit integer value on the stack.
-    pub fn _i32_const(&mut self, _value: i32) -> Result<()> {
-        todo!()
-    }
-
-    /// Push a 64-bit integer value on the stack.
-    pub fn _i64_const(&mut self, _value: i64) -> Result<()> {
-        todo!()
-    }
-
-    /// Push a 32-bit float value on the stack.
-    pub fn _f32_const(&mut self, _value: Ieee32) -> Result<()> {
-        todo!()
-    }
-
-    /// Push a 64-bit float value on the stack.
-    pub fn _f64_const(&mut self, _value: Ieee64) -> Result<()> {
-        todo!()
-    }
-
-    /// wrap a 64-bit integer to a 32-bit integer.
-    pub fn _i32_wrap_i64(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Extend a signed 32-bit integer to a 64-bit integer.
-    pub fn _i64_extend_i32_s(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Extend an unsigned 32-bit integer to a 64-bit integer.
-    pub fn _i64_extend_i32_u(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Truncate a 64-bit float to a signed 32-bit integer.
-    pub fn _f32_demote_f64(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Truncate a 64-bit float to an unsigned 32-bit integer.
-    pub fn _f64_promote_f32(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Convert a signed 32-bit integer to a 32-bit float.
-    pub fn _i32_reinterpret_f32(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Convert a signed 64-bit integer to a 64-bit float.
-    pub fn _i64_reinterpret_f64(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Convert a 32-bit float to a signed 32-bit integer.
-    pub fn _f32_reinterpret_i32(&mut self) -> Result<()> {
-        todo!()
-    }
-
-    /// Convert a 64-bit float to a signed 64-bit integer.
-    pub fn _f64_reinterpret_i64(&mut self) -> Result<()> {
         todo!()
     }
 }

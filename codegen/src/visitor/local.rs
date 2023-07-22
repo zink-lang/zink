@@ -1,7 +1,6 @@
 //! Local instructions
 
 use crate::{CodeGen, Result};
-use tracing::trace;
 
 impl CodeGen {
     /// This instruction gets the value of a variable.
@@ -10,21 +9,28 @@ impl CodeGen {
             return Ok(());
         }
 
-        trace!("local.get {}", local_index);
-        if (local_index as usize) < self.env.params().len() {
-            self.masm
-                .push(&self.locals[local_index as usize].to_ls_bytes())?;
+        let local_index = local_index as usize;
+        let offset = self.locals.offset_of(local_index)?;
+        self.masm.push(&offset)?;
+
+        if local_index < self.env.params().len() {
+            // Get function parameters
             self.masm._calldataload()?;
         } else {
-            todo!("local.get {}", local_index);
+            // Get local variables
+            self.masm._mload()?;
         }
 
         Ok(())
     }
 
     /// This instruction sets the value of a variable.
-    pub fn _local_set(&mut self, _index: u32) -> Result<()> {
-        todo!()
+    pub fn _local_set(&mut self, index: u32) -> Result<()> {
+        let index = index as usize;
+        let offset = self.locals.offset_of(index)?;
+
+        self.masm.memory_write_at(&offset)?;
+        Ok(())
     }
 
     /// This _local_tee is like _local_set, but it also returns the value.

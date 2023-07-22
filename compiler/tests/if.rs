@@ -8,7 +8,7 @@ use zint::EVM;
 mod common;
 
 #[test]
-fn basic() -> Result<()> {
+fn if_then() -> Result<()> {
     let wasm = common::load("if", "basic")?;
     let bytecode = Compiler::default().compile(&wasm)?;
 

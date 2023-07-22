@@ -8,7 +8,7 @@ pub use crate::{
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     jump::JumpTable,
-    local::LocalSlot,
+    local::{LocalSlot, Locals},
     masm::MacroAssembler,
     result::{Error, Result},
 };
@@ -30,7 +30,3 @@ pub const BUFFER_LIMIT: usize = 0x6000;
 
 /// Code generation buffer.
 pub type Buffer = SmallVec<[u8; BUFFER_LIMIT]>;
-
-/// Solidity's implementation uses 16 slots for locals.
-/// ref: <https://docs.soliditylang.org/en/v0.8.20/internals/optimizer.html#stackcompressor>
-pub type Locals = SmallVec<[LocalSlot; 16]>;

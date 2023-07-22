@@ -79,9 +79,19 @@ macro_rules! map_wasm_operators {
     (@field ($($field:ident).*) $op:tt $($arg:tt: $argty:ty),* ) => {
         paste! {
             fn [< visit_ $op >](&mut self, $($arg: $argty),*) -> Self::Output {
-                trace!("{}", stringify!($op));
-                self.$($field.)*[< _ $op >]($($arg),*)?;
+                let mut log = stringify!($op).to_string();
+                log = log.replace('_', ".");
 
+                $(
+                    let fmt = &format!(" {:?}", $arg);
+                    if fmt != " Empty" {
+                        log.push_str(&fmt);
+                    }
+                )*
+
+                trace!("{}", log);
+
+                self.$($field.)*[< _ $op >]($($arg),*)?;
                 Ok(())
             }
         }

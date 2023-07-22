@@ -1,7 +1,7 @@
 //! Addition example.
 #![no_std]
 
-// for panic handler.
+// for the panic handler.
 #[cfg(not(test))]
 extern crate zink;
 
