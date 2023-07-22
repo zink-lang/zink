@@ -4,4 +4,5 @@
     (if (local.get 0) (then (nop)) (else (nop)))
     (if (result i32) (local.get 0) (then (i32.const 7)) (else (i32.const 8)))
   )
+  (func $dummy)
 )

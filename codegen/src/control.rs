@@ -5,10 +5,12 @@ use wasmparser::BlockType;
 
 /// The type of the control stack frame.
 #[repr(u8)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ControlStackFrameType {
     /// The if control stack frame.
-    If,
+    ///
+    /// true is has else block, otherwise false.
+    If(bool),
     /// The else control stack frame.
     Else,
     /// The loop control stack frame.
@@ -50,6 +52,16 @@ impl ControlStackFrame {
     pub fn pc_offset(&self) -> u16 {
         self.original_pc_offset
     }
+
+    /// Get the result type of the control stack frame.
+    pub fn result(&self) -> BlockType {
+        self.result
+    }
+
+    /// Check if the control stack frame is an if block with else.
+    pub fn if_with_else(&self) -> bool {
+        self.ty == ControlStackFrameType::If(true)
+    }
 }
 
 /// The control stack.
@@ -65,6 +77,21 @@ impl ControlStack {
     /// The depth of the control stack.
     pub fn depth(&self) -> usize {
         self.stack.len()
+    }
+
+    /// Mark the else block of an if.
+    pub fn mark_else(&mut self) -> Result<ControlStackFrame> {
+        let last = self
+            .stack
+            .last_mut()
+            .ok_or_else(|| Error::ControlStackUnderflow)?;
+
+        if last.ty != ControlStackFrameType::If(false) {
+            return Err(Error::InvalidElseBlock(last.original_pc_offset));
+        }
+
+        last.ty = ControlStackFrameType::If(true);
+        Ok(last.clone())
     }
 
     /// Push a control stack frame.

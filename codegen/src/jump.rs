@@ -40,9 +40,8 @@ impl JumpTable {
     }
 
     /// Register a label.
-    pub fn label(&mut self, pc: u16, label: u16) -> Result<()> {
+    pub fn label(&mut self, pc: u16, label: u16) {
         self.jump.insert(pc, Jump::Label(label));
-        Ok(())
     }
 
     /// Merge two jump tables.
@@ -50,7 +49,9 @@ impl JumpTable {
     /// Merge other jump table into this one, update the program
     /// counter of the target jump table.
     pub fn merge(&mut self, mut table: Self, pc: u16) -> Result<()> {
-        table.update_pc(pc as usize)?;
+        if pc != 0 {
+            table.update_pc(pc as usize)?;
+        }
 
         for (pc, jump) in table.jump.into_iter() {
             if self.jump.insert(pc, jump).is_some() {
@@ -70,6 +71,7 @@ impl JumpTable {
     /// Relocate program counter to all registered labels.
     pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
         while let Some((pc, jump)) = self.jump.pop_first() {
+            tracing::trace!("relocate pc: {}", pc);
             let target = match jump {
                 Jump::Label(label) => label,
                 Jump::Func(func) => *self.func.get(&func).ok_or(Error::FuncNotFound(func))?,
@@ -93,7 +95,16 @@ impl JumpTable {
                     return Err(Error::InvalidPC(k as usize));
                 }
 
-                Ok((k, *v))
+                tracing::trace!("update pc, from: {}, to {}", pc, k);
+
+                let v = match v {
+                    Jump::Label(label) => Jump::Label(label + pc),
+                    Jump::Func(func) => Jump::Func(*func),
+                };
+
+                // tracing::trace!("update label, from: {:?}, to {}", pc, k);
+
+                Ok((k, v))
             })
             .collect::<Result<_>>()?;
 
@@ -156,6 +167,6 @@ impl JumpTable {
         }
 
         *buffer = new_buffer;
-        Ok(pc)
+        Ok(pc - target_pc)
     }
 }

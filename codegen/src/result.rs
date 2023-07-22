@@ -21,6 +21,9 @@ pub enum Error {
     /// Failed to find function index in jump table.
     #[error("Function {0} not found in jump table")]
     FuncNotFound(u32),
+    /// Failed to mark else block for if block.
+    #[error("Invalid else block for if block at {0}")]
+    InvalidElseBlock(u16),
     /// Failed to get local with given index.
     #[error("Invalid local index {0}")]
     InvalidLocalIndex(usize),

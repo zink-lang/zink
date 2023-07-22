@@ -3,7 +3,7 @@
 
 use anyhow::Result;
 use zinkc::Compiler;
-use zint::EVM;
+use zint::{Bytes32, EVM};
 
 mod common;
 
@@ -21,6 +21,22 @@ fn if_then() -> Result<()> {
     input.push(1);
     let (ret, _) = EVM::run(&bytecode, &input);
     assert_eq!(ret, input);
+
+    Ok(())
+}
+
+#[test]
+fn singular() -> Result<()> {
+    let wasm = common::load("if", "singular")?;
+    let bytecode = Compiler::default().compile(&wasm)?;
+
+    // test if
+    let (ret, _instr) = EVM::run(&bytecode, &0.to_bytes32());
+    assert_eq!(ret, 7.to_bytes32());
+
+    // test else
+    let (ret, _instr) = EVM::run(&bytecode, &1.to_bytes32());
+    assert_eq!(ret, 8.to_bytes32());
 
     Ok(())
 }
