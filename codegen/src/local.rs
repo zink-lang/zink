@@ -4,6 +4,15 @@ use crate::abi::{ToLSBytes, Type};
 use smallvec::SmallVec;
 use wasmparser::ValType;
 
+/// The type of a local slot.
+#[derive(Debug)]
+pub enum LocalSlotType {
+    /// A function parameter.
+    Parameter,
+    /// A local variable.
+    Variable,
+}
+
 /// A local slot.
 ///
 /// Represents the type, location and addressing mode of a local
@@ -12,25 +21,25 @@ use wasmparser::ValType;
 pub struct LocalSlot {
     /// The type contained by this local slot.
     inner: ValType,
+    /// The type of this local slot.
+    ty: LocalSlotType,
+}
+
+impl LocalSlot {
+    /// Create a new local slot.
+    pub fn new(inner: ValType, ty: LocalSlotType) -> Self {
+        Self { inner, ty }
+    }
+
+    /// Get the type of this local slot.
+    pub fn ty(&self) -> &LocalSlotType {
+        &self.ty
+    }
 }
 
 impl Type for LocalSlot {
     fn size(&self) -> usize {
         self.inner.size()
-    }
-}
-
-impl From<ValType> for LocalSlot {
-    fn from(inner: ValType) -> Self {
-        Self { inner }
-    }
-}
-
-impl From<i32> for LocalSlot {
-    fn from(_inner: i32) -> Self {
-        Self {
-            inner: ValType::I32,
-        }
     }
 }
 
@@ -47,7 +56,7 @@ impl Locals {
         &self.inner[index]
     }
 
-    /// Get the lower significant bytes of the offset of a local.
+    /// Get the lower significant bytes of the byte offset of a local.
     ///
     /// TODO: considering if it is necessary to store the offset
     /// of each slots. (guess not)

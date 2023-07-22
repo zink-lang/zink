@@ -15,8 +15,8 @@ pub struct Assembler {
     ///
     /// TODO: use a more precise type, eq `u256`. (issue-20)
     gas: u128,
-    /// Memory pointer, maximum 32, 64-bit words.
-    pub mp: u8,
+    /// Memory pointer for byte offset.
+    pub mp: usize,
     /// Stack pointer, maximum 12 items.
     sp: u8,
 }
@@ -69,17 +69,17 @@ impl Assembler {
     }
 
     /// Increment memory pointer
-    pub fn increment_mp(&mut self, offset: u8) -> Result<()> {
-        self.mp += offset;
-        if self.mp > 32 {
-            return Err(Error::MemoryOutOfBounds);
-        }
+    pub fn increment_mp(&mut self, offset: usize) -> Result<()> {
+        self.mp = self
+            .mp
+            .checked_add(offset)
+            .ok_or(Error::MemoryOutOfBounds)?;
 
         Ok(())
     }
 
     /// Decrement memory pointer
-    pub fn decrement_mp(&mut self, offset: u8) -> Result<()> {
+    pub fn decrement_mp(&mut self, offset: usize) -> Result<()> {
         self.mp = self
             .mp
             .checked_sub(offset)

@@ -1,6 +1,10 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{abi::ToLSBytes, asm::Assembler, Error, Result};
+use crate::{
+    abi::{ToLSBytes, Type},
+    asm::Assembler,
+    Error, Result,
+};
 use smallvec::SmallVec;
 use std::ops::{Deref, DerefMut};
 use wasmparser::{Ieee32, Ieee64};
@@ -64,7 +68,7 @@ impl MacroAssembler {
 
         // mock the memory usages.
         let value = ty.to_ls_bytes();
-        self.increment_mp(value.as_ref().len() as u8)?;
+        self.increment_mp(value.as_ref().len().align())?;
 
         Ok(value.as_ref().into())
     }
@@ -119,9 +123,9 @@ impl MacroAssembler {
     }
 
     /// Get byte offset of the memory pointer.
-    pub fn mp_offset<F>(&self, f: F) -> Result<SmallVec<[u8; 1]>>
+    pub fn mp_offset<F>(&self, f: F) -> Result<SmallVec<[u8; 8]>>
     where
-        F: Fn(u8) -> Result<u8>,
+        F: Fn(usize) -> Result<usize>,
     {
         Ok(f(self.mp)?.to_ls_bytes())
     }

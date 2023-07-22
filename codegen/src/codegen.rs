@@ -1,7 +1,11 @@
 //! Code generation implementation.
 use crate::{
-    control::ControlStack, jump::JumpTable, local::Locals, masm::MacroAssembler,
-    validator::ValidateThenVisit, Buffer, Result,
+    control::ControlStack,
+    jump::JumpTable,
+    local::{LocalSlot, LocalSlotType, Locals},
+    masm::MacroAssembler,
+    validator::ValidateThenVisit,
+    Buffer, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
@@ -56,7 +60,8 @@ impl CodeGen {
     ) -> Result<()> {
         // Define locals in function parameters.
         for param in self.env.params() {
-            self.locals.push(*param);
+            self.locals
+                .push(LocalSlot::new(*param, LocalSlotType::Parameter));
         }
 
         // Define locals in function body.
@@ -64,7 +69,8 @@ impl CodeGen {
         // Record the offset for validation.
         while let Ok((count, val)) = locals.read() {
             let validation_offset = locals.original_position();
-            self.locals.push(val);
+            self.locals
+                .push(LocalSlot::new(val, LocalSlotType::Variable));
             validator.define_locals(validation_offset, count, val)?;
         }
 

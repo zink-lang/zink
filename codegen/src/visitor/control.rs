@@ -1,6 +1,7 @@
 //! Control flow visitors
 
 use crate::{
+    abi::Type,
     control::{ControlStackFrame, ControlStackFrameType},
     CodeGen, Error, Result,
 };
@@ -105,7 +106,9 @@ impl CodeGen {
         } else {
             let value = self.masm.memory_write(self.env.results())?;
             let offset = self.masm.mp_offset(|mp| {
-                mp.checked_sub(value.len() as u8)
+                tracing::trace!("mp: {:?}", mp);
+                tracing::trace!("mp: {:?}", value.len());
+                mp.checked_sub(value.len().align())
                     .ok_or_else(|| Error::InvalidMP(0))
             })?;
 

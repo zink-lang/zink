@@ -31,6 +31,16 @@ impl Type for ValType {
     }
 }
 
+impl Type for usize {
+    fn align(&self) -> usize {
+        (*self + ALIGNMENT_MASK) & !ALIGNMENT_MASK
+    }
+
+    fn size(&self) -> usize {
+        self.to_le_bytes().len()
+    }
+}
+
 /// Get the offset of this type in the lowest
 /// significant bytes.
 pub trait ToLSBytes {
