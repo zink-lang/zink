@@ -1,16 +1,47 @@
 //! Program Relocations
 
-use crate::{Buffer, Error, Result, ToLSBytes, BUFFER_LIMIT};
+use crate::{
+    jump::{relocate, JumpTable},
+    Buffer, Error, Result, ToLSBytes, BUFFER_LIMIT,
+};
 use opcodes::ShangHai as OpCode;
 use std::collections::{BTreeMap, BTreeSet};
 
+impl JumpTable {
+    /// Relocate program counter to all registered labels.
+    pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
+        let mut funcs = BTreeMap::default();
+        while let Some((pc, jump)) = self.jump.pop_first() {
+            let target = self.target(&jump)?;
+            if jump.is_label() {
+                let offset = relocate::pc(buffer, pc as usize, target as usize, false)?;
+
+                if pc > target {
+                    // TODO:
+                    //
+                    // 1. check this logic with more tests.
+                    // 2. checked add offset.
+                    //
+                    // BUG: the target offset could be outdated since
+                    // it will be modifed by the future relocations.
+                    funcs.values_mut().for_each(|v| *v += offset as u16);
+                } else {
+                    self.update_pc(offset)?;
+                }
+            } else {
+                funcs.insert(pc, target);
+                let offset = relocate::pc(buffer, Default::default(), target as usize, true)?;
+                self.update_label_pc(offset)?;
+            }
+        }
+
+        relocate::funcs(funcs, buffer)?;
+        Ok(())
+    }
+}
+
 /// Relocate program counter to buffer.
-pub fn pc(
-    buffer: &mut Buffer,
-    original_pc: usize,
-    target_pc: usize,
-    dry_run: bool,
-) -> Result<usize> {
+fn pc(buffer: &mut Buffer, original_pc: usize, target_pc: usize, dry_run: bool) -> Result<usize> {
     let mut pc = target_pc;
     let mut new_buffer: Buffer = buffer[..original_pc].into();
     let rest_buffer: Buffer = buffer[original_pc..].into();
@@ -66,7 +97,7 @@ pub fn pc(
 }
 
 /// Relocate functions.
-pub fn funcs(map: BTreeMap<u16, u16>, buffer: &mut Buffer) -> Result<()> {
+fn funcs(map: BTreeMap<u16, u16>, buffer: &mut Buffer) -> Result<()> {
     let values = map.values();
     let targets = values.clone().collect::<Vec<_>>();
     let mut targets_set = values.clone().collect::<BTreeSet<_>>();
@@ -81,7 +112,7 @@ pub fn funcs(map: BTreeMap<u16, u16>, buffer: &mut Buffer) -> Result<()> {
         // it will be processed automatically in relocation.
         //
         // **DO NOT touch this again, it works.**
-        let pc = self::pc(buffer, Default::default(), target_usize, true)?
+        let pc = relocate::pc(buffer, Default::default(), target_usize, true)?
             * count.checked_sub(1).ok_or(Error::InvalidPC(target_usize))?;
 
         // calculate the new target.
