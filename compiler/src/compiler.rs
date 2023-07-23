@@ -40,7 +40,7 @@ impl Compiler {
         let mut func_validator = validator.into_validator(Default::default());
         let sig = func_validator
             .resources()
-            .type_of_function(0)
+            .type_of_function(func_index)
             // TODO: Add backtrace here for the function index. (#21)
             .ok_or(Error::InvalidFunctionSignature)?
             .clone();

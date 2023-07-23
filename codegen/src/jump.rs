@@ -14,6 +14,13 @@ pub enum Jump {
     Func(u32),
 }
 
+impl Jump {
+    /// If the target is a label.
+    pub fn is_label(&self) -> bool {
+        matches!(self, Jump::Label(_))
+    }
+}
+
 /// Jump table implementation.
 #[derive(Default)]
 pub struct JumpTable {
@@ -72,22 +79,26 @@ impl JumpTable {
     pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
         let mut funcs = BTreeMap::default();
         while let Some((pc, jump)) = self.jump.pop_first() {
-            match jump {
-                Jump::Label(label) => {
-                    self.update_pc(Self::relocate_pc(buffer, pc as usize, label as usize)?)?;
-                }
-                Jump::Func(func) => {
-                    // *self.func.get(&func).ok_or(Error::FuncNotFound(func))?
-                    let target = *self.func.get(&func).ok_or(Error::FuncNotFound(func))?;
-                    funcs.insert(pc, target);
+            let target = self.target(&jump)?;
+            if pc > target {
+                continue;
+            }
 
-                    // dry run pc relocation here.
-                    self.update_label_pc(Self::relocate_pc(
-                        &mut buffer.clone(),
-                        Default::default(),
-                        target as usize,
-                    )?)?;
-                }
+            if jump.is_label() {
+                self.update_pc(Self::relocate_pc(
+                    buffer,
+                    pc as usize,
+                    target as usize,
+                    false,
+                )?)?;
+            } else {
+                funcs.insert(pc, target);
+                self.update_label_pc(Self::relocate_pc(
+                    buffer,
+                    Default::default(),
+                    target as usize,
+                    true,
+                )?)?;
             }
         }
 
@@ -104,8 +115,8 @@ impl JumpTable {
             //
             // NOTE: skipping update the function PC for the first time bcz
             // it will be processed automatically in relocation.
-            let pc = Self::relocate_pc(&mut buffer.clone(), Default::default(), target_usize)?
-                * count.checked_sub(1).ok_or(Error::InvalidPC(target_usize))?;
+            let pc = Self::relocate_pc(buffer, Default::default(), target_usize, true)? // * count;
+             * count.checked_sub(1).ok_or(Error::InvalidPC(target_usize))?;
 
             // calculate the new target.
             final_targets.insert(
@@ -125,10 +136,19 @@ impl JumpTable {
                 *final_targets
                     .get(&target)
                     .ok_or_else(|| Error::InvalidPC(target as usize))? as usize,
+                false,
             )?;
         }
 
         Ok(())
+    }
+
+    /// Get the target of a jump.
+    pub fn target(&self, jump: &Jump) -> Result<u16> {
+        match jump {
+            Jump::Label(label) => Ok(*label),
+            Jump::Func(func) => Ok(*self.func.get(func).ok_or(Error::FuncNotFound(*func))?),
+        }
     }
 
     /// Update program counter for labels.
@@ -180,7 +200,16 @@ impl JumpTable {
     }
 
     /// Relocate program counter to buffer.
-    pub fn relocate_pc(buffer: &mut Buffer, original_pc: usize, target_pc: usize) -> Result<usize> {
+    pub fn relocate_pc(
+        buffer: &mut Buffer,
+        original_pc: usize,
+        target_pc: usize,
+        dry_run: bool,
+    ) -> Result<usize> {
+        if !dry_run {
+            tracing::debug!("run pc relocation: {} -> {}", original_pc, target_pc);
+        }
+
         let mut pc = target_pc;
         let mut new_buffer: Buffer = buffer[..original_pc].into();
         let rest_buffer: Buffer = buffer[original_pc..].into();
@@ -214,7 +243,14 @@ impl JumpTable {
             return Err(Error::InvalidPC(pc));
         }
 
-        new_buffer.extend_from_slice(&pc.to_ls_bytes());
+        let offset = pc - target_pc;
+        if dry_run {
+            return Ok(offset);
+        }
+
+        let pc_offset = pc.to_ls_bytes();
+        tracing::debug!("push bytes: {:x?} at {}", pc_offset, original_pc);
+        new_buffer.extend_from_slice(&pc_offset);
         new_buffer.extend_from_slice(&rest_buffer);
 
         // Check buffer size.
@@ -223,6 +259,6 @@ impl JumpTable {
         }
 
         *buffer = new_buffer;
-        Ok(pc - target_pc)
+        Ok(offset)
     }
 }

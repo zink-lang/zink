@@ -32,11 +32,8 @@ impl CodeGen {
 
     /// Handle the return of a call.
     pub(crate) fn handle_call_return(&mut self) -> Result<()> {
-        tracing::debug!("handle call return");
         let results = self.env.results();
-        // if results.is_empty() {
-        //     return Ok(());
-        // }
+        tracing::debug!("handle call return: {:?}", results);
 
         // TODO: handle the length of results > u8::MAX.
         self.masm.shift_pc(results.len() as u8, false)?;
