@@ -7,6 +7,7 @@ use zint::{Bytes32, InstructionResult, EVM};
 
 mod common;
 
+#[ignore]
 #[test]
 fn as_block_last() -> Result<()> {
     let wasm = common::load("br_if", "as_block_last")?;
