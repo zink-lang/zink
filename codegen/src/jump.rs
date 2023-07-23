@@ -77,8 +77,8 @@ impl JumpTable {
                     self.update_pc(Self::relocate_pc(buffer, pc as usize, label as usize)?)?;
                 }
                 Jump::Func(func) => {
+                    // *self.func.get(&func).ok_or(Error::FuncNotFound(func))?
                     let target = *self.func.get(&func).ok_or(Error::FuncNotFound(func))?;
-
                     funcs.insert(pc, target);
 
                     // dry run pc relocation here.
@@ -143,6 +143,9 @@ impl JumpTable {
                     return Err(Error::InvalidPC(k as usize));
                 }
 
+                // NOTE: we don't need to update the function PC before
+                // the current PC (jump back)
+
                 let v = match v {
                     Jump::Label(label) => Jump::Label(label + pc),
                     Jump::Func(func) => Jump::Func(*func),
@@ -157,6 +160,7 @@ impl JumpTable {
 
     /// Update program counter for all items.
     pub fn update_pc(&mut self, pc: usize) -> Result<()> {
+        tracing::debug!("update pc: {}", pc);
         self.update_label_pc(pc)?;
 
         let pc: u16 = pc.try_into().map_err(|_| Error::InvalidPC(pc))?;

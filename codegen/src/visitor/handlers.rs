@@ -3,12 +3,20 @@
 use crate::{CodeGen, Error, Result, ToLSBytes};
 
 impl CodeGen {
+    pub(crate) fn handle_empty_return(&mut self) -> Result<()> {
+        self.masm._push0()?;
+        self.masm._push0()?;
+        self.masm.asm._return()?;
+
+        Ok(())
+    }
+
     /// Handle the end of the function.
     pub(crate) fn handle_return(&mut self) -> Result<()> {
-        tracing::trace!("handle return");
+        tracing::debug!("handle return");
         let results = self.env.results();
         if results.is_empty() {
-            return Ok(());
+            return self.handle_empty_return();
         }
 
         let size = self.masm.memory_write(results)?;
@@ -24,15 +32,14 @@ impl CodeGen {
 
     /// Handle the return of a call.
     pub(crate) fn handle_call_return(&mut self) -> Result<()> {
-        tracing::trace!("handle call return");
+        tracing::debug!("handle call return");
         let results = self.env.results();
-        if results.is_empty() {
-            return Ok(());
-        }
+        // if results.is_empty() {
+        //     return Ok(());
+        // }
 
-        tracing::trace!("results: {:?}", results);
         // TODO: handle the length of results > u8::MAX.
-        self.masm.shift_pc(self.env.results().len() as u8, false)?;
+        self.masm.shift_pc(results.len() as u8, false)?;
         self.masm.push(&[0x04])?;
         self.masm._add()?;
         self.masm._jump()?;

@@ -26,7 +26,7 @@ fn dummy() -> Result<()> {
     tracing::trace!("bytecode: {:?}", hex::encode(&bytecode));
 
     let (ret, instr) = EVM::run(&bytecode, &[]);
-    assert_eq!(instr, InstructionResult::Stop);
+    assert_eq!(instr, InstructionResult::Return);
     assert_eq!(ret, &[]);
     Ok(())
 }

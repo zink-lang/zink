@@ -45,7 +45,7 @@ impl Compiler {
             .ok_or(Error::InvalidFunctionSignature)?
             .clone();
 
-        tracing::trace!("compile function: {:?}", sig);
+        tracing::debug!("compile function {}: {:?}", func_index, sig);
 
         let is_main = func_index == 0;
         let mut codegen = CodeGen::new(sig, is_main)?;

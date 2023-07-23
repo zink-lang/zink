@@ -29,6 +29,7 @@ impl CodeGen {
     /// The begeinning of a block construct. A sequence of
     /// instructions with a label at the end.
     pub fn _block(&mut self, blockty: BlockType) -> Result<()> {
+        self.masm._jumpdest()?;
         let frame =
             ControlStackFrame::new(ControlStackFrameType::Block, self.masm.pc_offset(), blockty);
         self.control.push(frame);
@@ -84,8 +85,11 @@ impl CodeGen {
     /// Performs a conditional branch if i32c is non-zero.
     ///
     /// Conditional branch to a given label in an enclosing construct.
-    pub fn _br_if(&mut self, _depth: u32) -> Result<()> {
-        // todo!()
+    pub fn _br_if(&mut self, depth: u32) -> Result<()> {
+        let label = self.control.label_from_depth(depth)?;
+        self.table.label(self.masm.pc_offset(), label);
+        self.masm.asm.increment_sp(1)?;
+        self.masm._jumpi()?;
         Ok(())
     }
 

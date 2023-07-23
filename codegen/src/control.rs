@@ -74,7 +74,7 @@ pub struct ControlStack {
 }
 
 impl ControlStack {
-    /// The depth of the control stack.
+    /// The total depth of the control stack.
     pub fn depth(&self) -> usize {
         self.stack.len()
     }
@@ -102,6 +102,23 @@ impl ControlStack {
     /// Pop a control stack frame.
     pub fn pop(&mut self) -> Result<ControlStackFrame> {
         self.stack.pop().ok_or_else(|| Error::ControlStackUnderflow)
+    }
+
+    /// Get the label of the control stack frame at given depth.
+    pub fn label_from_depth(&self, mut depth: u32) -> Result<u16> {
+        for frame in self.stack.iter().rev() {
+            if frame.ty == ControlStackFrameType::Else {
+                continue;
+            }
+
+            if depth == 0 {
+                return Ok(frame.pc_offset());
+            }
+
+            depth -= 1;
+        }
+
+        Err(Error::InvalidDepth(depth as usize))
     }
 
     /// Get the return type of the control stack frame at given depth.
