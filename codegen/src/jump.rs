@@ -80,17 +80,18 @@ impl JumpTable {
         let mut funcs = BTreeMap::default();
         while let Some((pc, jump)) = self.jump.pop_first() {
             let target = self.target(&jump)?;
-            if pc > target {
-                tracing::debug!("skipped relocating pc: 0x{:x} -> 0x{:x}", pc, target);
-                continue;
-            }
+            // if pc > target {
+            //     tracing::debug!("skipped relocating pc: 0x{:x} -> 0x{:x}", pc, target);
+            //     continue;
+            // }
 
             if jump.is_label() {
                 let offset = Self::relocate_pc(buffer, pc as usize, target as usize, false)?;
                 self.update_pc(offset)?;
             } else {
                 funcs.insert(pc, target);
-                Self::relocate_pc(buffer, Default::default(), target as usize, true)?;
+                let offset = Self::relocate_pc(buffer, Default::default(), target as usize, true)?;
+                self.update_label_pc(offset)?;
             }
         }
 
