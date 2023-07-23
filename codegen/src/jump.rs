@@ -81,24 +81,16 @@ impl JumpTable {
         while let Some((pc, jump)) = self.jump.pop_first() {
             let target = self.target(&jump)?;
             if pc > target {
+                tracing::debug!("skipped relocating pc: 0x{:x} -> 0x{:x}", pc, target);
                 continue;
             }
 
             if jump.is_label() {
-                self.update_pc(Self::relocate_pc(
-                    buffer,
-                    pc as usize,
-                    target as usize,
-                    false,
-                )?)?;
+                let offset = Self::relocate_pc(buffer, pc as usize, target as usize, false)?;
+                self.update_pc(offset)?;
             } else {
                 funcs.insert(pc, target);
-                self.update_label_pc(Self::relocate_pc(
-                    buffer,
-                    Default::default(),
-                    target as usize,
-                    true,
-                )?)?;
+                Self::relocate_pc(buffer, Default::default(), target as usize, true)?;
             }
         }
 
@@ -115,8 +107,8 @@ impl JumpTable {
             //
             // NOTE: skipping update the function PC for the first time bcz
             // it will be processed automatically in relocation.
-            let pc = Self::relocate_pc(buffer, Default::default(), target_usize, true)? // * count;
-             * count.checked_sub(1).ok_or(Error::InvalidPC(target_usize))?;
+            let pc = Self::relocate_pc(buffer, Default::default(), target_usize, true)?
+                * count.checked_sub(1).ok_or(Error::InvalidPC(target_usize))?;
 
             // calculate the new target.
             final_targets.insert(
@@ -206,10 +198,6 @@ impl JumpTable {
         target_pc: usize,
         dry_run: bool,
     ) -> Result<usize> {
-        if !dry_run {
-            tracing::debug!("run pc relocation: {} -> {}", original_pc, target_pc);
-        }
-
         let mut pc = target_pc;
         let mut new_buffer: Buffer = buffer[..original_pc].into();
         let rest_buffer: Buffer = buffer[original_pc..].into();
@@ -246,6 +234,8 @@ impl JumpTable {
         let offset = pc - target_pc;
         if dry_run {
             return Ok(offset);
+        } else {
+            tracing::debug!("run pc relocation: 0x{:x} -> 0x{:x}", original_pc, pc);
         }
 
         let pc_offset = pc.to_ls_bytes();

@@ -29,7 +29,7 @@ pub struct ControlStackFrame {
     /// The type of the control stack frame.
     ///
     /// If loop, break it while popping.
-    ty: ControlStackFrameType,
+    pub ty: ControlStackFrameType,
     /// The program counter offset at the beginning of if.
     pub original_pc_offset: u16,
     /// The return values of the block.
@@ -58,10 +58,10 @@ impl ControlStackFrame {
         self.result
     }
 
-    /// Check if the control stack frame is an if block with else.
-    pub fn if_with_else(&self) -> bool {
-        self.ty == ControlStackFrameType::If(true)
-    }
+    // /// Check if the control stack frame is an if block with else.
+    // pub fn if_with_else(&self) -> bool {
+    //     self.ty == ControlStackFrameType::If(true)
+    // }
 }
 
 /// The control stack.

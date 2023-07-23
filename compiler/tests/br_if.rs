@@ -15,7 +15,7 @@ fn as_block_last() -> Result<()> {
     tracing::trace!("bytecode: {:?}", hex::encode(&bytecode));
 
     let (ret, instr) = EVM::run(&bytecode, &42.to_bytes32());
-    assert_eq!(instr, InstructionResult::Stop);
+    assert_eq!(instr, InstructionResult::Return);
     assert_eq!(ret, []);
 
     Ok(())

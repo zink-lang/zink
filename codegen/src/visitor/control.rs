@@ -113,10 +113,13 @@ impl CodeGen {
         // If inside an if frame, pop the frame and patch
         // the program counter.
         if let Ok(frame) = self.control.pop() {
-            if frame.if_with_else() {
-                self.handle_return()
-            } else {
-                self.handle_jumpdest(frame.original_pc_offset)
+            match frame.ty {
+                ControlStackFrameType::If(true) => {
+                    // TODO: fix this for nested if-else.
+                    self.handle_return()
+                }
+                ControlStackFrameType::Block => self.masm._jumpdest(),
+                _ => self.handle_jumpdest(frame.original_pc_offset),
             }
         } else if !self.is_main {
             self.handle_call_return()
