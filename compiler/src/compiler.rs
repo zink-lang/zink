@@ -45,6 +45,8 @@ impl Compiler {
             .ok_or(Error::InvalidFunctionSignature)?
             .clone();
 
+        tracing::trace!("compile function: {:?}", sig);
+
         let is_main = func_index == 0;
         let mut codegen = CodeGen::new(sig, is_main)?;
         let mut locals_reader = body.get_locals_reader()?;

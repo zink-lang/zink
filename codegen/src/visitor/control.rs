@@ -28,8 +28,12 @@ impl CodeGen {
 
     /// The begeinning of a block construct. A sequence of
     /// instructions with a label at the end.
-    pub fn _block(&mut self, _blockty: BlockType) -> Result<()> {
-        todo!()
+    pub fn _block(&mut self, blockty: BlockType) -> Result<()> {
+        let frame =
+            ControlStackFrame::new(ControlStackFrameType::Block, self.masm.pc_offset(), blockty);
+        self.control.push(frame);
+
+        Ok(())
     }
 
     /// A block with a label which may be used to
@@ -81,7 +85,8 @@ impl CodeGen {
     ///
     /// Conditional branch to a given label in an enclosing construct.
     pub fn _br_if(&mut self, _depth: u32) -> Result<()> {
-        todo!()
+        // todo!()
+        Ok(())
     }
 
     /// A jump table which jumps to a label in an enclosing construct.

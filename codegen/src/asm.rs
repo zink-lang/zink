@@ -102,6 +102,7 @@ impl Assembler {
     /// Mock the stack input and ouput for checking
     /// the stack usages.
     pub fn emit_op(&mut self, opcode: OpCode) -> Result<()> {
+        tracing::trace!("emit opcode: {:?}", opcode);
         self.decrement_sp(opcode.stack_in() as u8)?;
         self.emit(opcode.into());
         self.increment_gas(opcode.gas().into());

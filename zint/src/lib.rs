@@ -1,7 +1,10 @@
 //! Zink testing framework.
 #![deny(missing_docs)]
 
-pub mod bytes;
-pub mod evm;
+mod bytes;
+mod evm;
 
-pub use self::{bytes::Bytes32, evm::EVM};
+pub use self::{
+    bytes::Bytes32,
+    evm::{InstructionResult, EVM},
+};

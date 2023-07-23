@@ -2,7 +2,7 @@
 
 use crate::{abi::ToLSBytes, Buffer, Error, Result, BUFFER_LIMIT};
 use opcodes::ShangHai as OpCode;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Jump types
 #[derive(Clone, Copy)]
@@ -70,21 +70,69 @@ impl JumpTable {
 
     /// Relocate program counter to all registered labels.
     pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
+        let mut funcs = BTreeMap::default();
         while let Some((pc, jump)) = self.jump.pop_first() {
-            tracing::trace!("relocate pc: {}", pc);
-            let target = match jump {
-                Jump::Label(label) => label,
-                Jump::Func(func) => *self.func.get(&func).ok_or(Error::FuncNotFound(func))?,
-            };
+            match jump {
+                Jump::Label(label) => {
+                    self.update_pc(Self::relocate_pc(buffer, pc as usize, label as usize)?)?;
+                }
+                Jump::Func(func) => {
+                    let target = *self.func.get(&func).ok_or(Error::FuncNotFound(func))?;
 
-            self.update_pc(Self::relocate_pc(buffer, pc as usize, target as usize)?)?;
+                    funcs.insert(pc, target);
+
+                    // dry run pc relocation here.
+                    self.update_label_pc(Self::relocate_pc(
+                        &mut buffer.clone(),
+                        Default::default(),
+                        target as usize,
+                    )?)?;
+                }
+            }
+        }
+
+        // relocate functions.
+        let values = funcs.values();
+        let targets = values.clone().collect::<Vec<_>>();
+        let mut targets_set = values.clone().collect::<BTreeSet<_>>();
+        let mut final_targets = BTreeMap::<u16, u16>::new();
+        while let Some(target) = targets_set.pop_first() {
+            let count = targets.iter().filter(|&&t| t == target).count();
+            let target_usize = *target as usize;
+
+            // dry run pc relocation.
+            //
+            // NOTE: skipping update the function PC for the first time bcz
+            // it will be processed automatically in relocation.
+            let pc = Self::relocate_pc(&mut buffer.clone(), Default::default(), target_usize)?
+                * count.checked_sub(1).ok_or(Error::InvalidPC(target_usize))?;
+
+            // calculate the new target.
+            final_targets.insert(
+                *target,
+                target_usize
+                    .checked_add(pc)
+                    .ok_or(Error::InvalidPC(target_usize))?
+                    .try_into()
+                    .map_err(|_| Error::InvalidPC(target_usize + pc))?,
+            );
+        }
+
+        for (pc, target) in funcs.into_iter() {
+            Self::relocate_pc(
+                buffer,
+                pc as usize,
+                *final_targets
+                    .get(&target)
+                    .ok_or_else(|| Error::InvalidPC(target as usize))? as usize,
+            )?;
         }
 
         Ok(())
     }
 
-    /// Update program counter for all items.
-    pub fn update_pc(&mut self, pc: usize) -> Result<()> {
+    /// Update program counter for labels.
+    pub fn update_label_pc(&mut self, pc: usize) -> Result<()> {
         let pc: u16 = pc.try_into().map_err(|_| Error::InvalidPC(pc))?;
         self.jump = self
             .jump
@@ -95,19 +143,23 @@ impl JumpTable {
                     return Err(Error::InvalidPC(k as usize));
                 }
 
-                tracing::trace!("update pc, from: {}, to {}", pc, k);
-
                 let v = match v {
                     Jump::Label(label) => Jump::Label(label + pc),
                     Jump::Func(func) => Jump::Func(*func),
                 };
 
-                // tracing::trace!("update label, from: {:?}, to {}", pc, k);
-
                 Ok((k, v))
             })
             .collect::<Result<_>>()?;
 
+        Ok(())
+    }
+
+    /// Update program counter for all items.
+    pub fn update_pc(&mut self, pc: usize) -> Result<()> {
+        self.update_label_pc(pc)?;
+
+        let pc: u16 = pc.try_into().map_err(|_| Error::InvalidPC(pc))?;
         self.func = self
             .func
             .iter()

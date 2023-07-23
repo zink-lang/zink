@@ -1,6 +1,7 @@
 //! Re-export REVM intepreter for testing usages.
 
-use revm_interpreter::{instruction_result::InstructionResult, Contract, DummyHost, Interpreter};
+pub use revm_interpreter::instruction_result::InstructionResult;
+use revm_interpreter::{Contract, DummyHost, Interpreter};
 use revm_primitives::{bytecode::Bytecode, specification::ShanghaiSpec, U256};
 
 /// EVM interpreter.

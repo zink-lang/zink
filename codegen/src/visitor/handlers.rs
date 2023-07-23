@@ -5,23 +5,32 @@ use crate::{CodeGen, Error, Result, ToLSBytes};
 impl CodeGen {
     /// Handle the end of the function.
     pub(crate) fn handle_return(&mut self) -> Result<()> {
+        tracing::trace!("handle return");
         let results = self.env.results();
-        if !results.is_empty() {
-            let size = self.masm.memory_write(results)?;
-            let offset = self
-                .masm
-                .mp_offset(|mp| mp.checked_sub(size).ok_or_else(|| Error::InvalidMP(0)))?;
-
-            self.masm.push(&size.to_ls_bytes())?;
-            self.masm.push(&offset)?;
-            self.masm.asm._return()?;
+        if results.is_empty() {
+            return Ok(());
         }
 
+        let size = self.masm.memory_write(results)?;
+        let offset = self
+            .masm
+            .mp_offset(|mp| mp.checked_sub(size).ok_or_else(|| Error::InvalidMP(0)))?;
+
+        self.masm.push(&size.to_ls_bytes())?;
+        self.masm.push(&offset)?;
+        self.masm.asm._return()?;
         Ok(())
     }
 
     /// Handle the return of a call.
     pub(crate) fn handle_call_return(&mut self) -> Result<()> {
+        tracing::trace!("handle call return");
+        let results = self.env.results();
+        if results.is_empty() {
+            return Ok(());
+        }
+
+        tracing::trace!("results: {:?}", results);
         // TODO: handle the length of results > u8::MAX.
         self.masm.shift_pc(self.env.results().len() as u8, false)?;
         self.masm.push(&[0x04])?;
