@@ -5,10 +5,12 @@ use wasmparser::BlockType;
 
 /// The type of the control stack frame.
 #[repr(u8)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ControlStackFrameType {
     /// The if control stack frame.
-    If,
+    ///
+    /// true is has else block, otherwise false.
+    If(bool),
     /// The else control stack frame.
     Else,
     /// The loop control stack frame.
@@ -27,7 +29,7 @@ pub struct ControlStackFrame {
     /// The type of the control stack frame.
     ///
     /// If loop, break it while popping.
-    ty: ControlStackFrameType,
+    pub ty: ControlStackFrameType,
     /// The program counter offset at the beginning of if.
     pub original_pc_offset: u16,
     /// The return values of the block.
@@ -50,6 +52,16 @@ impl ControlStackFrame {
     pub fn pc_offset(&self) -> u16 {
         self.original_pc_offset
     }
+
+    /// Get the result type of the control stack frame.
+    pub fn result(&self) -> BlockType {
+        self.result
+    }
+
+    // /// Check if the control stack frame is an if block with else.
+    // pub fn if_with_else(&self) -> bool {
+    //     self.ty == ControlStackFrameType::If(true)
+    // }
 }
 
 /// The control stack.
@@ -62,9 +74,24 @@ pub struct ControlStack {
 }
 
 impl ControlStack {
-    /// The depth of the control stack.
+    /// The total depth of the control stack.
     pub fn depth(&self) -> usize {
         self.stack.len()
+    }
+
+    /// Mark the else block of an if.
+    pub fn mark_else(&mut self) -> Result<ControlStackFrame> {
+        let last = self
+            .stack
+            .last_mut()
+            .ok_or_else(|| Error::ControlStackUnderflow)?;
+
+        if last.ty != ControlStackFrameType::If(false) {
+            return Err(Error::InvalidElseBlock(last.original_pc_offset));
+        }
+
+        last.ty = ControlStackFrameType::If(true);
+        Ok(last.clone())
     }
 
     /// Push a control stack frame.
@@ -75,6 +102,23 @@ impl ControlStack {
     /// Pop a control stack frame.
     pub fn pop(&mut self) -> Result<ControlStackFrame> {
         self.stack.pop().ok_or_else(|| Error::ControlStackUnderflow)
+    }
+
+    /// Get the label of the control stack frame at given depth.
+    pub fn label_from_depth(&self, mut depth: u32) -> Result<u16> {
+        for frame in self.stack.iter().rev() {
+            if frame.ty == ControlStackFrameType::Else {
+                continue;
+            }
+
+            if depth == 0 {
+                return Ok(frame.pc_offset());
+            }
+
+            depth -= 1;
+        }
+
+        Err(Error::InvalidDepth(depth as usize))
     }
 
     /// Get the return type of the control stack frame at given depth.

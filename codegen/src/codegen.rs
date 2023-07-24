@@ -33,7 +33,6 @@ impl CodeGen {
     pub fn new(env: FuncType, is_main: bool) -> Result<Self> {
         let mut params_count = 0;
         if !is_main {
-            // TODO: handle empty params.
             params_count = env.params().len() as u8;
         }
 
@@ -41,7 +40,7 @@ impl CodeGen {
             control: ControlStack::default(),
             env,
             locals: Default::default(),
-            masm: MacroAssembler::new(params_count)?,
+            masm: MacroAssembler::new(is_main, params_count)?,
             table: Default::default(),
             is_main,
         })
@@ -79,7 +78,7 @@ impl CodeGen {
             validator.define_locals(validation_offset, count, val)?;
         }
 
-        tracing::trace!("locals: {:?}", self.locals);
+        tracing::debug!("locals: {:?}", self.locals);
 
         Ok(())
     }

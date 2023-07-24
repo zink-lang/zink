@@ -1,9 +1,8 @@
 //! Control flow visitors
 
 use crate::{
-    abi::ToLSBytes,
     control::{ControlStackFrame, ControlStackFrameType},
-    CodeGen, Error, Result,
+    CodeGen, Result,
 };
 use wasmparser::{BlockType, BrTable};
 
@@ -11,8 +10,11 @@ impl CodeGen {
     /// The beginning of an if construct with an implicit block.
     pub fn _if(&mut self, blockty: BlockType) -> Result<()> {
         // push an `If` frame to the control stack
-        let frame =
-            ControlStackFrame::new(ControlStackFrameType::If, self.masm.pc_offset(), blockty);
+        let frame = ControlStackFrame::new(
+            ControlStackFrameType::If(false),
+            self.masm.pc_offset(),
+            blockty,
+        );
         self.control.push(frame);
 
         // mock the stack output of the counter
@@ -26,8 +28,13 @@ impl CodeGen {
 
     /// The begeinning of a block construct. A sequence of
     /// instructions with a label at the end.
-    pub fn _block(&mut self, _blockty: BlockType) -> Result<()> {
-        todo!()
+    pub fn _block(&mut self, blockty: BlockType) -> Result<()> {
+        let frame =
+            ControlStackFrame::new(ControlStackFrameType::Block, self.masm.pc_offset(), blockty);
+        self.masm._jumpdest()?;
+        self.control.push(frame);
+
+        Ok(())
     }
 
     /// A block with a label which may be used to
@@ -35,14 +42,31 @@ impl CodeGen {
     pub fn _loop(&mut self, blockty: BlockType) -> Result<()> {
         let frame =
             ControlStackFrame::new(ControlStackFrameType::Loop, self.masm.pc_offset(), blockty);
-        self.control.push(frame);
 
+        self.control.push(frame);
         Ok(())
     }
 
     /// Marks an else block of an if.
     pub fn _else(&mut self) -> Result<()> {
-        todo!()
+        let last_frame = self.control.mark_else()?;
+
+        // push an `Else` frame to the control stack.
+        let frame = ControlStackFrame::new(
+            ControlStackFrameType::Else,
+            self.masm.pc_offset(),
+            last_frame.result(),
+        );
+        self.control.push(frame);
+        self.masm.asm.increment_sp(1)?;
+        self.masm._jump()?;
+
+        // mark else as the jump destination of the if block.
+        self.table
+            .label(last_frame.original_pc_offset, self.masm.pc_offset());
+        self.masm._jumpdest()?;
+
+        Ok(())
     }
 
     /// The select instruction selects one of its first two operands based
@@ -61,8 +85,13 @@ impl CodeGen {
     /// Performs a conditional branch if i32c is non-zero.
     ///
     /// Conditional branch to a given label in an enclosing construct.
-    pub fn _br_if(&mut self, _depth: u32) -> Result<()> {
-        todo!()
+    pub fn _br_if(&mut self, depth: u32) -> Result<()> {
+        let label = self.control.label_from_depth(depth)?;
+        self.table.label(self.masm.pc_offset(), label);
+        self.masm.asm.increment_sp(1)?;
+        self.masm._jumpi()?;
+
+        Ok(())
     }
 
     /// A jump table which jumps to a label in an enclosing construct.
@@ -82,38 +111,22 @@ impl CodeGen {
     /// - End of function.
     /// - End of program.
     pub fn _end(&mut self) -> Result<()> {
-        if !self.is_main {
-            // TODO: handle the length of results > u8::MAX.
-            self.masm.shift_pc(self.env.results().len() as u8, false)?;
-            self.masm.push(&[0x04])?;
-            self.masm._add()?;
-            self.masm._jump()?;
-            return Ok(());
-        }
-
         // If inside an if frame, pop the frame and patch
         // the program counter.
         if let Ok(frame) = self.control.pop() {
-            self.table
-                .label(frame.original_pc_offset, self.masm.pc_offset())?;
-
-            // TODO: Check the stack output and make decisions
-            // how to handle the results.
-
-            // Emit JUMPDEST after at the end of the control flow.
-            self.masm._jumpdest()?;
+            match frame.ty {
+                ControlStackFrameType::If(true) => {
+                    // TODO: fix this for nested if-else.
+                    self.handle_return()
+                }
+                ControlStackFrameType::Block => self.masm._jumpdest(),
+                _ => self.handle_jumpdest(frame.original_pc_offset),
+            }
+        } else if !self.is_main {
+            self.handle_call_return()
         } else {
-            let size = self.masm.memory_write(self.env.results())?;
-            let offset = self
-                .masm
-                .mp_offset(|mp| mp.checked_sub(size).ok_or_else(|| Error::InvalidMP(0)))?;
-
-            self.masm.push(&size.to_ls_bytes())?;
-            self.masm.push(&offset)?;
-            self.masm.asm._return()?;
+            self.handle_return()
         }
-
-        Ok(())
     }
 
     /// Mark as invalid for now.

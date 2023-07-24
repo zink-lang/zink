@@ -1,7 +1,6 @@
 //! System instructions
 
 use crate::{CodeGen, Result};
-use tracing::trace;
 
 impl CodeGen {
     /// The call indirect instruction calls a function indirectly
@@ -17,7 +16,6 @@ impl CodeGen {
 
     /// The call instruction calls a function specified by its index.
     pub fn _call(&mut self, function_index: u32) -> Result<()> {
-        trace!("call {}", function_index);
         // record the current program counter and
         // pass it to the callee function.
         self.masm._pc()?;

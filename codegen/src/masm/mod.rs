@@ -36,9 +36,7 @@ impl DerefMut for MacroAssembler {
 
 impl MacroAssembler {
     /// New macro assembler.
-    pub fn new(params_count: u8) -> Result<Self> {
-        let is_main = params_count == 0;
-
+    pub fn new(is_main: bool, params_count: u8) -> Result<Self> {
         // Build the low level assembler
         let asm = if is_main {
             Assembler::new(0)
@@ -87,6 +85,7 @@ impl MacroAssembler {
 
     /// Place n bytes on stack.
     pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
+        tracing::trace!("push bytes: {:?}", bytes);
         let len = bytes.len();
         match len {
             0 => self.asm._push0(),

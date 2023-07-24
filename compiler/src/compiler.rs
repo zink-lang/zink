@@ -40,10 +40,12 @@ impl Compiler {
         let mut func_validator = validator.into_validator(Default::default());
         let sig = func_validator
             .resources()
-            .type_of_function(0)
+            .type_of_function(func_index)
             // TODO: Add backtrace here for the function index. (#21)
             .ok_or(Error::InvalidFunctionSignature)?
             .clone();
+
+        tracing::debug!("compile function {}: {:?}", func_index, sig);
 
         let is_main = func_index == 0;
         let mut codegen = CodeGen::new(sig, is_main)?;
