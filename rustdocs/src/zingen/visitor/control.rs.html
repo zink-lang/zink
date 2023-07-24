@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/control.rs`."><title>control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0-nightly (0308df23e 2023-07-21)" data-channel="nightly" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-6d2c9675f3d09c26.css" data-theme-dark-css="dark-45ceb8f2e522f4d1.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-6d2c9675f3d09c26.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-45ceb8f2e522f4d1.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../zingen/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/control.rs`."><title>control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0-nightly (8771282d4 2023-07-23)" data-channel="nightly" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-6d2c9675f3d09c26.css" data-theme-dark-css="dark-45ceb8f2e522f4d1.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-6d2c9675f3d09c26.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-45ceb8f2e522f4d1.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../zingen/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -130,12 +130,24 @@
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Control flow visitors
 
 </span><span class="kw">use crate</span>::{
-    abi::ToLSBytes,
     control::{ControlStackFrame, ControlStackFrameType},
-    CodeGen, Error, <span class="prelude-ty">Result</span>,
+    CodeGen, <span class="prelude-ty">Result</span>,
 };
 <span class="kw">use </span>wasmparser::{BlockType, BrTable};
 
@@ -143,8 +155,11 @@
     <span class="doccomment">/// The beginning of an if construct with an implicit block.
     </span><span class="kw">pub fn </span>_if(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blockty: BlockType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="comment">// push an `If` frame to the control stack
-        </span><span class="kw">let </span>frame =
-            ControlStackFrame::new(ControlStackFrameType::If, <span class="self">self</span>.masm.pc_offset(), blockty);
+        </span><span class="kw">let </span>frame = ControlStackFrame::new(
+            ControlStackFrameType::If(<span class="bool-val">false</span>),
+            <span class="self">self</span>.masm.pc_offset(),
+            blockty,
+        );
         <span class="self">self</span>.control.push(frame);
 
         <span class="comment">// mock the stack output of the counter
@@ -158,8 +173,13 @@
 
     <span class="doccomment">/// The begeinning of a block construct. A sequence of
     /// instructions with a label at the end.
-    </span><span class="kw">pub fn </span>_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _blockty: BlockType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">todo!</span>()
+    </span><span class="kw">pub fn </span>_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blockty: BlockType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>frame =
+            ControlStackFrame::new(ControlStackFrameType::Block, <span class="self">self</span>.masm.pc_offset(), blockty);
+        <span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
+        <span class="self">self</span>.control.push(frame);
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// A block with a label which may be used to
@@ -167,14 +187,31 @@
     </span><span class="kw">pub fn </span>_loop(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blockty: BlockType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>frame =
             ControlStackFrame::new(ControlStackFrameType::Loop, <span class="self">self</span>.masm.pc_offset(), blockty);
-        <span class="self">self</span>.control.push(frame);
 
+        <span class="self">self</span>.control.push(frame);
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Marks an else block of an if.
     </span><span class="kw">pub fn </span>_else(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">todo!</span>()
+        <span class="kw">let </span>last_frame = <span class="self">self</span>.control.mark_else()<span class="question-mark">?</span>;
+
+        <span class="comment">// push an `Else` frame to the control stack.
+        </span><span class="kw">let </span>frame = ControlStackFrame::new(
+            ControlStackFrameType::Else,
+            <span class="self">self</span>.masm.pc_offset(),
+            last_frame.result(),
+        );
+        <span class="self">self</span>.control.push(frame);
+        <span class="self">self</span>.masm.asm.increment_sp(<span class="number">1</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.masm._jump()<span class="question-mark">?</span>;
+
+        <span class="comment">// mark else as the jump destination of the if block.
+        </span><span class="self">self</span>.table
+            .label(last_frame.original_pc_offset, <span class="self">self</span>.masm.pc_offset());
+        <span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// The select instruction selects one of its first two operands based
@@ -193,8 +230,13 @@
     <span class="doccomment">/// Performs a conditional branch if i32c is non-zero.
     ///
     /// Conditional branch to a given label in an enclosing construct.
-    </span><span class="kw">pub fn </span>_br_if(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _depth: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">todo!</span>()
+    </span><span class="kw">pub fn </span>_br_if(<span class="kw-2">&amp;mut </span><span class="self">self</span>, depth: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>label = <span class="self">self</span>.control.label_from_depth(depth)<span class="question-mark">?</span>;
+        <span class="self">self</span>.table.label(<span class="self">self</span>.masm.pc_offset(), label);
+        <span class="self">self</span>.masm.asm.increment_sp(<span class="number">1</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.masm._jumpi()<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// A jump table which jumps to a label in an enclosing construct.
@@ -214,38 +256,22 @@
     /// - End of function.
     /// - End of program.
     </span><span class="kw">pub fn </span>_end(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span>!<span class="self">self</span>.is_main {
-            <span class="comment">// TODO: handle the length of results &gt; u8::MAX.
-            </span><span class="self">self</span>.masm.shift_pc(<span class="self">self</span>.env.results().len() <span class="kw">as </span>u8, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>[<span class="number">0x04</span>])<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm._add()<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm._jump()<span class="question-mark">?</span>;
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-        }
-
         <span class="comment">// If inside an if frame, pop the frame and patch
         // the program counter.
         </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(frame) = <span class="self">self</span>.control.pop() {
-            <span class="self">self</span>.table
-                .label(frame.original_pc_offset, <span class="self">self</span>.masm.pc_offset())<span class="question-mark">?</span>;
-
-            <span class="comment">// TODO: Check the stack output and make decisions
-            // how to handle the results.
-
-            // Emit JUMPDEST after at the end of the control flow.
-            </span><span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
+            <span class="kw">match </span>frame.ty {
+                ControlStackFrameType::If(<span class="bool-val">true</span>) =&gt; {
+                    <span class="comment">// TODO: fix this for nested if-else.
+                    </span><span class="self">self</span>.handle_return()
+                }
+                ControlStackFrameType::Block =&gt; <span class="self">self</span>.masm._jumpdest(),
+                <span class="kw">_ </span>=&gt; <span class="self">self</span>.handle_jumpdest(frame.original_pc_offset),
+            }
+        } <span class="kw">else if </span>!<span class="self">self</span>.is_main {
+            <span class="self">self</span>.handle_call_return()
         } <span class="kw">else </span>{
-            <span class="kw">let </span>size = <span class="self">self</span>.masm.memory_write(<span class="self">self</span>.env.results())<span class="question-mark">?</span>;
-            <span class="kw">let </span>offset = <span class="self">self
-                </span>.masm
-                .mp_offset(|mp| mp.checked_sub(size).ok_or_else(|| Error::InvalidMP(<span class="number">0</span>)))<span class="question-mark">?</span>;
-
-            <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>size.to_ls_bytes())<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>offset)<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm.asm._return()<span class="question-mark">?</span>;
+            <span class="self">self</span>.handle_return()
         }
-
-        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Mark as invalid for now.

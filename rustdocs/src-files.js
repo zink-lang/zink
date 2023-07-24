@@ -4,7 +4,7 @@ var srcIndex = JSON.parse('{\
 "evm_opcodes":["",[],["lib.rs","shanghai.rs"]],\
 "fibonacci":["",[],["lib.rs"]],\
 "if_else":["",[],["lib.rs"]],\
-"zingen":["",[["masm",[],["cmp.rs","float.rs","integer.rs","memory.rs","mod.rs","stack.rs"]],["visitor",[],["control.rs","local.rs","mod.rs","system.rs"]]],["abi.rs","asm.rs","codegen.rs","control.rs","jump.rs","lib.rs","local.rs","result.rs","validator.rs"]],\
+"zingen":["",[["jump",[],["mod.rs","pc.rs","relocate.rs"]],["masm",[],["cmp.rs","float.rs","integer.rs","memory.rs","mod.rs","stack.rs"]],["visitor",[],["control.rs","handlers.rs","local.rs","mod.rs","system.rs"]]],["abi.rs","asm.rs","codegen.rs","control.rs","lib.rs","local.rs","result.rs","validator.rs"]],\
 "zink":["",[],["lib.rs"]],\
 "zinkc":["",[],["zinkc.rs"]],\
 "zinkup":["",[["utils",[],["manifest.rs","mod.rs","result.rs","wasm.rs"]]],["build.rs","compile.rs","lib.rs","new.rs"]],\

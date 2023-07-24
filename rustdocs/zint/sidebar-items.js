@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["bytes","evm"]};
+window.SIDEBAR_ITEMS = {"enum":["InstructionResult"],"mod":["bytes","evm"],"struct":["EVM","Info"],"trait":["Bytes32"]};
