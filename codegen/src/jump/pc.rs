@@ -8,6 +8,7 @@ use crate::{
 impl JumpTable {
     /// Shift program counter for all items.
     pub fn shift_pc(&mut self, start: u16, offset: u16) -> Result<()> {
+        tracing::debug!("shift pc: {} -> {}", start, offset);
         self.shift_label_pc(start, offset)?;
         self.shift_func_target(start, offset)?;
 
@@ -43,6 +44,7 @@ impl JumpTable {
     pub fn shift_func_target(&mut self, start: u16, offset: u16) -> Result<()> {
         self.func.values_mut().try_for_each(|v| {
             if *v > start {
+                tracing::debug!("shift function target: {} -> {}", v, *v + offset);
                 *v += offset;
                 if *v > BUFFER_LIMIT as u16 {
                     return Err(Error::InvalidPC(*v as usize));
@@ -63,6 +65,7 @@ impl JumpTable {
             .map(|(k, v)| {
                 let mut k = *k;
                 if k > start {
+                    tracing::debug!("shift label pc: {} -> {}", k, k + offset);
                     k += offset;
                     if k > BUFFER_LIMIT as u16 {
                         return Err(Error::InvalidPC(k as usize));
@@ -81,6 +84,12 @@ impl JumpTable {
         self.jump.values_mut().try_for_each(|target| {
             if let Jump::Label(label) = target {
                 if *label > ptr {
+                    tracing::debug!(
+                        "shift label target, original: 0x{:x}, cmp: 0x{:x}, after: 0x{:x}",
+                        label,
+                        ptr,
+                        *label + offset
+                    );
                     *label += offset;
                 }
             }

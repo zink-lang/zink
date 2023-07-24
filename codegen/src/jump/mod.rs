@@ -7,7 +7,7 @@ mod pc;
 mod relocate;
 
 /// Jump types
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum Jump {
     /// Jump to the given label, the label here is the original
     /// program counter.
@@ -24,7 +24,7 @@ impl Jump {
 }
 
 /// Jump table implementation.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct JumpTable {
     /// Jump table.
     jump: BTreeMap<u16, Jump>,

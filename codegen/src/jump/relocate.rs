@@ -11,20 +11,13 @@ impl JumpTable {
     pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
         self.shift_targets()?;
         while let Some((pc, jump)) = self.jump.pop_first() {
-            let mut target = self.target(&jump)?;
             tracing::debug!(
                 "run relocateion for {}",
                 if jump.is_label() { "label" } else { "function" }
             );
 
             let offset = relocate::offset(pc)?;
-            if target > pc {
-                target -= offset;
-            } else {
-                target += offset;
-            }
-
-            relocate::pc(buffer, pc, target)?;
+            relocate::pc(buffer, pc, self.target(&jump)?, offset)?;
             self.shift_label_pc(pc, offset)?;
         }
 
@@ -64,22 +57,23 @@ pub fn offset(original_pc: u16) -> Result<u16> {
 }
 
 /// Relocate program counter to buffer.
-fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<()> {
+fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16, offset: u16) -> Result<()> {
     let original_pc = original_pc as usize;
-    let mut pc = target_pc;
     let mut new_buffer: Buffer = buffer[..original_pc].into();
     let rest_buffer: Buffer = buffer[original_pc..].into();
 
-    let offset = relocate::offset(original_pc as u16)?;
     if offset == 2 {
         new_buffer.push(OpCode::PUSH1.into());
     } else {
         new_buffer.push(OpCode::PUSH2.into());
     }
 
-    pc += offset;
-    tracing::debug!("run pc relocation: 0x{:x} -> 0x{:x}", original_pc, pc);
-    let pc_offset = pc.to_ls_bytes();
+    tracing::debug!(
+        "run pc relocation: 0x{:x} -> 0x{:x}",
+        original_pc,
+        target_pc
+    );
+    let pc_offset = target_pc.to_ls_bytes();
     tracing::debug!("push bytes: {:x?} at {}", pc_offset, original_pc);
     new_buffer.extend_from_slice(&pc_offset);
     new_buffer.extend_from_slice(&rest_buffer);

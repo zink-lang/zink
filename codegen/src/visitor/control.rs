@@ -29,9 +29,9 @@ impl CodeGen {
     /// The begeinning of a block construct. A sequence of
     /// instructions with a label at the end.
     pub fn _block(&mut self, blockty: BlockType) -> Result<()> {
-        self.masm._jumpdest()?;
         let frame =
             ControlStackFrame::new(ControlStackFrameType::Block, self.masm.pc_offset(), blockty);
+        self.masm._jumpdest()?;
         self.control.push(frame);
 
         Ok(())
@@ -62,9 +62,9 @@ impl CodeGen {
         self.masm._jump()?;
 
         // mark else as the jump destination of the if block.
-        self.masm._jumpdest()?;
         self.table
-            .label(last_frame.original_pc_offset, self.masm.pc_offset() + 1);
+            .label(last_frame.original_pc_offset, self.masm.pc_offset());
+        self.masm._jumpdest()?;
 
         Ok(())
     }
@@ -90,6 +90,7 @@ impl CodeGen {
         self.table.label(self.masm.pc_offset(), label);
         self.masm.asm.increment_sp(1)?;
         self.masm._jumpi()?;
+
         Ok(())
     }
 

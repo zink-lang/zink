@@ -164,7 +164,6 @@ impl MacroAssembler {
     /// parameters. This is used by the callee function for jumping
     /// back to the caller function.
     pub fn shift_pc(&mut self, count: u8, from_top: bool) -> Result<()> {
-        tracing::trace!("shift pc: count: {}, from_top: {}", count, from_top);
         self.swap(count)?;
 
         if from_top {
