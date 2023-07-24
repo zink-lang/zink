@@ -14,9 +14,9 @@ fn params() -> Result<()> {
 
     // add(1, 2)
     let input = [1.to_bytes32(), 2.to_bytes32()].concat();
-    let (ret, _) = EVM::run(&bytecode, &input);
+    let info = EVM::run(&bytecode, &input);
 
-    assert_eq!(ret, [3.to_bytes32()].concat());
+    assert_eq!(info.ret, [3.to_bytes32()].concat());
     Ok(())
 }
 
@@ -24,8 +24,8 @@ fn params() -> Result<()> {
 fn locals() -> Result<()> {
     let wasm = common::load("i32add", "locals")?;
     let bytecode = Compiler::default().compile(&wasm)?;
-    let (ret, _) = EVM::run(&bytecode, &[]);
+    let info = EVM::run(&bytecode, &[]);
 
-    assert_eq!(ret, [30.to_bytes32()].concat());
+    assert_eq!(info.ret, [30.to_bytes32()].concat());
     Ok(())
 }

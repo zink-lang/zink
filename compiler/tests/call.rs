@@ -3,7 +3,7 @@
 
 use anyhow::Result;
 use zinkc::Compiler;
-use zint::{InstructionResult, EVM};
+use zint::{Bytes32, InstructionResult, EVM};
 
 mod common;
 
@@ -12,9 +12,9 @@ fn params() -> Result<()> {
     let wasm = common::load("call", "params")?;
     let bytecode = Compiler::default().compile(&wasm)?;
 
-    let input = [vec![0; 31], vec![1; 1], vec![0; 31], vec![2; 1]].concat();
-    let (ret, _) = EVM::run(&bytecode, &input);
-    assert_eq!(ret, [vec![0; 31], vec![3; 1]].concat());
+    let input = [1.to_bytes32(), 2.to_bytes32()].concat();
+    let info = EVM::run(&bytecode, &input);
+    assert_eq!(info.ret, 3.to_bytes32());
     Ok(())
 }
 
@@ -25,8 +25,8 @@ fn dummy() -> Result<()> {
 
     tracing::trace!("bytecode: {:?}", hex::encode(&bytecode));
 
-    let (ret, instr) = EVM::run(&bytecode, &[]);
-    assert_eq!(instr, InstructionResult::Return);
-    assert_eq!(ret, &[]);
+    let info = EVM::run(&bytecode, &[]);
+    assert_eq!(info.instr, InstructionResult::Return);
+    assert_eq!(info.ret, []);
     Ok(())
 }

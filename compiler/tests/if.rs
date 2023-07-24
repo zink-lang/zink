@@ -13,14 +13,13 @@ fn if_then() -> Result<()> {
     let bytecode = Compiler::default().compile(&wasm)?;
 
     // Skip the condition.
-    let (ret, _) = EVM::run(&bytecode, &[0; 32]);
-    assert_eq!(ret, [0; 32]);
+    let info = EVM::run(&bytecode, &[0; 32]);
+    assert_eq!(info.ret, [0; 32]);
 
     // Enter the if branch.
-    let mut input = vec![0; 31];
-    input.push(1);
-    let (ret, _) = EVM::run(&bytecode, &input);
-    assert_eq!(ret, input);
+    let input = 1.to_bytes32();
+    let info = EVM::run(&bytecode, &input);
+    assert_eq!(info.ret, input);
 
     Ok(())
 }
@@ -31,12 +30,12 @@ fn singular() -> Result<()> {
     let bytecode = Compiler::default().compile(&wasm)?;
 
     // test if
-    let (ret, _instr) = EVM::run(&bytecode, &0.to_bytes32());
-    assert_eq!(ret, 7.to_bytes32());
+    let info = EVM::run(&bytecode, &0.to_bytes32());
+    assert_eq!(info.ret, 7.to_bytes32());
 
     // test else
-    let (ret, _instr) = EVM::run(&bytecode, &1.to_bytes32());
-    assert_eq!(ret, 8.to_bytes32());
+    let info = EVM::run(&bytecode, &1.to_bytes32());
+    assert_eq!(info.ret, 8.to_bytes32());
 
     Ok(())
 }

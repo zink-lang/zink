@@ -14,7 +14,7 @@ impl JumpTable {
         while let Some((pc, jump)) = self.jump.pop_first() {
             let target = self.target(&jump)?;
             if jump.is_label() {
-                let offset = relocate::pc(buffer, pc as usize, target as usize, false)?;
+                let offset = relocate::pc(buffer, pc as usize, target as usize)?;
 
                 if pc > target {
                     // TODO:
@@ -30,8 +30,8 @@ impl JumpTable {
                 }
             } else {
                 funcs.insert(pc, target);
-                let offset = relocate::pc(buffer, Default::default(), target as usize, true)?;
-                self.update_label_pc(offset)?;
+                let offset = relocate::offset(target)?;
+                self.update_pc(offset)?;
             }
         }
 
@@ -40,17 +40,16 @@ impl JumpTable {
     }
 }
 
-/// Relocate program counter to buffer.
-fn pc(buffer: &mut Buffer, original_pc: usize, target_pc: usize, dry_run: bool) -> Result<usize> {
-    let mut pc = target_pc;
-    let mut new_buffer: Buffer = buffer[..original_pc].into();
-    let rest_buffer: Buffer = buffer[original_pc..].into();
+/// Get the offset of the program counter for relocation.
+fn offset(original_pc: u16) -> Result<usize> {
+    let pc = original_pc as usize;
+    let mut offset = 0;
 
     // Update the target program counter
     {
         // The maximum size of the PC is 2 bytes, whatever PUSH1 or PUSH2
         // takes 1 more byte.
-        pc += 1;
+        offset += 1;
 
         // Update the program counter for the edge cases.
         //
@@ -61,27 +60,38 @@ fn pc(buffer: &mut Buffer, original_pc: usize, target_pc: usize, dry_run: bool) 
         // |------|----------|-----------|
         // | 0xfe | 1        |      0xff |
         // | 0xff | 2        |     0x101 |
-        pc += if pc > 0xfe {
-            new_buffer.push(OpCode::PUSH2.into());
+        offset += if pc > 0xfe {
+            // buffer.push(OpCode::PUSH2.into());
             2
         } else {
-            new_buffer.push(OpCode::PUSH1.into());
+            // buffer.push(OpCode::PUSH1.into());
             1
         }
     }
 
     // Check PC range.
-    if pc > BUFFER_LIMIT {
-        return Err(Error::InvalidPC(pc));
+    if pc + offset > BUFFER_LIMIT {
+        return Err(Error::InvalidPC(pc + offset));
     }
 
-    let offset = pc - target_pc;
-    if dry_run {
-        return Ok(offset);
+    Ok(offset)
+}
+
+/// Relocate program counter to buffer.
+fn pc(buffer: &mut Buffer, original_pc: usize, target_pc: usize) -> Result<usize> {
+    let mut pc = target_pc;
+    let mut new_buffer: Buffer = buffer[..original_pc].into();
+    let rest_buffer: Buffer = buffer[original_pc..].into();
+
+    let offset = relocate::offset(original_pc as u16)? as usize;
+    if offset == 2 {
+        new_buffer.push(OpCode::PUSH1.into());
     } else {
-        tracing::debug!("run pc relocation: 0x{:x} -> 0x{:x}", original_pc, pc);
+        new_buffer.push(OpCode::PUSH2.into());
     }
 
+    pc += offset;
+    tracing::debug!("run pc relocation: 0x{:x} -> 0x{:x}", original_pc, pc);
     let pc_offset = pc.to_ls_bytes();
     tracing::debug!("push bytes: {:x?} at {}", pc_offset, original_pc);
     new_buffer.extend_from_slice(&pc_offset);
@@ -112,7 +122,7 @@ fn funcs(map: BTreeMap<u16, u16>, buffer: &mut Buffer) -> Result<()> {
         // it will be processed automatically in relocation.
         //
         // **DO NOT touch this again, it works.**
-        let pc = relocate::pc(buffer, Default::default(), target_usize, true)?
+        let pc = relocate::offset(*target)?
             * count.checked_sub(1).ok_or(Error::InvalidPC(target_usize))?;
 
         // calculate the new target.
@@ -133,7 +143,6 @@ fn funcs(map: BTreeMap<u16, u16>, buffer: &mut Buffer) -> Result<()> {
             *final_targets
                 .get(&target)
                 .ok_or_else(|| Error::InvalidPC(target as usize))? as usize,
-            false,
         )?;
     }
 

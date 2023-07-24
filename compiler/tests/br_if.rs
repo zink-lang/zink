@@ -7,7 +7,6 @@ use zint::{Bytes32, InstructionResult, EVM};
 
 mod common;
 
-#[ignore]
 #[test]
 fn as_block_last() -> Result<()> {
     let wasm = common::load("br_if", "as_block_last")?;
@@ -15,9 +14,9 @@ fn as_block_last() -> Result<()> {
 
     tracing::trace!("bytecode: {:?}", hex::encode(&bytecode));
 
-    let (ret, instr) = EVM::run(&bytecode, &42.to_bytes32());
-    assert_eq!(instr, InstructionResult::Return);
-    assert_eq!(ret, []);
+    let info = EVM::run(&bytecode, &42.to_bytes32());
+    assert_eq!(info.instr, InstructionResult::Return);
+    assert_eq!(info.ret, []);
 
     Ok(())
 }
