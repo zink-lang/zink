@@ -6,10 +6,10 @@ const RESULT: &str = "0000000000000000000000000000000000000000000000000000000000
 
 #[test]
 fn addition() {
-    let (ret, _) = EVM::run(
+    let info = EVM::run(
         &hex::decode(ADDITION_BYTECODE).expect("Invalid bytecode"),
         &hex::decode(INPUT).expect("Invalid input"),
     );
 
-    assert_eq!(ret, hex::decode(RESULT).expect("Invalid result"));
+    assert_eq!(info.ret, hex::decode(RESULT).expect("Invalid result"));
 }
