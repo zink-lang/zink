@@ -5,6 +5,7 @@ use std::{fs, path::PathBuf};
 use tracing::trace;
 use tracing_subscriber::EnvFilter;
 use wat;
+use zinkc::Compiler;
 
 fn setup_logger() {
     tracing_subscriber::fmt()
@@ -23,5 +24,8 @@ pub fn load(instr: &str, name: &str) -> Result<Vec<u8>> {
     trace!("Loading {path:?}");
 
     let wat = fs::read(path)?;
-    Ok(wat::parse_bytes(&wat).map(Into::into)?)
+    let wasm = wat::parse_bytes(&wat)?;
+    let bytecode = Compiler::default().compile(&wasm)?.to_vec();
+    tracing::trace!("bytecode: {:?}", hex::encode(&bytecode));
+    Ok(bytecode)
 }

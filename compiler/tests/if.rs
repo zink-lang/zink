@@ -2,15 +2,13 @@
 #![cfg(test)]
 
 use anyhow::Result;
-use zinkc::Compiler;
-use zint::{Bytes32, EVM};
+use zint::{Bytes32, InstructionResult, EVM};
 
 mod common;
 
 #[test]
 fn if_then() -> Result<()> {
-    let wasm = common::load("if", "basic")?;
-    let bytecode = Compiler::default().compile(&wasm)?;
+    let bytecode = common::load("if", "basic")?;
 
     // Skip the condition.
     let info = EVM::run(&bytecode, &[0; 32]);
@@ -26,15 +24,16 @@ fn if_then() -> Result<()> {
 
 #[test]
 fn singular() -> Result<()> {
-    let wasm = common::load("if", "singular")?;
-    let bytecode = Compiler::default().compile(&wasm)?;
+    let bytecode = common::load("if", "singular")?;
 
     // test if
     let info = EVM::run(&bytecode, &0.to_bytes32());
+    assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 7.to_bytes32());
 
     // test else
     let info = EVM::run(&bytecode, &1.to_bytes32());
+    assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 8.to_bytes32());
 
     Ok(())
