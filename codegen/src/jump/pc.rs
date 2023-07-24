@@ -6,25 +6,34 @@ use crate::{
 };
 
 impl JumpTable {
-    /// Update program counter for labels.
-    pub fn update_label_pc(&mut self, pc: usize) -> Result<()> {
-        let pc: u16 = pc.try_into().map_err(|_| Error::InvalidPC(pc))?;
+    /// Shift program counter for all items.
+    pub fn shift_pc(&mut self, start: u16, offset: u16) -> Result<()> {
+        tracing::debug!("shift pc: {}", offset);
+        self.shift_label_pc(start, offset)?;
+        self.shift_func_pc(start, offset)?;
+
+        Ok(())
+    }
+
+    /// Shift program counter for labels.
+    pub fn shift_label_pc(&mut self, start: u16, offset: u16) -> Result<()> {
         self.jump = self
             .jump
             .iter()
             .map(|(k, v)| {
-                let k = k + pc;
-                if k > BUFFER_LIMIT as u16 {
-                    return Err(Error::InvalidPC(k as usize));
+                let (mut k, mut v) = (*k, *v);
+                if k > start {
+                    k = k + offset;
+                    if k > BUFFER_LIMIT as u16 {
+                        return Err(Error::InvalidPC(k as usize));
+                    }
                 }
 
-                // NOTE: we don't need to update the function PC before
-                // the current PC (jump back)
-
-                let v = match v {
-                    Jump::Label(label) => Jump::Label(label + pc),
-                    Jump::Func(func) => Jump::Func(*func),
-                };
+                if let Jump::Label(label) = v {
+                    if label > start {
+                        v = Jump::Label(label + offset);
+                    }
+                }
 
                 Ok((k, v))
             })
@@ -33,28 +42,18 @@ impl JumpTable {
         Ok(())
     }
 
-    /// Update program counter of functions.
-    pub fn update_func_pc(&mut self, pc: usize) -> Result<()> {
-        let pc: u16 = pc.try_into().map_err(|_| Error::InvalidPC(pc))?;
-        self.func
-            .values_mut()
-            .map(|v| {
-                let v = *v + pc;
-                if v > BUFFER_LIMIT as u16 {
-                    return Err(Error::InvalidPC(v as usize));
+    /// Shift program counter for functions.
+    pub fn shift_func_pc(&mut self, start: u16, offset: u16) -> Result<()> {
+        self.func.values_mut().try_for_each(|v| {
+            if *v > start {
+                *v += offset;
+                if *v > BUFFER_LIMIT as u16 {
+                    return Err(Error::InvalidPC(*v as usize));
                 }
-                Ok(())
-            })
-            .collect::<Result<()>>()?;
+            }
 
-        Ok(())
-    }
-
-    /// Update program counter for all items.
-    pub fn update_pc(&mut self, pc: usize) -> Result<()> {
-        tracing::debug!("update pc: {}", pc);
-        self.update_label_pc(pc)?;
-        self.update_func_pc(pc)?;
+            Ok(())
+        })?;
 
         Ok(())
     }
