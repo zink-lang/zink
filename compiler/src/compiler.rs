@@ -52,11 +52,9 @@ impl Compiler {
         let mut locals_reader = body.get_locals_reader()?;
         let mut ops_reader = body.get_operators_reader()?;
 
-        if is_main {
-            codegen.emit_locals(&mut locals_reader, &mut func_validator)?;
-        }
-
+        codegen.emit_locals(&mut locals_reader, &mut func_validator)?;
         codegen.emit_operators(&mut ops_reader, &mut func_validator)?;
+
         self.emit_buffer(func_index, codegen)?;
         Ok(())
     }

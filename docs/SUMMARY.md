@@ -10,6 +10,7 @@
 - [Compiler](./compiler/README.md)
   - [Arithmetic](./compiler/arithmetic.md)
   - [Locals](./compiler/locals.md)
+  - [Recursion](./compiler/recursion.md)
 - [Stability](./stability.md)
 - [Security](./security.md)
 - [Benchmarks](./benchmarks.md)

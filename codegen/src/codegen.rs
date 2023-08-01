@@ -78,7 +78,7 @@ impl CodeGen {
             validator.define_locals(validation_offset, count, val)?;
         }
 
-        tracing::debug!("locals: {:?}", self.locals);
+        tracing::debug!("{:?}", self.locals);
 
         Ok(())
     }

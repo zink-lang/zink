@@ -6,6 +6,22 @@ use smallvec::SmallVec;
 impl CodeGen {
     /// This instruction gets the value of a variable.
     pub fn _local_get(&mut self, local_index: u32) -> Result<()> {
+        // let local_index = if self.is_main {
+        //     local_index as usize
+        // } else {
+        //     (local_index as usize) + self.env.params().len() - 1
+        // };
+        //
+        // let offset = self.locals.offset_of(local_index)?;
+        // self.masm.push(&offset)?;
+        //
+        // if self.is_main && local_index < self.env.params().len() {
+        //     self.masm._calldataload()?;
+        // } else {
+        //     self.masm._mload()?;
+        // }
+        //
+        // Ok(())
         if !self.is_main {
             return Ok(());
         }
