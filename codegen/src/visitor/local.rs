@@ -1,6 +1,7 @@
 //! Local instructions
 
 use crate::{CodeGen, Result};
+use smallvec::SmallVec;
 
 impl CodeGen {
     /// This instruction gets the value of a variable.
@@ -25,17 +26,21 @@ impl CodeGen {
     }
 
     /// This instruction sets the value of a variable.
-    pub fn _local_set(&mut self, index: u32) -> Result<()> {
+    pub fn _local_set(&mut self, index: u32) -> Result<SmallVec<[u8; 32]>> {
         let index = index as usize;
         let offset = self.locals.offset_of(index)?;
 
         self.masm.memory_write_at(&offset)?;
-        Ok(())
+        Ok(offset)
     }
 
     /// This _local_tee is like _local_set, but it also returns the value.
-    pub fn _local_tee(&mut self, _index: u32) -> Result<()> {
-        todo!()
+    pub fn _local_tee(&mut self, index: u32) -> Result<()> {
+        let offset = self._local_set(index)?;
+
+        self.masm.push(&offset)?;
+
+        Ok(())
     }
 
     /// This instruction gets the value of a variable.

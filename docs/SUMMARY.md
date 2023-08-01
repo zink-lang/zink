@@ -8,6 +8,7 @@
 - [Command Line Tool](./cli.md)
   - [elko](./cli/elko.md)
 - [Compiler](./compiler/README.md)
+  - [Arithmetic](./compiler/arithmetic.md)
   - [Locals](./compiler/locals.md)
 - [Stability](./stability.md)
 - [Security](./security.md)

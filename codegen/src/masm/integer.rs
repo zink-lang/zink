@@ -4,6 +4,12 @@ use crate::{MacroAssembler, Result, ToLSBytes};
 use wasmparser::{Ieee32, Ieee64};
 
 impl MacroAssembler {
+    /// Sub two numbers.
+    pub fn _sub(&mut self) -> Result<()> {
+        self._swap1()?;
+        self.asm._sub()
+    }
+
     /// Push a 32-bit integer value on the stack.
     pub fn _i32_const(&mut self, value: i32) -> Result<()> {
         self.push(value.to_ls_bytes().as_ref())?;

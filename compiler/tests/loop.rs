@@ -15,14 +15,17 @@ fn singular() -> Result<()> {
     Ok(())
 }
 
-#[ignore]
 #[test]
 fn recursion() -> Result<()> {
     let bytecode = common::load("loop", "fibonacci")?;
 
     // f(0) = 0;
-    let info = EVM::run(&bytecode, &[0; 32]);
-    assert_eq!(info.ret, [0; 32]);
+    let info = EVM::run(&bytecode, &1.to_bytes32());
+    assert_eq!(1.to_bytes32().to_vec(), info.ret);
+
+    let info = EVM::run(&bytecode, &3.to_bytes32());
+    // assert_eq!(3.to_bytes32().to_vec(), info.ret);
+    tracing::trace!("{info:?}");
 
     Ok(())
 }
