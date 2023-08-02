@@ -5,12 +5,11 @@
     call 1)
   (func (;1;) (type 0) (param i32) (result i32)
     (local i32)
-    ;; local.get 0
-    ;; i32.const 2
-    ;; i32.ge_u
-    i32.const 1
+    local.get 0
+    i32.const 2
+    i32.ge_u
     if  ;; label = @1
-      i32.const 42
+      i32.const 39
       local.set 1
     end
     local.get 0

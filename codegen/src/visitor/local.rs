@@ -33,7 +33,9 @@ impl CodeGen {
             return Ok(());
         } else {
             // update the local
-            self.masm.swap(sp - local_sp)?;
+            //
+            // TODO: check arithmetic overflow.
+            self.masm.swap(sp - local_sp - 1)?;
             self.masm._drop()?;
         }
 
