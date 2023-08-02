@@ -130,4 +130,9 @@ impl Locals {
     pub fn len(&self) -> usize {
         self.inner.len()
     }
+
+    /// If the locals are empty.
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
 }

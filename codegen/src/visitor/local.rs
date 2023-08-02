@@ -41,7 +41,6 @@ impl CodeGen {
 
     /// Local get from calldata.
     fn _local_get_calldata(&mut self, local_index: usize) -> Result<()> {
-        let local_index = local_index as usize;
         let offset = self.locals.offset_of(local_index)?;
         self.masm.push(&offset)?;
         self.masm._calldataload()?;
