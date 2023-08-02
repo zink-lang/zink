@@ -4,6 +4,14 @@ use crate::{MacroAssembler, Result};
 use opcodes::ShangHai as OpCode;
 
 impl MacroAssembler {
+    // /// OVERRIDE: Greater than comparison.
+    // ///
+    // /// TODO:
+    // pub fn _sgt(&mut self) -> Result<()> {
+    //     self._swap1()?;
+    //     self.asm._sgt()
+    // }
+
     /// Sign-agnostic compare unequal.
     pub fn _ne(&mut self) -> Result<()> {
         self.emit_op(OpCode::EQ)?;

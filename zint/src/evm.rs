@@ -59,6 +59,9 @@ impl EVM {
     /// Run a contract.
     pub fn run(btyecode: &[u8], input: &[u8]) -> Info {
         let mut evm = Self::new(btyecode, input);
-        evm.execute()
+        let info = evm.execute();
+        tracing::debug!("{info:?}");
+
+        info
     }
 }

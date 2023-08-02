@@ -59,7 +59,7 @@ impl JumpTable {
     /// counter of the target jump table.
     pub fn merge(&mut self, mut table: Self, pc: u16) -> Result<()> {
         if pc != 0 {
-            table.shift_pc(pc, pc)?;
+            table.shift_pc(0, pc)?;
         }
 
         for (pc, jump) in table.jump.into_iter() {

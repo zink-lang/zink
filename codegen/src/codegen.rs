@@ -1,6 +1,5 @@
 //! Code generation implementation.
 use crate::{
-    abi::Type,
     control::ControlStack,
     jump::JumpTable,
     local::{LocalSlot, LocalSlotType, Locals},
@@ -72,7 +71,13 @@ impl CodeGen {
     ) -> Result<()> {
         // Define locals in function parameters.
         for (idx, param) in self.env.params().iter().enumerate() {
-            let sp = if self.is_main { None } else { Some(idx + 1) };
+            let sp = if self.is_main {
+                None
+            } else {
+                // NOTE: no need to increment sp here bcz we have
+                // already did it in the constructor.
+                Some(idx + 1)
+            };
 
             self.locals
                 .push(LocalSlot::new(*param, LocalSlotType::Parameter, sp));
@@ -81,24 +86,25 @@ impl CodeGen {
         // Define locals in function body.
         //
         // Record the offset for validation.
-        let mut pc = self.env.params().len();
+        let params_len = self.env.params().len();
         while let Ok((count, val)) = locals.read() {
             let sp = if self.is_main {
                 None
             } else {
-                self.masm.increment_sp(count as u8)?;
-                pc += count as usize;
-                Some(pc)
+                Some(params_len + 1)
             };
 
             let validation_offset = locals.original_position();
-            for offset in (0..count).rev() {
+            for offset in 0..count {
+                // Init locals with zero.
+                self.masm.push(&[0])?;
+
+                // Define locals.
                 self.locals.push(LocalSlot::new(
                     val,
                     LocalSlotType::Variable,
-                    sp.map(|sp| sp - offset as usize),
+                    sp.map(|sp| sp + offset as usize),
                 ));
-                self.masm.increment_mp(val.align())?;
             }
 
             validator.define_locals(validation_offset, count, val)?;

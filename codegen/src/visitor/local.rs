@@ -25,13 +25,17 @@ impl CodeGen {
             return Ok(());
         };
 
-        tracing::debug!("local_set: {} {} {}", index, sp, local_sp);
-        if sp == local_sp {
-            return Ok(());
-        }
+        // TODO: init all locals with 0 on function entry.
 
-        self.masm.swap(sp - local_sp)?;
-        self.masm._drop()?;
+        tracing::debug!("local_set: {index} {sp} {local_sp}");
+        if sp == local_sp {
+            // the local is right at the current stack position
+            return Ok(());
+        } else {
+            // update the local
+            self.masm.swap(sp - local_sp)?;
+            self.masm._drop()?;
+        }
 
         Ok(())
     }
@@ -72,11 +76,12 @@ impl CodeGen {
         let local_sp = local.sp.ok_or(Error::LocalNotOnStack(local_index))? as u8;
         let sp = self.masm.sp();
 
+        // NOTE: DUP1 makes no sense for local_get.
         if local_sp == sp || local_sp + 1 == sp {
             return Ok(());
         }
 
-        tracing::trace!("local_get: {} {} {}", local_index, sp, local_sp);
+        tracing::debug!("local_get: {local_index} {sp} {local_sp}");
         // TODO: Arthmetic checks
         self.masm.dup(sp - local_sp)?;
         Ok(())

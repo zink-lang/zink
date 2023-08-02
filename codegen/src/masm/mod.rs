@@ -66,7 +66,7 @@ impl MacroAssembler {
 
     /// Place n bytes on stack.
     pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
-        tracing::trace!("push bytes: {:?}", bytes);
+        tracing::trace!("push bytes: 0x{:x?}", bytes);
         let len = bytes.len();
         match len {
             0 => self.asm._push0(),
