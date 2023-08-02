@@ -72,13 +72,7 @@ impl CodeGen {
     ) -> Result<()> {
         // Define locals in function parameters.
         for (idx, param) in self.env.params().iter().enumerate() {
-            let sp = if self.is_main {
-                None
-            } else {
-                self.masm.increment_sp(1)?;
-                // param index + PC
-                Some(idx + 1)
-            };
+            let sp = if self.is_main { None } else { Some(idx + 1) };
 
             self.locals
                 .push(LocalSlot::new(*param, LocalSlotType::Parameter, sp));
@@ -87,10 +81,12 @@ impl CodeGen {
         // Define locals in function body.
         //
         // Record the offset for validation.
+        let mut pc = self.env.params().len();
         while let Ok((count, val)) = locals.read() {
             let sp = {
                 self.masm.increment_sp(1)?;
-                Some(self.masm.sp() as usize)
+                pc += 1;
+                Some(pc)
             };
 
             let validation_offset = locals.original_position();

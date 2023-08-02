@@ -42,6 +42,9 @@ pub enum Error {
     /// Failed to define local variable since the index is out of range.
     #[error("Local index in function is out of range")]
     LocalIndexOutOfRange,
+    /// Failed to get local variables.
+    #[error("Local variable {0} is not on stack")]
+    LocalNotOnStack(usize),
     /// Failed to index data on memory.
     #[error("Memory index is out of range")]
     MemoryOutOfBounds,

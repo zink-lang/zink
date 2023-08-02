@@ -146,6 +146,30 @@ impl MacroAssembler {
         }
     }
 
+    /// Duplicate stack item by target index.
+    pub fn dup(&mut self, index: u8) -> Result<()> {
+        match index {
+            0 => Ok(()),
+            1 => self.asm._dup1(),
+            2 => self.asm._dup2(),
+            3 => self.asm._dup3(),
+            4 => self.asm._dup4(),
+            5 => self.asm._dup5(),
+            6 => self.asm._dup6(),
+            7 => self.asm._dup7(),
+            8 => self.asm._dup8(),
+            9 => self.asm._dup9(),
+            10 => self.asm._dup10(),
+            11 => self.asm._dup11(),
+            12 => self.asm._dup12(),
+            13 => self.asm._dup13(),
+            14 => self.asm._dup14(),
+            15 => self.asm._dup15(),
+            16 => self.asm._dup16(),
+            _ => Err(Error::StackIndexOutOfRange(index)),
+        }
+    }
+
     /// Shift the program counter to the bottom or the top of the
     /// parameters. This is used by the callee function for jumping
     /// back to the caller function.
@@ -157,7 +181,7 @@ impl MacroAssembler {
                 return self.shift_pc(count - 1, from_top);
             }
         } else {
-            // TODO: Optimize the shift logic when params lg 2.
+            // TODO: Optimize the shift logic when params lt 2.
             //
             // 3 means two swaps, base gas cost is 6, which means
             // using DUP will be cheaper: DUPN + POP = 3 + 2 = 5
