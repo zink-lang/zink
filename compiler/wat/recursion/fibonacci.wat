@@ -21,6 +21,8 @@
         i32.const 2
         i32.sub
         local.tee 0
+        ;; local.set 0
+        ;; local.get 0
         i32.const 1
         i32.gt_u
         br_if 0 (;@2;)

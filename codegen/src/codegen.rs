@@ -48,7 +48,7 @@ impl CodeGen {
         if !is_main {
             // Mock the stack frame for the callee function
             //
-            // STACK: PC
+            // STACK: PC + params
             codegen.masm.increment_sp(1 + params_count)?;
             codegen.masm._jumpdest()?;
             codegen.masm.shift_pc(params_count, true)?;

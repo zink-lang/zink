@@ -43,8 +43,9 @@ impl CodeGen {
     }
 
     /// This _local_tee is like _local_set, but it also returns the value
-    /// on the stack, however, in our implementation, they are the same.
+    /// on the stack.
     pub fn _local_tee(&mut self, index: u32) -> Result<()> {
+        self.masm._dup1()?;
         self._local_set(index)?;
         Ok(())
     }

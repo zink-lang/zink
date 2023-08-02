@@ -1,6 +1,6 @@
 //! Case handlers
 
-use crate::{CodeGen, Error, Result, ToLSBytes};
+use crate::{CodeGen, ControlStackFrame, ControlStackFrameType, Error, Result, ToLSBytes};
 
 impl CodeGen {
     pub(crate) fn handle_empty_return(&mut self) -> Result<()> {
@@ -44,6 +44,7 @@ impl CodeGen {
             self.masm.swap(sp - i - 2)?;
         }
 
+        tracing::debug!("cleaning frame stack, target: {}", len + 1);
         while self.masm.sp() > len + 1 {
             self.masm._drop()?;
         }
@@ -55,6 +56,21 @@ impl CodeGen {
         self.masm._jump()?;
 
         Ok(())
+    }
+
+    /// Handle the popping of a frame.
+    ///
+    /// TODO: validate stack IO for all frames (#59)
+    pub(crate) fn handle_frame_popping(&mut self, frame: ControlStackFrame) -> Result<()> {
+        match frame.ty {
+            ControlStackFrameType::If(true) => {
+                // TODO: fix this for nested if-else.
+                self.handle_return()
+            }
+            ControlStackFrameType::Block => self.masm._jumpdest(),
+            ControlStackFrameType::Loop => Ok(()),
+            _ => self.handle_jumpdest(frame.original_pc_offset),
+        }
     }
 
     /// Handle jumpdest.

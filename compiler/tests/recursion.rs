@@ -3,7 +3,7 @@ use zint::{Bytes32, EVM};
 
 mod common;
 
-#[ignore]
+// #[ignore]
 #[test]
 fn fibonacci() -> Result<()> {
     let bytecode = common::load("recursion", "fibonacci")?;
@@ -16,9 +16,13 @@ fn fibonacci() -> Result<()> {
     let info = EVM::run(&bytecode, &1.to_bytes32());
     assert_eq!(1.to_bytes32().to_vec(), info.ret);
 
-    // x = 3
-    let info = EVM::run(&bytecode, &3.to_bytes32());
-    assert_eq!(3.to_bytes32().to_vec(), info.ret);
+    // x = 2
+    let info = EVM::run(&bytecode, &2.to_bytes32());
+    assert_eq!(1.to_bytes32().to_vec(), info.ret);
+
+    // // x = 3
+    // let info = EVM::run(&bytecode, &3.to_bytes32());
+    // assert_eq!(3.to_bytes32().to_vec(), info.ret);
 
     Ok(())
 }

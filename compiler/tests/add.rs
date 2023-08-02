@@ -26,3 +26,12 @@ fn locals() -> Result<()> {
     assert_eq!(info.ret, [30.to_bytes32()].concat());
     Ok(())
 }
+
+#[test]
+fn tee() -> Result<()> {
+    let bytecode = common::load("i32add", "tee")?;
+    let info = EVM::run(&bytecode, &[]);
+
+    assert_eq!(info.ret, [30.to_bytes32()].concat());
+    Ok(())
+}

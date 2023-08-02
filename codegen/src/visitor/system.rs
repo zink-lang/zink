@@ -26,6 +26,8 @@ impl CodeGen {
         // mock the stack output of the counter
         //
         // the program counter operators should be relocated afterwards.
+        //
+        // TODO: check the stack output.
         self.masm.asm.increment_sp(1)?;
         self.masm._jump()?;
         self.masm._jumpdest()?;
