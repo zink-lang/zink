@@ -36,14 +36,26 @@ impl CodeGen {
             params_count = env.params().len() as u8;
         }
 
-        Ok(Self {
+        let mut codegen = Self {
             control: ControlStack::default(),
             env,
             locals: Default::default(),
-            masm: MacroAssembler::new(is_main, params_count)?,
+            masm: Default::default(),
             table: Default::default(),
             is_main,
-        })
+        };
+
+        // post process program counter and stack pointer.
+        if !is_main {
+            // Mock the stack frame for the callee function
+            //
+            // STACK: PC
+            codegen.masm.increment_sp(1 + params_count)?;
+            codegen.masm._jumpdest()?;
+            codegen.masm.shift_pc(params_count, true)?;
+        }
+
+        Ok(codegen)
     }
 
     /// Emit function locals
@@ -59,27 +71,35 @@ impl CodeGen {
         validator: &mut FuncValidator<ValidatorResources>,
     ) -> Result<()> {
         // Define locals in function parameters.
-        for param in self.env.params() {
+        for (idx, param) in self.env.params().iter().enumerate() {
+            let sp = if self.is_main { None } else { Some(idx + 1) };
+
             self.locals
-                .push(LocalSlot::new(*param, LocalSlotType::Parameter));
+                .push(LocalSlot::new(*param, LocalSlotType::Parameter, sp));
         }
 
         // Define locals in function body.
         //
         // Record the offset for validation.
+        let mut pc = self.env.params().len();
         while let Ok((count, val)) = locals.read() {
+            let sp = {
+                self.masm.increment_sp(1)?;
+                pc += 1;
+                Some(pc)
+            };
+
             let validation_offset = locals.original_position();
             for _ in 0..count {
                 self.locals
-                    .push(LocalSlot::new(val, LocalSlotType::Variable));
+                    .push(LocalSlot::new(val, LocalSlotType::Variable, sp));
                 self.masm.increment_mp(val.align())?;
             }
 
             validator.define_locals(validation_offset, count, val)?;
         }
 
-        tracing::debug!("locals: {:?}", self.locals);
-
+        tracing::debug!("{:?}", self.locals);
         Ok(())
     }
 

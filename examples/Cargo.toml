@@ -1,0 +1,15 @@
+[workspace.package]
+edition = "2021"
+version = "0.0.0"
+authors = [ "clearloop" ]
+license = "GPL-v3.0"
+
+[workspace]
+members = [
+  "addition",
+  "fibonacci",
+  "if-else"
+]
+
+[workspace.dependencies]
+zink = { path = "../zink" }

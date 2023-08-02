@@ -12,6 +12,8 @@ fn params() -> Result<()> {
 
     let input = [1.to_bytes32(), 2.to_bytes32()].concat();
     let info = EVM::run(&bytecode, &input);
+    tracing::trace!("info: {:?}", info);
+
     assert_eq!(info.ret, 3.to_bytes32());
     Ok(())
 }
