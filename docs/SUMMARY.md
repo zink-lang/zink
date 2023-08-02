@@ -9,6 +9,7 @@
   - [elko](./cli/elko.md)
 - [Compiler](./compiler/README.md)
   - [Arithmetic](./compiler/arithmetic.md)
+  - [Calls](./compiler/calls.md)
   - [Locals](./compiler/locals.md)
   - [Recursion](./compiler/recursion.md)
 - [Stability](./stability.md)

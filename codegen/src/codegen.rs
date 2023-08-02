@@ -36,14 +36,24 @@ impl CodeGen {
             params_count = env.params().len() as u8;
         }
 
-        Ok(Self {
+        let mut codegen = Self {
             control: ControlStack::default(),
             env,
             locals: Default::default(),
-            masm: MacroAssembler::new(is_main, params_count)?,
+            masm: Default::default(),
             table: Default::default(),
             is_main,
-        })
+        };
+
+        // post process
+        if !is_main {
+            // STACK: PC + [..params]
+            codegen.masm.increment_sp(params_count + 1)?;
+            codegen.masm._jumpdest()?;
+            codegen.masm.shift_pc(params_count, true)?;
+        }
+
+        Ok(codegen)
     }
 
     /// Emit function locals
@@ -60,8 +70,15 @@ impl CodeGen {
     ) -> Result<()> {
         // Define locals in function parameters.
         for param in self.env.params() {
+            let sp = if self.is_main {
+                None
+            } else {
+                self.masm.increment_sp(1)?;
+                Some(self.masm.sp() as usize)
+            };
+
             self.locals
-                .push(LocalSlot::new(*param, LocalSlotType::Parameter));
+                .push(LocalSlot::new(*param, LocalSlotType::Parameter, sp));
         }
 
         // Define locals in function body.
@@ -71,7 +88,7 @@ impl CodeGen {
             let validation_offset = locals.original_position();
             for _ in 0..count {
                 self.locals
-                    .push(LocalSlot::new(val, LocalSlotType::Variable));
+                    .push(LocalSlot::new(val, LocalSlotType::Variable, None));
                 self.masm.increment_mp(val.align())?;
             }
 
@@ -79,7 +96,6 @@ impl CodeGen {
         }
 
         tracing::debug!("{:?}", self.locals);
-
         Ok(())
     }
 

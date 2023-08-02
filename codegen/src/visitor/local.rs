@@ -1,44 +1,16 @@
 //! Local instructions
 
-use crate::{CodeGen, Result};
+use crate::{CodeGen, Error, Result};
 use smallvec::SmallVec;
 
 impl CodeGen {
     /// This instruction gets the value of a variable.
     pub fn _local_get(&mut self, local_index: u32) -> Result<()> {
-        // let local_index = if self.is_main {
-        //     local_index as usize
-        // } else {
-        //     (local_index as usize) + self.env.params().len() - 1
-        // };
-        //
-        // let offset = self.locals.offset_of(local_index)?;
-        // self.masm.push(&offset)?;
-        //
-        // if self.is_main && local_index < self.env.params().len() {
-        //     self.masm._calldataload()?;
-        // } else {
-        //     self.masm._mload()?;
-        // }
-        //
-        // Ok(())
-        if !self.is_main {
-            return Ok(());
-        }
-
-        let local_index = local_index as usize;
-        let offset = self.locals.offset_of(local_index)?;
-        self.masm.push(&offset)?;
-
-        if local_index < self.env.params().len() {
-            // Get function parameters
-            self.masm._calldataload()?;
+        if self.is_main {
+            self._local_get_main(local_index)
         } else {
-            // Get local variables
-            self.masm._mload()?;
+            self._local_get_callee(local_index)
         }
-
-        Ok(())
     }
 
     /// This instruction sets the value of a variable.
@@ -67,5 +39,33 @@ impl CodeGen {
     /// This instruction sets the value of a variable.
     pub fn _global_set(&mut self, _: u32) -> Result<()> {
         todo!()
+    }
+
+    /// Local get for main function
+    fn _local_get_main(&mut self, local_index: u32) -> Result<()> {
+        let local_index = local_index as usize;
+        let offset = self.locals.offset_of(local_index)?;
+        self.masm.push(&offset)?;
+
+        if local_index < self.env.params().len() {
+            // Get function parameters
+            self.masm._calldataload()?;
+        } else {
+            // TODO: use stack instead of memory (#56)
+
+            // Get local variables
+            self.masm._mload()?;
+        }
+
+        Ok(())
+    }
+
+    /// Local get for callee function
+    fn _local_get_callee(&mut self, local_index: u32) -> Result<()> {
+        if local_index + 1 > self.locals.len() {
+            return Err(Error::InvalidLocalIndex(local_index as usize));
+        }
+
+        Ok(())
     }
 }

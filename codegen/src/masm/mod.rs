@@ -15,6 +15,7 @@ mod memory;
 mod stack;
 
 /// EVM MacroAssembler.
+#[derive(Default)]
 pub struct MacroAssembler {
     /// Low level assembler.
     pub(crate) asm: Assembler,
@@ -35,32 +36,12 @@ impl DerefMut for MacroAssembler {
 }
 
 impl MacroAssembler {
-    /// New macro assembler.
-    pub fn new(is_main: bool, params_count: u8) -> Result<Self> {
-        // Build the low level assembler
-        let asm = if is_main {
-            Assembler::new(0)
-        } else {
-            // STACK: PC + [..params]
-            Assembler::new(params_count + 1)
-        };
-
-        // Build the macro assembler
-        let mut masm = Self { asm };
-        if !is_main {
-            masm._jumpdest()?;
-            masm.shift_pc(params_count, true)?;
-        }
-
-        Ok(masm)
-    }
-
     /// Store data in memory with at current memory byte pointer.
     pub fn memory_write(&mut self, ty: impl Type) -> Result<usize> {
         let offset = self.mp.to_ls_bytes();
 
         // mock the memory usages.
-        let size = ty.size();
+        let size = ty.align();
         self.increment_mp(size)?;
 
         // write memory
@@ -134,6 +115,11 @@ impl MacroAssembler {
         F: Fn(usize) -> Result<usize>,
     {
         Ok(f(self.mp)?.to_ls_bytes())
+    }
+
+    /// Get the stack pointer.
+    pub fn sp(&self) -> u8 {
+        self.asm.sp
     }
 
     /// Swap memory by target index.

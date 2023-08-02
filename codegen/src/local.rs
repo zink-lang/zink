@@ -26,12 +26,15 @@ pub struct LocalSlot {
     inner: ValType,
     /// The type of this local slot.
     ty: LocalSlotType,
+
+    /// Stack pointer of the local slot.
+    pub sp: Option<usize>,
 }
 
 impl LocalSlot {
     /// Create a new local slot.
-    pub fn new(inner: ValType, ty: LocalSlotType) -> Self {
-        Self { inner, ty }
+    pub fn new(inner: ValType, ty: LocalSlotType, sp: Option<usize>) -> Self {
+        Self { inner, ty, sp }
     }
 
     /// Get the type of this local slot.
@@ -66,6 +69,13 @@ impl Locals {
             .ok_or_else(|| Error::InvalidLocalIndex(index))
     }
 
+    /// Get mutate local from index.
+    pub fn get_mut(&mut self, index: usize) -> Result<&mut LocalSlot> {
+        self.inner
+            .get_mut(index)
+            .ok_or_else(|| Error::InvalidLocalIndex(index))
+    }
+
     /// Get the lower significant bytes of the byte offset of a local.
     ///
     /// - **Parameter**: If the local is a parameter, the offset is relative to the offset
@@ -92,5 +102,10 @@ impl Locals {
     /// Push a local slot.
     pub fn push(&mut self, slot: impl Into<LocalSlot>) {
         self.inner.push(slot.into())
+    }
+
+    /// Get the length of locals
+    pub fn len(&self) -> u32 {
+        self.inner.len() as u32
     }
 }
