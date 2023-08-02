@@ -14,11 +14,25 @@ impl CodeGen {
     }
 
     /// This instruction sets the value of a variable.
-    pub fn _local_set(&mut self, index: u32) -> Result<()> {
-        let index = index as usize;
+    pub fn _local_set(&mut self, local_index: u32) -> Result<()> {
+        let index = local_index as usize;
+        let sp = self.masm.sp();
+        let local = self.locals.get_mut(index)?;
+        let local_sp = if let Some(sp) = local.sp {
+            sp as u8
+        } else {
+            local.sp = Some(sp as usize);
+            return Ok(());
+        };
 
-        // Override the stack pointer of the local
-        self.locals.get_mut(index)?.sp = Some(self.masm.sp() as usize);
+        tracing::debug!("local_set: {} {} {}", index, sp, local_sp);
+        if sp == local_sp {
+            return Ok(());
+        }
+
+        self.masm.swap(sp - local_sp)?;
+        self.masm._drop()?;
+
         Ok(())
     }
 
@@ -58,12 +72,13 @@ impl CodeGen {
         let local_sp = local.sp.ok_or(Error::LocalNotOnStack(local_index))? as u8;
         let sp = self.masm.sp();
 
-        if local_sp == sp {
+        if local_sp == sp || local_sp + 1 == sp {
             return Ok(());
         }
 
+        tracing::trace!("local_get: {} {} {}", local_index, sp, local_sp);
         // TODO: Arthmetic checks
-        self.masm.swap(sp - local_sp)?;
-        self.locals.shift_sp(local_index, sp as usize)
+        self.masm.dup(sp - local_sp)?;
+        Ok(())
     }
 }

@@ -83,16 +83,21 @@ impl CodeGen {
         // Record the offset for validation.
         let mut pc = self.env.params().len();
         while let Ok((count, val)) = locals.read() {
-            let sp = {
-                self.masm.increment_sp(1)?;
-                pc += 1;
+            let sp = if self.is_main {
+                None
+            } else {
+                self.masm.increment_sp(count as u8)?;
+                pc += count as usize;
                 Some(pc)
             };
 
             let validation_offset = locals.original_position();
-            for _ in 0..count {
-                self.locals
-                    .push(LocalSlot::new(val, LocalSlotType::Variable, sp));
+            for offset in (0..count).rev() {
+                self.locals.push(LocalSlot::new(
+                    val,
+                    LocalSlotType::Variable,
+                    sp.map(|sp| sp - offset as usize),
+                ));
                 self.masm.increment_mp(val.align())?;
             }
 

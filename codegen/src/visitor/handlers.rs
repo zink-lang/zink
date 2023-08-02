@@ -35,8 +35,21 @@ impl CodeGen {
         let results = self.env.results();
         tracing::debug!("handle call return: {:?}", results);
 
+        let len = results.len() as u8;
+        let sp = self.masm.sp();
+        for i in 0..len {
+            // TODO: arthmetic overflow.
+            //
+            // 2 is for PC & self.
+            self.masm.swap(sp - i - 2)?;
+        }
+
+        while self.masm.sp() > len + 1 {
+            self.masm._drop()?;
+        }
+
         // TODO: handle the length of results > u8::MAX.
-        self.masm.shift_pc(results.len() as u8, false)?;
+        self.masm.shift_pc(len, false)?;
         self.masm.push(&[0x04])?;
         self.masm._add()?;
         self.masm._jump()?;
