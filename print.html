@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cli/elko.html"><strong aria-hidden="true">4.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="compiler/locals.html"><strong aria-hidden="true">5.1.</strong> Locals</a></li></ol></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cli/elko.html"><strong aria-hidden="true">4.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="compiler/arithmetic.html"><strong aria-hidden="true">5.1.</strong> Arithmetic</a></li><li class="chapter-item expanded "><a href="compiler/calls.html"><strong aria-hidden="true">5.2.</strong> Calls</a></li><li class="chapter-item expanded "><a href="compiler/locals.html"><strong aria-hidden="true">5.3.</strong> Locals</a></li><li class="chapter-item expanded "><a href="compiler/recursion.html"><strong aria-hidden="true">5.4.</strong> Recursion</a></li></ol></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -282,6 +282,23 @@ Options:
   -V, --version     Print version
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="compiler"><a class="header" href="#compiler">Compiler</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="arithmetic"><a class="header" href="#arithmetic">Arithmetic</a></h1>
+<p>The arithmetic operators are different between WASM and EVM bytecode:</p>
+<div class="table-wrapper"><table><thead><tr><th>INPUT</th><th>WASM</th><th>STACK</th><th>EVM</th><th>STACK</th></tr></thead><tbody>
+<tr><td><code>a + b</code></td><td>i32.add</td><td><code>a</code> <code>b</code></td><td>ADD</td><td><code>a</code> <code>b</code></td></tr>
+<tr><td><code>a - b</code></td><td>i32.sub</td><td><code>a</code> <code>b</code></td><td>SUB</td><td><code>b</code> <code>a</code></td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="calls"><a class="header" href="#calls">Calls</a></h1>
+<blockquote>
+<p>TODO: move this chapter to locals.</p>
+</blockquote>
+<p>The function calls are compiled by order in zink, the first call
+in order (index 0) will be the main function ( to be updated ).</p>
+<p>For passing params to callee functions, zink will store the arguemnts
+to memory as locals and pass the memory pointer to the callee functions
+while compiling, for example:</p>
+<pre><code>I'm example
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="locals"><a class="header" href="#locals">Locals</a></h1>
 <p>There are two usages of locals in zink.</p>
 <ol>
@@ -331,6 +348,11 @@ serialize them into our locals and calcualte the offsets on our own when need an
 </div>
 <p>It is a waste of resources but sadly this is also how EVM works ))</p>
 <h2 id="local-variables"><a class="header" href="#local-variables">Local Variables</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="recursion"><a class="header" href="#recursion">Recursion</a></h1>
+<p>The main function of zink project doesn’t support recursion for now :)</p>
+<p>The callee functions support, for example:</p>
+<pre><code>I'm example.
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="stability"><a class="header" href="#stability">Stability</a></h1>
 <blockquote>
 <p>This project is still under development, please DO NOT use it in production.</p>

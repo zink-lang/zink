@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/masm/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0-nightly (8771282d4 2023-07-23)" data-channel="nightly" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-6d2c9675f3d09c26.css" data-theme-dark-css="dark-45ceb8f2e522f4d1.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-6d2c9675f3d09c26.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-45ceb8f2e522f4d1.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../zingen/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/masm/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0-nightly (d12c6e947 2023-08-01)" data-channel="nightly" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-6d2c9675f3d09c26.css" data-theme-dark-css="dark-45ceb8f2e522f4d1.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-6d2c9675f3d09c26.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-45ceb8f2e522f4d1.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../zingen/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -198,6 +198,16 @@
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! MacroAssembler used by the code generation.
 
 </span><span class="kw">use crate</span>::{
@@ -215,6 +225,7 @@
 <span class="kw">mod </span>stack;
 
 <span class="doccomment">/// EVM MacroAssembler.
+</span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>MacroAssembler {
     <span class="doccomment">/// Low level assembler.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) asm: Assembler,
@@ -235,32 +246,12 @@
 }
 
 <span class="kw">impl </span>MacroAssembler {
-    <span class="doccomment">/// New macro assembler.
-    </span><span class="kw">pub fn </span>new(is_main: bool, params_count: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="comment">// Build the low level assembler
-        </span><span class="kw">let </span>asm = <span class="kw">if </span>is_main {
-            Assembler::new(<span class="number">0</span>)
-        } <span class="kw">else </span>{
-            <span class="comment">// STACK: PC + [..params]
-            </span>Assembler::new(params_count + <span class="number">1</span>)
-        };
-
-        <span class="comment">// Build the macro assembler
-        </span><span class="kw">let </span><span class="kw-2">mut </span>masm = <span class="self">Self </span>{ asm };
-        <span class="kw">if </span>!is_main {
-            masm._jumpdest()<span class="question-mark">?</span>;
-            masm.shift_pc(params_count, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(masm)
-    }
-
     <span class="doccomment">/// Store data in memory with at current memory byte pointer.
     </span><span class="kw">pub fn </span>memory_write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw">impl </span>Type) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="kw">let </span>offset = <span class="self">self</span>.mp.to_ls_bytes();
 
         <span class="comment">// mock the memory usages.
-        </span><span class="kw">let </span>size = ty.size();
+        </span><span class="kw">let </span>size = ty.align();
         <span class="self">self</span>.increment_mp(size)<span class="question-mark">?</span>;
 
         <span class="comment">// write memory
@@ -336,6 +327,11 @@
         <span class="prelude-val">Ok</span>(f(<span class="self">self</span>.mp)<span class="question-mark">?</span>.to_ls_bytes())
     }
 
+    <span class="doccomment">/// Get the stack pointer.
+    </span><span class="kw">pub fn </span>sp(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.asm.sp
+    }
+
     <span class="doccomment">/// Swap memory by target index.
     </span><span class="kw">pub fn </span>swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">match </span>index {
@@ -360,6 +356,30 @@
         }
     }
 
+    <span class="doccomment">/// Duplicate stack item by target index.
+    </span><span class="kw">pub fn </span>dup(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">match </span>index {
+            <span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="number">1 </span>=&gt; <span class="self">self</span>.asm._dup1(),
+            <span class="number">2 </span>=&gt; <span class="self">self</span>.asm._dup2(),
+            <span class="number">3 </span>=&gt; <span class="self">self</span>.asm._dup3(),
+            <span class="number">4 </span>=&gt; <span class="self">self</span>.asm._dup4(),
+            <span class="number">5 </span>=&gt; <span class="self">self</span>.asm._dup5(),
+            <span class="number">6 </span>=&gt; <span class="self">self</span>.asm._dup6(),
+            <span class="number">7 </span>=&gt; <span class="self">self</span>.asm._dup7(),
+            <span class="number">8 </span>=&gt; <span class="self">self</span>.asm._dup8(),
+            <span class="number">9 </span>=&gt; <span class="self">self</span>.asm._dup9(),
+            <span class="number">10 </span>=&gt; <span class="self">self</span>.asm._dup10(),
+            <span class="number">11 </span>=&gt; <span class="self">self</span>.asm._dup11(),
+            <span class="number">12 </span>=&gt; <span class="self">self</span>.asm._dup12(),
+            <span class="number">13 </span>=&gt; <span class="self">self</span>.asm._dup13(),
+            <span class="number">14 </span>=&gt; <span class="self">self</span>.asm._dup14(),
+            <span class="number">15 </span>=&gt; <span class="self">self</span>.asm._dup15(),
+            <span class="number">16 </span>=&gt; <span class="self">self</span>.asm._dup16(),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::StackIndexOutOfRange(index)),
+        }
+    }
+
     <span class="doccomment">/// Shift the program counter to the bottom or the top of the
     /// parameters. This is used by the callee function for jumping
     /// back to the caller function.
@@ -371,7 +391,7 @@
                 <span class="kw">return </span><span class="self">self</span>.shift_pc(count - <span class="number">1</span>, from_top);
             }
         } <span class="kw">else </span>{
-            <span class="comment">// TODO: Optimize the shift logic when params lg 2.
+            <span class="comment">// TODO: Optimize the shift logic when params lt 2.
             //
             // 3 means two swaps, base gas cost is 6, which means
             // using DUP will be cheaper: DUPN + POP = 3 + 2 = 5

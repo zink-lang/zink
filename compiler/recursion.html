@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Compiling Zink Project - The Zink Project</title>
+        <title>Recursion - The Zink Project</title>
 
 
         <!-- Custom HTML head -->
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="../tutorial/compile-zink-project.html" class="active"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="../examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="../cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../cli/elko.html"><strong aria-hidden="true">4.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="../compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../compiler/arithmetic.html"><strong aria-hidden="true">5.1.</strong> Arithmetic</a></li><li class="chapter-item expanded "><a href="../compiler/calls.html"><strong aria-hidden="true">5.2.</strong> Calls</a></li><li class="chapter-item expanded "><a href="../compiler/locals.html"><strong aria-hidden="true">5.3.</strong> Locals</a></li><li class="chapter-item expanded "><a href="../compiler/recursion.html"><strong aria-hidden="true">5.4.</strong> Recursion</a></li></ol></li><li class="chapter-item expanded "><a href="../stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="../security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="../benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="../contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="../appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="../tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="../examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="../cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../cli/elko.html"><strong aria-hidden="true">4.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="../compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../compiler/arithmetic.html"><strong aria-hidden="true">5.1.</strong> Arithmetic</a></li><li class="chapter-item expanded "><a href="../compiler/calls.html"><strong aria-hidden="true">5.2.</strong> Calls</a></li><li class="chapter-item expanded "><a href="../compiler/locals.html"><strong aria-hidden="true">5.3.</strong> Locals</a></li><li class="chapter-item expanded "><a href="../compiler/recursion.html" class="active"><strong aria-hidden="true">5.4.</strong> Recursion</a></li></ol></li><li class="chapter-item expanded "><a href="../stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="../security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="../benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="../contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="../appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -169,53 +169,21 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="compiling-zink-project"><a class="header" href="#compiling-zink-project">Compiling Zink Project</a></h1>
-<p>We have got a zink project after <a href="/tutorial/create-zink-project.html">creating-zink-project</a>, now it’s time to compile 
-it to EVM bytecode!</p>
-<pre><code class="language-bash"># Enter our project
-cd my-awesome-project
-
-# Build the project
-elko build
-
-# Check the outputs
-ls target/zink
-my-awesome-project.wasm my-awesome-project.bin
+                        <h1 id="recursion"><a class="header" href="#recursion">Recursion</a></h1>
+<p>The main function of zink project doesn’t support recursion for now :)</p>
+<p>The callee functions support, for example:</p>
+<pre><code>I'm example.
 </code></pre>
-<p>you’ll see a <code>my-awesome-project.bin</code> file under <code>target/zink</code>, and that’s it!</p>
-<h2 id="how-it-works"><a class="header" href="#how-it-works">How it works?</a></h2>
-<p>But what’s the inner logic of <code>elko build</code>?</p>
-<p>first, <code>elko</code> compiles the cargo project to WASM with:</p>
-<pre><code class="language-bash">cargo b --target wasm32-unknown-unknown --release
-</code></pre>
-<p>then, there will be some logic inside <code>elko</code>, running <code>wasm-opt</code> for our output
-WASM binary</p>
-<pre><code class="language-bash"># if you have wasm-opt installed on your machine, you can try the same
-mkdir -p target/zink
-wasm-opt -O4 target/wasm32-unknown/unknown/release/my-awesome-project.wasm -o target/zink/my-awesome-project.wasm
-</code></pre>
-<p>finally we use <code>zinkc</code> to compile the wasm to EVM bytecode:</p>
-<pre><code class="language-bash"># For reproducing it in your command line
-zinkc target/zink/my-awesome-project.wasm
-mv my-awesome-project.bin target/zink
-</code></pre>
-<h2 id="future-plans-todo"><a class="header" href="#future-plans-todo">Future plans (TODO)</a></h2>
-<ol>
-<li>Generate the ABI as well.</li>
-<li>Add command for deploying the bytecode to EVM chain with RPC endpoints.</li>
-<li>Test suite</li>
-<li>…</li>
-</ol>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../tutorial/create-zink-project.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../compiler/locals.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="../examples.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../stability.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -225,11 +193,11 @@ mv my-awesome-project.bin target/zink
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../tutorial/create-zink-project.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../compiler/locals.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="../examples.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../stability.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
