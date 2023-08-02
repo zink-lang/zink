@@ -52,7 +52,7 @@ impl CodeGen {
             self.masm._calldataload()?;
         } else {
             // TODO: use stack instead of memory (#56)
-
+            //
             // Get local variables
             self.masm._mload()?;
         }
@@ -62,8 +62,20 @@ impl CodeGen {
 
     /// Local get for callee function
     fn _local_get_callee(&mut self, local_index: u32) -> Result<()> {
+        let local_index = local_index as usize;
         if local_index + 1 > self.locals.len() {
-            return Err(Error::InvalidLocalIndex(local_index as usize));
+            return Err(Error::InvalidLocalIndex(local_index));
+        }
+
+        let local = self.locals.get_mut(local_index)?;
+        let expected_sp = {
+            // preserved stack: [PC, self]
+            local_index + 1
+        };
+
+        if local.sp != Some(expected_sp) {
+            // TODO: SWAP locals
+            unimplemented!("swap locals on stack")
         }
 
         Ok(())

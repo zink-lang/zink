@@ -105,7 +105,7 @@ impl Locals {
     }
 
     /// Get the length of locals
-    pub fn len(&self) -> u32 {
-        self.inner.len() as u32
+    pub fn len(&self) -> usize {
+        self.inner.len()
     }
 }

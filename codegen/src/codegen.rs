@@ -45,10 +45,12 @@ impl CodeGen {
             is_main,
         };
 
-        // post process
+        // post process program counter and stack pointer.
         if !is_main {
-            // STACK: PC + [..params]
-            codegen.masm.increment_sp(params_count + 1)?;
+            // Mock the stack frame for the callee function
+            //
+            // STACK: PC
+            codegen.masm.increment_sp(1 + params_count)?;
             codegen.masm._jumpdest()?;
             codegen.masm.shift_pc(params_count, true)?;
         }
@@ -69,12 +71,13 @@ impl CodeGen {
         validator: &mut FuncValidator<ValidatorResources>,
     ) -> Result<()> {
         // Define locals in function parameters.
-        for param in self.env.params() {
+        for (idx, param) in self.env.params().iter().enumerate() {
             let sp = if self.is_main {
                 None
             } else {
                 self.masm.increment_sp(1)?;
-                Some(self.masm.sp() as usize)
+                // param index + PC
+                Some(idx + 1)
             };
 
             self.locals
@@ -85,10 +88,15 @@ impl CodeGen {
         //
         // Record the offset for validation.
         while let Ok((count, val)) = locals.read() {
+            let sp = {
+                self.masm.increment_sp(1)?;
+                Some(self.masm.sp() as usize)
+            };
+
             let validation_offset = locals.original_position();
             for _ in 0..count {
                 self.locals
-                    .push(LocalSlot::new(val, LocalSlotType::Variable, None));
+                    .push(LocalSlot::new(val, LocalSlotType::Variable, sp));
                 self.masm.increment_mp(val.align())?;
             }
 
