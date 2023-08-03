@@ -8,7 +8,9 @@ impl MacroAssembler {
     ///
     /// TODO: refactor this.
     pub fn _ge(&mut self) -> Result<()> {
-        self._sgt()
+        self.push(&[1])?;
+        self._sub()?;
+        self._lt()
     }
 
     /// Greater than comparison.
