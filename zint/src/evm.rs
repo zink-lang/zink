@@ -4,7 +4,7 @@ pub use revm_interpreter::instruction_result::InstructionResult;
 use revm_interpreter::{Contract, DummyHost, Interpreter};
 use revm_primitives::{bytecode::Bytecode, specification::ShanghaiSpec, U256};
 
-const INITIAL_GAS: u64 = 1_000_000_000_000_000;
+const INITIAL_GAS: u64 = 1_000_000_000;
 
 /// EVM execution result info.
 #[derive(Debug)]
