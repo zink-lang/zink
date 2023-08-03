@@ -1,12 +1,11 @@
 //! Code generation implementation.
 use crate::{
-    abi::Type,
     control::ControlStack,
     jump::JumpTable,
     local::{LocalSlot, LocalSlotType, Locals},
     masm::MacroAssembler,
     validator::ValidateThenVisit,
-    Buffer, Result,
+    Buffer, Error, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
@@ -49,7 +48,7 @@ impl CodeGen {
         if !is_main {
             // Mock the stack frame for the callee function
             //
-            // STACK: PC
+            // STACK: PC + params
             codegen.masm.increment_sp(1 + params_count)?;
             codegen.masm._jumpdest()?;
             codegen.masm.shift_pc(params_count, true)?;
@@ -70,30 +69,29 @@ impl CodeGen {
         locals: &mut LocalsReader<'_>,
         validator: &mut FuncValidator<ValidatorResources>,
     ) -> Result<()> {
-        // Define locals in function parameters.
-        for (idx, param) in self.env.params().iter().enumerate() {
-            let sp = if self.is_main { None } else { Some(idx + 1) };
+        let mut sp = if self.is_main { 0 } else { 1 };
 
+        // Define locals in function parameters.
+        for param in self.env.params() {
             self.locals
                 .push(LocalSlot::new(*param, LocalSlotType::Parameter, sp));
+            sp += 1;
         }
 
         // Define locals in function body.
         //
         // Record the offset for validation.
-        let mut pc = self.env.params().len();
         while let Ok((count, val)) = locals.read() {
-            let sp = {
-                self.masm.increment_sp(1)?;
-                pc += 1;
-                Some(pc)
-            };
-
             let validation_offset = locals.original_position();
             for _ in 0..count {
+                // Init locals with zero.
+                self.masm.push(&[0])?;
+
+                // Define locals.
                 self.locals
                     .push(LocalSlot::new(val, LocalSlotType::Variable, sp));
-                self.masm.increment_mp(val.align())?;
+
+                sp += 1;
             }
 
             validator.define_locals(validation_offset, count, val)?;
@@ -120,6 +118,11 @@ impl CodeGen {
 
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
+        let sp = self.masm.sp();
+        if !self.is_main && self.masm.sp() != self.env.results().len() as u8 {
+            return Err(Error::StackNotBalanced(sp));
+        }
+
         jump_table.merge(self.table, pc)?;
         Ok(self.masm.buffer().into())
     }

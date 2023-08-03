@@ -10,20 +10,20 @@
     i32.ge_u
     if  ;; label = @1
       loop  ;; label = @2
-        local.get 0
-        i32.const 1
-        i32.sub
-        call 1
-        local.get 1
-        i32.add
-        local.set 1
-        local.get 0
-        i32.const 2
-        i32.sub
-        local.tee 0
-        i32.const 1
-        i32.gt_u
-        br_if 0 (;@2;)
+        local.get 0    ;; 1
+        i32.const 1    ;; 2
+        i32.sub        ;; 1
+        call 1         ;; 1
+        local.get 1    ;; 2
+        i32.add        ;; 1
+        local.set 1    ;; 0
+        local.get 0    ;; 1
+        i32.const 2    ;; 2
+        i32.sub        ;; 1
+        local.tee 0    ;; 1
+        i32.const 1    ;; 2
+        i32.gt_u       ;; 1
+        br_if 0 (;@2;) ;; 2 -> 0
       end
     end
     local.get 0

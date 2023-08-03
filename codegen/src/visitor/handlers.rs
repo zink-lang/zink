@@ -1,6 +1,6 @@
 //! Case handlers
 
-use crate::{CodeGen, Error, Result, ToLSBytes};
+use crate::{CodeGen, ControlStackFrame, ControlStackFrameType, Error, Result, ToLSBytes};
 
 impl CodeGen {
     pub(crate) fn handle_empty_return(&mut self) -> Result<()> {
@@ -35,13 +35,42 @@ impl CodeGen {
         let results = self.env.results();
         tracing::debug!("handle call return: {:?}", results);
 
+        let len = results.len() as u8;
+        let sp = self.masm.sp();
+        for i in 0..len {
+            // TODO: arthmetic overflow.
+            //
+            // 2 is for PC & self.
+            self.masm.swap(sp - i - 2)?;
+        }
+
+        tracing::debug!("cleaning frame stack, target: {}", len + 1);
+        while self.masm.sp() > len + 1 {
+            self.masm._drop()?;
+        }
+
         // TODO: handle the length of results > u8::MAX.
-        self.masm.shift_pc(results.len() as u8, false)?;
+        self.masm.shift_pc(len, false)?;
         self.masm.push(&[0x04])?;
         self.masm._add()?;
         self.masm._jump()?;
 
         Ok(())
+    }
+
+    /// Handle the popping of a frame.
+    ///
+    /// TODO: validate stack IO for all frames (#59)
+    pub(crate) fn handle_frame_popping(&mut self, frame: ControlStackFrame) -> Result<()> {
+        match frame.ty {
+            ControlStackFrameType::If(true) => {
+                // TODO: fix this for nested if-else.
+                self.handle_return()
+            }
+            ControlStackFrameType::Block => self.masm._jumpdest(),
+            ControlStackFrameType::Loop => Ok(()),
+            _ => self.handle_jumpdest(frame.original_pc_offset),
+        }
     }
 
     /// Handle jumpdest.

@@ -201,7 +201,7 @@ impl<'a> VisitOperator<'a> for CodeGen {
         ],
         signed_and_float: [add, sub, mul, eq, ne],
         map: {
-            all: [ge => sgt, le => slt],
+            all: [ge => ge, le => slt],
             integer: [rem => mod],
         },
         mem: {

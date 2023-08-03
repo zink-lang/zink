@@ -68,13 +68,8 @@ fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16, offset: u16) -> Res
         new_buffer.push(OpCode::PUSH2.into());
     }
 
-    tracing::debug!(
-        "run pc relocation: 0x{:x} -> 0x{:x}",
-        original_pc,
-        target_pc
-    );
     let pc_offset = target_pc.to_ls_bytes();
-    tracing::debug!("push bytes: {:x?} at {}", pc_offset, original_pc);
+    tracing::debug!("push bytes: 0x{:x?} at 0x{:x}", pc_offset, original_pc);
     new_buffer.extend_from_slice(&pc_offset);
     new_buffer.extend_from_slice(&rest_buffer);
 

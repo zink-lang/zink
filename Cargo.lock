@@ -1716,4 +1716,5 @@ dependencies = [
  "hex",
  "revm-interpreter",
  "revm-primitives",
+ "tracing",
 ]

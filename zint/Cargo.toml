@@ -13,3 +13,4 @@ documentation = "https://docs.rs/ztime"
 hex.workspace = true
 revm-interpreter.workspace = true
 revm-primitives.workspace = true
+tracing.workspace = true

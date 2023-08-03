@@ -66,7 +66,7 @@ impl MacroAssembler {
 
     /// Place n bytes on stack.
     pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
-        tracing::trace!("push bytes: {:?}", bytes);
+        tracing::trace!("push bytes: 0x{:x?}", bytes);
         let len = bytes.len();
         match len {
             0 => self.asm._push0(),
@@ -174,11 +174,13 @@ impl MacroAssembler {
     /// parameters. This is used by the callee function for jumping
     /// back to the caller function.
     pub fn shift_pc(&mut self, count: u8, from_top: bool) -> Result<()> {
-        self.swap(count)?;
+        let mut swaps = 0;
 
         if from_top {
-            if count > 1 {
-                return self.shift_pc(count - 1, from_top);
+            swaps = count;
+            while swaps > 0 {
+                self.swap(swaps)?;
+                swaps -= 1;
             }
         } else {
             // TODO: Optimize the shift logic when params lt 2.
@@ -188,8 +190,9 @@ impl MacroAssembler {
             // in total.
             //
             // if count > 2 {}
-            if count > 0 {
-                return self.shift_pc(count - 1, from_top);
+            while swaps < count {
+                swaps += 1;
+                self.swap(swaps)?;
             }
         }
 

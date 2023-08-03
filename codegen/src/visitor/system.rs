@@ -23,10 +23,9 @@ impl CodeGen {
         // register the call index to the jump table.
         self.table.call(self.masm.pc_offset(), function_index)?;
 
-        // mock the stack output of the counter
+        // jump to the callee function
         //
-        // the program counter operators should be relocated afterwards.
-        self.masm.asm.increment_sp(1)?;
+        // TODO: check the stack output.
         self.masm._jump()?;
         self.masm._jumpdest()?;
         Ok(())

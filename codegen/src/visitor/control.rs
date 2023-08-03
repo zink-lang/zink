@@ -13,6 +13,7 @@ impl CodeGen {
         let frame = ControlStackFrame::new(
             ControlStackFrameType::If(false),
             self.masm.pc_offset(),
+            self.masm.sp(),
             blockty,
         );
         self.control.push(frame);
@@ -29,8 +30,12 @@ impl CodeGen {
     /// The begeinning of a block construct. A sequence of
     /// instructions with a label at the end.
     pub fn _block(&mut self, blockty: BlockType) -> Result<()> {
-        let frame =
-            ControlStackFrame::new(ControlStackFrameType::Block, self.masm.pc_offset(), blockty);
+        let frame = ControlStackFrame::new(
+            ControlStackFrameType::Block,
+            self.masm.pc_offset(),
+            self.masm.sp(),
+            blockty,
+        );
         self.masm._jumpdest()?;
         self.control.push(frame);
 
@@ -40,10 +45,16 @@ impl CodeGen {
     /// A block with a label which may be used to
     /// form loops.
     pub fn _loop(&mut self, blockty: BlockType) -> Result<()> {
-        let frame =
-            ControlStackFrame::new(ControlStackFrameType::Loop, self.masm.pc_offset(), blockty);
+        let frame = ControlStackFrame::new(
+            ControlStackFrameType::Loop,
+            self.masm.pc_offset(),
+            self.masm.sp(),
+            blockty,
+        );
 
+        self.masm._jumpdest()?;
         self.control.push(frame);
+
         Ok(())
     }
 
@@ -55,6 +66,7 @@ impl CodeGen {
         let frame = ControlStackFrame::new(
             ControlStackFrameType::Else,
             self.masm.pc_offset(),
+            self.masm.sp(),
             last_frame.result(),
         );
         self.control.push(frame);
@@ -111,17 +123,8 @@ impl CodeGen {
     /// - End of function.
     /// - End of program.
     pub fn _end(&mut self) -> Result<()> {
-        // If inside an if frame, pop the frame and patch
-        // the program counter.
         if let Ok(frame) = self.control.pop() {
-            match frame.ty {
-                ControlStackFrameType::If(true) => {
-                    // TODO: fix this for nested if-else.
-                    self.handle_return()
-                }
-                ControlStackFrameType::Block => self.masm._jumpdest(),
-                _ => self.handle_jumpdest(frame.original_pc_offset),
-            }
+            self.handle_frame_popping(frame)
         } else if !self.is_main {
             self.handle_call_return()
         } else {

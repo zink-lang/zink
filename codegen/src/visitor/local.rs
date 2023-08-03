@@ -14,17 +14,23 @@ impl CodeGen {
     }
 
     /// This instruction sets the value of a variable.
-    pub fn _local_set(&mut self, index: u32) -> Result<()> {
-        let index = index as usize;
+    pub fn _local_set(&mut self, local_index: u32) -> Result<()> {
+        let index = local_index as usize;
+        let sp = self.masm.sp();
+        let local = self.locals.get(index)?;
+        let local_sp = local.sp as u8;
 
-        // Override the stack pointer of the local
-        self.locals.get_mut(index)?.sp = Some(self.masm.sp() as usize);
+        tracing::debug!("local_set: {index} {local_sp} {sp}");
+        self.masm.swap(sp - local_sp - 1)?;
+        self.masm._drop()?;
+
         Ok(())
     }
 
     /// This _local_tee is like _local_set, but it also returns the value
-    /// on the stack, however, in our implementation, they are the same.
+    /// on the stack.
     pub fn _local_tee(&mut self, index: u32) -> Result<()> {
+        self.masm._dup1()?;
         self._local_set(index)?;
         Ok(())
     }
@@ -55,15 +61,12 @@ impl CodeGen {
         }
 
         let local = self.locals.get(local_index)?;
-        let local_sp = local.sp.ok_or(Error::LocalNotOnStack(local_index))? as u8;
+        let local_sp = local.sp as u8;
         let sp = self.masm.sp();
 
-        if local_sp == sp {
-            return Ok(());
-        }
-
+        tracing::debug!("local_get: {local_index} {local_sp} {sp}");
         // TODO: Arthmetic checks
-        self.masm.swap(sp - local_sp)?;
-        self.locals.shift_sp(local_index, sp as usize)
+        self.masm.dup(sp - local_sp)?;
+        Ok(())
     }
 }
