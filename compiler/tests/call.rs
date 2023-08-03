@@ -34,6 +34,12 @@ fn as_if() -> Result<()> {
     let info = EVM::run(&bytecode, &0.to_bytes32());
     assert_eq!(info.ret, 0.to_bytes32());
 
+    let info = EVM::run(&bytecode, &1.to_bytes32());
+    assert_eq!(info.ret, 1.to_bytes32());
+
+    let info = EVM::run(&bytecode, &2.to_bytes32());
+    assert_eq!(info.ret, 41.to_bytes32());
+
     let info = EVM::run(&bytecode, &3.to_bytes32());
     assert_eq!(info.ret, 42.to_bytes32());
     Ok(())

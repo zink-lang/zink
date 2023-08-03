@@ -4,13 +4,19 @@ use crate::{MacroAssembler, Result};
 use opcodes::ShangHai as OpCode;
 
 impl MacroAssembler {
-    // /// OVERRIDE: Greater than comparison.
-    // ///
-    // /// TODO:
-    // pub fn _sgt(&mut self) -> Result<()> {
-    //     self._swap1()?;
-    //     self.asm._sgt()
-    // }
+    /// Greater than or equal comparison.
+    ///
+    /// TODO: refactor this.
+    pub fn _ge(&mut self) -> Result<()> {
+        self._sgt()
+    }
+
+    /// Greater than comparison.
+    ///
+    /// Using lt due to order of stack.
+    pub fn _gt(&mut self) -> Result<()> {
+        self.asm._lt()
+    }
 
     /// Sign-agnostic compare unequal.
     pub fn _ne(&mut self) -> Result<()> {
