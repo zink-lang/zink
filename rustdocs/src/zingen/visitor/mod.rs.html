@@ -284,13 +284,6 @@
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
 <a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
-<a href="#288" id="288">288</a>
-<a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
-<a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module is the central place for machine code emission.
 //!
 //! It defines an implementation of wasmparser&#39;s Visitor trait for
@@ -346,14 +339,14 @@
     (@integer64 <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(, { $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">?</span>) =&gt; {
         <span class="macro">map_wasm_operators!</span>(@basic i64, <span class="macro-nonterminal">$wasm</span>, <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
     };
-    (@signed <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(, { $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">?</span>) =&gt; {
+    (@integer <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(, { $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">?</span>) =&gt; {
         <span class="macro">map_wasm_operators!</span>(@integer32 <span class="macro-nonterminal">$wasm</span>, <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
         <span class="macro">map_wasm_operators!</span>(@integer64 <span class="macro-nonterminal">$wasm</span>, <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
     };
-    (@integer <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(, { $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">?</span>) =&gt; {
+    (@xdr <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(, { $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">?</span>) =&gt; {
         <span class="macro">paste!</span>{
-            <span class="macro">map_wasm_operators!</span>(@signed [&lt; <span class="macro-nonterminal">$wasm </span>_s &gt;], <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
-            <span class="macro">map_wasm_operators!</span>(@signed [&lt; <span class="macro-nonterminal">$wasm </span>_u &gt;], <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
+            <span class="macro">map_wasm_operators!</span>(@integer [&lt; <span class="macro-nonterminal">$wasm </span>_s &gt;], <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
+            <span class="macro">map_wasm_operators!</span>(@integer [&lt; <span class="macro-nonterminal">$wasm </span>_u &gt;], <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
         }
     };
     (@float32 <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(, { $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">?</span>) =&gt; {
@@ -366,8 +359,8 @@
         <span class="macro">map_wasm_operators!</span>(@float32 <span class="macro-nonterminal">$wasm</span>, <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
         <span class="macro">map_wasm_operators!</span>(@float64 <span class="macro-nonterminal">$wasm</span>, <span class="macro-nonterminal">$evm </span>$(, { $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),* })<span class="question-mark">?</span>);
     };
-    (@signed_and_float <span class="macro-nonterminal">$op</span>:tt $(, { $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">?</span>) =&gt; {
-        <span class="macro">map_wasm_operators!</span>(@signed <span class="macro-nonterminal">$op</span>, <span class="macro-nonterminal">$op</span>);
+    (@integer_and_float <span class="macro-nonterminal">$op</span>:tt $(, { $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">?</span>) =&gt; {
+        <span class="macro">map_wasm_operators!</span>(@integer <span class="macro-nonterminal">$op</span>, <span class="macro-nonterminal">$op</span>);
         <span class="macro">map_wasm_operators!</span>(@float <span class="macro-nonterminal">$op</span>, <span class="macro-nonterminal">$op</span>);
     };
     (@field ($(<span class="macro-nonterminal">$field</span>:ident).<span class="kw-2">*</span>) <span class="macro-nonterminal">$op</span>:tt $(<span class="macro-nonterminal">$arg</span>:tt: <span class="macro-nonterminal">$argty</span>:ty),* ) =&gt; {
@@ -391,13 +384,12 @@
         }
     };
     (
+        all: [$(<span class="macro-nonterminal">$all</span>:tt),+],
         xdr: [$(<span class="macro-nonterminal">$xdr</span>:tt),+],
-        signed: [$(<span class="macro-nonterminal">$signed</span>:tt),+],
         integer: [$(<span class="macro-nonterminal">$integer</span>:tt),+],
+        integer_and_float: [$(<span class="macro-nonterminal">$op</span>:tt),+],
         float: [$(<span class="macro-nonterminal">$float</span>:tt),+],
-        signed_and_float: [$(<span class="macro-nonterminal">$op</span>:tt),+],
         map: {
-            all: [$(<span class="macro-nonterminal">$wasm</span>:tt =&gt; <span class="macro-nonterminal">$evm</span>:tt),+],
             integer: [$(<span class="macro-nonterminal">$map_int_wasm</span>:tt =&gt; <span class="macro-nonterminal">$map_int_evm</span>:tt),+],
         },
         mem: {
@@ -416,36 +408,31 @@
         }
     ) =&gt; {
         <span class="macro">paste! </span>{
-            $(<span class="macro">map_wasm_operators!</span>(@signed_and_float <span class="macro-nonterminal">$op</span>);)+
+            $(<span class="macro">map_wasm_operators!</span>(@integer_and_float <span class="macro-nonterminal">$op</span>);)+
 
             $(
-                <span class="macro">map_wasm_operators!</span>(@signed [&lt; <span class="macro-nonterminal">$xdr </span>_s &gt;], [&lt; s <span class="macro-nonterminal">$xdr </span>&gt;]);
-                <span class="macro">map_wasm_operators!</span>(@signed [&lt; <span class="macro-nonterminal">$xdr </span>_u &gt;], <span class="macro-nonterminal">$xdr</span>);
-                <span class="macro">map_wasm_operators!</span>(@float <span class="macro-nonterminal">$xdr</span>, <span class="macro-nonterminal">$xdr</span>);
+                <span class="macro">map_wasm_operators!</span>(@integer [&lt; <span class="macro-nonterminal">$all </span>_s &gt;], [&lt; s <span class="macro-nonterminal">$all </span>&gt;]);
+                <span class="macro">map_wasm_operators!</span>(@integer [&lt; <span class="macro-nonterminal">$all </span>_u &gt;], <span class="macro-nonterminal">$all</span>);
+                <span class="macro">map_wasm_operators!</span>(@float <span class="macro-nonterminal">$all</span>, <span class="macro-nonterminal">$all</span>);
             )+
 
-            $(<span class="macro">map_wasm_operators!</span>(@signed <span class="macro-nonterminal">$signed</span>, <span class="macro-nonterminal">$signed</span>);)+
             $(<span class="macro">map_wasm_operators!</span>(@integer <span class="macro-nonterminal">$integer</span>, <span class="macro-nonterminal">$integer</span>);)+
+            $(<span class="macro">map_wasm_operators!</span>(@xdr <span class="macro-nonterminal">$xdr</span>, <span class="macro-nonterminal">$xdr</span>);)+
             $(<span class="macro">map_wasm_operators!</span>(@float <span class="macro-nonterminal">$float</span>, <span class="macro-nonterminal">$float</span>);)+
 
             $(
-                <span class="macro">map_wasm_operators!</span>(@integer <span class="macro-nonterminal">$wasm</span>, <span class="macro-nonterminal">$evm</span>);
-                <span class="macro">map_wasm_operators!</span>(@float <span class="macro-nonterminal">$wasm</span>, <span class="macro-nonterminal">$evm</span>);
+                <span class="macro">map_wasm_operators!</span>(@integer [&lt; <span class="macro-nonterminal">$map_int_wasm </span>_s &gt;], [&lt; s <span class="macro-nonterminal">$map_int_evm </span>&gt;]);
+                <span class="macro">map_wasm_operators!</span>(@integer [&lt; <span class="macro-nonterminal">$map_int_wasm </span>_u &gt;], <span class="macro-nonterminal">$map_int_evm</span>);
             )+
 
             $(
-                <span class="macro">map_wasm_operators!</span>(@signed [&lt; <span class="macro-nonterminal">$map_int_wasm </span>_s &gt;], [&lt; s <span class="macro-nonterminal">$map_int_evm </span>&gt;]);
-                <span class="macro">map_wasm_operators!</span>(@signed [&lt; <span class="macro-nonterminal">$map_int_wasm </span>_u &gt;], <span class="macro-nonterminal">$map_int_evm</span>);
-            )+
-
-            $(
-                <span class="macro">map_wasm_operators!</span>(@signed <span class="macro-nonterminal">$mem</span>, <span class="macro-nonterminal">$mem</span>, { _arg: MemArg });
+                <span class="macro">map_wasm_operators!</span>(@integer <span class="macro-nonterminal">$mem</span>, <span class="macro-nonterminal">$mem</span>, { _arg: MemArg });
                 <span class="macro">map_wasm_operators!</span>(@float <span class="macro-nonterminal">$mem</span>, <span class="macro-nonterminal">$mem</span>, { _arg: MemArg });
             )+
 
 
             $(
-                <span class="macro">map_wasm_operators!</span>(@integer <span class="macro-nonterminal">$mem_integer</span>, <span class="macro-nonterminal">$mem_integer</span>, { _arg: MemArg });
+                <span class="macro">map_wasm_operators!</span>(@xdr <span class="macro-nonterminal">$mem_integer</span>, <span class="macro-nonterminal">$mem_integer</span>, { _arg: MemArg });
             )+
 
             $(
@@ -455,11 +442,11 @@
 
 
             $(
-                <span class="macro">map_wasm_operators!</span>(@signed <span class="macro-nonterminal">$mem_signed</span>, <span class="macro-nonterminal">$mem_signed</span>, { _arg: MemArg });
+                <span class="macro">map_wasm_operators!</span>(@integer <span class="macro-nonterminal">$mem_signed</span>, <span class="macro-nonterminal">$mem_signed</span>, { _arg: MemArg });
             )+
 
             $(
-                <span class="macro">map_wasm_operators!</span>(@signed <span class="macro-nonterminal">$mem_signed_and_float</span>, <span class="macro-nonterminal">$mem_signed_and_float</span>, { _arg: MemArg });
+                <span class="macro">map_wasm_operators!</span>(@integer <span class="macro-nonterminal">$mem_signed_and_float</span>, <span class="macro-nonterminal">$mem_signed_and_float</span>, { _arg: MemArg });
                 <span class="macro">map_wasm_operators!</span>(@float <span class="macro-nonterminal">$mem_signed_and_float</span>, <span class="macro-nonterminal">$mem_signed_and_float</span>, { _arg: MemArg });
             )+
 
@@ -484,17 +471,16 @@
     <span class="macro">for_each_operator!</span>(impl_visit_operator);
 
     <span class="macro">map_wasm_operators! </span>{
-        xdr: [div, lt, gt],
-        signed: [and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
-        integer: [shr, trunc_f32, trunc_f64],
+        all: [div, lt, gt, ge, le],
+        xdr: [shr, trunc_f32, trunc_f64],
+        integer: [and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
+        integer_and_float: [add, sub, mul, eq, ne],
         float: [
             abs, ceil, copysign, floor, max, min, nearest, neg, sqrt,
             convert_i32_s, convert_i32_u, convert_i64_s, convert_i64_u,
             trunc
         ],
-        signed_and_float: [add, sub, mul, eq, ne],
         map: {
-            all: [ge =&gt; ge, le =&gt; slt],
             integer: [rem =&gt; <span class="kw">mod</span>],
         },
         mem: {

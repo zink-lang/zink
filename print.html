@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cli/elko.html"><strong aria-hidden="true">4.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="compiler/arithmetic.html"><strong aria-hidden="true">5.1.</strong> Arithmetic</a></li><li class="chapter-item expanded "><a href="compiler/calls.html"><strong aria-hidden="true">5.2.</strong> Calls</a></li><li class="chapter-item expanded "><a href="compiler/locals.html"><strong aria-hidden="true">5.3.</strong> Locals</a></li><li class="chapter-item expanded "><a href="compiler/recursion.html"><strong aria-hidden="true">5.4.</strong> Recursion</a></li></ol></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="tutorial.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="tutorial/compile-zink-project.html"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">4.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cli/elko.html"><strong aria-hidden="true">4.1.</strong> elko</a></li></ol></li><li class="chapter-item expanded "><a href="compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="compiler/arithmetic.html"><strong aria-hidden="true">5.1.</strong> Arithmetic</a></li><li class="chapter-item expanded "><a href="compiler/calls.html"><strong aria-hidden="true">5.2.</strong> Calls</a></li><li class="chapter-item expanded "><a href="compiler/control-flow.html"><strong aria-hidden="true">5.3.</strong> Control Flow</a></li><li class="chapter-item expanded "><a href="compiler/locals.html"><strong aria-hidden="true">5.4.</strong> Locals</a></li><li class="chapter-item expanded "><a href="compiler/recursion.html"><strong aria-hidden="true">5.5.</strong> Recursion</a></li></ol></li><li class="chapter-item expanded "><a href="stability.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li class="chapter-item expanded "><a href="security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="benchmarks.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li class="chapter-item expanded "><a href="contributing.html"><strong aria-hidden="true">9.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="appendix/index.html"><strong aria-hidden="true">10.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix/operators.html"><strong aria-hidden="true">10.1.</strong> A - Operators</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -283,12 +283,25 @@ Options:
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="compiler"><a class="header" href="#compiler">Compiler</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="arithmetic"><a class="header" href="#arithmetic">Arithmetic</a></h1>
-<p>The arithmetic operators are different between WASM and EVM bytecode:</p>
-<div class="table-wrapper"><table><thead><tr><th>INPUT</th><th>WASM</th><th>STACK</th><th>EVM</th><th>STACK</th></tr></thead><tbody>
-<tr><td><code>a + b</code></td><td>i32.add</td><td><code>a</code> <code>b</code></td><td>ADD</td><td><code>a</code> <code>b</code></td></tr>
-<tr><td><code>a - b</code></td><td>i32.sub</td><td><code>a</code> <code>b</code></td><td>SUB</td><td><code>b</code> <code>a</code></td></tr>
-</tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="calls"><a class="header" href="#calls">Calls</a></h1>
+<p>The arithmetic operators have a lot of differences between WASM and EVM bytecode,
+all of the operand requires the order of the stack are reserved…</p>
+<h2 id="sub-div-mod-and-bitwise-operand"><a class="header" href="#sub-div-mod-and-bitwise-operand">Sub, Div, Mod and Bitwise Operand</a></h2>
+<pre><code class="language-wasm">i32.const 2       ;; PUSH1 0x02
+i32.const 1       ;; PUSH1 0x01
+sub               ;; SWAP1
+                  ;; SUB
+</code></pre>
+<p>This <code>SWAP1</code> sticks to all of these reversed order instructions, will introduce
+macros to optimize it in <code>v0.3.0</code>.</p>
+<h2 id="comparison"><a class="header" href="#comparison">Comparison</a></h2>
+<p>The order of comparison are reversed as well, but however, they are paired!</p>
+<pre><code class="language-wasm">i32.const 1    ;; PUSH1 0x01
+i32.const 0    ;; PUSH1 0x00
+gt             ;; LT
+</code></pre>
+<p>This is insane, but works perfectly, don’t think too much about it, focus
+on if the output is <code>0</code> or <code>1</code> ;)</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="calls"><a class="header" href="#calls">Calls</a></h1>
 <blockquote>
 <p>TODO: move this chapter to locals.</p>
 </blockquote>
@@ -298,6 +311,61 @@ in order (index 0) will be the main function ( to be updated ).</p>
 to memory as locals and pass the memory pointer to the callee functions
 while compiling, for example:</p>
 <pre><code>I'm example
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="control-flow"><a class="header" href="#control-flow">Control Flow</a></h1>
+<p>EVM doesn’t have instructions for the custom conrol flows, however
+zink implements them with <code>JUMPI</code> and <code>JUMP</code>, which includes:</p>
+<ul>
+<li><code>if</code></li>
+<li><code>block</code></li>
+<li><code>loop</code></li>
+<li><code>else</code></li>
+<li><code>select</code></li>
+<li><code>br</code></li>
+<li><code>br_if</code></li>
+<li><code>br_table</code></li>
+</ul>
+<h2 id="if-else"><a class="header" href="#if-else">If-Else</a></h2>
+<p>The beginning of an if construct with an implicit then block, plus and else block.</p>
+<p>The basic logic is, if non-zero, enter the if block, otherwise jump to the else block
+or the end of the if condition.</p>
+<pre><code class="language-wasm">(if (result i32)
+  (local.get 0)
+  (then (i32.const 7))
+  (else (i32.const 8)))
+</code></pre>
+<p>The expected result is</p>
+<div class="table-wrapper"><table><thead><tr><th>Input</th><th>Result</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td></tr>
+<tr><td>0</td><td>8</td></tr>
+</tbody></table>
+</div>
+<p>so in the compiled bytecode, the code snippet above will be</p>
+<pre><code>PUSH1 0x00       // Load the params at 0x00
+CALLDATALOAD
+
+ISZERO           // if is zero, jump to 0x0c, the else block.
+PUSH1 0x0c
+JUMPI
+
+PUSH1 0x07       // if is non-zero, enters the if block.
+                 // push 0x07 on stack.
+
+PUSH1 0x0f       // jump to the end of the else block.
+JUMP
+
+JUMPDEST         // destination of the else block, push 0x08
+PUSH1 0x08       // on stack.
+
+
+JUMPDEST         // the end of the else block.
+
+
+PUSH1 0x00       // pack the result and return...
+MSTORE
+PUSH1 0x20
+PUSH1 0x00
+RETURN
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="locals"><a class="header" href="#locals">Locals</a></h1>
 <p>There are two usages of locals in zink.</p>

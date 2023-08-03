@@ -146,6 +146,9 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Control flow visitors
 
 </span><span class="kw">use crate</span>::{
@@ -157,6 +160,9 @@
 <span class="kw">impl </span>CodeGen {
     <span class="doccomment">/// The beginning of an if construct with an implicit block.
     </span><span class="kw">pub fn </span>_if(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blockty: BlockType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="comment">// Emit iszero to check the condition.
+        </span><span class="self">self</span>.masm._iszero()<span class="question-mark">?</span>;
+
         <span class="comment">// push an `If` frame to the control stack
         </span><span class="kw">let </span>frame = ControlStackFrame::new(
             ControlStackFrameType::If(<span class="bool-val">false</span>),
@@ -242,7 +248,7 @@
         <span class="macro">todo!</span>()
     }
 
-    <span class="doccomment">/// Performs a conditional branch if i32c is non-zero.
+    <span class="doccomment">/// Performs a conditional branch if i32 is non-zero.
     ///
     /// Conditional branch to a given label in an enclosing construct.
     </span><span class="kw">pub fn </span>_br_if(<span class="kw-2">&amp;mut </span><span class="self">self</span>, depth: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
