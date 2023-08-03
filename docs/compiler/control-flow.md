@@ -1,7 +1,7 @@
 # Control Flow
 
 EVM doesn't have instructions for the custom conrol flows, however
-zink implements them with `JUMPI` and `JUMP`, which includes
+zink implements them with `JUMPI` and `JUMP`, which includes:
 
 - `if`
 - `block`
@@ -14,7 +14,10 @@ zink implements them with `JUMPI` and `JUMP`, which includes
 
 ## If-Else
 
-`ISZERO` + `JUMPI`
+The beginning of an if construct with an implicit then block, plus and else block.
+
+The basic logic is, if non-zero, enter the if block, otherwise jump to the else block
+or the end of the if condition.
 
 ```wasm
 (if (result i32)

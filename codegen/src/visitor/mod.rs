@@ -53,14 +53,14 @@ macro_rules! map_wasm_operators {
     (@integer64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         map_wasm_operators!(@basic i64, $wasm, $evm $(, { $($arg: $argty),* })?);
     };
-    (@signed $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+    (@integer $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         map_wasm_operators!(@integer32 $wasm, $evm $(, { $($arg: $argty),* })?);
         map_wasm_operators!(@integer64 $wasm, $evm $(, { $($arg: $argty),* })?);
     };
-    (@integer $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+    (@xdr $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
         paste!{
-            map_wasm_operators!(@signed [< $wasm _s >], $evm $(, { $($arg: $argty),* })?);
-            map_wasm_operators!(@signed [< $wasm _u >], $evm $(, { $($arg: $argty),* })?);
+            map_wasm_operators!(@integer [< $wasm _s >], $evm $(, { $($arg: $argty),* })?);
+            map_wasm_operators!(@integer [< $wasm _u >], $evm $(, { $($arg: $argty),* })?);
         }
     };
     (@float32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
@@ -73,8 +73,8 @@ macro_rules! map_wasm_operators {
         map_wasm_operators!(@float32 $wasm, $evm $(, { $($arg: $argty),* })?);
         map_wasm_operators!(@float64 $wasm, $evm $(, { $($arg: $argty),* })?);
     };
-    (@signed_and_float $op:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        map_wasm_operators!(@signed $op, $op);
+    (@integer_and_float $op:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+        map_wasm_operators!(@integer $op, $op);
         map_wasm_operators!(@float $op, $op);
     };
     (@field ($($field:ident).*) $op:tt $($arg:tt: $argty:ty),* ) => {
@@ -98,13 +98,12 @@ macro_rules! map_wasm_operators {
         }
     };
     (
+        all: [$($all:tt),+],
         xdr: [$($xdr:tt),+],
-        signed: [$($signed:tt),+],
         integer: [$($integer:tt),+],
+        integer_and_float: [$($op:tt),+],
         float: [$($float:tt),+],
-        signed_and_float: [$($op:tt),+],
         map: {
-            all: [$($wasm:tt => $evm:tt),+],
             integer: [$($map_int_wasm:tt => $map_int_evm:tt),+],
         },
         mem: {
@@ -123,36 +122,31 @@ macro_rules! map_wasm_operators {
         }
     ) => {
         paste! {
-            $(map_wasm_operators!(@signed_and_float $op);)+
+            $(map_wasm_operators!(@integer_and_float $op);)+
 
             $(
-                map_wasm_operators!(@signed [< $xdr _s >], [< s $xdr >]);
-                map_wasm_operators!(@signed [< $xdr _u >], $xdr);
-                map_wasm_operators!(@float $xdr, $xdr);
+                map_wasm_operators!(@integer [< $all _s >], [< s $all >]);
+                map_wasm_operators!(@integer [< $all _u >], $all);
+                map_wasm_operators!(@float $all, $all);
             )+
 
-            $(map_wasm_operators!(@signed $signed, $signed);)+
             $(map_wasm_operators!(@integer $integer, $integer);)+
+            $(map_wasm_operators!(@xdr $xdr, $xdr);)+
             $(map_wasm_operators!(@float $float, $float);)+
 
             $(
-                map_wasm_operators!(@integer $wasm, $evm);
-                map_wasm_operators!(@float $wasm, $evm);
+                map_wasm_operators!(@integer [< $map_int_wasm _s >], [< s $map_int_evm >]);
+                map_wasm_operators!(@integer [< $map_int_wasm _u >], $map_int_evm);
             )+
 
             $(
-                map_wasm_operators!(@signed [< $map_int_wasm _s >], [< s $map_int_evm >]);
-                map_wasm_operators!(@signed [< $map_int_wasm _u >], $map_int_evm);
-            )+
-
-            $(
-                map_wasm_operators!(@signed $mem, $mem, { _arg: MemArg });
+                map_wasm_operators!(@integer $mem, $mem, { _arg: MemArg });
                 map_wasm_operators!(@float $mem, $mem, { _arg: MemArg });
             )+
 
 
             $(
-                map_wasm_operators!(@integer $mem_integer, $mem_integer, { _arg: MemArg });
+                map_wasm_operators!(@xdr $mem_integer, $mem_integer, { _arg: MemArg });
             )+
 
             $(
@@ -162,11 +156,11 @@ macro_rules! map_wasm_operators {
 
 
             $(
-                map_wasm_operators!(@signed $mem_signed, $mem_signed, { _arg: MemArg });
+                map_wasm_operators!(@integer $mem_signed, $mem_signed, { _arg: MemArg });
             )+
 
             $(
-                map_wasm_operators!(@signed $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+                map_wasm_operators!(@integer $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
                 map_wasm_operators!(@float $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
             )+
 
@@ -191,17 +185,16 @@ impl<'a> VisitOperator<'a> for CodeGen {
     for_each_operator!(impl_visit_operator);
 
     map_wasm_operators! {
-        xdr: [div, lt, gt],
-        signed: [and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
-        integer: [shr, trunc_f32, trunc_f64],
+        all: [div, lt, gt, ge, le],
+        xdr: [shr, trunc_f32, trunc_f64],
+        integer: [and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],
+        integer_and_float: [add, sub, mul, eq, ne],
         float: [
             abs, ceil, copysign, floor, max, min, nearest, neg, sqrt,
             convert_i32_s, convert_i32_u, convert_i64_s, convert_i64_u,
             trunc
         ],
-        signed_and_float: [add, sub, mul, eq, ne],
         map: {
-            all: [ge => ge, le => slt],
             integer: [rem => mod],
         },
         mem: {

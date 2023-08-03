@@ -97,7 +97,7 @@ impl CodeGen {
         todo!()
     }
 
-    /// Performs a conditional branch if i32c is non-zero.
+    /// Performs a conditional branch if i32 is non-zero.
     ///
     /// Conditional branch to a given label in an enclosing construct.
     pub fn _br_if(&mut self, depth: u32) -> Result<()> {
