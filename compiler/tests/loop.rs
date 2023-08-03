@@ -20,10 +20,11 @@ fn as_br_if() -> Result<()> {
     let bytecode = common::load("loop", "as_br_if")?;
 
     let info = EVM::run(&bytecode, 0.to_bytes32().as_ref());
-    assert_eq!(info.ret, 7.to_bytes32());
+    assert_eq!(info.instr, InstructionResult::OutOfGas);
 
     let info = EVM::run(&bytecode, 1.to_bytes32().as_ref());
-    assert_eq!(info.instr, InstructionResult::OutOfGas);
+    assert_eq!(info.instr, InstructionResult::Return);
+    assert_eq!(info.ret, 7.to_bytes32());
 
     Ok(())
 }

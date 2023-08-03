@@ -27,12 +27,14 @@ fn singular() -> Result<()> {
     let bytecode = common::load("if", "singular")?;
 
     // test if
-    let info = EVM::run(&bytecode, &0.to_bytes32());
+    //
+    // Enter if block if 1
+    let info = EVM::run(&bytecode, &1.to_bytes32());
     assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 7.to_bytes32());
 
     // test else
-    let info = EVM::run(&bytecode, &1.to_bytes32());
+    let info = EVM::run(&bytecode, &0.to_bytes32());
     assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 8.to_bytes32());
 

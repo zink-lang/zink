@@ -9,6 +9,9 @@ use wasmparser::{BlockType, BrTable};
 impl CodeGen {
     /// The beginning of an if construct with an implicit block.
     pub fn _if(&mut self, blockty: BlockType) -> Result<()> {
+        // Emit iszero to check the condition.
+        self.masm._iszero()?;
+
         // push an `If` frame to the control stack
         let frame = ControlStackFrame::new(
             ControlStackFrameType::If(false),
@@ -94,7 +97,7 @@ impl CodeGen {
         todo!()
     }
 
-    /// Performs a conditional branch if i32c is non-zero.
+    /// Performs a conditional branch if i32 is non-zero.
     ///
     /// Conditional branch to a given label in an enclosing construct.
     pub fn _br_if(&mut self, depth: u32) -> Result<()> {
