@@ -28,12 +28,12 @@ pub struct LocalSlot {
     ty: LocalSlotType,
 
     /// Stack pointer of the local slot.
-    pub sp: Option<usize>,
+    pub sp: usize,
 }
 
 impl LocalSlot {
     /// Create a new local slot.
-    pub fn new(inner: ValType, ty: LocalSlotType, sp: Option<usize>) -> Self {
+    pub fn new(inner: ValType, ty: LocalSlotType, sp: usize) -> Self {
         Self { inner, ty, sp }
     }
 
@@ -102,28 +102,6 @@ impl Locals {
     /// Push a local slot.
     pub fn push(&mut self, slot: impl Into<LocalSlot>) {
         self.inner.push(slot.into())
-    }
-
-    /// Shift local stack pointers.
-    pub fn shift_sp(&mut self, index: usize, sp: usize) -> Result<()> {
-        let local = self.get_mut(index)?;
-        let src_sp = local.sp.ok_or_else(|| Error::InvalidLocalIndex(index))?;
-        local.sp = Some(sp);
-
-        for (idx, local) in self.inner.iter_mut().enumerate() {
-            if idx == index {
-                continue;
-            }
-
-            if let Some(local_sp) = local.sp {
-                if local_sp > src_sp {
-                    // TODO: Artihmetic checks
-                    local.sp = Some(local_sp - 1);
-                }
-            }
-        }
-
-        Ok(())
     }
 
     /// Get the length of locals

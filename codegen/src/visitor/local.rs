@@ -17,27 +17,12 @@ impl CodeGen {
     pub fn _local_set(&mut self, local_index: u32) -> Result<()> {
         let index = local_index as usize;
         let sp = self.masm.sp();
-        let local = self.locals.get_mut(index)?;
-        let local_sp = if let Some(sp) = local.sp {
-            sp as u8
-        } else {
-            local.sp = Some(sp as usize);
-            return Ok(());
-        };
+        let local = self.locals.get(index)?;
+        let local_sp = local.sp as u8;
 
-        // TODO: init all locals with 0 on function entry.
-
-        tracing::debug!("local_set: {index} {sp} {local_sp}");
-        if sp == local_sp {
-            // the local is right at the current stack position
-            return Ok(());
-        } else {
-            // update the local
-            //
-            // TODO: check arithmetic overflow.
-            self.masm.swap(sp - local_sp - 1)?;
-            self.masm._drop()?;
-        }
+        tracing::debug!("local_set: {index} {local_sp} {sp}");
+        self.masm.swap(sp - local_sp - 1)?;
+        self.masm._drop()?;
 
         Ok(())
     }
@@ -76,15 +61,10 @@ impl CodeGen {
         }
 
         let local = self.locals.get(local_index)?;
-        let local_sp = local.sp.ok_or(Error::LocalNotOnStack(local_index))? as u8;
+        let local_sp = local.sp as u8;
         let sp = self.masm.sp();
 
-        // NOTE: DUP1 makes no sense for local_get.
-        if local_sp == sp || local_sp + 1 == sp {
-            return Ok(());
-        }
-
-        tracing::debug!("local_get: {local_index} {sp} {local_sp}");
+        tracing::debug!("local_get: {local_index} {local_sp} {sp}");
         // TODO: Arthmetic checks
         self.masm.dup(sp - local_sp)?;
         Ok(())

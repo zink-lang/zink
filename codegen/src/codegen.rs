@@ -69,42 +69,29 @@ impl CodeGen {
         locals: &mut LocalsReader<'_>,
         validator: &mut FuncValidator<ValidatorResources>,
     ) -> Result<()> {
-        // Define locals in function parameters.
-        for (idx, param) in self.env.params().iter().enumerate() {
-            let sp = if self.is_main {
-                None
-            } else {
-                // NOTE: no need to increment sp here bcz we have
-                // already did it in the constructor.
-                Some(idx + 1)
-            };
+        let mut sp = if self.is_main { 0 } else { 1 };
 
+        // Define locals in function parameters.
+        for param in self.env.params() {
             self.locals
                 .push(LocalSlot::new(*param, LocalSlotType::Parameter, sp));
+            sp += 1;
         }
 
         // Define locals in function body.
         //
         // Record the offset for validation.
-        let params_len = self.env.params().len();
         while let Ok((count, val)) = locals.read() {
-            let sp = if self.is_main {
-                None
-            } else {
-                Some(params_len + 1)
-            };
-
             let validation_offset = locals.original_position();
-            for offset in 0..count {
+            for _ in 0..count {
                 // Init locals with zero.
                 self.masm.push(&[0])?;
 
                 // Define locals.
-                self.locals.push(LocalSlot::new(
-                    val,
-                    LocalSlotType::Variable,
-                    sp.map(|sp| sp + offset as usize),
-                ));
+                self.locals
+                    .push(LocalSlot::new(val, LocalSlotType::Variable, sp));
+
+                sp += 1;
             }
 
             validator.define_locals(validation_offset, count, val)?;
