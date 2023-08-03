@@ -35,30 +35,30 @@ The expected result is
 
 so in the compiled bytecode, the code snippet above will be
 
-```
+```yul
 PUSH1 0x00       // Load the params at 0x00
-CALLDATALOAD
+calldataload
 
-ISZERO           // if is zero, jump to 0x0c, the else block.
+iszero           // if is zero, jump to 0x0c, the else block.
 PUSH1 0x0c
-JUMPI
+jumpi
 
-PUSH1 0x07       // if is non-zero, enters the if block.
+push1 0x07       // if is non-zero, enters the if block.
                  // push 0x07 on stack.
 
 PUSH1 0x0f       // jump to the end of the else block.
-JUMP
+jump
 
-JUMPDEST         // destination of the else block, push 0x08
-PUSH1 0x08       // on stack.
+jumpdest         // destination of the else block, push 0x08
+push1 0x08       // on stack.
 
 
-JUMPDEST         // the end of the else block.
+jumpdest         // the end of the else block.
 
 
 PUSH1 0x00       // pack the result and return...
-MSTORE
+mstore
 PUSH1 0x20
 PUSH1 0x00
-RETURN
+return
 ```

@@ -16,6 +16,7 @@
 - [Stability](./stability.md)
 - [Security](./security.md)
 - [Benchmarks](./benchmarks.md)
+  - [Fibonacci](./benchmarks/fibonacci.md)
 - [Contributing](./contributing.md)
 - [Appendix](./appendix/README.md)
   - [A - Operators](./appendix/operators.md)
