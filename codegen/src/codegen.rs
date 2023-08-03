@@ -5,7 +5,7 @@ use crate::{
     local::{LocalSlot, LocalSlotType, Locals},
     masm::MacroAssembler,
     validator::ValidateThenVisit,
-    Buffer, Result,
+    Buffer, Error, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
@@ -118,6 +118,11 @@ impl CodeGen {
 
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
+        let sp = self.masm.sp();
+        if !self.is_main && self.masm.sp() != self.env.results().len() as u8 {
+            return Err(Error::StackNotBalanced(sp));
+        }
+
         jump_table.merge(self.table, pc)?;
         Ok(self.masm.buffer().into())
     }

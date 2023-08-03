@@ -47,6 +47,7 @@ impl Assembler {
             return Err(Error::StackOverflow(self.sp));
         }
 
+        // tracing::debug!("increment sp: {items} -> {}", self.sp);
         Ok(())
     }
 
@@ -56,6 +57,8 @@ impl Assembler {
             .sp
             .checked_sub(items)
             .ok_or(Error::StackUnderflow(self.sp, items))?;
+
+        // tracing::debug!("decrement sp: {items} -> {}", self.sp);
         Ok(())
     }
 

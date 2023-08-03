@@ -57,6 +57,9 @@ pub enum Error {
     /// Failed to decrement stack pointer.
     #[error("Stack underflow, current stack items {0}, expect at least {1}")]
     StackUnderflow(u8, u8),
+    /// Failed to pop stack.
+    #[error("Stack not balanced, current stack items {0}")]
+    StackNotBalanced(u8),
 }
 
 /// Codegen result
