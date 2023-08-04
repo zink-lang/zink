@@ -13,6 +13,8 @@ Benchmarks for fibonacci.
 | 4      | 718  | 12729           |
 | 5      | 1174 | 21822           |
 
+`zink` implementation in rust:
+
 ```rust
 //! Zink fibonacci recursion
 
@@ -25,6 +27,8 @@ pub extern "C" fn fib(n: usize) -> usize {
     }
 }
 ```
+
+`solidity` implementation:
 
 ```sol
 /**

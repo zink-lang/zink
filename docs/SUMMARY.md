@@ -5,6 +5,7 @@
   - [Creating Zink Project](./tutorial/create-zink-project.md)
   - [Compiling Zink Project](./tutorial/compile-zink-project.md)
 - [Examples](./examples.md)
+  - [AddTwo](./examples/add-two.md)
   - [Fibonacci](./examples/fibonacci.md)
 - [Command Line Tool](./cli.md)
   - [elko](./cli/elko.md)
