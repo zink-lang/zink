@@ -6,9 +6,9 @@
 [![ci][ci-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
 
-[The Zink project][book] mainly provides an optimizing compiler `zinkc` which can compile
-WASM to the EVM bytecode with optimizations, the source code of your smart contract could
-be any language you like!
+[The Zink project][book] mainly provides a singlepass compiler `zinkc` which compiles
+WASM to EVM bytecode, the source code of your smart contract could be any language you
+like!
 
 ```mermaid
 flowchart LR
@@ -29,7 +29,20 @@ flowchart LR
 | 4      | 718  | 12729           |
 | 5      | 1174 | 21822           |
 
-As an example, calculating fibonacci sequence with recursion.
+```
+/// Calculates the nth fibonacci number using recursion.
+#[no_mangle]
+pub extern "C" fn recursion(n: usize) -> usize {
+    if n < 2 {
+        n
+    } else {
+        recursion(n - 1) + recursion(n - 2)
+    }
+}
+```
+
+As an example for the benchmark, calculating fibonacci sequence with recursion, missed
+vyper because it doesn't support recursion...
 
 ## Features
 
