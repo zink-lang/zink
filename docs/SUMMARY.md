@@ -26,5 +26,8 @@
 - [Benchmarks](./benchmarks.md)
   - [Fibonacci](./benchmarks/fibonacci.md)
 - [Contributing](./contributing.md)
+  - [Architecture](./contributing/architecture.md)
+  - [Building](./contributing/building.md)
+  - [Testing](./contributing/testing.md)
 - [Appendix](./appendix/README.md)
   - [A - Operators](./appendix/operators.md)
