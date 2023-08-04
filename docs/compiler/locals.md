@@ -5,9 +5,9 @@ There are two usages of locals in zink.
 1. The parameters of functions are loaded as locals.
 2. local defined variables in functions.
 
-| fn params   | local variables |
-| ----------- | --------------- |
-| locals[..n] | locals[n..]     |
+|       | fn params   | local variables |
+| ----- | ----------- | --------------- |
+| stack | locals[..n] | locals[n..]     |
 
 ## Function Parameters
 
@@ -61,3 +61,43 @@ in `zinkc`.
 It is a waste of resources but sadly this is also how EVM works ))
 
 ## Local Variables
+
+The locals variables will take the stack items right after the function
+parameters, for example:
+
+```wasm
+(func (result i32)
+  (local i32)
+  i32.const 42
+  local.set 0
+  local.get 0)
+```
+
+In the program above, we set and get `42` to local variable `0` and returns it.
+
+While compiling this function, `zinkc` will push local variable `0` on the stack
+with an initializing value `0` first, getting with `dup` and setting with `swap`
+and `drop`.
+
+```yul
+PUSH1 0x00       // initializing value 0 for local 0
+                 //
+                 //
+PUSH1 0x28       // push value 42 on stack, the current stack is [0, 42]
+                 //
+                 //
+SWAP1            // swap the value on the top of the stack to local 0 and
+DROP             // drop the previous value of it for cleaning stack, `swapn`
+                 // is calculated by `zinkc`. current stack: [42]
+                 //
+                 //
+DUP1             // dup the value of local 0 and push it on the top of the
+                 // stack, `dupn` is calculated by `zinkc`.
+                 //
+                 //
+DROP             // clean the stack before returning results.
+```
+
+As we can see, the usages of `get` and `set` is verbose with `swap` and `dup`,
+it is for adapting any usages but not necessary for all of them, however, we
+will introduce optimizer for this in `v0.4.0`!

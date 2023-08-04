@@ -52,11 +52,24 @@ meeting jumps and relocates them after compiling all functions.
 
 ### Example Addition
 
-Let's assume we are calling an `add` function with parameters `1, 1` now:
+```wasm
+(module
+  (func (export "main") (param i32) (param i32) (result i32)
+    (call $add (local.get 0) (local.get 1))
+  )
+
+  (func $add (param i32 i32) (result i32)
+    (local.get 0)
+    (local.get 1)
+    (i32.add)
+  )
+)
+```
+
+Let's assume we are calling an `add` function with parameters `1, 1` and
+now we are at the first byte right before it:
 
 ```yul
-
-
 /* 0x00 */  PUSH1 0x01    // push the first parameter on the stack
 /* 0x02 */  PUSH1 0x01    // push the second  parameter on the stack
 /*      */                //
