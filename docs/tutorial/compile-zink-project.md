@@ -1,9 +1,7 @@
 # Compiling Zink Project
 
-
-We have got a zink project after [creating-zink-project][create], now it's time to compile 
+We have got a zink project after [creating-zink-project][create], now it's time to compile
 it to EVM bytecode!
-
 
 ```bash
 # Enter our project
@@ -19,10 +17,7 @@ my-awesome-project.wasm my-awesome-project.bin
 
 you'll see a `my-awesome-project.bin` file under `target/zink`, and that's it!
 
-
 ## How it works?
-
-But what's the inner logic of `elko build`?
 
 first, `elko` compiles the cargo project to WASM with:
 

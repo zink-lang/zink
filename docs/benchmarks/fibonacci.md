@@ -14,7 +14,7 @@ Benchmarks for fibonacci.
 | 5      | 1174 | 21822           |
 
 ```rust
-//! Zink fibonaci recursion
+//! Zink fibonacci recursion
 
 #[no_mangle]
 pub extern "C" fn fib(n: usize) -> usize {
@@ -28,7 +28,7 @@ pub extern "C" fn fib(n: usize) -> usize {
 
 ```sol
 /**
- * Solidity fibonaci recursion
+ * Solidity fibonacci recursion
  **/
 
 function fib(uint n) public view returns (uint) {
