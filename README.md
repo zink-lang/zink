@@ -18,6 +18,8 @@ flowchart LR
     Z --> V[(EVM)]
 ```
 
+Run `cargo install zinkup` to install the toolchain!
+
 ## Fibonacci Example
 
 | fib(n) | Zink | Solidity@0.8.21 |
