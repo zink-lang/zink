@@ -7,6 +7,7 @@
 - [Examples](./examples.md)
 - [Command Line Tool](./cli.md)
   - [elko](./cli/elko.md)
+  - [zinkc](./cli/zinkc.md)
 - [Styles](./styles/README.md)
 - [Compiler](./compiler/README.md)
   - [Arithmetic](./compiler/arithmetic.md)

@@ -5,7 +5,7 @@ This tutorial walks through creating a simple add-two program and compiles it wi
 - [Creating `add-two`](/tutorial/create-zink-project)
 - [Compiling `add-two`](/tutorial/compile-zink-project)
 
-For the overall instructions, with [elko](/cli/elko.html) installed, all you need is:
+For the overall instructions:
 
 ```bash
 # Install zink toolchain
