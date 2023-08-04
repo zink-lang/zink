@@ -1,7 +1,8 @@
-# `zinkup`
+# Command Line Tool
 
-The zink components are gathered here, you can install all of the
-components directly with:
+The zink toolchain are gathered in [zinkup][zinkup]
+
+You can install all of the components directly with:
 
 ```bash
 cargo install zinkup
@@ -20,6 +21,4 @@ Available binaries:
 | `elko`  | Zink\'s package manager |
 | `zinkc` | The zink compiler       |
 
-## LICENSE
-
-GPL-3.0
+[zinkup]: https://crates.io/crates/zinkup

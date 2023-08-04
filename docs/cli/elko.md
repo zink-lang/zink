@@ -1,10 +1,9 @@
 # `elko` - Zink's package manager
 
-
 ## Installation
 
 ```bash
-cargo install zinkup
+cargo install zinkup --features elko
 ```
 
 ## Usages
