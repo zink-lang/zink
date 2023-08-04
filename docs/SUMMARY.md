@@ -21,6 +21,7 @@
   - [Locals](./compiler/locals.md)
   - [Recursion](./compiler/recursion.md)
 - [Stability](./stability.md)
+  - [v0.1.0](./stability/v0.1.0.md)
 - [Security](./security.md)
 - [Benchmarks](./benchmarks.md)
   - [Fibonacci](./benchmarks/fibonacci.md)
