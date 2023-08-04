@@ -31,7 +31,7 @@ Run `cargo install zinkup` to install the toolchain!
 | 4      | 718  | 12729           |
 | 5      | 1174 | 21822           |
 
-```
+```rust
 /// Calculates the nth fibonacci number using recursion.
 #[no_mangle]
 pub extern "C" fn recursion(n: usize) -> usize {
