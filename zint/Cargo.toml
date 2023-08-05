@@ -1,6 +1,7 @@
 [package]
 name = "zint"
 description = "Zink testing utils"
+documentation = "https://docs.rs/zint"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

@@ -1,7 +1,8 @@
 [package]
 name = "evm-opcodes"
 description = "Rust implementation of EVM opcode"
-version = "0.0.1"
+documentation = "https://docs.rs/evm-opcodes"
+version = "0.0.2"
 authors.workspace = true
 edition.workspace = true
 homepage.workspace = true

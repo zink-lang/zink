@@ -1,6 +1,7 @@
 [package]
 name = "zinkup"
 description = "Zink toolchain"
+documentation = "https://docs.rs/zinkup"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

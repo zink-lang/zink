@@ -1,6 +1,7 @@
 [package]
 name = "zinkc"
 description = "The Zink Compiler"
+documentation = "https://docs.rs/zinkc"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

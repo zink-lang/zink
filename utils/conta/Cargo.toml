@@ -1,6 +1,8 @@
 [package]
 name = "conta"
-version.workspace = true
+description = "Tool for bumping and publishing crates."
+documentation = "https://docs.rs/conta"
+version = "0.0.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
