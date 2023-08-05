@@ -54,7 +54,7 @@ impl Sed {
             + PATT_VERSION.len();
 
         let end = context[start..]
-            .find("\"")
+            .find('"')
             .ok_or(anyhow!("the end of version field is invalid"))?
             + start;
 

@@ -22,7 +22,7 @@ impl Publish {
         self.verify(manifest, packages)?;
 
         for pkg in packages {
-            if !self.publish(&pkg)? {
+            if !self.publish(pkg)? {
                 // Just handle the rate limit for once.
                 thread::sleep(Duration::from_secs(60 * 6));
                 self.publish(pkg)?;
@@ -35,7 +35,7 @@ impl Publish {
     /// Publish cargo package
     fn publish(&self, package: &str) -> Result<bool> {
         let mut cargo = Command::new("cargo");
-        cargo.arg("publish").arg("-p").arg(&package);
+        cargo.arg("publish").arg("-p").arg(package);
 
         if self.dry_run {
             cargo.arg("--dry-run");
