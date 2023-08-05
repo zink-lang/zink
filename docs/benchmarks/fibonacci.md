@@ -6,12 +6,12 @@ Benchmarks for fibonacci.
 
 | fib(n) | Zink | Solidity@0.8.21 |
 | ------ | ---- | --------------- |
-| 0      | 110  | 605             |
-| 1      | 110  | 605             |
-| 2      | 262  | 3636            |
-| 3      | 414  | 6667            |
-| 4      | 718  | 12729           |
-| 5      | 1174 | 21822           |
+| 0      | 110  | 614             |
+| 1      | 110  | 614             |
+| 2      | 262  | 1322            |
+| 3      | 414  | 2030            |
+| 4      | 718  | 3446            |
+| 5      | 1174 | 5570            |
 
 `zink` implementation in rust:
 
@@ -36,10 +36,10 @@ pub extern "C" fn fib(n: usize) -> usize {
  **/
 
 function fib(uint n) public view returns (uint) {
-  if (n <= 1) {
+  if (n < 2) {
     return n;
   } else {
-    return this.fib(n - 1) + this.fib(n - 2);
+    return fib(n - 1) + fib(n - 2);
   }
 }
 ```
