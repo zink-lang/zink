@@ -1,13 +1,12 @@
 [package]
-authors = ["clearloop"]
 name = "zint"
-version = "0.0.0"
-edition = "2021"
 description = "Zink testing utils"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 license.workspace = true
-homepage = "https://github.com/clearloop/zink"
-repository = "https://github.com/clearloop/zink.git"
-documentation = "https://docs.rs/ztime"
+homepage.workspace = true
+repository.workspace = true
 
 [dependencies]
 hex.workspace = true

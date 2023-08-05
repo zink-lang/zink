@@ -1,9 +1,12 @@
 [package]
 name = "zingen"
-version = "0.0.0"
+description = "Code generation library for zink."
+version.workspace = true
+authors.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Code generation library for zink."
+homepage.workspace = true
+repository.workspace = true
 
 [dependencies]
 anyhow.workspace = true

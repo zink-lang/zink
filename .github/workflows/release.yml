@@ -1,0 +1,21 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    if: github.repository == 'clearloop/zink'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - run: cargo run --release --bin conta publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
