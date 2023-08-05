@@ -1,0 +1,20 @@
+[package]
+name = "conta"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "conta"
+path = "bin/conta.rs"
+
+[dependencies]
+anyhow.workspace = true
+cargo_metadata.workspace = true
+clap = { workspace = true, features = [ "derive" ] }
+semver.workspace = true
+serde = { workspace = true, features = [ "derive" ] }
+toml.workspace = true

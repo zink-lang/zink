@@ -1,12 +1,12 @@
 [package]
 name = "zint"
 description = "Zink testing utils"
+version.workspace = true
 authors.workspace = true
 edition.workspace = true
-homepage.workspace = true
 license.workspace = true
+homepage.workspace = true
 repository.workspace = true
-version.workspace = true
 
 [dependencies]
 hex.workspace = true

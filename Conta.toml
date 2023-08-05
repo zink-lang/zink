@@ -1,0 +1,7 @@
+packages = [
+  "zingen",
+  "zink",
+  "zint",
+  "zinkc"
+  "zinkup",
+]

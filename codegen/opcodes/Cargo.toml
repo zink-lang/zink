@@ -1,12 +1,12 @@
 [package]
 name = "evm-opcodes"
 description = "Rust implementation of EVM opcode"
+version = "0.0.1"
 authors.workspace = true
 edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 repository.workspace = true
-version.workspace = true
 
 [dependencies]
 paste.workspace = true

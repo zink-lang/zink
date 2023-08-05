@@ -461,6 +461,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "conta"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "cargo_metadata",
+ "clap",
+ "semver 1.0.18",
+ "serde",
+ "toml",
+]
+
+[[package]]
 name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -630,7 +642,7 @@ checksum = "4f7935cc590ee512e8073c4fe82b85e056216324e65aed24459204e3f6d9f72e"
 
 [[package]]
 name = "evm-opcodes"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "paste",
 ]
@@ -1945,7 +1957,7 @@ dependencies = [
 
 [[package]]
 name = "zingen"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "anyhow",
  "evm-opcodes",
@@ -1959,7 +1971,7 @@ dependencies = [
 
 [[package]]
 name = "zink"
-version = "0.0.0"
+version = "0.0.1"
 
 [[package]]
 name = "zinkc"
@@ -1979,7 +1991,7 @@ dependencies = [
 
 [[package]]
 name = "zinkup"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -1999,7 +2011,7 @@ dependencies = [
 
 [[package]]
 name = "zint"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "hex",
  "revm-interpreter",
