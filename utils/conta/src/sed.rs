@@ -10,6 +10,7 @@ use std::{
 
 const WORKSPACE_PACKAGE: &str = "[workspace.package]";
 const WORKSPACE_DEPENDENCIES: &str = "[workspace.dependencies]";
+const PATT_VERSION: &str = "version = \"";
 
 /// Position of version field
 ///
@@ -34,7 +35,7 @@ pub struct Pos {
 
 /// Manifest stream editor.
 pub struct Sed {
-    buf: Vec<u8>,
+    pub buf: Vec<u8>,
     manifest: PathBuf,
     root: Pos,
     map: BTreeMap<String, Pos>,
@@ -42,7 +43,7 @@ pub struct Sed {
 
 impl Sed {
     /// Create a new manifest stream editor.
-    pub fn new(p: impl AsRef<Path>, packages: Vec<String>) -> Result<Self> {
+    pub fn new(p: impl AsRef<Path>, packages: &[String]) -> Result<Self> {
         let manifest = p.as_ref().into();
         let buf = fs::read(&manifest)?;
         let content = String::from_utf8_lossy(&buf);
@@ -50,17 +51,19 @@ impl Sed {
         let find_version = |start: usize, patt: &str| -> Result<Pos> {
             let start = content[start..]
                 .find(patt)
-                .ok_or(anyhow!("workspace.package not found"))?
+                .ok_or(anyhow!("pattern {patt} not found"))?
+                + start
                 + patt.len();
 
             let start = content[start..]
                 .find("version = \"")
                 .ok_or(anyhow!("version not found"))?
-                + start;
+                + start
+                + PATT_VERSION.len();
 
             let end = content[start..]
                 .find("\"")
-                .ok_or(anyhow!("version not found"))?
+                .ok_or(anyhow!("the end of version field is invalid"))?
                 + start;
 
             Ok(Pos { start, end })
@@ -71,17 +74,15 @@ impl Sed {
 
         // Get the version position of each package.
         let map = {
-            let mut start = content
+            let start = content
                 .find(WORKSPACE_DEPENDENCIES)
-                .ok_or(anyhow!("workspace dependencies not found"))?;
+                .ok_or(anyhow!("workspace dependencies not found"))?
+                + WORKSPACE_DEPENDENCIES.len();
 
             packages
                 .iter()
                 .map(|package| {
-                    find_version(start, package).map(|pos| {
-                        start = pos.end;
-                        (package.clone(), pos)
-                    })
+                    find_version(start, &format!("{package} ")).map(|pos| (package.clone(), pos))
                 })
                 .collect::<Result<_>>()?
         };
@@ -108,7 +109,7 @@ impl Sed {
     }
 
     /// Set the version of the root package.
-    pub fn set_dep_versions(&mut self, version: VersionReq) -> Result<()> {
+    pub fn set_dep_versions(&mut self, version: &VersionReq) -> Result<()> {
         for (_, pos) in self.map.clone().into_iter() {
             self.set_version(&version.to_string(), pos)?;
         }
@@ -117,7 +118,13 @@ impl Sed {
     }
 
     /// Set the version of the root package.
-    pub fn set_workspace_versions(&mut self, version: Version) -> Result<()> {
+    pub fn set_workspace_version(&mut self, version: &Version) -> Result<()> {
         self.set_version(&version.to_string(), self.root.clone())
+    }
+
+    /// Flush the changes to the manifest file.
+    pub fn flush(self) -> Result<()> {
+        fs::write(self.manifest, self.buf)?;
+        Ok(())
     }
 }

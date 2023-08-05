@@ -1,6 +1,10 @@
 //! The library of conta
 
-pub use crate::{cmd::Conta, config::Config};
+pub use crate::{
+    cmd::{Bump, Conta, Publish},
+    config::Config,
+    sed::Sed,
+};
 
 mod cmd;
 mod config;

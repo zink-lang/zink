@@ -1,9 +1,9 @@
 //! Command bump
-use crate::Config;
-use anyhow::{anyhow, Result};
-use cargo_metadata::{Metadata, MetadataCommand, Package};
+use crate::{Config, Sed};
+use anyhow::Result;
+use cargo_metadata::MetadataCommand;
 use clap::Parser;
-use semver::Version;
+use semver::{Version, VersionReq};
 use std::{fs, path::PathBuf};
 
 /// Bump versions.
@@ -19,8 +19,11 @@ pub struct Bump {
     config: Option<PathBuf>,
 
     /// The version to bump.
-    #[clap(short, long)]
     version: Version,
+
+    /// Dry run the command and print the result.
+    #[clap(short, long, value_name = "dry-run")]
+    dry_run: bool,
     // TODO:
     //
     // support bump major, minor, patch, pre, build.
@@ -48,11 +51,27 @@ impl Bump {
     }
 
     /// Get the metadata of the workspace.
-    pub fn metadata(&self) -> Result<Metadata> {
-        MetadataCommand::new()
+    pub fn verify(&self, packages: &[String]) -> Result<()> {
+        let metadata = MetadataCommand::new()
+            .no_deps()
             .manifest_path(self.manifest())
-            .exec()
-            .map_err(Into::into)
+            .exec()?;
+
+        for package in metadata.packages.iter() {
+            if !packages.contains(&package.name) {
+                continue;
+            }
+
+            if package.version != self.version {
+                return Err(anyhow::anyhow!(
+                    "incorrect crate version {} in {}",
+                    self.version,
+                    package.name
+                ));
+            }
+        }
+
+        Ok(())
     }
 
     /// Bumps the version to the given one.
@@ -60,12 +79,18 @@ impl Bump {
     /// NOTE: This implementation only works for workspace
     /// for now.
     pub fn run(&self) -> Result<()> {
-        let metadata = self.metadata()?;
-        let manifest = metadata
-            .root_package()
-            .ok_or(anyhow!("only supports workspace for now"))?;
+        let config = self.config()?;
+        let mut sed = Sed::new(self.manifest(), &config.packages)?;
 
-        println!("{}", manifest.version);
+        sed.set_workspace_version(&self.version)?;
+        sed.set_dep_versions(&VersionReq::parse(format!("={}", self.version).as_str())?)?;
+
+        if self.dry_run {
+            println!("{}", String::from_utf8_lossy(&sed.buf));
+        } else {
+            sed.flush()?;
+            self.verify(&config.packages)?;
+        }
 
         Ok(())
     }

@@ -1,4 +1,4 @@
-use self::{bump::Bump, publish::Publish};
+pub use self::{bump::Bump, publish::Publish};
 use anyhow::Result;
 use clap::Parser;
 
