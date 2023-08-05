@@ -18,36 +18,6 @@ flowchart LR
     Z --> V[(EVM)]
 ```
 
-Run `cargo install zinkup` to install the toolchain!
-
-## Fibonacci Example
-
-| fib(n) | Zink | Solidity@0.8.21 |
-| ------ | ---- | --------------- |
-| 0      | 110  | 605             |
-| 1      | 110  | 605             |
-| 2      | 262  | 3636            |
-| 3      | 414  | 6667            |
-| 4      | 718  | 12729           |
-| 5      | 1174 | 21822           |
-
-```rust
-/// Calculates the nth fibonacci number using recursion.
-#[no_mangle]
-pub extern "C" fn recursion(n: usize) -> usize {
-    if n < 2 {
-        n
-    } else {
-        recursion(n - 1) + recursion(n - 2)
-    }
-}
-```
-
-As an example for the benchmark, calculating fibonacci sequence with recursion, missed
-vyper because it doesn't support recursion...
-
-## Features
-
 Here we highly recommand you to choose `rust` as the language of your smart contracts
 which will unlock all of the following features:
 
@@ -66,6 +36,36 @@ which will unlock all of the following features:
 - **Easy Debugging**: Developing your smart contracts with only one programming language!
   zink will provide everything you need for developing your contracts officially based on the
   stable projects in rust like the `foundry` tools.
+
+Run `cargo install zinkup` to install the toolchain!
+
+## Fibonacci Example
+
+| fib(n) | Zink | Solidity@0.8.21 |
+| ------ | ---- | --------------- |
+| 0      | 110  | 614             |
+| 1      | 110  | 614             |
+| 2      | 262  | 1322            |
+| 3      | 414  | 2030            |
+| 4      | 718  | 3446            |
+| 5      | 1174 | 5570            |
+
+```rust
+/// Calculates the nth fibonacci number using recursion.
+#[no_mangle]
+pub extern "C" fn recursion(n: usize) -> usize {
+    if n < 2 {
+        n
+    } else {
+        recursion(n - 1) + recursion(n - 2)
+    }
+}
+```
+
+As an example for the benchmark, calculating fibonacci sequence with recursion, missed
+vyper because it doesn't support recursion...Zink is 5x fast on this, but it is mainly
+caused by our current implementation is not completed yet ( missing logic to adapt more
+situations ), let's keep tuned for `v0.3.0`.
 
 ## LICENSE
 
