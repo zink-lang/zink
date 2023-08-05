@@ -4,20 +4,11 @@ use anyhow::Result;
 use cargo_metadata::MetadataCommand;
 use clap::Parser;
 use semver::{Version, VersionReq};
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
 /// Bump versions.
 #[derive(Debug, Parser, Clone)]
 pub struct Bump {
-    /// The path of the cargo manifest, if not provided, the
-    /// current directory is used.
-    #[clap(short, long)]
-    manifest: Option<PathBuf>,
-
-    /// The path of `Conta.toml`
-    #[clap(short, long)]
-    config: Option<PathBuf>,
-
     /// The version to bump.
     version: Version,
 
@@ -30,31 +21,32 @@ pub struct Bump {
 }
 
 impl Bump {
-    /// Get the manifest path.
-    pub fn manifest(&self) -> PathBuf {
-        if let Some(p) = &self.manifest {
-            p.into()
+    /// Bumps the version to the given one.
+    ///
+    /// NOTE: This implementation only works for workspace
+    /// for now.
+    pub fn run(&self, manifest: &PathBuf, config: Config) -> Result<()> {
+        let mut sed = Sed::new(manifest)?;
+
+        sed.set_workspace_version(&self.version)?;
+        let version_req = format!("={}", self.version);
+        sed.set_dep_versions(&VersionReq::parse(&version_req)?, &config.packages)?;
+
+        if self.dry_run {
+            println!("{}", String::from_utf8_lossy(&sed.buf));
         } else {
-            PathBuf::from("Cargo.toml")
+            sed.flush()?;
+            self.verify(manifest, &config.packages)?;
         }
-    }
 
-    /// Parse the config from the input path.
-    pub fn config(&self) -> Result<Config> {
-        let path = if let Some(p) = &self.config {
-            p.into()
-        } else {
-            PathBuf::from("Conta.toml")
-        };
-
-        toml::from_str(&fs::read_to_string(path)?).map_err(Into::into)
+        Ok(())
     }
 
     /// Get the metadata of the workspace.
-    pub fn verify(&self, packages: &[String]) -> Result<()> {
+    pub fn verify(&self, manifest: &PathBuf, packages: &[String]) -> Result<()> {
         let metadata = MetadataCommand::new()
             .no_deps()
-            .manifest_path(self.manifest())
+            .manifest_path(manifest)
             .exec()?;
 
         for package in metadata.packages.iter() {
@@ -69,28 +61,6 @@ impl Bump {
                     package.name
                 ));
             }
-        }
-
-        Ok(())
-    }
-
-    /// Bumps the version to the given one.
-    ///
-    /// NOTE: This implementation only works for workspace
-    /// for now.
-    pub fn run(&self) -> Result<()> {
-        let config = self.config()?;
-        let mut sed = Sed::new(self.manifest())?;
-
-        sed.set_workspace_version(&self.version)?;
-        let version_req = format!("={}", self.version);
-        sed.set_dep_versions(&VersionReq::parse(&version_req)?, &config.packages)?;
-
-        if self.dry_run {
-            println!("{}", String::from_utf8_lossy(&sed.buf));
-        } else {
-            sed.flush()?;
-            self.verify(&config.packages)?;
         }
 
         Ok(())

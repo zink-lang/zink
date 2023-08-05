@@ -1,7 +1,7 @@
 packages = [
   "zingen",
-  "zink",
   "zint",
   "zinkc",
+  "zink",
   "zinkup"
 ]
