@@ -2,12 +2,7 @@
 use anyhow::Result;
 use cargo_metadata::MetadataCommand;
 use clap::Parser;
-use std::{
-    path::{Path, PathBuf},
-    process::Command,
-    thread,
-    time::Duration,
-};
+use std::{path::PathBuf, process::Command, thread, time::Duration};
 
 /// Publish crates.
 #[derive(Debug, Parser, Clone)]
@@ -24,20 +19,13 @@ pub struct Publish {
 impl Publish {
     /// Run publish
     pub fn run(&self, manifest: &PathBuf, packages: &[String]) -> Result<()> {
-        let metadata = MetadataCommand::new()
-            .no_deps()
-            .manifest_path(manifest)
-            .exec()?;
+        self.verify(manifest, packages)?;
 
-        for pkg in metadata.packages {
-            if !packages.contains(&pkg.name) {
-                continue;
-            }
-
-            if self.publish(&pkg.manifest_path).is_err() {
+        for pkg in packages {
+            if !self.publish(&pkg)? {
                 // Just handle the rate limit for once.
                 thread::sleep(Duration::from_secs(60 * 6));
-                self.publish(pkg.manifest_path)?;
+                self.publish(pkg)?;
             }
         }
 
@@ -45,12 +33,9 @@ impl Publish {
     }
 
     /// Publish cargo package
-    fn publish(&self, path: impl AsRef<Path>) -> Result<()> {
+    fn publish(&self, package: &str) -> Result<bool> {
         let mut cargo = Command::new("cargo");
-        cargo
-            .arg("publish")
-            .arg("--manifest-path")
-            .arg(&path.as_ref());
+        cargo.arg("publish").arg("-p").arg(&package);
 
         if self.dry_run {
             cargo.arg("--dry-run");
@@ -60,7 +45,27 @@ impl Publish {
             cargo.arg("--allow-dirty");
         }
 
-        cargo.status()?;
+        Ok(cargo.status()?.success())
+    }
+
+    fn verify(&self, manifest: &PathBuf, packages: &[String]) -> Result<()> {
+        let metadata = MetadataCommand::new()
+            .no_deps()
+            .manifest_path(manifest)
+            .exec()?;
+
+        let pkgs = metadata
+            .packages
+            .iter()
+            .map(|pkg| pkg.name.clone())
+            .collect::<Vec<_>>();
+
+        for pkg in packages {
+            if !pkgs.contains(pkg) {
+                anyhow::bail!("Package {} not found in metadata", pkg);
+            }
+        }
+
         Ok(())
     }
 }
