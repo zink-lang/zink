@@ -3,7 +3,6 @@
 use anyhow::{anyhow, Result};
 use semver::{Version, VersionReq};
 use std::{
-    collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -37,70 +36,45 @@ pub struct Pos {
 pub struct Sed {
     pub buf: Vec<u8>,
     manifest: PathBuf,
-    root: Pos,
-    map: BTreeMap<String, Pos>,
 }
 
 impl Sed {
+    /// Find the version field from provided context.
+    pub fn find_version(context: &str, start: usize, patt: &str) -> Result<Pos> {
+        let mut start = context[start..]
+            .find(patt)
+            .ok_or(anyhow!("pattern {patt} not found"))?
+            + start
+            + patt.len();
+
+        start = context[start..]
+            .find(PATT_VERSION)
+            .ok_or(anyhow!("version not found"))?
+            + start
+            + PATT_VERSION.len();
+
+        let end = context[start..]
+            .find("\"")
+            .ok_or(anyhow!("the end of version field is invalid"))?
+            + start;
+
+        Ok(Pos { start, end })
+    }
+
     /// Create a new manifest stream editor.
-    pub fn new(p: impl AsRef<Path>, packages: &[String]) -> Result<Self> {
+    pub fn new(p: impl AsRef<Path>) -> Result<Self> {
         let manifest = p.as_ref().into();
         let buf = fs::read(&manifest)?;
-        let content = String::from_utf8_lossy(&buf);
 
-        let find_version = |start: usize, patt: &str| -> Result<Pos> {
-            let start = content[start..]
-                .find(patt)
-                .ok_or(anyhow!("pattern {patt} not found"))?
-                + start
-                + patt.len();
-
-            let start = content[start..]
-                .find("version = \"")
-                .ok_or(anyhow!("version not found"))?
-                + start
-                + PATT_VERSION.len();
-
-            let end = content[start..]
-                .find("\"")
-                .ok_or(anyhow!("the end of version field is invalid"))?
-                + start;
-
-            Ok(Pos { start, end })
-        };
-
-        // Get the version position of the root package.
-        let root = find_version(0, WORKSPACE_PACKAGE)?;
-
-        // Get the version position of each package.
-        let map = {
-            let start = content
-                .find(WORKSPACE_DEPENDENCIES)
-                .ok_or(anyhow!("workspace dependencies not found"))?
-                + WORKSPACE_DEPENDENCIES.len();
-
-            packages
-                .iter()
-                .map(|package| {
-                    find_version(start, &format!("{package} ")).map(|pos| (package.clone(), pos))
-                })
-                .collect::<Result<_>>()?
-        };
-
-        Ok(Self {
-            buf,
-            manifest,
-            root,
-            map,
-        })
+        Ok(Self { buf, manifest })
     }
 
     /// Set the version from pos.
-    pub fn set_version(&mut self, version: &str, pos: Pos) -> Result<()> {
+    pub fn set_version(&mut self, version: &str, pos: &Pos) -> Result<()> {
         let Pos { start, end } = pos;
 
         let buf = self.buf.clone();
-        let (before, after) = buf.split_at(start);
+        let (before, after) = buf.split_at(*start);
         let (_, after) = after.split_at(end - start);
 
         self.buf = [before, version.as_bytes(), after].concat();
@@ -109,9 +83,18 @@ impl Sed {
     }
 
     /// Set the version of the root package.
-    pub fn set_dep_versions(&mut self, version: &VersionReq) -> Result<()> {
-        for (_, pos) in self.map.clone().into_iter() {
-            self.set_version(&version.to_string(), pos)?;
+    pub fn set_dep_versions(&mut self, version: &VersionReq, packages: &[String]) -> Result<()> {
+        for package in packages {
+            let buf = self.buf.to_vec();
+            let context = String::from_utf8_lossy(&buf);
+            let start = context
+                .find(WORKSPACE_DEPENDENCIES)
+                .ok_or(anyhow!("workspace.dependencies not found"))?;
+
+            // TODO: Refactor the lines above
+
+            let pos = Self::find_version(&context, start, &format!("{package} "))?;
+            self.set_version(&version.to_string(), &pos)?;
         }
 
         Ok(())
@@ -119,7 +102,11 @@ impl Sed {
 
     /// Set the version of the root package.
     pub fn set_workspace_version(&mut self, version: &Version) -> Result<()> {
-        self.set_version(&version.to_string(), self.root.clone())
+        let context = String::from_utf8_lossy(&self.buf);
+
+        // Get the version position of the root package.
+        let root = Self::find_version(&context, 0, WORKSPACE_PACKAGE)?;
+        self.set_version(&version.to_string(), &root)
     }
 
     /// Flush the changes to the manifest file.

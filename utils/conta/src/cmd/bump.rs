@@ -80,10 +80,11 @@ impl Bump {
     /// for now.
     pub fn run(&self) -> Result<()> {
         let config = self.config()?;
-        let mut sed = Sed::new(self.manifest(), &config.packages)?;
+        let mut sed = Sed::new(self.manifest())?;
 
         sed.set_workspace_version(&self.version)?;
-        sed.set_dep_versions(&VersionReq::parse(format!("={}", self.version).as_str())?)?;
+        let version_req = format!("={}", self.version);
+        sed.set_dep_versions(&VersionReq::parse(&version_req)?, &config.packages)?;
 
         if self.dry_run {
             println!("{}", String::from_utf8_lossy(&sed.buf));
