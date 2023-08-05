@@ -1,6 +1,7 @@
 [package]
 name = "zink"
 description = "Standard library for zink projects."
+documentation = "https://docs.rs/zink"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

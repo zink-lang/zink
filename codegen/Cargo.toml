@@ -1,6 +1,7 @@
 [package]
 name = "zingen"
 description = "Code generation library for zink."
+documentation = "https://docs.rs/zingen"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
