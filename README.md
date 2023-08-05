@@ -23,7 +23,7 @@ flowchart LR
 Here we highly recommand you to choose `rust` as the language of your smart contracts
 which will unlock all of the following features:
 
-- **Safe**: `rustc` is wathcing you! Furthermore, after compiling your rust code into WASM,
+- **Safe**: `rustc` is wathcing you! Furthermore, after compiling your rust code to WASM,
   `zinkc` will precompute all of the stack and memory usages in your contracts to ensure they
   are safe in EVM bytecode as well!
 
