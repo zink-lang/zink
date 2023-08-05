@@ -1,12 +1,12 @@
 [package]
 name = "evm-opcodes"
-version = "0.0.0"
-edition = "2021"
 description = "Rust implementation of EVM opcode"
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
 license.workspace = true
-documentation = "https://docs.rs/evm-opcode"
-homepage = "https://github.com/clearloop/zink/tree/main/opcode"
-repository = "https://github.com/clearloop/zink/"
+repository.workspace = true
+version.workspace = true
 
 [dependencies]
 paste.workspace = true
