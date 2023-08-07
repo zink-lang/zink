@@ -462,7 +462,7 @@ dependencies = [
 
 [[package]]
 name = "conta"
-version = "0.0.3"
+version = "0.0.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -642,7 +642,7 @@ checksum = "4f7935cc590ee512e8073c4fe82b85e056216324e65aed24459204e3f6d9f72e"
 
 [[package]]
 name = "evm-opcodes"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "paste",
 ]
@@ -1957,7 +1957,7 @@ dependencies = [
 
 [[package]]
 name = "zingen"
-version = "0.0.3"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "evm-opcodes",
@@ -1971,11 +1971,11 @@ dependencies = [
 
 [[package]]
 name = "zink"
-version = "0.0.3"
+version = "0.1.0"
 
 [[package]]
 name = "zinkc"
-version = "0.0.3"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "hex",
@@ -1991,7 +1991,7 @@ dependencies = [
 
 [[package]]
 name = "zinkup"
-version = "0.0.3"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -2011,7 +2011,7 @@ dependencies = [
 
 [[package]]
 name = "zint"
-version = "0.0.3"
+version = "0.1.0"
 dependencies = [
  "hex",
  "revm-interpreter",

@@ -86,8 +86,12 @@ impl CodeGen {
 
     /// The select instruction selects one of its first two operands based
     /// on whether its third oprand is zero or not.
+    ///
+    /// STACK: [val1, val2, cond] -> [val1] if cond is non-zero, [val2] otherwise.
     pub fn _select(&mut self) -> Result<()> {
-        todo!()
+        // self.table.label(self.masm.pc_offset(), label);
+        // Ok(())
+        todo!("Jump to the code section - drop")
     }
 
     /// Branch to a given label in an enclosing construct.
