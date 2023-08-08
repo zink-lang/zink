@@ -1957,7 +1957,7 @@ dependencies = [
 
 [[package]]
 name = "zingen"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "evm-opcodes",
@@ -1971,11 +1971,11 @@ dependencies = [
 
 [[package]]
 name = "zink"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "zinkc"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "evm-opcodes",
@@ -1992,7 +1992,7 @@ dependencies = [
 
 [[package]]
 name = "zinkup"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -2012,7 +2012,7 @@ dependencies = [
 
 [[package]]
 name = "zint"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "hex",
  "revm-interpreter",
