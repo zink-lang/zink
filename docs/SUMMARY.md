@@ -6,6 +6,7 @@
   - [Compiling Zink Project](./tutorial/compile-zink-project.md)
 - [Examples](./examples/README.md)
   - [AddTwo](./examples/add-two.md)
+  - [Select](./examples/select.md)
   - [Fibonacci](./examples/fibonacci.md)
 - [Command Line Tool](./cli/README.md)
   - [elko](./cli/elko.md)

@@ -31,9 +31,9 @@ which will unlock all of the following features:
   and `zinkc`, your contracts will have the smallest size with **strong performance** in EVM
   bytecode at the end!
 
-- **Compatible**: All of the `no_std` libraries in rust are your libraries, futhermore, you
-  can use your solidity contracts as part of your zink contracts and your zink contracts as
-  part of your solidty contracts :)
+- **Compatible**: All of the `no_std` libraries in rust are your libraries, you can use your 
+  solidity contracts as part of your zink contracts and your zink contracts as part of your 
+  solidty contracts :)
 
 - **Easy Debugging**: Developing your smart contracts with only one programming language!
   zink will provide everything you need for developing your contracts officially based on the
@@ -77,7 +77,7 @@ GPL-3.0-only
 [telegram-badge]: https://img.shields.io/badge/telegram-blue?logo=telegram
 [telegram-group]: https://t.me/+6oZpbwxlVD81OGQ1
 [version-badge]: https://img.shields.io/crates/v/zink
-[version-link]: https://docs.rs/zink/latest/zink/
+[version-link]: https://docs.rs/zink/latest/zinkc
 [ci-badge]: https://img.shields.io/github/actions/workflow/status/clearloop/zink/main.yml
 [ci-link]: https://github.com/clearloop/zink/actions/workflows/main.yml
 [rustc-codegen]: https://doc.rust-lang.org/rustc/codegen-options/index.html

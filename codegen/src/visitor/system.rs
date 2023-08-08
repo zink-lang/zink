@@ -21,7 +21,7 @@ impl CodeGen {
         self.masm._pc()?;
 
         // register the call index to the jump table.
-        self.table.call(self.masm.pc_offset(), function_index)?;
+        self.table.call(self.masm.pc_offset(), function_index);
 
         // jump to the callee function
         //

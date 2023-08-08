@@ -5,6 +5,7 @@ authors = [ "clearloop" ]
 license = "GPL-v3.0"
 
 [workspace]
+resolver = "2"
 members = [
   "addition",
   "fibonacci",

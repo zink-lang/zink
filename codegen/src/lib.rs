@@ -7,7 +7,7 @@ pub use crate::{
     asm::Assembler,
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
-    jump::JumpTable,
+    jump::{Code, JumpTable},
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
     result::{Error, Result},

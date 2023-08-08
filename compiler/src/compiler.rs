@@ -61,6 +61,8 @@ impl Compiler {
 
     /// Finish compilation.
     pub fn finish(mut self) -> Result<Buffer> {
+        tracing::trace!("buffer length {:x}", self.buffer.len());
+        self.table.code_offset(self.buffer.len() as u16);
         self.table.relocate(&mut self.buffer)?;
 
         Ok(self.buffer)

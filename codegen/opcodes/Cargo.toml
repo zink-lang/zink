@@ -2,7 +2,7 @@
 name = "evm-opcodes"
 description = "Rust implementation of EVM opcode"
 documentation = "https://docs.rs/evm-opcodes"
-version = "0.0.2"
+version = "0.0.3"
 authors.workspace = true
 edition.workspace = true
 homepage.workspace = true
@@ -11,3 +11,6 @@ repository.workspace = true
 
 [dependencies]
 paste.workspace = true
+
+[features]
+data = []

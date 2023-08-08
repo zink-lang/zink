@@ -1,8 +1,10 @@
 //! Jump table implementation.
 
 use crate::{Error, Result};
+pub use code::{Code, Func};
 use std::collections::BTreeMap;
 
+mod code;
 mod pc;
 mod relocate;
 
@@ -14,6 +16,8 @@ pub enum Jump {
     Label(u16),
     /// Jump to function.
     Func(u32),
+    /// External function.
+    ExtFunc(Func),
 }
 
 impl Jump {
@@ -30,13 +34,14 @@ pub struct JumpTable {
     jump: BTreeMap<u16, Jump>,
     /// Function table.
     func: BTreeMap<u32, u16>,
+    /// Code section.
+    code: Code,
 }
 
 impl JumpTable {
     /// Register a function.
-    pub fn call(&mut self, pc: u16, func: u32) -> Result<()> {
+    pub fn call(&mut self, pc: u16, func: u32) {
         self.jump.insert(pc, Jump::Func(func));
-        Ok(())
     }
 
     /// Register program counter to the function table.
@@ -46,6 +51,17 @@ impl JumpTable {
         }
 
         Ok(())
+    }
+
+    /// Register program counter for code section.
+    pub fn code_offset(&mut self, offset: u16) {
+        self.code.shift(offset);
+    }
+
+    /// Register a external function.
+    pub fn ext(&mut self, pc: u16, func: Func) {
+        self.code.try_add_func(func);
+        self.jump.insert(pc, Jump::ExtFunc(func));
     }
 
     /// Register a label.
@@ -74,14 +90,19 @@ impl JumpTable {
             }
         }
 
+        for func in table.code.funcs() {
+            self.code.try_add_func(func);
+        }
+
         Ok(())
     }
 
     /// Get the target of a jump.
-    pub fn target(&self, jump: &Jump) -> Result<u16> {
+    pub fn target(&mut self, jump: &Jump) -> Result<u16> {
         match jump {
             Jump::Label(label) => Ok(*label),
             Jump::Func(func) => Ok(*self.func.get(func).ok_or(Error::FuncNotFound(*func))?),
+            Jump::ExtFunc(ext) => Ok(self.code.offset_of(ext).ok_or(Error::ExtNotFound(*ext))?),
         }
     }
 }
