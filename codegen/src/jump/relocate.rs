@@ -11,10 +11,7 @@ impl JumpTable {
     pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
         self.shift_targets()?;
         while let Some((pc, jump)) = self.jump.pop_first() {
-            tracing::debug!(
-                "run relocateion for {}",
-                if jump.is_label() { "label" } else { "function" }
-            );
+            tracing::debug!("run relocateion for {jump:?}",);
 
             let offset = relocate::offset(pc)?;
             relocate::pc(buffer, pc, self.target(&jump)?, offset)?;

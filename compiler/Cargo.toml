@@ -16,6 +16,7 @@ thiserror.workspace = true
 tracing.workspace = true
 wasmparser.workspace = true
 zingen.workspace = true
+opcodes.workspace = true
 
 [dev-dependencies]
 hex.workspace = true

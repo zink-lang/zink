@@ -1,8 +1,10 @@
 //! Jump table implementation.
 
 use crate::{Error, Result};
+pub use code::{Code, Func};
 use std::collections::BTreeMap;
 
+mod code;
 mod pc;
 mod relocate;
 
@@ -14,6 +16,8 @@ pub enum Jump {
     Label(u16),
     /// Jump to function.
     Func(u32),
+    /// External function.
+    ExtFunc(Func),
 }
 
 impl Jump {
@@ -30,6 +34,8 @@ pub struct JumpTable {
     jump: BTreeMap<u16, Jump>,
     /// Function table.
     func: BTreeMap<u32, u16>,
+    /// Code section.
+    code: Code,
 }
 
 impl JumpTable {
@@ -74,14 +80,16 @@ impl JumpTable {
             }
         }
 
+        self.code.shift(pc);
         Ok(())
     }
 
     /// Get the target of a jump.
-    pub fn target(&self, jump: &Jump) -> Result<u16> {
+    pub fn target(&mut self, jump: &Jump) -> Result<u16> {
         match jump {
             Jump::Label(label) => Ok(*label),
             Jump::Func(func) => Ok(*self.func.get(func).ok_or(Error::FuncNotFound(*func))?),
+            Jump::ExtFunc(ext) => Ok(self.code.offset_of(ext).ok_or(Error::ExtNotFound(*ext))?),
         }
     }
 }
