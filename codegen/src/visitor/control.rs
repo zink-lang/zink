@@ -2,6 +2,7 @@
 
 use crate::{
     control::{ControlStackFrame, ControlStackFrameType},
+    jump::Func,
     CodeGen, Result,
 };
 use wasmparser::{BlockType, BrTable};
@@ -89,9 +90,16 @@ impl CodeGen {
     ///
     /// STACK: [val1, val2, cond] -> [val1] if cond is non-zero, [val2] otherwise.
     pub fn _select(&mut self) -> Result<()> {
-        // self.table.label(self.masm.pc_offset(), label);
-        // Ok(())
-        todo!("Jump to the code section - drop")
+        tracing::trace!("select");
+        self.masm._pc()?;
+        self.masm._swap2()?;
+        self.masm._swap1()?;
+        self.masm.asm.increment_sp(1)?;
+        self.table.ext(self.masm.pc_offset(), Func::Select);
+        self.masm._jumpi()?;
+        self.masm._jumpdest()?;
+
+        Ok(())
     }
 
     /// Branch to a given label in an enclosing construct.

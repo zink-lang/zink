@@ -40,9 +40,8 @@ pub struct JumpTable {
 
 impl JumpTable {
     /// Register a function.
-    pub fn call(&mut self, pc: u16, func: u32) -> Result<()> {
+    pub fn call(&mut self, pc: u16, func: u32) {
         self.jump.insert(pc, Jump::Func(func));
-        Ok(())
     }
 
     /// Register program counter to the function table.
@@ -52,6 +51,17 @@ impl JumpTable {
         }
 
         Ok(())
+    }
+
+    /// Register program counter for code section.
+    pub fn code_offset(&mut self, offset: u16) {
+        self.code.shift(offset);
+    }
+
+    /// Register a external function.
+    pub fn ext(&mut self, pc: u16, func: Func) {
+        self.code.try_add_func(func);
+        self.jump.insert(pc, Jump::ExtFunc(func));
     }
 
     /// Register a label.
@@ -80,7 +90,10 @@ impl JumpTable {
             }
         }
 
-        self.code.shift(pc);
+        for func in table.code.funcs() {
+            self.code.try_add_func(func);
+        }
+
         Ok(())
     }
 

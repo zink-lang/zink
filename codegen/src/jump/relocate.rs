@@ -8,8 +8,12 @@ use opcodes::ShangHai as OpCode;
 
 impl JumpTable {
     /// Relocate program counter to all registered labels.
+    ///
+    /// *WARNING*: This function should only be called once in the compiler.
+    /// considering move it to the compiler.
     pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
         self.shift_targets()?;
+        tracing::debug!("code section offset: 0x{:x}", self.code.offset());
         while let Some((pc, jump)) = self.jump.pop_first() {
             tracing::debug!("run relocateion for {jump:?}",);
 
@@ -18,6 +22,7 @@ impl JumpTable {
             self.shift_label_pc(pc, offset)?;
         }
 
+        buffer.extend_from_slice(&self.code.finish());
         Ok(())
     }
 }

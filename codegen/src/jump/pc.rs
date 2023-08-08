@@ -29,14 +29,15 @@ impl JumpTable {
 
     /// Shift the target program counters.
     pub fn shift_targets(&mut self) -> Result<()> {
-        self.jump.clone().keys().try_for_each(|pc| -> Result<()> {
-            self.shift_target(*pc, relocate::offset(*pc)?)?;
-            Ok(())
-        })
+        self.jump
+            .clone()
+            .keys()
+            .try_for_each(|pc| -> Result<()> { self.shift_target(*pc, relocate::offset(*pc)?) })
     }
 
     /// Shift the program counter of targets with given ptr and offset.
     pub fn shift_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
+        self.code.shift(offset);
         self.shift_label_target(ptr, offset)?;
         self.shift_func_target(ptr, offset)
     }
