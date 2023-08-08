@@ -642,7 +642,7 @@ checksum = "4f7935cc590ee512e8073c4fe82b85e056216324e65aed24459204e3f6d9f72e"
 
 [[package]]
 name = "evm-opcodes"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "paste",
 ]

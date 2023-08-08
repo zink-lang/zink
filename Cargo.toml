@@ -44,7 +44,7 @@ wat = "1.0.66"
 
 # Local Dependencies.
 zinkup = { path = "cli", version = "=0.1.1" }
-opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.2" }
+opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
 zingen =  { path = "codegen", version = "=0.1.1" }
 zinkc = { path = "compiler", version = "=0.1.1" }
 zink = { path = "zink", version = "=0.1.1" }

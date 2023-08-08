@@ -28,8 +28,8 @@ macro_rules! opcodes {
         /// Ethereum virtual machine opcode.
         #[derive(Clone, Copy, Debug)]
         pub enum $version {
-            // TODO: make this a feature
-            /// A byte
+            #[cfg(feature = "data")]
+            /// No operation but provides a byte for serializing.
             Data(u8),
             $(
                 #[doc = concat!(" ", $desc)]
@@ -51,6 +51,7 @@ macro_rules! opcodes {
         impl From<$version> for u8 {
             fn from(version: $version) -> Self {
                 match version {
+                    #[cfg(feature = "data")]
                     $version::Data(data) => data,
                     $(
                         $version::$name => $opcode,
@@ -62,6 +63,7 @@ macro_rules! opcodes {
         impl OpCode for $version {
             fn group(&self) -> Group {
                 match self {
+                    #[cfg(feature = "data")]
                     Self::Data(_) => Group::StopArithmetic,
                     $(
                         Self::$name => Group::$group,
@@ -71,6 +73,7 @@ macro_rules! opcodes {
 
             fn gas(&self) -> u16 {
                 match self {
+                    #[cfg(feature = "data")]
                     Self::Data(_) => 0,
                     $(
                         Self::$name => $gas,
@@ -80,6 +83,7 @@ macro_rules! opcodes {
 
             fn since(&self) -> Upgrade {
                 match self {
+                    #[cfg(feature = "data")]
                     Self::Data(_) => Upgrade::Shanghai,
                     $(
                         Self::$name => Upgrade::$since,
@@ -89,6 +93,7 @@ macro_rules! opcodes {
 
             fn stack_in(&self) -> u16 {
                 match self {
+                    #[cfg(feature = "data")]
                     Self::Data(_) => 0,
                     $(
                         Self::$name => $input,
@@ -98,6 +103,7 @@ macro_rules! opcodes {
 
             fn stack_out(&self) -> u16 {
                 match self {
+                    #[cfg(feature = "data")]
                     Self::Data(_) => 0,
                     $(
                         Self::$name => $output,
