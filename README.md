@@ -6,9 +6,9 @@
 >
 > This project is still under active development, plz DO NOT use it in production.
 
-[![telegram][telegram-badge]][telegram-group]
 [![zink][version-badge]][version-link]
 [![ci][ci-badge]][ci-link]
+[![telegram][telegram-badge]][telegram-group]
 
 [The Zink project][book] mainly provides a singlepass compiler `zinkc` which compiles
 WASM to EVM bytecode, the source code of your smart contract could be any language you
