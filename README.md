@@ -1,4 +1,6 @@
-# Zink
+<img align="right" width="150" height="150" top="100" src = "https://github.com/clearloop/zink/assets/26088946/2b13f312-ca96-44ae-aa04-b0db9471aadb"/>
+
+# The Zink Project
 
 > **Warning**
 >
@@ -31,8 +33,8 @@ which will unlock all of the following features:
   and `zinkc`, your contracts will have the smallest size with **strong performance** in EVM
   bytecode at the end!
 
-- **Compatible**: All of the `no_std` libraries in rust are your libraries, you can use your 
-  solidity contracts as part of your zink contracts and your zink contracts as part of your 
+- **Compatible**: All of the `no_std` libraries in rust are your libraries, you can use your
+  solidity contracts as part of your zink contracts and your zink contracts as part of your
   solidty contracts :)
 
 - **Easy Debugging**: Developing your smart contracts with only one programming language!
@@ -74,8 +76,8 @@ situations ), let's keep tuned for `v0.3.0`.
 GPL-3.0-only
 
 [book]: https://docs.zink-lang.org/
-[telegram-badge]: https://img.shields.io/badge/telegram-blue?logo=telegram
-[telegram-group]: https://t.me/+6oZpbwxlVD81OGQ1
+[telegram-badge]: https://img.shields.io/endpoint?label=chat&style=flat&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dzinklang
+[telegram-group]: https://t.me/zinklang
 [version-badge]: https://img.shields.io/crates/v/zinkc
 [version-link]: https://docs.rs/zinkc
 [ci-badge]: https://img.shields.io/github/actions/workflow/status/clearloop/zink/main.yml
