@@ -76,7 +76,7 @@ GPL-3.0-only
 [book]: https://docs.zink-lang.org/
 [telegram-badge]: https://img.shields.io/badge/telegram-blue?logo=telegram
 [telegram-group]: https://t.me/+6oZpbwxlVD81OGQ1
-[version-badge]: https://img.shields.io/crates/v/zink
+[version-badge]: https://img.shields.io/crates/v/zinkc
 [version-link]: https://docs.rs/zinkc
 [ci-badge]: https://img.shields.io/github/actions/workflow/status/clearloop/zink/main.yml
 [ci-link]: https://github.com/clearloop/zink/actions/workflows/main.yml
