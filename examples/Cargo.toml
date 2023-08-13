@@ -9,7 +9,8 @@ resolver = "2"
 members = [
   "addition",
   "fibonacci",
-  "if-else"
+  "if-else",
+  "storage"
 ]
 
 [workspace.dependencies]
