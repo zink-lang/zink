@@ -1,32 +1,29 @@
 (module
-  (type (;0;) (func (param i32) (result i32)))
-  (type (;1;) (func (param i32)))
-  (type (;2;) (func (result i32)))
-  (func $set_and_get (type 0) (param i32) (result i32)
-    i32.const 1048572
+  (type (;0;) (func (param i64) (result i64)))
+  (type (;1;) (func (param i64 i64)))
+  (type (;2;) (func (param i64)))
+  (type (;3;) (func (result i64)))
+  (import "zink" "sstore" (func (;0;) (type 1)))
+  (import "zink" "sload" (func (;1;) (type 0)))
+  (func (;2;) (type 0) (param i64) (result i64)
+    i64.const 0
     local.get 0
-    i32.store
-    i32.const 1048576
+    call 0
+    i64.const 0
+    call 1)
+  (func (;3;) (type 2) (param i64)
+    i64.const 0
     local.get 0
-    i32.store
-    i32.const 1048576
-    i32.load)
-  (func $set (type 1) (param i32)
-    i32.const 1048572
-    local.get 0
-    i32.store
-    i32.const 1048576
-    local.get 0
-    i32.store)
-  (func $get (type 2) (result i32)
-    i32.const 1048576
-    i32.load)
-  (memory (;0;) 17)
-  (global (;0;) i32 (i32.const 1048580))
-  (global (;1;) i32 (i32.const 1048592))
+    call 0)
+  (func (;4;) (type 3) (result i64)
+    i64.const 0
+    call 1)
+  (memory (;0;) 16)
+  (global (;0;) i32 (i32.const 1048576))
+  (global (;1;) i32 (i32.const 1048576))
   (export "memory" (memory 0))
-  (export "set_and_get" (func $set_and_get))
-  (export "set" (func $set))
-  (export "get" (func $get))
+  (export "set_and_get" (func 2))
+  (export "set" (func 3))
+  (export "get" (func 4))
   (export "__data_end" (global 0))
   (export "__heap_base" (global 1)))
