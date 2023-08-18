@@ -14,6 +14,7 @@ pub use crate::{
     result::{Error, Result},
 };
 use smallvec::SmallVec;
+use std::collections::BTreeMap;
 
 pub mod abi;
 mod asm;
@@ -32,3 +33,6 @@ pub const BUFFER_LIMIT: usize = 0x6000;
 
 /// Code generation buffer.
 pub type Buffer = SmallVec<[u8; BUFFER_LIMIT]>;
+
+/// Imported functions.
+pub type Imports = BTreeMap<u32, Func>;

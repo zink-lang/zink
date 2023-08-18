@@ -2,10 +2,10 @@
 
 use crate::{Error, Result};
 use wasmparser::{
-    FuncToValidate, FunctionBody, Parser, Payload, ValidPayload, Validator, ValidatorResources,
-    WasmModuleResources,
+    FuncToValidate, FunctionBody, Import, Parser, Payload, TypeRef, ValidPayload, Validator,
+    ValidatorResources, WasmModuleResources,
 };
-use zingen::{Buffer, CodeGen, JumpTable, BUFFER_LIMIT};
+use zingen::{Buffer, CodeGen, Func, Imports, JumpTable, BUFFER_LIMIT};
 
 /// Zink Compiler
 #[derive(Default)]
@@ -19,8 +19,7 @@ impl Compiler {
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
         let mut validator = Validator::new();
         let mut func_index = 0;
-
-        // let imported_functions = HashMap::new();
+        let mut imports = Imports::default();
 
         // Compile functions.
         for payload in Parser::new(0).parse_all(wasm) {
@@ -29,13 +28,27 @@ impl Compiler {
             // NOTE: this is safe here since the import section is
             // ahead of the function section after the optimization
             // of wasm-opt.
-            if let Ok(Payload::ImportSection(_reader)) = &payload {
-                // continue;
+            if let Ok(Payload::ImportSection(reader)) = &payload {
+                let mut iter = reader.clone().into_iter();
+                while let Some(Ok(Import {
+                    module,
+                    name,
+                    ty: TypeRef::Func(index),
+                })) = iter.next()
+                {
+                    if let Ok(func) = Func::try_from((module, name)) {
+                        tracing::debug!("imported function: {}::{}", module, name);
+                        imports.insert(index, func);
+                    }
+                }
+
+                validator.payload(&payload?)?;
+                continue;
             }
 
             let payload = validator.payload(&payload?)?;
             if let ValidPayload::Func(to_validator, body) = payload {
-                self.compile_func(func_index, to_validator, body)?;
+                self.compile_func(func_index, imports.clone(), to_validator, body)?;
                 func_index += 1;
             }
         }
@@ -47,6 +60,7 @@ impl Compiler {
     pub fn compile_func(
         &mut self,
         func_index: u32,
+        imports: Imports,
         validator: FuncToValidate<ValidatorResources>,
         body: FunctionBody,
     ) -> Result<()> {
@@ -61,7 +75,7 @@ impl Compiler {
         tracing::debug!("compile function {}: {:?}", func_index, sig);
 
         let is_main = func_index == 0;
-        let mut codegen = CodeGen::new(sig, is_main)?;
+        let mut codegen = CodeGen::new(sig, imports, is_main)?;
         let mut locals_reader = body.get_locals_reader()?;
         let mut ops_reader = body.get_operators_reader()?;
 
