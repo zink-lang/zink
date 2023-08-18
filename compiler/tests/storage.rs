@@ -6,8 +6,8 @@ use zint::{Bytes32, InstructionResult, EVM};
 
 mod common;
 
-#[test]
 #[ignore]
+#[test]
 fn basic() -> Result<()> {
     let bytecode = common::load("storage", "basic")?;
     let info = EVM::run(&bytecode, &42.to_bytes32());

@@ -6,9 +6,8 @@ use zint::{Bytes32, EVM};
 
 mod common;
 
-#[test]
-fn params() -> Result<()> {
-    let bytecode = common::load("i32add", "params")?;
+fn params(module: &str) -> Result<()> {
+    let bytecode = common::load(module, "params")?;
 
     // add(1, 2)
     let input = [1.to_bytes32(), 2.to_bytes32()].concat();
@@ -18,20 +17,23 @@ fn params() -> Result<()> {
     Ok(())
 }
 
-#[test]
-fn locals() -> Result<()> {
-    let bytecode = common::load("i32add", "locals")?;
+fn locals(module: &str) -> Result<()> {
+    let bytecode = common::load(module, "locals")?;
     let info = EVM::run(&bytecode, &[]);
 
     assert_eq!(info.ret, [30.to_bytes32()].concat());
     Ok(())
 }
 
-#[test]
-fn tee() -> Result<()> {
-    let bytecode = common::load("i32add", "tee")?;
+fn tee(module: &str) -> Result<()> {
+    let bytecode = common::load(module, "tee")?;
     let info = EVM::run(&bytecode, &[]);
 
     assert_eq!(info.ret, [30.to_bytes32()].concat());
     Ok(())
+}
+
+impl_tests! {
+    tests: [params, locals, tee],
+    modules: ["i32add", "i64add"]
 }

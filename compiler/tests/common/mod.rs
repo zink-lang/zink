@@ -7,6 +7,8 @@ use tracing_subscriber::EnvFilter;
 use wat;
 use zinkc::Compiler;
 
+mod macros;
+
 fn setup_logger() {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
