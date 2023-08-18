@@ -18,6 +18,9 @@ pub enum Error {
     /// Failed to merge jump table.
     #[error("Program counter {0} already exists in jump table")]
     DuplicateJump(u16),
+    /// Failed to find imported function by index in jump table.
+    #[error("Imported Function {0} not found in jump table")]
+    ImportedFuncNotFound(u32),
     /// Failed to find function index in jump table.
     #[error("Function {0} not found in jump table")]
     FuncNotFound(u32),

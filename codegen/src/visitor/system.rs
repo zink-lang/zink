@@ -1,6 +1,6 @@
 //! System instructions
 
-use crate::{CodeGen, Result};
+use crate::{CodeGen, Error, Result};
 
 impl CodeGen {
     /// The call indirect instruction calls a function indirectly
@@ -22,9 +22,23 @@ impl CodeGen {
 
         // TODO: check the safty of the function index.
         let base = self.imports.len() as u32;
-
-        // register the call index to the jump table.
-        self.table.call(self.masm.pc_offset(), base + index);
+        if index < base {
+            // call an imported function.
+            //
+            // register the imported function index to the jump table.
+            self.table.ext(
+                self.masm.pc_offset(),
+                *self
+                    .imports
+                    .get(&index)
+                    .ok_or(Error::ImportedFuncNotFound(index))?,
+            );
+        } else {
+            // Call an internal function.
+            //
+            // register the call index to the jump table.
+            self.table.call(self.masm.pc_offset(), base + index);
+        }
 
         // jump to the callee function
         //
