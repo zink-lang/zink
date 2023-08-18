@@ -23,7 +23,7 @@ pub enum Error {
     FuncNotFound(u32),
     /// Failed to find ext function index in jump table.
     #[error("External function {0:?} not found in jump table")]
-    ExtNotFound(crate::jump::Func),
+    ExtNotFound(crate::Func),
     /// Failed to mark else block for if block.
     #[error("Invalid else block for if block at {0}")]
     InvalidElseBlock(u16),

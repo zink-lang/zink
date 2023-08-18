@@ -2,8 +2,7 @@
 
 use crate::{
     control::{ControlStackFrame, ControlStackFrameType},
-    jump::Func,
-    CodeGen, Result,
+    CodeGen, Func, Result,
 };
 use wasmparser::{BlockType, BrTable};
 

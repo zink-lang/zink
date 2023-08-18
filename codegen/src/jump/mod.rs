@@ -1,7 +1,7 @@
 //! Jump table implementation.
 
-use crate::{Error, Result};
-pub use code::{Code, Func};
+use crate::{Error, Func, Result};
+pub use code::Code;
 use std::collections::BTreeMap;
 
 mod code;

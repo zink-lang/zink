@@ -2,7 +2,7 @@
 
 use crate::{Error, Result};
 use wasmparser::{
-    FuncToValidate, FunctionBody, Parser, ValidPayload, Validator, ValidatorResources,
+    FuncToValidate, FunctionBody, Parser, Payload, ValidPayload, Validator, ValidatorResources,
     WasmModuleResources,
 };
 use zingen::{Buffer, CodeGen, JumpTable, BUFFER_LIMIT};
@@ -19,7 +19,20 @@ impl Compiler {
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
         let mut validator = Validator::new();
         let mut func_index = 0;
+
+        // let imported_functions = HashMap::new();
+
+        // Compile functions.
         for payload in Parser::new(0).parse_all(wasm) {
+            // Get imported functions
+            //
+            // NOTE: this is safe here since the import section is
+            // ahead of the function section after the optimization
+            // of wasm-opt.
+            if let Ok(Payload::ImportSection(_reader)) = &payload {
+                // continue;
+            }
+
             let payload = validator.payload(&payload?)?;
             if let ValidPayload::Func(to_validator, body) = payload {
                 self.compile_func(func_index, to_validator, body)?;

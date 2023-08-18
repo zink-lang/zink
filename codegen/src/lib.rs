@@ -7,6 +7,7 @@ pub use crate::{
     asm::Assembler,
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
+    func::Func,
     jump::{Code, JumpTable},
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
@@ -18,6 +19,7 @@ pub mod abi;
 mod asm;
 mod codegen;
 mod control;
+mod func;
 mod jump;
 mod local;
 mod masm;

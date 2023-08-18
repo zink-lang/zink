@@ -1,33 +1,7 @@
 //! Table for the code section.
 
-use opcodes::ShangHai as OpCode;
+use crate::func::Func;
 use std::collections::HashMap;
-
-/// Code in code section.
-#[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Hash)]
-pub enum Func {
-    /// Run select.
-    Select,
-}
-
-impl Func {
-    /// Get the bytecode of the function.
-    pub fn bytecode(&self) -> Vec<u8> {
-        match self {
-            Self::Select => [
-                OpCode::JUMPDEST,
-                OpCode::POP,
-                OpCode::PUSH1,
-                OpCode::Data(0x06),
-                OpCode::ADD,
-                OpCode::JUMP,
-            ],
-        }
-        .into_iter()
-        .map(|op| op.into())
-        .collect()
-    }
-}
 
 /// Code section for EVM.
 #[derive(Default, Debug)]
