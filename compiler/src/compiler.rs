@@ -23,12 +23,15 @@ impl Compiler {
 
         // Compile functions.
         for payload in Parser::new(0).parse_all(wasm) {
+            let payload = payload?;
+            let valid_payload = validator.payload(&payload)?;
+
             // Get imported functions
             //
             // NOTE: this is safe here since the import section is
             // ahead of the function section after the optimization
             // of wasm-opt.
-            if let Ok(Payload::ImportSection(reader)) = &payload {
+            if let Payload::ImportSection(reader) = &payload {
                 let mut iter = reader.clone().into_iter();
                 while let Some(Ok(Import {
                     module,
@@ -42,12 +45,10 @@ impl Compiler {
                     }
                 }
 
-                validator.payload(&payload?)?;
                 continue;
             }
 
-            let payload = validator.payload(&payload?)?;
-            if let ValidPayload::Func(to_validator, body) = payload {
+            if let ValidPayload::Func(to_validator, body) = valid_payload {
                 self.compile_func(func_index, imports.clone(), to_validator, body)?;
                 func_index += 1;
             }

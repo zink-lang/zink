@@ -15,13 +15,16 @@ impl CodeGen {
     }
 
     /// The call instruction calls a function specified by its index.
-    pub fn _call(&mut self, function_index: u32) -> Result<()> {
+    pub fn _call(&mut self, index: u32) -> Result<()> {
         // record the current program counter and
         // pass it to the callee function.
         self.masm._pc()?;
 
+        // TODO: check the safty of the function index.
+        let base = self.imports.len() as u32;
+
         // register the call index to the jump table.
-        self.table.call(self.masm.pc_offset(), function_index);
+        self.table.call(self.masm.pc_offset(), base + index);
 
         // jump to the callee function
         //
