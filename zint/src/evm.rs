@@ -1,8 +1,8 @@
 //! Re-export REVM intepreter for testing usages.
 
-pub use revm::interpreter::instruction_result::InstructionResult;
+pub use revm::interpreter::{instruction_result::InstructionResult, primitives::U256};
 use revm::interpreter::{
-    primitives::{bytecode::Bytecode, specification::ShanghaiSpec, U256},
+    primitives::{bytecode::Bytecode, specification::ShanghaiSpec},
     Contract, DummyHost, Interpreter,
 };
 use std::collections::HashMap;
