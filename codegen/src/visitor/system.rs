@@ -19,6 +19,7 @@ impl CodeGen {
         // record the current program counter and
         // pass it to the callee function.
         self.masm._pc()?;
+        self.masm.asm.increment_sp(1)?;
 
         // TODO: check the safty of the function index.
         let base = self.imports.len() as u32;
@@ -26,6 +27,7 @@ impl CodeGen {
             // call an imported function.
             //
             // register the imported function index to the jump table.
+            self.masm._swap2()?;
             self.table.ext(
                 self.masm.pc_offset(),
                 *self

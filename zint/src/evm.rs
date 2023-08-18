@@ -1,8 +1,11 @@
 //! Re-export REVM intepreter for testing usages.
 
-pub use revm_interpreter::instruction_result::InstructionResult;
-use revm_interpreter::{Contract, DummyHost, Interpreter};
-use revm_primitives::{bytecode::Bytecode, specification::ShanghaiSpec, U256};
+pub use revm::interpreter::instruction_result::InstructionResult;
+use revm::interpreter::{
+    primitives::{bytecode::Bytecode, specification::ShanghaiSpec, U256},
+    Contract, DummyHost, Interpreter,
+};
+use std::collections::HashMap;
 
 const INITIAL_GAS: u64 = 1_000_000_000;
 
@@ -15,6 +18,8 @@ pub struct Info {
     pub instr: InstructionResult,
     /// Return value.
     pub ret: Vec<u8>,
+    /// The storage.
+    pub storage: HashMap<U256, U256>,
 }
 
 /// EVM interpreter.
@@ -35,7 +40,7 @@ impl EVM {
         );
 
         Self {
-            interpreter: Interpreter::new(contract, INITIAL_GAS, true),
+            interpreter: Interpreter::new(contract, INITIAL_GAS, false),
             host: DummyHost::new(Default::default()),
         }
     }
@@ -49,10 +54,19 @@ impl EVM {
         let ret = self.interpreter.return_value().to_vec();
         self.interpreter.gas();
 
+        let storage = self
+            .host
+            .storage
+            .clone()
+            .into_iter()
+            .map(|(k, v)| (k, U256::from_le_bytes(v.to_le_bytes::<32>())))
+            .collect();
+
         Info {
             gas: self.interpreter.gas().spend(),
             instr,
             ret,
+            storage,
         }
     }
 

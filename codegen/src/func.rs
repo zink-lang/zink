@@ -12,19 +12,21 @@ const SELECT: [OpCode; 6] = [
 ];
 
 /// Function `sload` from EVM which is not avaiable in WASM.
-const SLOAD: [OpCode; 5] = [
+const SLOAD: [OpCode; 6] = [
     OpCode::JUMPDEST,
     OpCode::SLOAD,
-    OpCode::Data(0x06),
+    OpCode::PUSH1,
+    OpCode::Data(0x05),
     OpCode::ADD,
     OpCode::JUMP,
 ];
 
 /// Function `sload` from EVM which is not avaiable in WASM.
-const SSTORE: [OpCode; 5] = [
+const SSTORE: [OpCode; 6] = [
     OpCode::JUMPDEST,
     OpCode::SSTORE,
-    OpCode::Data(0x06),
+    OpCode::PUSH1,
+    OpCode::Data(0x05),
     OpCode::ADD,
     OpCode::JUMP,
 ];
@@ -44,9 +46,9 @@ impl Func {
     /// Get the bytecode of the function.
     pub fn bytecode(&self) -> Vec<u8> {
         match self {
-            Self::Select => SELECT.to_vec(),
-            Self::Sload => SLOAD.to_vec(),
-            Self::Sstore => SSTORE.to_vec(),
+            Self::Select => SELECT,
+            Self::Sload => SLOAD,
+            Self::Sstore => SSTORE,
         }
         .into_iter()
         .map(|op| op.into())
