@@ -17,8 +17,9 @@ impl MacroAssembler {
     }
 
     /// Push a 64-bit integer value on the stack.
-    pub fn _i64_const(&mut self, _value: i64) -> Result<()> {
-        todo!()
+    pub fn _i64_const(&mut self, value: i64) -> Result<()> {
+        self.push(value.to_ls_bytes().as_ref())?;
+        Ok(())
     }
 
     /// Push a 32-bit float value on the stack.

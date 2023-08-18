@@ -1978,6 +1978,7 @@ version = "0.1.2"
 dependencies = [
  "anyhow",
  "hex",
+ "paste",
  "thiserror",
  "tracing",
  "tracing-subscriber",
