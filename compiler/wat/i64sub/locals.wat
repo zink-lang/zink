@@ -1,16 +1,16 @@
 (module
-    (func (result i32)
-        (local $foo i32)
-        (local $bar i32)
+    (func (result i64)
+        (local $foo i64)
+        (local $bar i64)
 
-        (i32.const 20)
+        (i64.const 20)
         (local.set $foo)
 
-        (i32.const 10)
+        (i64.const 10)
         (local.set $bar)
 
         (local.get $foo)
         (local.get $bar)
-        i32.sub
+        i64.sub
     )
 )
