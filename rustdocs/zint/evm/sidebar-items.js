@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["INITIAL_GAS"],"enum":["InstructionResult"],"struct":["EVM","Info"]};
+window.SIDEBAR_ITEMS = {"constant":["INITIAL_GAS"],"enum":["InstructionResult"],"struct":["EVM","Info"],"type":["U256"]};

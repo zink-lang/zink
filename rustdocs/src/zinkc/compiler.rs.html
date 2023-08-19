@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/compiler.rs`."><title>compiler.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0-nightly (076887268 2023-08-17)" data-channel="nightly" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../zinkc/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/compiler.rs`."><title>compiler.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0-nightly (d06ca0ffa 2023-08-18)" data-channel="nightly" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../zinkc/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -82,14 +82,46 @@
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
 
 </span><span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>wasmparser::{
-    FuncToValidate, FunctionBody, Parser, ValidPayload, Validator, ValidatorResources,
-    WasmModuleResources,
+    FuncToValidate, FunctionBody, Import, Parser, Payload, TypeRef, ValidPayload, Validator,
+    ValidatorResources, WasmModuleResources,
 };
-<span class="kw">use </span>zingen::{Buffer, CodeGen, JumpTable, BUFFER_LIMIT};
+<span class="kw">use </span>zingen::{Buffer, CodeGen, Func, Imports, JumpTable, BUFFER_LIMIT};
 
 <span class="doccomment">/// Zink Compiler
 </span><span class="attr">#[derive(Default)]
@@ -103,10 +135,38 @@
     </span><span class="kw">pub fn </span>compile(<span class="kw-2">mut </span><span class="self">self</span>, wasm: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>validator = Validator::new();
         <span class="kw">let </span><span class="kw-2">mut </span>func_index = <span class="number">0</span>;
-        <span class="kw">for </span>payload <span class="kw">in </span>Parser::new(<span class="number">0</span>).parse_all(wasm) {
-            <span class="kw">let </span>payload = validator.payload(<span class="kw-2">&amp;</span>payload<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-            <span class="kw">if let </span>ValidPayload::Func(to_validator, body) = payload {
-                <span class="self">self</span>.compile_func(func_index, to_validator, body)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>imports = Imports::default();
+
+        <span class="comment">// Compile functions.
+        </span><span class="kw">for </span>payload <span class="kw">in </span>Parser::new(<span class="number">0</span>).parse_all(wasm) {
+            <span class="kw">let </span>payload = payload<span class="question-mark">?</span>;
+            <span class="kw">let </span>valid_payload = validator.payload(<span class="kw-2">&amp;</span>payload)<span class="question-mark">?</span>;
+
+            <span class="comment">// Get imported functions
+            //
+            // NOTE: this is safe here since the import section is
+            // ahead of the function section after the optimization
+            // of wasm-opt.
+            </span><span class="kw">if let </span>Payload::ImportSection(reader) = <span class="kw-2">&amp;</span>payload {
+                <span class="kw">let </span><span class="kw-2">mut </span>iter = reader.clone().into_iter();
+                <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Import {
+                    module,
+                    name,
+                    ty: TypeRef::Func(index),
+                })) = iter.next()
+                {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(func) = Func::try_from((module, name)) {
+                        <span class="macro">tracing::debug!</span>(<span class="string">&quot;imported function: {}::{} at {index}&quot;</span>, module, name);
+                        imports.push(func);
+                    }
+                }
+
+                <span class="macro">tracing::debug!</span>(<span class="string">&quot;imports: {:?}&quot;</span>, imports);
+                <span class="kw">continue</span>;
+            }
+
+            <span class="kw">if let </span>ValidPayload::Func(to_validator, body) = valid_payload {
+                <span class="self">self</span>.compile_func(func_index, imports.clone(), to_validator, body)<span class="question-mark">?</span>;
                 func_index += <span class="number">1</span>;
             }
         }
@@ -118,13 +178,17 @@
     </span><span class="kw">pub fn </span>compile_func(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         func_index: u32,
+        imports: Imports,
         validator: FuncToValidate&lt;ValidatorResources&gt;,
         body: FunctionBody,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>func_validator = validator.into_validator(Default::default());
         <span class="kw">let </span>sig = func_validator
             .resources()
-            .type_of_function(func_index)
+            <span class="comment">// NOTE: the functions list is [ [imports] [funcs] ] so
+            // here we need to add the length of imports to get the
+            // correct index.
+            </span>.type_of_function(func_index + imports.len() <span class="kw">as </span>u32)
             <span class="comment">// TODO: Add backtrace here for the function index. (#21)
             </span>.ok_or(Error::InvalidFunctionSignature)<span class="question-mark">?
             </span>.clone();
@@ -132,7 +196,7 @@
         <span class="macro">tracing::debug!</span>(<span class="string">&quot;compile function {}: {:?}&quot;</span>, func_index, sig);
 
         <span class="kw">let </span>is_main = func_index == <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>codegen = CodeGen::new(sig, is_main)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>codegen = CodeGen::new(sig, imports, is_main)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>locals_reader = body.get_locals_reader()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ops_reader = body.get_operators_reader()<span class="question-mark">?</span>;
 

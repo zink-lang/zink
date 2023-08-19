@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"zingen":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"enum\" href=\"zingen/jump/code/enum.Func.html\" title=\"enum zingen::jump::code::Func\">Func</a>"]]
+"zingen":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"enum\" href=\"zingen/func/enum.Func.html\" title=\"enum zingen::func::Func\">Func</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
