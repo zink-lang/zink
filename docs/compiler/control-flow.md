@@ -62,3 +62,91 @@ PUSH1 0x20
 PUSH1 0x00
 return
 ```
+
+## Select
+
+The `select (0x1B)` instruction comes from WebAssembly, it selects
+one of its first two operands based on whether its third operand is
+zero or not.
+
+Simple rust conditions in rust will be compiled to `select`.
+
+```rust
+pub extern "C" fn if_else(x: u64, y: u64) -> u64 {
+    if x > y {
+        x
+    } else {
+        y
+    }
+}
+```
+
+As we can see in the example above, we simply returns the bigger
+number from the 2 parameters, the logic in the two blocks of
+`if-else` is explicit direct, that will be compiled to `select`.
+
+```wasm
+(module
+  (type (;0;) (func (param i64 i64) (result i64)))
+  (func $if_else (type 0) (param i64 i64) (result i64)
+    local.get 0
+    local.get 1
+    local.get 0
+    local.get 1
+    i64.gt_u
+    select))
+```
+
+Since EVM doesn't have instruction like `select`, we need to provide
+it ourselves in our implementation like an external function, if zero
+pop the value on the top of the stack.
+
+```rust
+const SELECT: [OpCode; 6] = [
+    OpCode::JUMPDEST,
+    OpCode::POP,
+    OpCode::PUSH1,
+    OpCode::Data(0x06),
+    OpCode::ADD,
+    OpCode::JUMP,
+];
+```
+
+In the compiled code, we need to combine this function `select` with
+`jumpi` in EVM.
+
+```yul
+PUSH1 0x00      // Load the parameters.
+calldataload
+
+PUSH1 0x20
+calldataload
+
+PUSH1 0x00
+calldataload
+
+PUSH1 0x20
+calldataload
+
+lt               // Compiled to `lt` because of the result of this
+                 // instruction is oppsited between EVM and WASM.
+
+pc
+swap2            // shift
+swap1
+PUSH1 0x1c
+jumpi            // `jumpi` for the if condition.
+JUMPDEST
+
+PUSH1 0x00       // Returns the value.
+mstore
+PUSH1 0x20
+PUSH1 0x00
+return
+
+JUMPDEST         // Function select starts here.
+pop
+PUSH1 0x06
+add
+jump
+```

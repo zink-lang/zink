@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish:
-    if: github.repository == 'clearloop/zink'
+    if: github.repository == 'zink-lang/zink'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

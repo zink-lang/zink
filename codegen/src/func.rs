@@ -1,7 +1,8 @@
 //! Built-in functions for EVM
 use opcodes::ShangHai as OpCode;
 
-/// Function `select` from WASM which is not avaiable in EVM.
+/// Selects one of its first two operands based on whether
+/// its third operand is zero or not.
 const SELECT: [OpCode; 6] = [
     OpCode::JUMPDEST,
     OpCode::POP,
