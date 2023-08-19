@@ -7,17 +7,20 @@ pub use crate::{
     asm::Assembler,
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
+    func::Func,
     jump::{Code, JumpTable},
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
     result::{Error, Result},
 };
+// use indexmap::IndexMap;
 use smallvec::SmallVec;
 
 pub mod abi;
 mod asm;
 mod codegen;
 mod control;
+mod func;
 mod jump;
 mod local;
 mod masm;
@@ -30,3 +33,7 @@ pub const BUFFER_LIMIT: usize = 0x6000;
 
 /// Code generation buffer.
 pub type Buffer = SmallVec<[u8; BUFFER_LIMIT]>;
+
+/// Imported functions.
+/// pub type Imports = IndexMap<u32, Func>;
+pub type Imports = Vec<Func>;

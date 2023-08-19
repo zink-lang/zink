@@ -1,7 +1,7 @@
 //! Jump table implementation.
 
-use crate::{Error, Result};
-pub use code::{Code, Func};
+use crate::{Error, Func, Result};
+pub use code::Code;
 use std::collections::BTreeMap;
 
 mod code;
@@ -60,6 +60,7 @@ impl JumpTable {
 
     /// Register a external function.
     pub fn ext(&mut self, pc: u16, func: Func) {
+        tracing::debug!("register external function: {:?}", func);
         self.code.try_add_func(func);
         self.jump.insert(pc, Jump::ExtFunc(func));
     }

@@ -6,5 +6,5 @@ mod evm;
 
 pub use self::{
     bytes::Bytes32,
-    evm::{Info, InstructionResult, EVM},
+    evm::{Info, InstructionResult, EVM, U256},
 };

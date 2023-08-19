@@ -1,40 +1,14 @@
 //! Table for the code section.
 
-use opcodes::ShangHai as OpCode;
-use std::collections::HashMap;
-
-/// Code in code section.
-#[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Hash)]
-pub enum Func {
-    /// Run select.
-    Select,
-}
-
-impl Func {
-    /// Get the bytecode of the function.
-    pub fn bytecode(&self) -> Vec<u8> {
-        match self {
-            Self::Select => [
-                OpCode::JUMPDEST,
-                OpCode::POP,
-                OpCode::PUSH1,
-                OpCode::Data(0x06),
-                OpCode::ADD,
-                OpCode::JUMP,
-            ],
-        }
-        .into_iter()
-        .map(|op| op.into())
-        .collect()
-    }
-}
+use crate::func::Func;
+use indexmap::IndexMap;
 
 /// Code section for EVM.
 #[derive(Default, Debug)]
 pub struct Code {
     offset: usize,
     /// Function table.
-    funcs: HashMap<Func, usize>,
+    funcs: IndexMap<Func, usize>,
 }
 
 impl Code {
@@ -42,7 +16,7 @@ impl Code {
     pub fn new() -> Self {
         Self {
             offset: 0,
-            funcs: HashMap::new(),
+            funcs: Default::default(),
         }
     }
 
@@ -85,6 +59,7 @@ impl Code {
     pub fn finish(&self) -> Vec<u8> {
         let mut code = Vec::new();
         for func in self.funcs.keys() {
+            tracing::debug!("add function to code section: {:?}", func);
             code.extend(func.bytecode());
         }
         code

@@ -11,6 +11,5 @@ repository.workspace = true
 
 [dependencies]
 hex.workspace = true
-revm-interpreter.workspace = true
-revm-primitives.workspace = true
+revm.workspace = true
 tracing.workspace = true

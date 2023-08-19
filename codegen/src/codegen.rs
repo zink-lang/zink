@@ -5,7 +5,7 @@ use crate::{
     local::{LocalSlot, LocalSlotType, Locals},
     masm::MacroAssembler,
     validator::ValidateThenVisit,
-    Buffer, Error, Result,
+    Buffer, Error, Imports, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
@@ -23,13 +23,15 @@ pub struct CodeGen {
     pub(crate) masm: MacroAssembler,
     /// The jump table.
     pub(crate) table: JumpTable,
+    /// The imported functions.
+    pub(crate) imports: Imports,
     /// If this function is the main function.
     pub(crate) is_main: bool,
 }
 
 impl CodeGen {
     /// Create a new code generator.
-    pub fn new(env: FuncType, is_main: bool) -> Result<Self> {
+    pub fn new(env: FuncType, imports: Imports, is_main: bool) -> Result<Self> {
         let mut params_count = 0;
         if !is_main {
             params_count = env.params().len() as u8;
@@ -41,6 +43,7 @@ impl CodeGen {
             locals: Default::default(),
             masm: Default::default(),
             table: Default::default(),
+            imports,
             is_main,
         };
 
