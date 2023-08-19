@@ -11,9 +11,10 @@ repository.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-opcodes.workspace = true
 smallvec.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
-wasmparser.workspace = true
+opcodes.workspace = true
 paste.workspace = true
+wasmparser.workspace = true
+indexmap.workspace = true

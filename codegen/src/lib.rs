@@ -13,8 +13,8 @@ pub use crate::{
     masm::MacroAssembler,
     result::{Error, Result},
 };
+// use indexmap::IndexMap;
 use smallvec::SmallVec;
-use std::collections::BTreeMap;
 
 pub mod abi;
 mod asm;
@@ -35,4 +35,5 @@ pub const BUFFER_LIMIT: usize = 0x6000;
 pub type Buffer = SmallVec<[u8; BUFFER_LIMIT]>;
 
 /// Imported functions.
-pub type Imports = BTreeMap<u32, Func>;
+/// pub type Imports = IndexMap<u32, Func>;
+pub type Imports = Vec<Func>;

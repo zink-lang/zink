@@ -60,6 +60,7 @@ impl JumpTable {
 
     /// Register a external function.
     pub fn ext(&mut self, pc: u16, func: Func) {
+        tracing::debug!("register external function: {:?}", func);
         self.code.try_add_func(func);
         self.jump.insert(pc, Jump::ExtFunc(func));
     }

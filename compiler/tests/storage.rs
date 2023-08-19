@@ -7,8 +7,8 @@ use zint::{Bytes32, InstructionResult, EVM, U256};
 mod common;
 
 #[test]
-fn load() -> Result<()> {
-    let bytecode = common::load("storage", "load")?;
+fn store() -> Result<()> {
+    let bytecode = common::load("storage", "store")?;
     let key = 0;
     let value = 42;
     let info = EVM::run(&bytecode, &value.to_bytes32());
@@ -20,7 +20,18 @@ fn load() -> Result<()> {
     Ok(())
 }
 
-#[ignore]
+#[test]
+fn load() -> Result<()> {
+    let bytecode = common::load("storage", "load")?;
+    let value = 42.to_bytes32();
+    let info = EVM::run(&bytecode, &value);
+
+    assert_eq!(info.instr, InstructionResult::Return);
+    assert_eq!(info.ret, value);
+
+    Ok(())
+}
+
 #[test]
 fn basic() -> Result<()> {
     let bytecode = common::load("storage", "basic")?;

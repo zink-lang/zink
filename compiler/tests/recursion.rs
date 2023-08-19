@@ -3,7 +3,6 @@ use zint::{Bytes32, EVM};
 
 mod common;
 
-// #[ignore]
 #[test]
 fn fibonacci() -> Result<()> {
     let bytecode = common::load("recursion", "fibonacci")?;

@@ -2244,6 +2244,7 @@ version = "0.1.2"
 dependencies = [
  "anyhow",
  "evm-opcodes",
+ "indexmap 2.0.0",
  "paste",
  "smallvec",
  "thiserror",

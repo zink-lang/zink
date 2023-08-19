@@ -40,11 +40,12 @@ impl Compiler {
                 })) = iter.next()
                 {
                     if let Ok(func) = Func::try_from((module, name)) {
-                        tracing::debug!("imported function: {}::{}", module, name);
-                        imports.insert(index, func);
+                        tracing::debug!("imported function: {}::{} at {index}", module, name);
+                        imports.push(func);
                     }
                 }
 
+                tracing::debug!("imports: {:?}", imports);
                 continue;
             }
 
@@ -68,7 +69,10 @@ impl Compiler {
         let mut func_validator = validator.into_validator(Default::default());
         let sig = func_validator
             .resources()
-            .type_of_function(func_index)
+            // NOTE: the functions list is [ [imports] [funcs] ] so
+            // here we need to add the length of imports to get the
+            // correct index.
+            .type_of_function(func_index + imports.len() as u32)
             // TODO: Add backtrace here for the function index. (#21)
             .ok_or(Error::InvalidFunctionSignature)?
             .clone();

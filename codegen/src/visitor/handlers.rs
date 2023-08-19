@@ -13,8 +13,9 @@ impl CodeGen {
 
     /// Handle the end of the function.
     pub(crate) fn handle_return(&mut self) -> Result<()> {
-        tracing::debug!("handle return");
         let results = self.env.results();
+        tracing::debug!("handle return, results: {results:?}");
+
         if results.is_empty() {
             return self.handle_empty_return();
         }
