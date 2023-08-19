@@ -431,7 +431,7 @@ control flow <code>br_if</code> and <code>loop</code> are compiled as well.</p>
 </code></pre>
 <h2 id="usages"><a class="header" href="#usages">Usages</a></h2>
 <pre><code class="language-bash">elko
-Zink's package manager
+Package manager of zink.
 
 Usage: elko [OPTIONS] &lt;COMMAND&gt;
 
@@ -512,6 +512,10 @@ for storing them.</p>
 <h3 id="external-functions"><a class="header" href="#external-functions">External Functions</a></h3>
 <p>Same as internal functions, will be updated once have the design
 of selector in <a href="https://github.com/clearloop/zink/milestone/2">v0.2.0</a></p>
+<h3 id="extended-functions"><a class="header" href="#extended-functions">Extended Functions</a></h3>
+<p>We have also introduces extended functions inside the compiler
+for complete the difference between EVM bytecode and WASM,
+see the implementation <a href="compiler/./control-flow.html#select">select</a> as example.</p>
 <h3 id="main-function"><a class="header" href="#main-function">Main Function</a></h3>
 <p>You may never meet this because it is embedded in the compiled
 bytecode, but it is the entry of zink programs.</p>
@@ -638,6 +642,78 @@ mstore
 PUSH1 0x20
 PUSH1 0x00
 return
+</code></pre>
+<h2 id="select-1"><a class="header" href="#select-1">Select</a></h2>
+<p>The <code>select (0x1B)</code> instruction comes from WebAssembly, it selects
+one of its first two operands based on whether its third operand is
+zero or not.</p>
+<p>Simple rust conditions in rust will be compiled to <code>select</code>.</p>
+<pre><code class="language-rust">pub extern &quot;C&quot; fn if_else(x: u64, y: u64) -&gt; u64 {
+    if x &gt; y {
+        x
+    } else {
+        y
+    }
+}</code></pre>
+<p>As we can see in the example above, we simply returns the bigger
+number from the 2 parameters, the logic in the two blocks of
+<code>if-else</code> is explicit direct, that will be compiled to <code>select</code>.</p>
+<pre><code class="language-wasm">(module
+  (type (;0;) (func (param i64 i64) (result i64)))
+  (func $if_else (type 0) (param i64 i64) (result i64)
+    local.get 0
+    local.get 1
+    local.get 0
+    local.get 1
+    i64.gt_u
+    select))
+</code></pre>
+<p>Since EVM doesn’t have instruction like <code>select</code>, we need to provide
+it ourselves in our implementation like an external function, if zero
+pop the value on the top of the stack.</p>
+<pre><code class="language-rust">const SELECT: [OpCode; 6] = [
+    OpCode::JUMPDEST,
+    OpCode::POP,
+    OpCode::PUSH1,
+    OpCode::Data(0x06),
+    OpCode::ADD,
+    OpCode::JUMP,
+];</code></pre>
+<p>In the compiled code, we need to combine this function <code>select</code> with
+<code>jumpi</code> in EVM.</p>
+<pre><code class="language-yul">PUSH1 0x00      // Load the parameters.
+calldataload
+
+PUSH1 0x20
+calldataload
+
+PUSH1 0x00
+calldataload
+
+PUSH1 0x20
+calldataload
+
+lt               // Compiled to `lt` because of the result of this
+                 // instruction is oppsited between EVM and WASM.
+
+pc
+swap2            // shift
+swap1
+PUSH1 0x1c
+jumpi            // `jumpi` for the if condition.
+JUMPDEST
+
+PUSH1 0x00       // Returns the value.
+mstore
+PUSH1 0x20
+PUSH1 0x00
+return
+
+JUMPDEST         // Function select starts here.
+pop
+PUSH1 0x06
+add
+jump
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="locals"><a class="header" href="#locals">Locals</a></h1>
 <p>There are two usages of locals in zink.</p>

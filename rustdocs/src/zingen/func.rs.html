@@ -68,10 +68,12 @@
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Built-in functions for EVM
 </span><span class="kw">use </span>opcodes::ShangHai <span class="kw">as </span>OpCode;
 
-<span class="doccomment">/// Function `select` from WASM which is not avaiable in EVM.
+<span class="doccomment">/// Selects one of its first two operands based on whether
+/// its third operand is zero or not.
 </span><span class="kw">const </span>SELECT: [OpCode; <span class="number">6</span>] = [
     OpCode::JUMPDEST,
     OpCode::POP,
