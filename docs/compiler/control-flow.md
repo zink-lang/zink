@@ -112,6 +112,9 @@ const SELECT: [OpCode; 6] = [
 ];
 ```
 
+In the compiled code, we need to combine this function `select` with
+`jumpi` in EVM.
+
 ```yul
 PUSH1 0x00      // Load the parameters.
 calldataload
@@ -125,7 +128,7 @@ calldataload
 PUSH1 0x20
 calldataload
 
-lt               // compiled to `lt` because of the result of this
+lt               // Compiled to `lt` because of the result of this
                  // instruction is oppsited between EVM and WASM.
 
 pc

@@ -19,6 +19,12 @@ for storing them.
 Same as internal functions, will be updated once have the design
 of selector in [v0.2.0][v0.2.0]
 
+### Extended Functions
+
+We have also introduces extended functions inside the compiler
+for complete the difference between EVM bytecode and WASM,
+see the implementation [select](./control-flow.md#select) as example.
+
 ### Main Function
 
 You may never meet this because it is embedded in the compiled

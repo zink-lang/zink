@@ -10,7 +10,7 @@ cargo install zinkup --features elko
 
 ```bash
 elko
-Zink's package manager
+Package manager of zink.
 
 Usage: elko [OPTIONS] <COMMAND>
 
