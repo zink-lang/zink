@@ -22,11 +22,11 @@ flowchart LR
     Z --> V[(EVM)]
 ```
 
-Here we highly recommand you to choose `rust` as the language of your smart contracts
+Here we highly recommend you to choose `rust` as the language of your smart contracts
 which will unlock all of the following features:
 
-- **Safe**: `rustc` is wathcing you! Furthermore, after compiling your rust code to WASM,
-  `zinkc` will precompute all of the stack and memory usages in your contracts to ensure they
+- **Safe**: `rustc` is watching you! Furthermore, after compiling your rust code to WASM,
+  `zinkc` will precompute all of the stack and memory usage in your contracts to ensure they
   are safe in EVM bytecode as well!
 
 - **High Performance**: The optimizations are provided by the three of `rustc`, `wasm-opt`
@@ -35,7 +35,7 @@ which will unlock all of the following features:
 
 - **Compatible**: All of the `no_std` libraries in rust are your libraries, you can use your
   solidity contracts as part of your zink contracts and your zink contracts as part of your
-  solidty contracts :)
+  solidity contracts :)
 
 - **Easy Debugging**: Developing your smart contracts with only one programming language!
   zink will provide everything you need for developing your contracts officially based on the
@@ -68,7 +68,7 @@ pub extern "C" fn recursion(n: usize) -> usize {
 
 As an example for the benchmark, calculating fibonacci sequence with recursion, missed
 vyper because it doesn't support recursion...Zink is 5x fast on this, but it is mainly
-caused by our current implementation is not completed yet ( missing logic to adapt more
+caused by our current implementation is not completed yet ( missing logic to adapt to more
 situations ), let's keep tuned for `v0.3.0`.
 
 ## LICENSE
