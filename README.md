@@ -26,7 +26,7 @@ Here we highly recommend you to choose `rust` as the language of your smart cont
 which will unlock all of the following features:
 
 - **Safe**: `rustc` is watching you! Furthermore, after compiling your rust code to WASM,
-  `zinkc` will precompute all of the stack and memory usages in your contracts to ensure they
+  `zinkc` will precompute all of the stack and memory usage in your contracts to ensure they
   are safe in EVM bytecode as well!
 
 - **High Performance**: The optimizations are provided by the three of `rustc`, `wasm-opt`
