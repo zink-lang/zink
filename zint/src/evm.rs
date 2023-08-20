@@ -1,4 +1,4 @@
-//! Re-export REVM intepreter for testing usages.
+//! Re-export REVM interpreter for testing usages.
 
 pub use revm::interpreter::{instruction_result::InstructionResult, primitives::U256};
 use revm::interpreter::{

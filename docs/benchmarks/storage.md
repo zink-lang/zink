@@ -19,7 +19,7 @@ for example, the transaction of this function in solidity is `24120`, and
 `2916` for the execution cost, `27738` in total.
 
 Since revm doesn't support this and we haven't implemented the constructor
-yet, we don't have the seperated costs for zink for now ))
+yet, we don't have the separated costs for zink for now ))
 
 Issue: [#102][102]
 

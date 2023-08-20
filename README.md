@@ -22,10 +22,10 @@ flowchart LR
     Z --> V[(EVM)]
 ```
 
-Here we highly recommand you to choose `rust` as the language of your smart contracts
+Here we highly recommend you to choose `rust` as the language of your smart contracts
 which will unlock all of the following features:
 
-- **Safe**: `rustc` is wathcing you! Furthermore, after compiling your rust code to WASM,
+- **Safe**: `rustc` is watching you! Furthermore, after compiling your rust code to WASM,
   `zinkc` will precompute all of the stack and memory usages in your contracts to ensure they
   are safe in EVM bytecode as well!
 

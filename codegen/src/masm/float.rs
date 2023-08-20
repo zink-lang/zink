@@ -8,7 +8,7 @@ impl MacroAssembler {
         todo!()
     }
 
-    /// Minium of two values
+    /// Minimum of two values
     pub fn _min(&mut self) -> Result<()> {
         todo!()
     }

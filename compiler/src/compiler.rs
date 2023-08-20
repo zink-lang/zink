@@ -15,7 +15,7 @@ pub struct Compiler {
 }
 
 impl Compiler {
-    /// Compile wasm moudle to evm bytecode.
+    /// Compile wasm module to evm bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
         let mut validator = Validator::new();
         let mut func_index = 0;

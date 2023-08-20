@@ -5,7 +5,7 @@
 The path of the compiler crate is `/compiler`, as its name, it's the zink compiler
 `zinkc`, currently just a wrapper of `zingen`, the codegen library.
 
-So if you want to contibute to the compiler, the code inside `/compiler` and `/codegen`
+So if you want to contribute to the compiler, the code inside `/compiler` and `/codegen`
 will be interested for you!
 
 ## Zink

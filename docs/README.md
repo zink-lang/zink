@@ -30,10 +30,10 @@ There we two ways to handle the calling convention, for storing PC
 1. Store the PC
 
 few arguments     -> store the PC on stack.
-lots of arguemnts -> store the PC in reserved memory.
+lots of arguments -> store the PC in reserved memory.
 
 
-2. Retrive the PC
+2. Retrieve the PC
 
 stack  -> swap the parameters and the PC
 memory -> read from reserved memory

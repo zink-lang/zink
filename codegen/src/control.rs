@@ -57,7 +57,7 @@ impl ControlStackFrame {
         }
     }
 
-    /// Get the offset of the orginal program counter.
+    /// Get the offset of the original program counter.
     pub fn pc_offset(&self) -> u16 {
         self.original_pc_offset
     }

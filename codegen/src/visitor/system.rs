@@ -20,7 +20,7 @@ impl CodeGen {
         // pass it to the callee function.
         self.masm._pc()?;
 
-        // TODO: check the safty of the function index.
+        // TODO: check the safety of the function index.
         let base = self.imports.len() as u32;
 
         if base > index {

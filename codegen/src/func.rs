@@ -12,7 +12,7 @@ const SELECT: [OpCode; 6] = [
     OpCode::JUMP,
 ];
 
-/// Function `sload` from EVM which is not avaiable in WASM.
+/// Function `sload` from EVM which is not available in WASM.
 const SLOAD: [OpCode; 7] = [
     OpCode::JUMPDEST,
     OpCode::SLOAD,
@@ -23,7 +23,7 @@ const SLOAD: [OpCode; 7] = [
     OpCode::JUMP,
 ];
 
-/// Function `sload` from EVM which is not avaiable in WASM.
+/// Function `sload` from EVM which is not available in WASM.
 const SSTORE: [OpCode; 6] = [
     OpCode::JUMPDEST,
     OpCode::SSTORE,
