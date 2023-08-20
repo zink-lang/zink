@@ -70,7 +70,7 @@
             <span class="kw">fn </span><span class="macro-nonterminal">$visit</span>(<span class="kw-2">&amp;mut </span><span class="self">self </span>$($(,<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="self">Self</span>::Output {
                 <span class="self">self</span>.<span class="number">0.</span><span class="macro-nonterminal">$visit</span>($($(<span class="macro-nonterminal">$arg</span>.clone()),<span class="kw-2">*</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="comment">// Only visit operators if the compiler is in a reachable code state. If
-                // the compiler is in an unrechable code state, most of the operators are
+                // the compiler is in an unreachable code state, most of the operators are
                 // ignored except for If, Block, Loop, Else and End. These operators need
                 // to be observed in order to keep the control stack frames balanced and to
                 // determine if reachability should be restored.

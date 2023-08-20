@@ -131,7 +131,7 @@
 }
 
 <span class="kw">impl </span>Compiler {
-    <span class="doccomment">/// Compile wasm moudle to evm bytecode.
+    <span class="doccomment">/// Compile wasm module to evm bytecode.
     </span><span class="kw">pub fn </span>compile(<span class="kw-2">mut </span><span class="self">self</span>, wasm: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>validator = Validator::new();
         <span class="kw">let </span><span class="kw-2">mut </span>func_index = <span class="number">0</span>;

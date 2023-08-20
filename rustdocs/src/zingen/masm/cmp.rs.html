@@ -106,7 +106,7 @@
     /// Using lt due to order of stack.
     </span><span class="kw">pub fn </span>_ge(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.push(<span class="kw-2">&amp;</span>[<span class="number">1</span>])<span class="question-mark">?</span>;
-        <span class="comment">// NOTE: this is the overrided sub but not `self.asm.sub`
+        <span class="comment">// NOTE: this is the overridden sub but not `self.asm.sub`
         </span><span class="self">self</span>._sub()<span class="question-mark">?</span>;
         <span class="self">self</span>.asm._lt()
     }
@@ -118,7 +118,7 @@
     /// Using lt due to order of stack.
     </span><span class="kw">pub fn </span>_sge(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.push(<span class="kw-2">&amp;</span>[<span class="number">1</span>])<span class="question-mark">?</span>;
-        <span class="comment">// NOTE: this is the overrided sub but not `self.asm.sub`
+        <span class="comment">// NOTE: this is the overridden sub but not `self.asm.sub`
         </span><span class="self">self</span>._sub()<span class="question-mark">?</span>;
         <span class="self">self</span>.asm._slt()
     }
@@ -130,7 +130,7 @@
     /// Using lt due to order of stack.
     </span><span class="kw">pub fn </span>_sle(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.push(<span class="kw-2">&amp;</span>[<span class="number">1</span>])<span class="question-mark">?</span>;
-        <span class="comment">// NOTE: this is the overrided sub but not `self.asm.sub`
+        <span class="comment">// NOTE: this is the overridden sub but not `self.asm.sub`
         </span><span class="self">self</span>._sub()<span class="question-mark">?</span>;
         <span class="self">self</span>.asm._slt()
     }
@@ -142,7 +142,7 @@
     /// Using gt due to order of stack.
     </span><span class="kw">pub fn </span>_le(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.push(<span class="kw-2">&amp;</span>[<span class="number">1</span>])<span class="question-mark">?</span>;
-        <span class="comment">// NOTE: this is the overrided sub but not `self.asm.sub`
+        <span class="comment">// NOTE: this is the overridden sub but not `self.asm.sub`
         </span><span class="self">self</span>._sub()<span class="question-mark">?</span>;
         <span class="self">self</span>.asm._lt()
     }
