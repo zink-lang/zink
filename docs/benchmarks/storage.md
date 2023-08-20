@@ -6,7 +6,7 @@ Have to say `Vyper` is super on this even it contains the logic of function
 selector! However we just found that the extended functions in zink could
 be optimized after doing research on the compiled bytecode from vyper.
 
-Issue: [#104][104]
+Issue: [zink-lang/zink#104][104]
 
 ### Gas Cost
 
@@ -21,7 +21,7 @@ for example, the transaction of this function in solidity is `24120`, and
 Since revm doesn't support this and we haven't implemented the constructor
 yet, we don't have the separated costs for zink for now ))
 
-Issue: [#102][102]
+Issues: [zink-lang/zink#102][102], [bluealloy/revm#619][619]
 
 ### Runtime Code
 
@@ -93,3 +93,4 @@ contract Storage {
 
 [102]: https://github.com/zink-lang/zink/issues/102
 [104]: https://github.com/zink-lang/zink/issues/104
+[619]: https://github.com/bluealloy/revm/issues/619
