@@ -11,7 +11,7 @@ impl MacroAssembler {
     /// Using lt due to order of stack.
     pub fn _ge(&mut self) -> Result<()> {
         self.push(&[1])?;
-        // NOTE: this is the overrided sub but not `self.asm.sub`
+        // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
         self.asm._lt()
     }
@@ -23,7 +23,7 @@ impl MacroAssembler {
     /// Using lt due to order of stack.
     pub fn _sge(&mut self) -> Result<()> {
         self.push(&[1])?;
-        // NOTE: this is the overrided sub but not `self.asm.sub`
+        // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
         self.asm._slt()
     }
@@ -35,7 +35,7 @@ impl MacroAssembler {
     /// Using lt due to order of stack.
     pub fn _sle(&mut self) -> Result<()> {
         self.push(&[1])?;
-        // NOTE: this is the overrided sub but not `self.asm.sub`
+        // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
         self.asm._slt()
     }
@@ -47,7 +47,7 @@ impl MacroAssembler {
     /// Using gt due to order of stack.
     pub fn _le(&mut self) -> Result<()> {
         self.push(&[1])?;
-        // NOTE: this is the overrided sub but not `self.asm.sub`
+        // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
         self.asm._lt()
     }

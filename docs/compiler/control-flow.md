@@ -1,6 +1,6 @@
 # Control Flow
 
-EVM doesn't have instructions for the custom conrol flows, however
+EVM doesn't have instructions for the custom control flows, however
 zink implements them with `JUMPI` and `JUMP`, which includes:
 
 - `if`

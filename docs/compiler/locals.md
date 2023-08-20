@@ -43,7 +43,7 @@ calldataload
 ```
 
 You may have problem why we `PUSH1 0x20` while getting local at index `1`, the
-anwser is that this offset is calculated by the size of the parameters.
+answer is that this offset is calculated by the size of the parameters.
 
 The `CALLDATALOAD` operator has stack input `i` and output `data[i]` while `data[i]`
 is a `32-byte` value starting from the given offset of the calldata, so the minimal
@@ -51,7 +51,7 @@ size of our types will be `32-byte`, therefore, we align all types sizes to `32-
 in `zinkc`.
 
 > WARN: We don't care about the originals offset of the parameters in WASM bcz we will
-> serialize them into our locals and calcualte the offsets on our own when need anyway.
+> serialize them into our locals and calculate the offsets on our own when need anyway.
 
 | type  | size     | aligned size |
 | ----- | -------- | ------------ |

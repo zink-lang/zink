@@ -93,7 +93,7 @@ impl Assembler {
 
     /// Emit a single opcode.
     ///
-    /// Mock the stack input and ouput for checking
+    /// Mock the stack input and output for checking
     /// the stack usages.
     pub fn emit_op(&mut self, opcode: OpCode) -> Result<()> {
         tracing::trace!("emit opcode: {:?}", opcode);

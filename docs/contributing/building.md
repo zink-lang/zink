@@ -13,7 +13,7 @@ Before we can actually build Zink, we'll need to make sure these things are inst
 ### Add target `wasm32-unknown-unknown`
 
 ```
-rustup target add wasm32-unknown-unkown
+rustup target add wasm32-unknown-unknown
 ```
 
 This is required for compiling our rust projects to wasm.

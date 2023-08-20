@@ -14,7 +14,7 @@ macro_rules! validate_then_visit {
             fn $visit(&mut self $($(,$arg: $argty)*)?) -> Self::Output {
                 self.0.$visit($($($arg.clone()),*)?)?;
                 // Only visit operators if the compiler is in a reachable code state. If
-                // the compiler is in an unrechable code state, most of the operators are
+                // the compiler is in an unreachable code state, most of the operators are
                 // ignored except for If, Block, Loop, Else and End. These operators need
                 // to be observed in order to keep the control stack frames balanced and to
                 // determine if reachability should be restored.

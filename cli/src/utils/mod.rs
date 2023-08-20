@@ -11,7 +11,7 @@ mod manifest;
 mod result;
 mod wasm;
 
-/// Compliation profile.
+/// Compilation profile.
 #[derive(PartialEq, Eq)]
 pub enum Profile {
     /// Debug profile.
