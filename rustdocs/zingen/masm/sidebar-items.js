@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["cmp","float","integer","memory","stack"],"struct":["MacroAssembler"]};
+window.SIDEBAR_ITEMS = {"mod":["cmp","embed","float","integer","memory","stack"],"struct":["MacroAssembler"]};

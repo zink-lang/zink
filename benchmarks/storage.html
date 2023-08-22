@@ -172,12 +172,10 @@
                         <h1 id="storage"><a class="header" href="#storage">Storage</a></h1>
 <p>Result for a simple storage IO.</p>
 <p>Have to say <code>Vyper</code> is super on this even it contains the logic of function
-selector! However we just found that the extended functions in zink could
-be optimized after doing research on the compiled bytecode from vyper.</p>
-<p>Issue: <a href="https://github.com/zink-lang/zink/issues/104">zink-lang/zink#104</a></p>
+selector!</p>
 <h3 id="gas-cost"><a class="header" href="#gas-cost">Gas Cost</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>io</th><th>Zink</th><th>Vyper@0.3.9</th><th>Solidity@0.8.21</th></tr></thead><tbody>
-<tr><td>42</td><td>22294</td><td>22345</td><td>27738</td></tr>
+<tr><td>42</td><td>22237</td><td>22345</td><td>27738</td></tr>
 </tbody></table>
 </div>
 <p>The gas costs here are measured by <code>transaction cost</code> + <code>execution cost</code>,
@@ -188,7 +186,7 @@ yet, we don’t have the separated costs for zink for now ))</p>
 <p>Issues: <a href="https://github.com/zink-lang/zink/issues/102">zink-lang/zink#102</a>, <a href="https://github.com/bluealloy/revm/issues/619">bluealloy/revm#619</a></p>
 <h3 id="runtime-code"><a class="header" href="#runtime-code">Runtime Code</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>zink</th><th>vyper</th><th>solidity</th></tr></thead><tbody>
-<tr><td>80</td><td>204</td><td>724</td></tr>
+<tr><td>42</td><td>204</td><td>724</td></tr>
 </tbody></table>
 </div>
 <h2 id="zink"><a class="header" href="#zink"><code>zink</code></a></h2>
@@ -211,7 +209,7 @@ pub unsafe extern &quot;C&quot; fn set_and_get(value: i64) -&gt; i64 {
     Counter::set(value);
     Counter::get()
 }</code></pre>
-<pre><code>60006000355891601b565b600058906021565b60005260206000f35b55600501565b549060050156
+<pre><code>6000600035589155600058905460005260206000f3
 </code></pre>
 <h2 id="vyper"><a class="header" href="#vyper"><code>vyper</code></a></h2>
 <pre><code class="language-python">n: public(int256)
