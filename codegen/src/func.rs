@@ -46,14 +46,31 @@ pub enum Func {
 }
 
 impl Func {
+    /// Stack input size.
+    pub fn stack_in(&self) -> u8 {
+        match self {
+            Self::Select => 3,
+            Self::Sload => 1,
+            Self::Sstore => 2,
+        }
+    }
+
+    /// Stack output size.
+    pub fn stack_out(&self) -> u8 {
+        match self {
+            Self::Select => 1,
+            Self::Sload => 1,
+            Self::Sstore => 0,
+        }
+    }
+
     /// Pre-porcessing for the function.
     pub fn prelude(&self, masm: &mut MacroAssembler) -> Result<()> {
         match self {
             Self::Select => {
                 masm._pc()?;
                 masm._swap2()?;
-                masm._swap1()?;
-                masm.asm.increment_sp(1)
+                masm._swap1()
             }
             Self::Sload => masm._swap1(),
             Self::Sstore => masm._swap2(),

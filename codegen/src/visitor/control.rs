@@ -92,10 +92,14 @@ impl CodeGen {
         tracing::trace!("select");
         let func = Func::Select;
         func.prelude(&mut self.masm)?;
+        self.masm.decrement_sp(func.stack_in())?;
 
+        // This if for pushing the PC of jumpdest.
+        self.masm.increment_sp(1)?;
         self.table.ext(self.masm.pc_offset(), Func::Select);
         self.masm._jumpi()?;
         self.masm._jumpdest()?;
+        self.masm.increment_sp(func.stack_out())?;
         Ok(())
     }
 

@@ -78,8 +78,10 @@ impl CodeGen {
     /// Call external functions
     pub fn call_external(&mut self, func: Func) -> Result<()> {
         self.table.ext(self.masm.pc_offset(), func);
+        self.masm.decrement_sp(func.stack_in())?;
         self.masm._jump()?;
         self.masm._jumpdest()?;
+        self.masm.increment_sp(func.stack_out())?;
         Ok(())
     }
 }
