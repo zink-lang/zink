@@ -3,16 +3,13 @@
 Result for a simple storage IO.
 
 Have to say `Vyper` is super on this even it contains the logic of function
-selector! However we just found that the extended functions in zink could
-be optimized after doing research on the compiled bytecode from vyper.
-
-Issue: [zink-lang/zink#104][104]
+selector!
 
 ### Gas Cost
 
 | io  | Zink  | Vyper@0.3.9 | Solidity@0.8.21 |
 | --- | ----- | ----------- | --------------- |
-| 42  | 22294 | 22345       | 27738           |
+| 42  | 22237 | 22345       | 27738           |
 
 The gas costs here are measured by `transaction cost` + `execution cost`,
 for example, the transaction of this function in solidity is `24120`, and
@@ -27,7 +24,7 @@ Issues: [zink-lang/zink#102][102], [bluealloy/revm#619][619]
 
 | zink | vyper | solidity |
 | ---- | ----- | -------- |
-| 80   | 204   | 724      |
+| 42   | 204   | 724      |
 
 ## `zink`
 
@@ -54,7 +51,7 @@ pub unsafe extern "C" fn set_and_get(value: i64) -> i64 {
 ```
 
 ```
-60006000355891601b565b600058906021565b60005260206000f35b55600501565b549060050156
+6000600035589155600058905460005260206000f3
 ```
 
 ## `vyper`

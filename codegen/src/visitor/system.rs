@@ -56,17 +56,32 @@ impl CodeGen {
             .get(index as usize)
             .ok_or(Error::ImportedFuncNotFound(index))?;
 
-        tracing::debug!("call imported function {func:?} at index {index}");
-        match func {
-            Func::Sstore => self.masm._swap2()?,
-            Func::Sload => self.masm._swap1()?,
-            _ => {}
+        func.prelude(&mut self.masm)?;
+        if func.is_embedded() {
+            tracing::debug!("embed imported function {func:?} at index {index}");
+            self.call_embedded(func)
+        } else {
+            tracing::debug!("call imported function {func:?} at index {index}");
+            self.call_external(func)
         }
+    }
 
+    /// Call embedded functions
+    fn call_embedded(&mut self, func: Func) -> Result<()> {
+        match func {
+            Func::Sstore => self.masm._sstore(),
+            Func::Sload => self.masm._sload(),
+            _ => Err(Error::UnsupportedHostFunc(func)),
+        }
+    }
+
+    /// Call external functions
+    pub fn call_external(&mut self, func: Func) -> Result<()> {
         self.table.ext(self.masm.pc_offset(), func);
-
+        self.masm.decrement_sp(func.stack_in())?;
         self.masm._jump()?;
         self.masm._jumpdest()?;
+        self.masm.increment_sp(func.stack_out())?;
         Ok(())
     }
 }

@@ -1,4 +1,5 @@
 //! Built-in functions for EVM
+use crate::{Error, MacroAssembler, Result};
 use opcodes::ShangHai as OpCode;
 
 /// Selects one of its first two operands based on whether
@@ -23,7 +24,7 @@ const SLOAD: [OpCode; 7] = [
     OpCode::JUMP,
 ];
 
-/// Function `sload` from EVM which is not available in WASM.
+/// Function `sstore` from EVM which is not available in WASM.
 const SSTORE: [OpCode; 6] = [
     OpCode::JUMPDEST,
     OpCode::SSTORE,
@@ -45,6 +46,37 @@ pub enum Func {
 }
 
 impl Func {
+    /// Stack input size.
+    pub fn stack_in(&self) -> u8 {
+        match self {
+            Self::Select => 3,
+            Self::Sload => 1,
+            Self::Sstore => 2,
+        }
+    }
+
+    /// Stack output size.
+    pub fn stack_out(&self) -> u8 {
+        match self {
+            Self::Select => 1,
+            Self::Sload => 1,
+            Self::Sstore => 0,
+        }
+    }
+
+    /// Pre-processing for the function.
+    pub fn prelude(&self, masm: &mut MacroAssembler) -> Result<()> {
+        match self {
+            Self::Select => {
+                masm._pc()?;
+                masm._swap2()?;
+                masm._swap1()
+            }
+            Self::Sload => masm._swap1(),
+            Self::Sstore => masm._swap2(),
+        }
+    }
+
     /// Get the bytecode of the function.
     pub fn bytecode(&self) -> Vec<u8> {
         match self {
@@ -56,16 +88,31 @@ impl Func {
         .map(|op| op.into())
         .collect()
     }
+
+    /// If this function should be embedded in
+    /// the main code.
+    ///
+    /// TODO: return `false` for functions that
+    /// are necessary to just stay in the code
+    /// section #109
+    pub fn is_embedded(&self) -> bool {
+        match self {
+            Self::Select => true,
+            Self::Sload => true,
+            Self::Sstore => true,
+        }
+    }
 }
 
 impl TryFrom<(&str, &str)> for Func {
-    type Error = ();
+    type Error = Error;
 
-    fn try_from(import: (&str, &str)) -> Result<Self, Self::Error> {
+    fn try_from(import: (&str, &str)) -> Result<Self> {
+        let (module, name) = import;
         match import {
             ("zink", "sload") => Ok(Self::Sload),
             ("zink", "sstore") => Ok(Self::Sstore),
-            _ => Err(()),
+            _ => Err(Error::HostFuncNotFound(module.into(), name.into())),
         }
     }
 }

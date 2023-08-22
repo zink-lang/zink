@@ -9,6 +9,7 @@ use smallvec::SmallVec;
 use std::ops::{Deref, DerefMut};
 
 mod cmp;
+mod embed;
 mod float;
 mod integer;
 mod memory;
