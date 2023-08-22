@@ -64,7 +64,7 @@ impl Func {
         }
     }
 
-    /// Pre-porcessing for the function.
+    /// Pre-processing for the function.
     pub fn prelude(&self, masm: &mut MacroAssembler) -> Result<()> {
         match self {
             Self::Select => {

@@ -3,10 +3,7 @@
 Result for a simple storage IO.
 
 Have to say `Vyper` is super on this even it contains the logic of function
-selector! However we just found that the extended functions in zink could
-be optimized after doing research on the compiled bytecode from vyper.
-
-Issue: [zink-lang/zink#104][104]
+selector!
 
 ### Gas Cost
 
