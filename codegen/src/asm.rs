@@ -18,7 +18,7 @@ pub struct Assembler {
     gas: u128,
     /// Memory pointer for byte offset.
     pub mp: usize,
-    /// Stack pointer, maximum 12 items.
+    /// Stack pointer, maximum 1024 items.
     pub sp: u8,
 }
 
@@ -43,6 +43,8 @@ impl Assembler {
     /// Increment stack pointer
     pub fn increment_sp(&mut self, items: u8) -> Result<()> {
         self.sp += items;
+
+        // TODO: fix this limitation: should be 1024.
         if self.sp > 12 {
             return Err(Error::StackOverflow(self.sp));
         }

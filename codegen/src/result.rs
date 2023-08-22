@@ -18,15 +18,18 @@ pub enum Error {
     /// Failed to merge jump table.
     #[error("Program counter {0} already exists in jump table")]
     DuplicateJump(u16),
-    /// Failed to find imported function by index in jump table.
-    #[error("Imported Function {0} not found in jump table")]
-    ImportedFuncNotFound(u32),
-    /// Failed to find function index in jump table.
-    #[error("Function {0} not found in jump table")]
-    FuncNotFound(u32),
     /// Failed to find ext function index in jump table.
     #[error("External function {0:?} not found in jump table")]
     ExtNotFound(crate::Func),
+    /// Failed to find function index in jump table.
+    #[error("Function {0} not found in jump table")]
+    FuncNotFound(u32),
+    /// Failed to find host function in compiler.
+    #[error("Host function {0}::{1} not found in compiler")]
+    HostFuncNotFound(String, String),
+    /// Failed to find imported function by index in jump table.
+    #[error("Imported Function {0} not found in jump table")]
+    ImportedFuncNotFound(u32),
     /// Failed to mark else block for if block.
     #[error("Invalid else block for if block at {0}")]
     InvalidElseBlock(u16),
@@ -66,6 +69,9 @@ pub enum Error {
     /// Failed to pop stack.
     #[error("Stack not balanced, current stack items {0}")]
     StackNotBalanced(u8),
+    /// Failed to queue host functions.
+    #[error("Unsupported host function {0:?}")]
+    UnsupportedHostFunc(crate::Func),
 }
 
 /// Codegen result

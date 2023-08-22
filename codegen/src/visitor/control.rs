@@ -90,14 +90,12 @@ impl CodeGen {
     /// STACK: [val1, val2, cond] -> [val1] if cond is non-zero, [val2] otherwise.
     pub fn _select(&mut self) -> Result<()> {
         tracing::trace!("select");
-        self.masm._pc()?;
-        self.masm._swap2()?;
-        self.masm._swap1()?;
-        self.masm.asm.increment_sp(1)?;
+        let func = Func::Select;
+        func.prelude(&mut self.masm)?;
+
         self.table.ext(self.masm.pc_offset(), Func::Select);
         self.masm._jumpi()?;
         self.masm._jumpdest()?;
-
         Ok(())
     }
 
