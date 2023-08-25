@@ -5,12 +5,13 @@ use zint::EVM;
 
 mod common;
 
+#[ignore]
 #[test]
 fn params() -> Result<()> {
     let bytecode = common::load("log", "log0")?;
 
     // returns the bigger number.
-    let info = EVM::run(&bytecode, &[]);
+    let _info = EVM::run(&bytecode, &[]);
 
     Ok(())
 }

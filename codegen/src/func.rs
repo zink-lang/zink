@@ -110,8 +110,8 @@ impl TryFrom<(&str, &str)> for Func {
     fn try_from(import: (&str, &str)) -> Result<Self> {
         let (module, name) = import;
         match import {
-            ("zink", "sload") => Ok(Self::Sload),
-            ("zink", "sstore") => Ok(Self::Sstore),
+            ("evm", "sload") => Ok(Self::Sload),
+            ("evm", "sstore") => Ok(Self::Sstore),
             _ => Err(Error::HostFuncNotFound(module.into(), name.into())),
         }
     }

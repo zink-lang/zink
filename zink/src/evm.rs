@@ -1,9 +1,9 @@
-//! WASM module imports
+//! EVM imports
 
-// Zink provided interfaces
+// EVM interfaces
 //
 // TODO: Align to 256-bit #20.
-#[link(wasm_import_module = "zink")]
+#[link(wasm_import_module = "evm")]
 extern "C" {
     // i64 -> 8 bytes
 
