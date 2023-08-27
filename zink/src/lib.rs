@@ -3,12 +3,9 @@
 #![no_std]
 
 mod event;
-mod ffi;
+pub mod ffi;
 
-pub use self::{
-    event::Event,
-    ffi::{evm, memory},
-};
+pub use self::event::Event;
 
 // Panic hook implementation
 #[cfg(not(test))]

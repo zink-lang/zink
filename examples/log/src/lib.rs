@@ -16,7 +16,11 @@ struct Ping;
 impl Event for Ping {
     const NAME: &'static [u8] = b"Ping";
 
-    fn emit(&self) {}
+    fn emit(&self) {
+        unsafe {
+            zink::ffi::evm::log0(Self::NAME.as_ptr() as i32, 4);
+        }
+    }
 }
 
 /// Adds two numbers together.

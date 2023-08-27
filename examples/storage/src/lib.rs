@@ -6,7 +6,7 @@
 extern crate zink;
 
 /// TODO: generate this storage interface with proc macro.
-use zink::storage::{sload, sstore};
+use zink::ffi::evm::{sload, sstore};
 
 // The number `0` in this struct is for the storage key,
 // it will be convreted to `0x000..0000`.

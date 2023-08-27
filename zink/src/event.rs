@@ -3,7 +3,6 @@
 /// Zink event interface
 pub trait Event {
     const NAME: &'static [u8];
-    const TOPICS: u8;
 
     /// Returns the first topic.
     fn topic_0(&self) -> Option<[u8; 32]> {
