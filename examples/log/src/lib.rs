@@ -5,14 +5,22 @@
 #[cfg(not(test))]
 extern crate zink;
 
-use zink::events::log0;
+use zink::Event;
+
+/// A `Ping` event.
+///
+/// TODO: generate this with proc-macro.
+struct Ping;
+
+/// TODO: generate this with proc-macro.
+impl Event for Ping {
+    const NAME: &'static [u8] = b"Ping";
+
+    fn emit(&self) {}
+}
 
 /// Adds two numbers together.
 #[no_mangle]
-pub extern "C" fn log(s: &str) {
-    let hello = s.as_bytes();
-
-    unsafe {
-        log0(hello.as_ptr() as i64, hello.len() as i64);
-    }
+pub extern "C" fn log() {
+    Ping.emit();
 }

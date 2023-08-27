@@ -1,6 +1,14 @@
+//! Zink library for developing smart contracts for blockchains.
+
 #![no_std]
 
-pub mod evm;
+mod event;
+mod ffi;
+
+pub use self::{
+    event::Event,
+    ffi::{evm, memory},
+};
 
 // Panic hook implementation
 #[cfg(not(test))]
