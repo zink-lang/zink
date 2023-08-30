@@ -1,16 +1,11 @@
+//! Zink library for developing smart contracts for blockchains.
+
 #![no_std]
 
-mod imports;
+mod event;
+pub mod ffi;
 
-/// Storage interfaces
-pub mod storage {
-    pub use super::imports::{sload, sstore};
-}
-
-/// Event interfaces
-pub mod events {
-    pub use super::imports::{log0, log1, log2, log3, log4};
-}
+pub use self::event::Event;
 
 // Panic hook implementation
 #[cfg(not(test))]

@@ -1,5 +1,6 @@
 //! Code generation implementation.
 use crate::{
+    backtrace::Backtrace,
     control::ControlStack,
     jump::JumpTable,
     local::{LocalSlot, LocalSlotType, Locals},
@@ -13,6 +14,8 @@ use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, Validat
 ///
 /// TODO: add codegen context for backtrace. (#21)
 pub struct CodeGen {
+    /// The backtrace.
+    pub(crate) backtrace: Backtrace,
     /// Control stack frames.
     pub(crate) control: ControlStack,
     /// The function environment.
@@ -38,6 +41,7 @@ impl CodeGen {
         }
 
         let mut codegen = Self {
+            backtrace: Backtrace::default(),
             control: ControlStack::default(),
             env,
             locals: Default::default(),

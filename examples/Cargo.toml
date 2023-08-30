@@ -10,6 +10,7 @@ members = [
   "addition",
   "fibonacci",
   "if-else",
+  "log",
   "storage"
 ]
 

@@ -49,6 +49,26 @@ impl Compiler {
                 continue;
             }
 
+            // if let Payload::DataSection(reader) = &payload {
+            //     let mut iter = reader.clone().into_iter();
+            //     while let Some(Ok(data)) = iter.next() {
+            //         if let DataKind::Active {
+            //             memory_index: _,
+            //             offset_expr: _,
+            //         } = data.kind
+            //         {
+            //             // TODO: parse offset expression.
+            //
+            //             // let buf = &offset_expr.data[1..5];
+            //             // let offset = leb128::read::signed(&mut data)?;
+            //             //
+            //             // dataset.insert(offset, data.data);
+            //         }
+            //         tracing::debug!("data: {:?}", data);
+            //     }
+            //     continue;
+            // }
+
             if let ValidPayload::Func(to_validator, body) = valid_payload {
                 self.compile_func(func_index, imports.clone(), to_validator, body)?;
                 func_index += 1;
