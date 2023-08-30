@@ -49,6 +49,14 @@ impl Compiler {
                 continue;
             }
 
+            if let Payload::DataSection(reader) = &payload {
+                let mut iter = reader.clone().into_iter();
+                while let Some(Ok(data)) = iter.next() {
+                    tracing::debug!("data: {:?}", data);
+                }
+                continue;
+            }
+
             if let ValidPayload::Func(to_validator, body) = valid_payload {
                 self.compile_func(func_index, imports.clone(), to_validator, body)?;
                 func_index += 1;

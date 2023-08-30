@@ -14,6 +14,11 @@ extern "C" {
     pub fn sload(key: i32) -> i32;
 
     /// Append log record with no topics
+    ///
+    /// NOTE:
+    ///
+    /// the first argument of this function is the position
+    /// of the data in the data section.
     pub fn log0(offset: i32, size: i32);
 
     /// Append log record with one topics
