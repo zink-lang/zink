@@ -43,6 +43,9 @@ pub enum Func {
     Sload,
     /// Run function sstore.
     Sstore,
+
+    /// Run function log0.
+    Log0,
 }
 
 impl Func {
@@ -52,6 +55,7 @@ impl Func {
             Self::Select => 3,
             Self::Sload => 1,
             Self::Sstore => 2,
+            Self::Log0 => 2,
         }
     }
 
@@ -61,6 +65,7 @@ impl Func {
             Self::Select => 1,
             Self::Sload => 1,
             Self::Sstore => 0,
+            Self::Log0 => 0,
         }
     }
 
@@ -74,6 +79,7 @@ impl Func {
             }
             Self::Sload => masm._swap1(),
             Self::Sstore => masm._swap2(),
+            _ => Ok(()),
         }
     }
 
@@ -83,6 +89,7 @@ impl Func {
             Self::Select => SELECT.to_vec(),
             Self::Sload => SLOAD.to_vec(),
             Self::Sstore => SSTORE.to_vec(),
+            _ => unimplemented!("not implemented for {:?}", self),
         }
         .into_iter()
         .map(|op| op.into())
@@ -100,6 +107,7 @@ impl Func {
             Self::Select => true,
             Self::Sload => true,
             Self::Sstore => true,
+            Self::Log0 => true,
         }
     }
 }
@@ -112,6 +120,7 @@ impl TryFrom<(&str, &str)> for Func {
         match import {
             ("evm", "sload") => Ok(Self::Sload),
             ("evm", "sstore") => Ok(Self::Sstore),
+            ("evm", "log0") => Ok(Self::Log0),
             _ => Err(Error::HostFuncNotFound(module.into(), name.into())),
         }
     }

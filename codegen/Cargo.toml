@@ -11,10 +11,11 @@ repository.workspace = true
 
 [dependencies]
 anyhow.workspace = true
+indexmap.workspace = true
+leb128.workspace = true
+opcodes.workspace = true
+paste.workspace = true
 smallvec.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
-opcodes.workspace = true
-paste.workspace = true
 wasmparser.workspace = true
-indexmap.workspace = true

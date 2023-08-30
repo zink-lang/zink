@@ -71,6 +71,7 @@ impl CodeGen {
         match func {
             Func::Sstore => self.masm._sstore(),
             Func::Sload => self.masm._sload(),
+            Func::Log0 => self.log0(),
             _ => Err(Error::UnsupportedHostFunc(func)),
         }
     }
@@ -82,6 +83,36 @@ impl CodeGen {
         self.masm._jump()?;
         self.masm._jumpdest()?;
         self.masm.increment_sp(func.stack_out())?;
+        Ok(())
+    }
+
+    /// Logs a message with no topics.
+    pub fn log0(&mut self) -> Result<()> {
+        let buffer: Vec<u8> = self.masm.buffer().into();
+
+        // Pop offset and size from the bytecode.
+        let len = self.backtrace.popn(2);
+        let data = &buffer[(buffer.len() - len - 1)..];
+        tracing::debug!("log0 data: {:?}", data);
+        *self.masm.buffer_mut() = buffer[..(buffer.len() - len)].into();
+
+        // Parse offset.
+        if !(0x5e..0x8f).contains(&data[0]) {
+            todo!("handle invalid data offset in log");
+        }
+        let bytes_len = (data[0] - 0x5f) as usize;
+        let offset = &data[1..(1 + bytes_len)];
+        tracing::debug!("log0 offset: {:?}", offset);
+
+        // Parse size.
+        if !(0x5e..0x8f).contains(&data[bytes_len + 1]) {
+            todo!("handle invalid data offset in log");
+        }
+        let size = &data[(bytes_len + 2)..];
+        tracing::debug!("log0 size: {:?}", size);
+
+        // Integrate with data section.
+
         Ok(())
     }
 }

@@ -41,7 +41,12 @@ macro_rules! map_wasm_operators {
         paste! {
             fn [< visit_ $ty _ $wasm >](&mut self $(,$arg: $argty),*) -> Self::Output {
                 trace!("{}.{}", stringify!($ty), stringify!($evm));
+
+                let before = self.masm.buffer().len();
                 self.masm.[< _ $evm >]()?;
+
+                let after = self.masm.buffer().len();
+                self.backtrace.push(after - before);
 
                 Ok(())
             }
@@ -92,7 +97,10 @@ macro_rules! map_wasm_operators {
 
                 trace!("{}", log);
 
+                let before = self.masm.buffer().len();
                 self.$($field.)*[< _ $evm >]($($arg),*)?;
+                let after = self.masm.buffer().len();
+                self.backtrace.push(after - before);
                 Ok(())
             }
         }

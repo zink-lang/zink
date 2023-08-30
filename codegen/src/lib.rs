@@ -18,6 +18,7 @@ use smallvec::SmallVec;
 
 pub mod abi;
 mod asm;
+mod backtrace;
 mod codegen;
 mod control;
 mod func;
