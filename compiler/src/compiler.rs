@@ -17,7 +17,6 @@ pub struct Compiler {
 impl Compiler {
     /// Compile wasm module to evm bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
-        tracing::debug!("{:?}", &wasm[120..136]);
         let mut validator = Validator::new();
         let mut func_index = 0;
         let mut imports = Imports::default();

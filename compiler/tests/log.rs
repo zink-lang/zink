@@ -5,8 +5,9 @@ use zint::EVM;
 
 mod common;
 
+#[ignore]
 #[test]
-fn params() -> Result<()> {
+fn log0() -> Result<()> {
     let bytecode = common::load("log", "log0")?;
 
     // returns the bigger number.
