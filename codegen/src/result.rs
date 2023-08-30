@@ -48,9 +48,6 @@ pub enum Error {
     /// Failed to patch jump destination.
     #[error("Invalid frame label")]
     LabelMismatch,
-    /// Failed to parse WASM with leb128 reader.
-    #[error(transparent)]
-    Leb128(#[from] leb128::read::Error),
     /// Failed to define local variable since the index is out of range.
     #[error("Local index in function is out of range")]
     LocalIndexOutOfRange,

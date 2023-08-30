@@ -18,6 +18,9 @@ pub enum Error {
     /// Failed parse function signature.
     #[error("Invalid function signature")]
     InvalidFunctionSignature,
+    /// Failed to parse WASM with leb128 reader.
+    #[error(transparent)]
+    Leb128(#[from] leb128::read::Error),
 }
 
 /// Zinkc result

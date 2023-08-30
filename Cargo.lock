@@ -2245,7 +2245,6 @@ dependencies = [
  "anyhow",
  "evm-opcodes",
  "indexmap 2.0.0",
- "leb128",
  "paste",
  "smallvec",
  "thiserror",
@@ -2263,6 +2262,7 @@ version = "0.1.2"
 dependencies = [
  "anyhow",
  "hex",
+ "leb128",
  "paste",
  "thiserror",
  "tracing",
