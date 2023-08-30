@@ -37,9 +37,9 @@ macro_rules! impl_visit_operator {
 
 /// Implement arithmetic operators for types.
 macro_rules! map_wasm_operators {
-    (@basic $ty:tt, $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+    (@basic $ty:tt, $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
         paste! {
-            fn [< visit_ $ty _ $wasm >](&mut self $($(,$arg: $argty),* )?) -> Self::Output {
+            fn [< visit_ $ty _ $wasm >](&mut self $(,$arg: $argty),*) -> Self::Output {
                 trace!("{}.{}", stringify!($ty), stringify!($evm));
                 self.masm.[< _ $evm >]()?;
 
@@ -47,37 +47,37 @@ macro_rules! map_wasm_operators {
             }
         }
     };
-    (@integer32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        map_wasm_operators!(@basic i32, $wasm, $evm $(, { $($arg: $argty),* })?);
+    (@integer32 $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
+        map_wasm_operators!(@basic i32, $wasm, $evm $($arg: $argty),*);
     };
-    (@integer64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        map_wasm_operators!(@basic i64, $wasm, $evm $(, { $($arg: $argty),* })?);
+    (@integer64 $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
+        map_wasm_operators!(@basic i64, $wasm, $evm $($arg: $argty),*);
     };
-    (@integer $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        map_wasm_operators!(@integer32 $wasm, $evm $(, { $($arg: $argty),* })?);
-        map_wasm_operators!(@integer64 $wasm, $evm $(, { $($arg: $argty),* })?);
+    (@integer $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
+        map_wasm_operators!(@integer32 $wasm, $evm $($arg: $argty),*);
+        map_wasm_operators!(@integer64 $wasm, $evm $($arg: $argty),*);
     };
-    (@xdr $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+    (@xdr $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
         paste!{
-            map_wasm_operators!(@integer [< $wasm _s >], $evm $(, { $($arg: $argty),* })?);
-            map_wasm_operators!(@integer [< $wasm _u >], $evm $(, { $($arg: $argty),* })?);
+            map_wasm_operators!(@integer [< $wasm _s >], $evm $($arg: $argty),*);
+            map_wasm_operators!(@integer [< $wasm _u >], $evm $($arg: $argty),*);
         }
     };
-    (@float32 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        map_wasm_operators!(@basic f32, $wasm, $evm $(, { $($arg: $argty),* })?);
+    (@float32 $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
+        map_wasm_operators!(@basic f32, $wasm, $evm $($arg: $argty),*);
     };
-    (@float64 $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        map_wasm_operators!(@basic f64, $wasm, $evm $(, { $($arg: $argty),* })?);
+    (@float64 $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
+        map_wasm_operators!(@basic f64, $wasm, $evm $($arg: $argty),*);
     };
-    (@float $wasm:tt, $evm:tt $(, { $($arg:ident: $argty:ty),* })?) => {
-        map_wasm_operators!(@float32 $wasm, $evm $(, { $($arg: $argty),* })?);
-        map_wasm_operators!(@float64 $wasm, $evm $(, { $($arg: $argty),* })?);
+    (@float $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
+        map_wasm_operators!(@float32 $wasm, $evm $($arg: $argty),*);
+        map_wasm_operators!(@float64 $wasm, $evm $($arg: $argty),*);
     };
-    (@integer_and_float $op:tt $(, { $($arg:ident: $argty:ty),* })?) => {
+    (@integer_and_float $op:tt $($arg:ident: $argty:ty),*) => {
         map_wasm_operators!(@integer $op, $op);
         map_wasm_operators!(@float $op, $op);
     };
-    (@field ($($field:ident).*) $op:tt $($arg:tt: $argty:ty),* ) => {
+    (@field ($($field:ident).*) ($op:tt -> $evm:tt) $($arg:tt: $argty:ty),* ) => {
         paste! {
             fn [< visit_ $op >](&mut self, $($arg: $argty),*) -> Self::Output {
                 let mut log = stringify!($op).to_string();
@@ -92,7 +92,7 @@ macro_rules! map_wasm_operators {
 
                 trace!("{}", log);
 
-                self.$($field.)*[< _ $op >]($($arg),*)?;
+                self.$($field.)*[< _ $evm >]($($arg),*)?;
                 Ok(())
             }
         }
@@ -140,40 +140,40 @@ macro_rules! map_wasm_operators {
             )+
 
             $(
-                map_wasm_operators!(@integer $mem, $mem, { _arg: MemArg });
-                map_wasm_operators!(@float $mem, $mem, { _arg: MemArg });
+                map_wasm_operators!(@integer $mem, $mem _arg: MemArg);
+                map_wasm_operators!(@float $mem, $mem _arg: MemArg);
             )+
 
 
             $(
-                map_wasm_operators!(@xdr $mem_integer, $mem_integer, { _arg: MemArg });
+                map_wasm_operators!(@xdr $mem_integer, $mem_integer _arg: MemArg);
             )+
 
             $(
-                map_wasm_operators!(@integer64 [< $mem_integer64 _s >], $mem_integer64, { _arg: MemArg });
-                map_wasm_operators!(@integer64 [< $mem_integer64 _u >], $mem_integer64, { _arg: MemArg });
+                map_wasm_operators!(@integer64 [< $mem_integer64 _s >], $mem_integer64 _arg: MemArg );
+                map_wasm_operators!(@integer64 [< $mem_integer64 _u >], $mem_integer64 _arg: MemArg );
             )+
 
 
             $(
-                map_wasm_operators!(@integer $mem_signed, $mem_signed, { _arg: MemArg });
+                map_wasm_operators!(@integer $mem_signed, $mem_signed _arg: MemArg);
             )+
 
             $(
-                map_wasm_operators!(@integer $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
-                map_wasm_operators!(@float $mem_signed_and_float, $mem_signed_and_float, { _arg: MemArg });
+                map_wasm_operators!(@integer $mem_signed_and_float, $mem_signed_and_float _arg: MemArg);
+                map_wasm_operators!(@float $mem_signed_and_float, $mem_signed_and_float _arg: MemArg);
             )+
 
             $(
-                map_wasm_operators!(@integer64 $mem_signed64, $mem_signed64, { _arg: MemArg });
+                map_wasm_operators!(@integer64 $mem_signed64, $mem_signed64 _arg: MemArg);
             )+
 
             $(
-                map_wasm_operators!(@field (masm) $masm $( $($marg: $margty),+ )?);
+                map_wasm_operators!(@field (masm) ($masm -> $masm) $( $($marg: $margty),+ )?);
             )+
 
             $(
-                map_wasm_operators!(@field () $global $( $($garg: $gargty),+ )?);
+                map_wasm_operators!(@field () ($global -> $global) $( $($garg: $gargty),+ )?);
             )+
         }
     };

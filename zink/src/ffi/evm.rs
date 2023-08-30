@@ -36,5 +36,5 @@ extern "C" {
     /// Copy code running in current environment to memory
     pub fn codecopy(destOffset: u32, codeOffset: u32, size: u32);
 
-    // TODO: introduce inline assmebly (#115)
+    // TODO: introduce inline assembly (#115)
 }
