@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["panic"],"mod":["events","imports","storage"]};
+window.SIDEBAR_ITEMS = {"fn":["panic"],"mod":["event","ffi"],"trait":["Event"]};
