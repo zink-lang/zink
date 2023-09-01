@@ -1,11 +1,8 @@
 //! Zink compiler
 
-use crate::{Error, Result};
-use wasmparser::{
-    FuncToValidate, FunctionBody, Import, Parser, Payload, TypeRef, ValidPayload, Validator,
-    ValidatorResources, WasmModuleResources,
-};
-use zingen::{Buffer, CodeGen, Func, Imports, JumpTable, BUFFER_LIMIT};
+use crate::{parser::Parser, Error, Result};
+use wasmparser::{FuncToValidate, FunctionBody, ValidatorResources, WasmModuleResources};
+use zingen::{Buffer, CodeGen, Imports, JumpTable, BUFFER_LIMIT};
 
 /// Zink Compiler
 #[derive(Default)]
@@ -17,62 +14,12 @@ pub struct Compiler {
 impl Compiler {
     /// Compile wasm module to evm bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
-        let mut validator = Validator::new();
-        let mut func_index = 0;
-        let mut imports = Imports::default();
+        let module = Parser::try_from(wasm)?;
+        let imports = module.imports();
+        let _data = module.data();
 
-        // Compile functions.
-        for payload in Parser::new(0).parse_all(wasm) {
-            let payload = payload?;
-            let valid_payload = validator.payload(&payload)?;
-
-            // Get imported functions
-            //
-            // NOTE: this is safe here since the import section is
-            // ahead of the function section after the optimization
-            // of wasm-opt.
-            if let Payload::ImportSection(reader) = &payload {
-                let mut iter = reader.clone().into_iter();
-                while let Some(Ok(Import {
-                    module,
-                    name,
-                    ty: TypeRef::Func(index),
-                })) = iter.next()
-                {
-                    if let Ok(func) = Func::try_from((module, name)) {
-                        tracing::debug!("imported function: {}::{} at {index}", module, name);
-                        imports.push(func);
-                    }
-                }
-
-                tracing::debug!("imports: {:?}", imports);
-                continue;
-            }
-
-            // if let Payload::DataSection(reader) = &payload {
-            //     let mut iter = reader.clone().into_iter();
-            //     while let Some(Ok(data)) = iter.next() {
-            //         if let DataKind::Active {
-            //             memory_index: _,
-            //             offset_expr: _,
-            //         } = data.kind
-            //         {
-            //             // TODO: parse offset expression.
-            //
-            //             // let buf = &offset_expr.data[1..5];
-            //             // let offset = leb128::read::signed(&mut data)?;
-            //             //
-            //             // dataset.insert(offset, data.data);
-            //         }
-            //         tracing::debug!("data: {:?}", data);
-            //     }
-            //     continue;
-            // }
-
-            if let ValidPayload::Func(to_validator, body) = valid_payload {
-                self.compile_func(func_index, imports.clone(), to_validator, body)?;
-                func_index += 1;
-            }
+        for (index, (func, body)) in module.into_iter() {
+            self.compile_func(index, imports.clone(), func, body)?;
         }
 
         self.finish()
