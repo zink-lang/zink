@@ -14,11 +14,13 @@ pub struct Compiler {
 impl Compiler {
     /// Compile wasm module to evm bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
-        let module = Parser::try_from(wasm)?;
-        let imports = module.imports();
-        let _data = module.data();
+        let Parser {
+            imports,
+            data: _data,
+            funcs,
+        } = Parser::try_from(wasm)?;
 
-        for (index, (func, body)) in module.into_iter() {
+        for (index, (func, body)) in funcs.into_iter() {
             self.compile_func(index, imports.clone(), func, body)?;
         }
 

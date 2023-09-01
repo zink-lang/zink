@@ -1,42 +1,26 @@
 //! Zink parser
 
-use crate::Error;
-use std::{
-    collections::{btree_map::IntoIter, BTreeMap},
-    iter::IntoIterator,
-};
+use crate::{Error, Result};
+use std::{collections::BTreeMap, iter::IntoIterator};
 use wasmparser::{
-    DataKind, FuncToValidate, FunctionBody, Import, Payload, TypeRef, ValidPayload, Validator,
-    ValidatorResources,
+    Data, DataKind, FuncToValidate, FunctionBody, Import, Payload, SectionLimited, TypeRef,
+    ValidPayload, Validator, ValidatorResources,
 };
 use zingen::{DataSet, Func, Imports};
 
 /// WASM module parser
+#[derive(Default)]
 pub struct Parser<'p> {
-    imports: Imports,
-    data: DataSet,
-    funcs: BTreeMap<u32, (FuncToValidate<ValidatorResources>, FunctionBody<'p>)>,
+    pub imports: Imports,
+    pub data: DataSet,
+    pub funcs: BTreeMap<u32, (FuncToValidate<ValidatorResources>, FunctionBody<'p>)>,
 }
 
 impl<'p> Parser<'p> {
-    /// Get parsed imports.
-    pub fn imports(&self) -> Imports {
-        self.imports.clone()
-    }
-
-    /// Get parsed data set.
-    pub fn data(&self) -> DataSet {
-        self.data.clone()
-    }
-}
-
-impl<'p> TryFrom<&'p [u8]> for Parser<'p> {
-    type Error = Error;
-
-    fn try_from(wasm: &'p [u8]) -> Result<Self, Self::Error> {
+    /// Parse WASM module.
+    pub fn parse(&mut self, wasm: &'p [u8]) -> Result<()> {
         let mut validator = Validator::new();
         let mut func_index = 0u32;
-        let mut imports = Imports::default();
         let mut funcs = BTreeMap::new();
 
         // Compile functions.
@@ -45,45 +29,8 @@ impl<'p> TryFrom<&'p [u8]> for Parser<'p> {
             let valid_payload = validator.payload(&payload)?;
 
             match &payload {
-                // Get imported functions
-                //
-                // NOTE: this is safe here since the import section is
-                // ahead of the function section after the optimization
-                // of wasm-opt.
-                Payload::ImportSection(reader) => {
-                    let mut iter = reader.clone().into_iter();
-                    while let Some(Ok(Import {
-                        module,
-                        name,
-                        ty: TypeRef::Func(index),
-                    })) = iter.next()
-                    {
-                        if let Ok(func) = Func::try_from((module, name)) {
-                            tracing::debug!("imported function: {}::{} at {index}", module, name);
-                            imports.push(func);
-                        }
-                    }
-
-                    tracing::debug!("imports: {:?}", imports);
-                }
-                Payload::DataSection(reader) => {
-                    let mut iter = reader.clone().into_iter();
-                    while let Some(Ok(data)) = iter.next() {
-                        if let DataKind::Active {
-                            memory_index: _,
-                            offset_expr: _,
-                        } = data.kind
-                        {
-                            // TODO: parse offset expression.
-
-                            // let buf = &offset_expr.data[1..5];
-                            // let offset = leb128::read::signed(&mut data)?;
-                            //
-                            // dataset.insert(offset, data.data);
-                        }
-                        tracing::debug!("data: {:?}", data);
-                    }
-                }
+                Payload::ImportSection(reader) => self.imports = Self::imports(reader),
+                Payload::DataSection(reader) => self.data = Self::data(reader)?,
                 _ => {}
             }
 
@@ -93,19 +40,60 @@ impl<'p> TryFrom<&'p [u8]> for Parser<'p> {
             }
         }
 
-        Ok(Parser {
-            imports,
-            data: DataSet::default(),
-            funcs,
-        })
+        self.funcs = funcs;
+        Ok(())
+    }
+
+    /// Parse data section.
+    pub fn data(reader: &SectionLimited<Data>) -> Result<DataSet> {
+        let mut dataset = DataSet::default();
+        let mut iter = reader.clone().into_iter();
+        while let Some(Ok(data)) = iter.next() {
+            if let DataKind::Active {
+                memory_index: _,
+                offset_expr,
+            } = data.kind
+            {
+                let mut reader = offset_expr.get_binary_reader();
+
+                // Skip `i32.const` operator.
+                let _ = reader.read_operator()?;
+
+                let offset = reader.read_var_i32()?;
+                dataset.insert(offset, data.data.into());
+            }
+            tracing::debug!("data: {:?}", data);
+        }
+
+        Ok(dataset)
+    }
+
+    /// Parse import section.
+    pub fn imports(reader: &SectionLimited<Import>) -> Imports {
+        let mut imports = Imports::default();
+        let mut iter = reader.clone().into_iter();
+        while let Some(Ok(Import {
+            module,
+            name,
+            ty: TypeRef::Func(index),
+        })) = iter.next()
+        {
+            if let Ok(func) = Func::try_from((module, name)) {
+                tracing::debug!("imported function: {}::{} at {index}", module, name);
+                imports.push(func);
+            }
+        }
+
+        imports
     }
 }
 
-impl<'p> IntoIterator for Parser<'p> {
-    type Item = (u32, (FuncToValidate<ValidatorResources>, FunctionBody<'p>));
-    type IntoIter = IntoIter<u32, (FuncToValidate<ValidatorResources>, FunctionBody<'p>)>;
+impl<'p> TryFrom<&'p [u8]> for Parser<'p> {
+    type Error = Error;
 
-    fn into_iter(self) -> Self::IntoIter {
-        self.funcs.into_iter()
+    fn try_from(wasm: &'p [u8]) -> Result<Self> {
+        let mut parser = Self::default();
+        parser.parse(wasm)?;
+        Ok(parser)
     }
 }
