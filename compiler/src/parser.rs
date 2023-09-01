@@ -6,7 +6,7 @@ use std::{
     iter::IntoIterator,
 };
 use wasmparser::{
-    FuncToValidate, FunctionBody, Import, Payload, TypeRef, ValidPayload, Validator,
+    DataKind, FuncToValidate, FunctionBody, Import, Payload, TypeRef, ValidPayload, Validator,
     ValidatorResources,
 };
 use zingen::{DataSet, Func, Imports};
@@ -65,26 +65,24 @@ impl<'p> TryFrom<&'p [u8]> for Parser<'p> {
                     }
 
                     tracing::debug!("imports: {:?}", imports);
+                }
+                Payload::DataSection(reader) => {
+                    let mut iter = reader.clone().into_iter();
+                    while let Some(Ok(data)) = iter.next() {
+                        if let DataKind::Active {
+                            memory_index: _,
+                            offset_expr: _,
+                        } = data.kind
+                        {
+                            // TODO: parse offset expression.
 
-                    // if let Payload::DataSection(reader) = &payload {
-                    //     let mut iter = reader.clone().into_iter();
-                    //     while let Some(Ok(data)) = iter.next() {
-                    //         if let DataKind::Active {
-                    //             memory_index: _,
-                    //             offset_expr: _,
-                    //         } = data.kind
-                    //         {
-                    //             // TODO: parse offset expression.
-                    //
-                    //             // let buf = &offset_expr.data[1..5];
-                    //             // let offset = leb128::read::signed(&mut data)?;
-                    //             //
-                    //             // dataset.insert(offset, data.data);
-                    //         }
-                    //         tracing::debug!("data: {:?}", data);
-                    //     }
-                    //     continue;
-                    // }
+                            // let buf = &offset_expr.data[1..5];
+                            // let offset = leb128::read::signed(&mut data)?;
+                            //
+                            // dataset.insert(offset, data.data);
+                        }
+                        tracing::debug!("data: {:?}", data);
+                    }
                 }
                 _ => {}
             }
