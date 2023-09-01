@@ -3,8 +3,8 @@
 use crate::{Error, Result};
 use std::{collections::BTreeMap, iter::IntoIterator};
 use wasmparser::{
-    Data, DataKind, FuncToValidate, FunctionBody, Import, Payload, SectionLimited, TypeRef,
-    ValidPayload, Validator, ValidatorResources,
+    Data, DataKind, FuncToValidate, FunctionBody, Import, Operator, Payload, SectionLimited,
+    TypeRef, ValidPayload, Validator, ValidatorResources,
 };
 use zingen::{DataSet, Func, Imports};
 
@@ -54,17 +54,17 @@ impl<'p> Parser<'p> {
                 offset_expr,
             } = data.kind
             {
+                // [i32.const offset call_indirect]
                 let mut reader = offset_expr.get_binary_reader();
+                let Operator::I32Const { value: offset } = reader.read_operator()? else {
+                    return Err(Error::InvalidDataOffset);
+                };
 
-                // Skip `i32.const` operator.
-                let _ = reader.read_operator()?;
-
-                let offset = reader.read_var_i32()?;
                 dataset.insert(offset, data.data.into());
             }
-            tracing::debug!("data: {:?}", data);
         }
 
+        tracing::debug!("dataset: {:?}", dataset);
         Ok(dataset)
     }
 

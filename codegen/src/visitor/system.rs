@@ -16,10 +16,6 @@ impl CodeGen {
 
     /// The call instruction calls a function specified by its index.
     pub fn _call(&mut self, index: u32) -> Result<()> {
-        // record the current program counter and
-        // pass it to the callee function.
-        self.masm._pc()?;
-
         // TODO: check the safety of the function index.
         let base = self.imports.len() as u32;
 
@@ -32,6 +28,10 @@ impl CodeGen {
 
     /// Call internal functions
     fn call_internal(&mut self, index: u32) -> Result<()> {
+        // record the current program counter and
+        // pass it to the callee function.
+        self.masm._pc()?;
+
         // Call an internal function.
         //
         // register the call index to the jump table.
@@ -78,6 +78,11 @@ impl CodeGen {
 
     /// Call external functions
     pub fn call_external(&mut self, func: Func) -> Result<()> {
+        // record the current program counter and
+        // pass it to the callee function.
+        self.masm._pc()?;
+
+        // register function to the jump table.
         self.table.ext(self.masm.pc_offset(), func);
         self.masm.decrement_sp(func.stack_in())?;
         self.masm._jump()?;
@@ -91,24 +96,37 @@ impl CodeGen {
         let buffer: Vec<u8> = self.masm.buffer().into();
 
         // Pop offset and size from the bytecode.
-        let len = self.backtrace.popn(2);
-        let data = &buffer[(buffer.len() - len - 1)..];
-        tracing::debug!("log0 data: {:?}", data);
-        *self.masm.buffer_mut() = buffer[..(buffer.len() - len)].into();
+        let data_len = self.backtrace.popn(2);
+        let data = &buffer[(buffer.len() - data_len)..];
+        *self.masm.buffer_mut() = buffer[..(buffer.len() - data_len)].into();
 
         // Parse offset.
+        //
+        // PUSH0 0x5e
+        // ..
+        // PUSH32 0x8f
         if !(0x5e..0x8f).contains(&data[0]) {
-            todo!("handle invalid data offset in log");
+            return Err(Error::InvalidDataOffset);
         }
-        let bytes_len = (data[0] - 0x5f) as usize;
-        let offset = &data[1..(1 + bytes_len)];
+
+        let offset_len = (data[0] - 0x5f) as usize;
+        let offset = {
+            let mut bytes = [0; 4];
+            bytes[..offset_len].copy_from_slice(&data[1..(1 + offset_len)]);
+            i32::from_le_bytes(bytes)
+        };
         tracing::debug!("log0 offset: {:?}", offset);
 
         // Parse size.
-        if !(0x5e..0x8f).contains(&data[bytes_len + 1]) {
-            todo!("handle invalid data offset in log");
+        if !(0x5e..0x8f).contains(&data[offset_len + 1]) {
+            return Err(Error::InvalidDataOffset);
         }
-        let size = &data[(bytes_len + 2)..];
+        let size = {
+            let mut bytes = [0; 4];
+            let size_bytes = &data[(offset_len + 2)..];
+            bytes[..size_bytes.len()].copy_from_slice(&size_bytes);
+            i32::from_le_bytes(bytes)
+        };
         tracing::debug!("log0 size: {:?}", size);
 
         // Integrate with data section.

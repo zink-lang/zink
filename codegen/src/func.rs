@@ -43,7 +43,6 @@ pub enum Func {
     Sload,
     /// Run function sstore.
     Sstore,
-
     /// Run function log0.
     Log0,
 }

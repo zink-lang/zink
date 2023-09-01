@@ -2262,7 +2262,6 @@ version = "0.1.2"
 dependencies = [
  "anyhow",
  "hex",
- "leb128",
  "paste",
  "thiserror",
  "tracing",
