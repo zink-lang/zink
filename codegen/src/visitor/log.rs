@@ -36,7 +36,7 @@ impl CodeGen {
         let size = {
             let mut bytes = [0; 4];
             let size_bytes = &data[(offset_len + 2)..];
-            bytes[..size_bytes.len()].copy_from_slice(&size_bytes);
+            bytes[..size_bytes.len()].copy_from_slice(size_bytes);
             i32::from_le_bytes(bytes)
         };
         tracing::debug!("log0 size: {:?}", size);

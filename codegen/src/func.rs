@@ -76,8 +76,7 @@ impl Func {
                 masm._swap2()?;
                 masm._swap1()
             }
-            Self::Sload => masm._swap1(),
-            Self::Sstore => masm._swap2(),
+            Self::Sstore => masm._swap1(),
             _ => Ok(()),
         }
     }
