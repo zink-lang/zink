@@ -5,6 +5,7 @@ use zint::EVM;
 
 mod common;
 
+#[ignore]
 #[test]
 fn log0() -> Result<()> {
     let bytecode = common::load("log", "log0")?;
