@@ -30,6 +30,9 @@ pub enum Error {
     /// Failed to find imported function by index in jump table.
     #[error("Imported Function {0} not found in jump table")]
     ImportedFuncNotFound(u32),
+    /// Failed to parse data segment.
+    #[error("Invalid data offset")]
+    InvalidDataOffset,
     /// Failed to mark else block for if block.
     #[error("Invalid else block for if block at {0}")]
     InvalidElseBlock(u16),

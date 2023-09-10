@@ -9,10 +9,11 @@ use paste::paste;
 use tracing::trace;
 use wasmparser::{for_each_operator, BlockType, BrTable, Ieee32, Ieee64, MemArg, VisitOperator};
 
+mod call;
 mod control;
 mod handlers;
 mod local;
-mod system;
+mod log;
 
 /// A macro to define unsupported WebAssembly operators.
 ///

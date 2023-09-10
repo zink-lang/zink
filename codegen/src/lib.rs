@@ -44,4 +44,4 @@ pub type Imports = Vec<Func>;
 /// Data section conversion
 ///
 /// NOTE: current only support constant expression.
-pub type DataSet = BTreeMap<i64, Vec<u8>>;
+pub type DataSet = BTreeMap<i32, Vec<u8>>;

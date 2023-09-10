@@ -43,7 +43,6 @@ pub enum Func {
     Sload,
     /// Run function sstore.
     Sstore,
-
     /// Run function log0.
     Log0,
 }
@@ -77,8 +76,7 @@ impl Func {
                 masm._swap2()?;
                 masm._swap1()
             }
-            Self::Sload => masm._swap1(),
-            Self::Sstore => masm._swap2(),
+            Self::Sstore => masm._swap1(),
             _ => Ok(()),
         }
     }

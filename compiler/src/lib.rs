@@ -7,4 +7,5 @@ pub use crate::{
 };
 
 mod compiler;
+mod parser;
 mod result;
