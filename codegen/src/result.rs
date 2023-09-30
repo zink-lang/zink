@@ -30,9 +30,6 @@ pub enum Error {
     /// Failed to find imported function by index in jump table.
     #[error("Imported Function {0} not found in jump table")]
     ImportedFuncNotFound(u32),
-    /// Failed to parse data segment.
-    #[error("Invalid data offset")]
-    InvalidDataOffset,
     /// Failed to mark else block for if block.
     #[error("Invalid else block for if block at {0}")]
     InvalidElseBlock(u16),
@@ -45,6 +42,12 @@ pub enum Error {
     /// Failed to construct program counter for jump.
     #[error("Invalid program counter {0}")]
     InvalidPC(usize),
+    /// Failed to get data from the provided offset.
+    #[error("Invalid data offset {0}")]
+    InvalidDataOffset(i32),
+    /// Failed to get data from the provided offset.
+    #[error("Invalid data size {0}")]
+    InvalidDataSize(usize),
     /// Failed to get frame info of the given depth.
     #[error("Invalid contract stack fram depth {0}")]
     InvalidDepth(usize),

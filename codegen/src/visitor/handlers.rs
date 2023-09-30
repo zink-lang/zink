@@ -20,7 +20,7 @@ impl CodeGen {
             return self.handle_empty_return();
         }
 
-        let size = self.masm.memory_write(results)?;
+        let size = self.masm.memory_write(results)?.size;
         let offset = self
             .masm
             .mp_offset(|mp| mp.checked_sub(size).ok_or_else(|| Error::InvalidMP(0)))?;

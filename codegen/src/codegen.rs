@@ -6,7 +6,7 @@ use crate::{
     local::{LocalSlot, LocalSlotType, Locals},
     masm::MacroAssembler,
     validator::ValidateThenVisit,
-    Buffer, Error, Imports, Result,
+    Buffer, DataSet, Error, Imports, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
@@ -18,6 +18,8 @@ pub struct CodeGen {
     pub(crate) backtrace: Backtrace,
     /// Control stack frames.
     pub(crate) control: ControlStack,
+    /// Control stack frames.
+    pub(crate) dataset: DataSet,
     /// The function environment.
     pub(crate) env: FuncType,
     /// The defined locals for a function.
@@ -34,7 +36,7 @@ pub struct CodeGen {
 
 impl CodeGen {
     /// Create a new code generator.
-    pub fn new(env: FuncType, imports: Imports, is_main: bool) -> Result<Self> {
+    pub fn new(env: FuncType, dataset: DataSet, imports: Imports, is_main: bool) -> Result<Self> {
         let mut params_count = 0;
         if !is_main {
             params_count = env.params().len() as u8;
@@ -43,6 +45,7 @@ impl CodeGen {
         let mut codegen = Self {
             backtrace: Backtrace::default(),
             control: ControlStack::default(),
+            dataset,
             env,
             locals: Default::default(),
             masm: Default::default(),
