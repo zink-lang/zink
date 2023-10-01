@@ -4,7 +4,7 @@ use crate::{masm::MemoryInfo, CodeGen, Error, Result, ToLSBytes};
 
 impl CodeGen {
     /// Parse log data from the bytecode.
-    fn log_data(&mut self) -> Result<(i32, i32)> {
+    fn log_data(&mut self) -> Result<i32> {
         let buffer: Vec<u8> = self.masm.buffer().into();
 
         // Pop offset and size from the bytecode.
@@ -29,34 +29,19 @@ impl CodeGen {
         };
         tracing::debug!("log0 offset: {:?}", offset);
 
-        // Parse size.
-        if !(0x5e..0x8f).contains(&data[offset_len + 1]) {
-            return Err(Error::InvalidDataOffset(data[offset_len + 1].into()));
-        }
-        let size = {
-            let mut bytes = [0; 4];
-            let size_bytes = &data[(offset_len + 2)..];
-            bytes[..size_bytes.len()].copy_from_slice(size_bytes);
-            i32::from_le_bytes(bytes)
-        };
-        tracing::debug!("log0 size: {:?}", size);
-
-        Ok((offset, size))
+        Ok(offset)
     }
 
     /// Logs a message without topics.
     pub fn log0(&mut self) -> Result<()> {
-        let (offset, size) = self.log_data()?;
-        let size = size as usize;
+        let offset = self.log_data()?;
+        // let size = size as usize;
         let data = self
             .dataset
             .get(&offset)
             .ok_or(Error::InvalidDataOffset(offset))?;
 
         tracing::debug!("log0 data: {:?}", data);
-        if data.len() != size {
-            return Err(Error::InvalidDataSize(size));
-        }
 
         // 1. write data to memory
         let MemoryInfo { offset, size } = self.masm.memory_write_bytes(data)?;

@@ -1,39 +1,43 @@
 //! Event implementation
 
+use crate::ffi;
+
 /// Zink event interface
 pub trait Event {
     const NAME: &'static [u8];
 
-    /// Returns the first topic.
-    fn topic_0(&self) -> Option<[u8; 32]> {
-        None
+    fn log0(&self) {
+        unsafe {
+            // TODO: safety check for the length of the event name
+            ffi::evm::log0(Self::NAME.as_ptr() as i32);
+        }
     }
 
-    /// Returns the second topic.
-    fn topic_1(&self) -> Option<[u8; 32]> {
-        None
+    fn log1(&self) {
+        unsafe {
+            // TODO: safety check for the length of the event name
+            ffi::evm::log1(Self::NAME.as_ptr() as i32);
+        }
     }
 
-    /// Returns the third topic.
-    fn topic_2(&self) -> Option<[u8; 32]> {
-        None
+    fn log2(&self) {
+        unsafe {
+            // TODO: safety check for the length of the event name
+            ffi::evm::log2(Self::NAME.as_ptr() as i32);
+        }
     }
 
-    /// Returns the fourth topic.
-    fn topic_3(&self) -> Option<[u8; 32]> {
-        None
+    fn log3(&self) {
+        unsafe {
+            // TODO: safety check for the length of the event name
+            ffi::evm::log3(Self::NAME.as_ptr() as i32);
+        }
     }
 
-    /// Returns the event topics.
-    fn topics(&self) -> [Option<[u8; 32]>; 4] {
-        [
-            self.topic_0(),
-            self.topic_1(),
-            self.topic_2(),
-            self.topic_3(),
-        ]
+    fn log4(&self) {
+        unsafe {
+            // TODO: safety check for the length of the event name
+            ffi::evm::log4(Self::NAME.as_ptr() as i32);
+        }
     }
-
-    /// Emit the event.
-    fn emit(&self);
 }
