@@ -32,4 +32,20 @@ macro_rules! impl_bytes32 {
     };
 }
 
+impl Bytes32 for Vec<u8> {
+    fn to_bytes32(&self) -> [u8; 32] {
+        let mut bytes = [0u8; 32];
+        bytes[(32 - self.len())..].copy_from_slice(&self);
+        bytes
+    }
+}
+
+impl Bytes32 for &[u8] {
+    fn to_bytes32(&self) -> [u8; 32] {
+        let mut bytes = [0u8; 32];
+        bytes[(32 - self.len())..].copy_from_slice(&self);
+        bytes
+    }
+}
+
 impl_bytes32!(i8, u8, i16, u16, i32, u32, usize, i64, u64, i128, u128);
