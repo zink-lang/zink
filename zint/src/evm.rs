@@ -2,7 +2,7 @@
 
 pub use revm::interpreter::{instruction_result::InstructionResult, primitives::U256};
 use revm::interpreter::{
-    primitives::{bytecode::Bytecode, specification::ShanghaiSpec},
+    primitives::{bytecode::Bytecode, specification::ShanghaiSpec, Log},
     Contract, DummyHost, Interpreter,
 };
 use std::collections::HashMap;
@@ -20,6 +20,8 @@ pub struct Info {
     pub ret: Vec<u8>,
     /// The storage.
     pub storage: HashMap<U256, U256>,
+    /// Execution logs.
+    pub logs: Vec<Log>,
 }
 
 /// EVM interpreter.
@@ -67,6 +69,7 @@ impl EVM {
             instr,
             ret,
             storage,
+            logs: self.host.log.clone(),
         }
     }
 

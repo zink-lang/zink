@@ -36,9 +36,18 @@ impl DerefMut for MacroAssembler {
     }
 }
 
+/// Info for memory position.
+pub struct MemoryInfo {
+    /// Memory offset.
+    pub offset: SmallVec<[u8; 8]>,
+
+    /// Memory size
+    pub size: usize,
+}
+
 impl MacroAssembler {
     /// Store data in memory with at current memory byte pointer.
-    pub fn memory_write(&mut self, ty: impl Type) -> Result<usize> {
+    pub fn memory_write(&mut self, ty: impl Type) -> Result<MemoryInfo> {
         let offset = self.mp.to_ls_bytes();
 
         // mock the memory usages.
@@ -47,7 +56,16 @@ impl MacroAssembler {
 
         // write memory
         self.memory_write_at(&offset)?;
-        Ok(size)
+        Ok(MemoryInfo { offset, size })
+    }
+
+    /// Write bytes to memory.
+    pub fn memory_write_bytes(&mut self, bytes: &[u8]) -> Result<MemoryInfo> {
+        let len = bytes.len();
+
+        // TODO: if len is out of 32.
+        self.push(bytes)?;
+        self.memory_write(len)
     }
 
     /// Store data in memory at offset.

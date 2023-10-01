@@ -1,6 +1,6 @@
 //! System instructions
 
-use crate::{CodeGen, Error, Result};
+use crate::{masm::MemoryInfo, CodeGen, Error, Result, ToLSBytes};
 
 impl CodeGen {
     /// Parse log data from the bytecode.
@@ -18,7 +18,7 @@ impl CodeGen {
         // ..
         // PUSH32 0x8f
         if !(0x5e..0x8f).contains(&data[0]) {
-            return Err(Error::InvalidDataOffset);
+            return Err(Error::InvalidDataOffset(data[0].into()));
         }
 
         let offset_len = (data[0] - 0x5f) as usize;
@@ -31,7 +31,7 @@ impl CodeGen {
 
         // Parse size.
         if !(0x5e..0x8f).contains(&data[offset_len + 1]) {
-            return Err(Error::InvalidDataOffset);
+            return Err(Error::InvalidDataOffset(data[offset_len + 1].into()));
         }
         let size = {
             let mut bytes = [0; 4];
@@ -41,14 +41,32 @@ impl CodeGen {
         };
         tracing::debug!("log0 size: {:?}", size);
 
-        // Integrate with data section.
-
         Ok((offset, size))
     }
 
-    /// Logs a message with no topics.
+    /// Logs a message without topics.
     pub fn log0(&mut self) -> Result<()> {
-        let (_offset, _size) = self.log_data()?;
+        let (offset, size) = self.log_data()?;
+        let size = size as usize;
+        let data = self
+            .dataset
+            .get(&offset)
+            .ok_or(Error::InvalidDataOffset(offset))?;
+
+        tracing::debug!("log0 data: {:?}", data);
+        if data.len() != size {
+            return Err(Error::InvalidDataSize(size));
+        }
+
+        // 1. write data to memory
+        let MemoryInfo { offset, size } = self.masm.memory_write_bytes(data)?;
+
+        // 2. prepare the offset and size of the data.
+        self.masm.push(&size.to_ls_bytes())?;
+        self.masm.push(&offset)?;
+
+        // 3. run log0 for the data
+        self.masm._log0()?;
 
         Ok(())
     }

@@ -2,7 +2,7 @@
 
 use crate::{parser::Parser, Error, Result};
 use wasmparser::{FuncToValidate, FunctionBody, ValidatorResources, WasmModuleResources};
-use zingen::{Buffer, CodeGen, Imports, JumpTable, BUFFER_LIMIT};
+use zingen::{Buffer, CodeGen, DataSet, Imports, JumpTable, BUFFER_LIMIT};
 
 /// Zink Compiler
 #[derive(Default)]
@@ -16,12 +16,12 @@ impl Compiler {
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
         let Parser {
             imports,
-            data: _data,
+            data,
             funcs,
         } = Parser::try_from(wasm)?;
 
         for (index, (func, body)) in funcs.into_iter() {
-            self.compile_func(index, imports.clone(), func, body)?;
+            self.compile_func(index, data.clone(), imports.clone(), func, body)?;
         }
 
         self.finish()
@@ -31,6 +31,7 @@ impl Compiler {
     pub fn compile_func(
         &mut self,
         func_index: u32,
+        dataset: DataSet,
         imports: Imports,
         validator: FuncToValidate<ValidatorResources>,
         body: FunctionBody,
@@ -49,7 +50,7 @@ impl Compiler {
         tracing::debug!("compile function {}: {:?}", func_index, sig);
 
         let is_main = func_index == 0;
-        let mut codegen = CodeGen::new(sig, imports, is_main)?;
+        let mut codegen = CodeGen::new(sig, dataset, imports, is_main)?;
         let mut locals_reader = body.get_locals_reader()?;
         let mut ops_reader = body.get_operators_reader()?;
 
