@@ -1,39 +1,46 @@
 //! Event implementation
 
+use crate::ffi;
+
 /// Zink event interface
+///
+/// TODO: safety check for the length of the event name
 pub trait Event {
     const NAME: &'static [u8];
 
-    /// Returns the first topic.
-    fn topic_0(&self) -> Option<[u8; 32]> {
-        None
+    fn log0(&self) {
+        unsafe {
+            ffi::evm::log0(Self::NAME);
+        }
     }
 
-    /// Returns the second topic.
-    fn topic_1(&self) -> Option<[u8; 32]> {
-        None
+    fn log1(&self, topic: &'static [u8]) {
+        unsafe {
+            ffi::evm::log1(Self::NAME, topic);
+        }
     }
 
-    /// Returns the third topic.
-    fn topic_2(&self) -> Option<[u8; 32]> {
-        None
+    fn log2(&self, topic1: &'static [u8], topic2: &'static [u8]) {
+        unsafe {
+            ffi::evm::log2(Self::NAME, topic1, topic2);
+        }
     }
 
-    /// Returns the fourth topic.
-    fn topic_3(&self) -> Option<[u8; 32]> {
-        None
+    fn log3(&self, topic1: &'static [u8], topic2: &'static [u8], topic3: &'static [u8]) {
+        unsafe {
+            ffi::evm::log3(Self::NAME, topic1, topic2, topic3);
+        }
     }
 
-    /// Returns the event topics.
-    fn topics(&self) -> [Option<[u8; 32]>; 4] {
-        [
-            self.topic_0(),
-            self.topic_1(),
-            self.topic_2(),
-            self.topic_3(),
-        ]
+    fn log4(
+        &self,
+        topic1: &'static [u8],
+        topic2: &'static [u8],
+        topic3: &'static [u8],
+        topic4: &'static [u8],
+    ) {
+        unsafe {
+            ffi::evm::log4(Self::NAME, topic1, topic2, topic3, topic4);
+        }
     }
-
-    /// Emit the event.
-    fn emit(&self);
 }

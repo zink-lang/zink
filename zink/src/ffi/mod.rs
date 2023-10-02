@@ -5,4 +5,3 @@
 //! called by the compiler.
 
 pub mod evm;
-pub mod memory;

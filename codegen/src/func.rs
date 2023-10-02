@@ -45,6 +45,14 @@ pub enum Func {
     Sstore,
     /// Run function log0.
     Log0,
+    /// Run function log1.
+    Log1,
+    /// Run function log2.
+    Log2,
+    /// Run function log3.
+    Log3,
+    /// Run function log4.
+    Log4,
 }
 
 impl Func {
@@ -55,6 +63,10 @@ impl Func {
             Self::Sload => 1,
             Self::Sstore => 2,
             Self::Log0 => 2,
+            Self::Log1 => 4,
+            Self::Log2 => 6,
+            Self::Log3 => 8,
+            Self::Log4 => 10,
         }
     }
 
@@ -65,6 +77,10 @@ impl Func {
             Self::Sload => 1,
             Self::Sstore => 0,
             Self::Log0 => 0,
+            Self::Log1 => 0,
+            Self::Log2 => 0,
+            Self::Log3 => 0,
+            Self::Log4 => 0,
         }
     }
 
@@ -101,12 +117,7 @@ impl Func {
     /// are necessary to just stay in the code
     /// section #109
     pub fn is_embedded(&self) -> bool {
-        match self {
-            Self::Select => true,
-            Self::Sload => true,
-            Self::Sstore => true,
-            Self::Log0 => true,
-        }
+        true
     }
 }
 
@@ -115,11 +126,21 @@ impl TryFrom<(&str, &str)> for Func {
 
     fn try_from(import: (&str, &str)) -> Result<Self> {
         let (module, name) = import;
+        // NOTE: `select` is not external call
+        // so we don't need to check process it
+        // here
         match import {
             ("evm", "sload") => Ok(Self::Sload),
             ("evm", "sstore") => Ok(Self::Sstore),
             ("evm", "log0") => Ok(Self::Log0),
-            _ => Err(Error::HostFuncNotFound(module.into(), name.into())),
+            ("evm", "log1") => Ok(Self::Log1),
+            ("evm", "log2") => Ok(Self::Log2),
+            ("evm", "log3") => Ok(Self::Log3),
+            ("evm", "log4") => Ok(Self::Log4),
+            _ => {
+                tracing::error!("Failed to load host function: {:?}", import);
+                Err(Error::HostFuncNotFound(module.into(), name.into()))
+            }
         }
     }
 }

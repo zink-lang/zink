@@ -12,6 +12,9 @@ pub enum Error {
     /// Failed to pop control stack frame.
     #[error("Control stack underflow")]
     ControlStackUnderflow,
+    /// Data not found in data section.
+    #[error("Data not found in data setction, offset {0}, size {1}")]
+    DataNotFound(i32, usize),
     /// Failed to register program counter to function index.
     #[error("Function {0} already exists in jump table")]
     DuplicateFunc(u32),
@@ -67,7 +70,7 @@ pub enum Error {
     #[error("Stack index is out of range {0}, max is 32 (0x400)")]
     StackIndexOutOfRange(u8),
     /// Failed to increment stack pointer.
-    #[error("Stack overflow, max is 12 stack items, got {0}")]
+    #[error("Stack overflow, max is 1024 stack items, got {0}")]
     StackOverflow(u8),
     /// Failed to decrement stack pointer.
     #[error("Stack underflow, current stack items {0}, expect at least {1}")]

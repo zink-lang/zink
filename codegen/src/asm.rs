@@ -44,8 +44,8 @@ impl Assembler {
     pub fn increment_sp(&mut self, items: u8) -> Result<()> {
         self.sp += items;
 
-        // TODO: fix this limitation: should be 1024.
-        if self.sp > 12 {
+        // TODO: fix this limitation: should be 1024. (#127)
+        if self.sp > 254 {
             return Err(Error::StackOverflow(self.sp));
         }
 
