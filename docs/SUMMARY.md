@@ -25,6 +25,7 @@
 - [Security](./security.md)
 - [Benchmarks](./benchmarks/README.md)
   - [Fibonacci](./benchmarks/fibonacci.md)
+  - [Log](./benchmarks/log.md)
   - [Storage](./benchmarks/storage.md)
 - [Contributing](./contributing/README.md)
   - [Architecture](./contributing/architecture.md)

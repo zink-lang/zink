@@ -7,9 +7,9 @@ selector!
 
 ### Gas Cost
 
-| io  | Zink  | Vyper@0.3.9 | Solidity@0.8.21 |
-| --- | ----- | ----------- | --------------- |
-| 42  | 22237 | 22345       | 27738           |
+| Zink  | Vyper@0.3.9 | Solidity@0.8.21 |
+| ----- | ----------- | --------------- |
+| 22237 | 22345       | 27738           |
 
 The gas costs here are measured by `transaction cost` + `execution cost`,
 for example, the transaction of this function in solidity is `24120`, and
