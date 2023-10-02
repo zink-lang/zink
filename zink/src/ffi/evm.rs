@@ -21,13 +21,24 @@ extern "C" {
     pub fn log1(name: &'static [u8], topic1: &'static [u8]);
 
     /// Append log record with two topics
-    pub fn log2(offset: i32, topic1: i32, topic2: i32);
+    pub fn log2(name: &'static [u8], topic1: &'static [u8], topic2: &'static [u8]);
 
     /// Append log record with three topics
-    pub fn log3(offset: i32, topic1: i32, topic2: i32, topic3: i32);
+    pub fn log3(
+        name: &'static [u8],
+        topic1: &'static [u8],
+        topic2: &'static [u8],
+        topic3: &'static [u8],
+    );
 
     /// Append log record with four topics
-    pub fn log4(offset: i32, topic1: i32, topic2: i32, topic3: i32, topic4: i32);
+    pub fn log4(
+        name: &'static [u8],
+        topic1: &'static [u8],
+        topic2: &'static [u8],
+        topic3: &'static [u8],
+        topic4: &'static [u8],
+    );
 
     /// Copy code running in current environment to memory
     pub fn codecopy(destOffset: u32, codeOffset: u32, size: u32);

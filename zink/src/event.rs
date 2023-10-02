@@ -2,29 +2,6 @@
 
 use crate::ffi;
 
-/// Convert static value to pointer
-pub trait AsPtr {
-    fn ptr(&self) -> i32;
-}
-
-impl AsPtr for &'static str {
-    fn ptr(&self) -> i32 {
-        self.as_ptr() as i32
-    }
-}
-
-impl AsPtr for &'static [u8] {
-    fn ptr(&self) -> i32 {
-        self.as_ptr() as i32
-    }
-}
-
-impl AsPtr for i32 {
-    fn ptr(&self) -> i32 {
-        *self
-    }
-}
-
 /// Zink event interface
 ///
 /// TODO: safety check for the length of the event name
@@ -43,32 +20,27 @@ pub trait Event {
         }
     }
 
-    fn log2(&self, topic1: impl AsPtr, topic2: impl AsPtr) {
+    fn log2(&self, topic1: &'static [u8], topic2: &'static [u8]) {
         unsafe {
-            ffi::evm::log2(Self::NAME.as_ptr() as i32, topic1.ptr(), topic2.ptr());
+            ffi::evm::log2(Self::NAME, topic1, topic2);
         }
     }
 
-    fn log3(&self, topic1: impl AsPtr, topic2: impl AsPtr, topic3: impl AsPtr) {
+    fn log3(&self, topic1: &'static [u8], topic2: &'static [u8], topic3: &'static [u8]) {
         unsafe {
-            ffi::evm::log3(
-                Self::NAME.as_ptr() as i32,
-                topic1.ptr(),
-                topic2.ptr(),
-                topic3.ptr(),
-            );
+            ffi::evm::log3(Self::NAME, topic1, topic2, topic3);
         }
     }
 
-    fn log4(&self, topic1: impl AsPtr, topic2: impl AsPtr, topic3: impl AsPtr, topic4: impl AsPtr) {
+    fn log4(
+        &self,
+        topic1: &'static [u8],
+        topic2: &'static [u8],
+        topic3: &'static [u8],
+        topic4: &'static [u8],
+    ) {
         unsafe {
-            ffi::evm::log4(
-                Self::NAME.as_ptr() as i32,
-                topic1.ptr(),
-                topic2.ptr(),
-                topic3.ptr(),
-                topic4.ptr(),
-            );
+            ffi::evm::log4(Self::NAME, topic1, topic2, topic3, topic4);
         }
     }
 }

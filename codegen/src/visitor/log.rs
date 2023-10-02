@@ -12,8 +12,6 @@ impl CodeGen {
         let data = &buffer[(buffer.len() - data_len)..];
         *self.masm.buffer_mut() = buffer[..(buffer.len() - data_len)].into();
 
-        println!("{:?}", data);
-
         // Parse offset.
         //
         // PUSH0 0x5e
@@ -41,8 +39,8 @@ impl CodeGen {
             bytes[..size_bytes.len()].copy_from_slice(size_bytes);
             i32::from_le_bytes(bytes)
         };
-        tracing::debug!("log size: {:?}", size);
 
+        tracing::debug!("log size: {:?}", size);
         Ok((offset, size))
     }
 

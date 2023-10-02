@@ -73,6 +73,9 @@ impl CodeGen {
             Func::Sload => self.masm._sload(),
             Func::Log0 => self.log(0),
             Func::Log1 => self.log(1),
+            Func::Log2 => self.log(2),
+            Func::Log3 => self.log(3),
+            Func::Log4 => self.log(4),
             _ => {
                 tracing::error!("unsupported embedded function {func:?}");
                 Err(Error::UnsupportedHostFunc(func))
