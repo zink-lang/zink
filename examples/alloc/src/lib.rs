@@ -5,11 +5,11 @@
 #[cfg(not(test))]
 extern crate zink;
 
-#[no_mangle]
-pub extern "C" fn alloc(b: i32) -> u8 {
-    let mut bytes = [0u8; 4];
-    let r = b.to_le_bytes();
-    bytes.copy_from_slice(&r);
+use zink::U256;
 
-    bytes[0]
+const PING: &[u8] = b"ping";
+
+#[no_mangle]
+pub extern "C" fn alloc(b: i32) {
+    let num = U256::try_from(PING.as_ref()).unwrap();
 }

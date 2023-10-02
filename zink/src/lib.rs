@@ -6,6 +6,8 @@ mod event;
 pub mod ffi;
 
 pub use self::event::Event;
+pub use zalloc::U256;
+
 use core::{cell::UnsafeCell, sync::atomic::AtomicUsize};
 use zalloc::{Zallocator, ARENA_SIZE};
 
