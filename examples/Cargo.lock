@@ -10,6 +10,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "allocator"
+version = "0.1.0"
+dependencies = [
+ "zink",
+]
+
+[[package]]
 name = "fibonacci"
 version = "0.0.0"
 dependencies = [
@@ -38,5 +45,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "zalloc"
+version = "0.1.2"
+
+[[package]]
 name = "zink"
 version = "0.1.2"
+dependencies = [
+ "zalloc",
+]

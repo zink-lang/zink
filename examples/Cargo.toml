@@ -7,6 +7,7 @@ license = "GPL-v3.0"
 [workspace]
 resolver = "2"
 members = [
+  "alloc",
   "addition",
   "fibonacci",
   "if-else",

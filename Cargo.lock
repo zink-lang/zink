@@ -2219,6 +2219,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "zalloc"
+version = "0.1.2"
+
+[[package]]
 name = "zeroize"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2255,6 +2259,9 @@ dependencies = [
 [[package]]
 name = "zink"
 version = "0.1.2"
+dependencies = [
+ "zalloc",
+]
 
 [[package]]
 name = "zinkc"

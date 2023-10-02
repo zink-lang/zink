@@ -8,6 +8,7 @@ repository = "https://github.com/clearloop/zink.git"
 
 [workspace]
 members = [
+  "alloc",
   "cli",
   "codegen",
   "codegen/opcodes",
@@ -48,6 +49,7 @@ zingen =  { path = "codegen", version = "=0.1.2" }
 zinkc = { path = "compiler", version = "=0.1.2" }
 zink = { path = "zink", version = "=0.1.2" }
 zint = { path = "zint", version = "=0.1.2" }
+zalloc = { path = "alloc", version = "=0.1.2" }
 
 [profile]
 dev = { panic = "abort"}
