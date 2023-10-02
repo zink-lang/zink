@@ -7,6 +7,7 @@
 - [Examples](./examples/README.md)
   - [AddTwo](./examples/add-two.md)
   - [Fibonacci](./examples/fibonacci.md)
+  - [Log](./examples/log.md)
   - [Select](./examples/select.md)
   - [Storage](./examples/storage.md)
 - [Command Line Tool](./cli/README.md)
