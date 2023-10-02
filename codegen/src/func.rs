@@ -117,12 +117,6 @@ impl Func {
     /// are necessary to just stay in the code
     /// section #109
     pub fn is_embedded(&self) -> bool {
-        // match self {
-        //     Self::Select => true,
-        //     Self::Sload => true,
-        //     Self::Sstore => true,
-        //     Self::Log0 => true,
-        // }
         true
     }
 }

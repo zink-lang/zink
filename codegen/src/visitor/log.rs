@@ -12,6 +12,8 @@ impl CodeGen {
         let data = &buffer[(buffer.len() - data_len)..];
         *self.masm.buffer_mut() = buffer[..(buffer.len() - data_len)].into();
 
+        println!("{:?}", data);
+
         // Parse offset.
         //
         // PUSH0 0x5e
@@ -27,7 +29,7 @@ impl CodeGen {
             bytes[..offset_len].copy_from_slice(&data[1..(1 + offset_len)]);
             i32::from_le_bytes(bytes)
         };
-        tracing::debug!("log0 offset: {:?}", offset);
+        tracing::debug!("log offset: {:?}", offset);
 
         // Parse size.
         if !(0x5e..0x8f).contains(&data[offset_len + 1]) {
@@ -39,42 +41,22 @@ impl CodeGen {
             bytes[..size_bytes.len()].copy_from_slice(size_bytes);
             i32::from_le_bytes(bytes)
         };
-        tracing::debug!("log0 size: {:?}", size);
+        tracing::debug!("log size: {:?}", size);
 
         Ok((offset, size))
     }
 
-    /// Logs a message without topics.
-    pub fn log0(&mut self) -> Result<()> {
-        let (offset, size) = self.log_data()?;
-        let size = size as usize;
-        let data = self.dataset.load(offset, size)?;
-
-        tracing::debug!("log0 data: {:?}", data);
-
-        // 1. write data to memory
-        let MemoryInfo { offset, size } = self.masm.memory_write_bytes(&data)?;
-
-        // 2. prepare the offset and size of the data.
-        self.masm.push(&size.to_ls_bytes())?;
-        self.masm.push(&offset)?;
-
-        // 3. run log0 for the data
-        self.masm._log0()?;
-
-        Ok(())
-    }
-
-    /// Logs a message without topics.
-    pub fn log1(&mut self) -> Result<()> {
-        let topic1 = {
+    /// Log a message with topics.
+    pub fn log(&mut self, count: usize) -> Result<()> {
+        let mut topics = Vec::<Vec<u8>>::default();
+        for topic in (1..=count).rev() {
             let (offset, size) = self.log_data()?;
             let size = size as usize;
             let data = self.dataset.load(offset, size)?;
 
-            tracing::debug!("log1 topic1: {:?}", data);
-            data
-        };
+            tracing::debug!("log{count} topic{topic}: {:?}", data);
+            topics.push(data);
+        }
 
         let name = {
             let (offset, size) = self.log_data()?;
@@ -85,18 +67,26 @@ impl CodeGen {
             data
         };
 
+        for topic in topics {
+            self.masm.push(&topic)?;
+        }
+
         // 1. write data to memory
         let MemoryInfo { offset, size } = self.masm.memory_write_bytes(&name)?;
-
-        // 2. process log data
-        self.masm.push(&topic1)?;
 
         // 3. prepare the offset and size of the data.
         self.masm.push(&size.to_ls_bytes())?;
         self.masm.push(&offset)?;
 
         // 4. run log for the data
-        self.masm._log1()?;
+        match count {
+            0 => self.masm._log0(),
+            1 => self.masm._log1(),
+            2 => self.masm._log2(),
+            3 => self.masm._log3(),
+            4 => self.masm._log4(),
+            _ => unreachable!("invalid topics"),
+        }?;
 
         Ok(())
     }
