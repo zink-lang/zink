@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.1.2"
+version = "0.1.3"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -42,12 +42,12 @@ wasmparser = "0.107.0"
 wat = "1.0.66"
 
 # Local Dependencies.
-zinkup = { path = "cli", version = "=0.1.2" }
+zinkup = { path = "cli", version = "=0.1.3" }
 opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
-zingen =  { path = "codegen", version = "=0.1.2" }
-zinkc = { path = "compiler", version = "=0.1.2" }
-zink = { path = "zink", version = "=0.1.2" }
-zint = { path = "zint", version = "=0.1.2" }
+zingen =  { path = "codegen", version = "=0.1.3" }
+zinkc = { path = "compiler", version = "=0.1.3" }
+zink = { path = "zink", version = "=0.1.3" }
+zint = { path = "zint", version = "=0.1.3" }
 
 [profile]
 dev = { panic = "abort"}
