@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["read_at","write_at"]};

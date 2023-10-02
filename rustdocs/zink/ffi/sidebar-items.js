@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["evm","memory"]};
+window.SIDEBAR_ITEMS = {"mod":["evm"]};
