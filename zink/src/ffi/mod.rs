@@ -4,6 +4,4 @@
 //! being compiled to bytecode, but will be
 //! called by the compiler.
 
-pub mod bytes;
 pub mod evm;
-pub mod memory;

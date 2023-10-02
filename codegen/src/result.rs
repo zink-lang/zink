@@ -12,6 +12,9 @@ pub enum Error {
     /// Failed to pop control stack frame.
     #[error("Control stack underflow")]
     ControlStackUnderflow,
+    /// Data not found in data section.
+    #[error("Data not found in data setction, offset {0}, size {1}")]
+    DataNotFound(i32, usize),
     /// Failed to register program counter to function index.
     #[error("Function {0} already exists in jump table")]
     DuplicateFunc(u32),

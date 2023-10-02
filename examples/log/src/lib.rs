@@ -17,8 +17,12 @@ impl Event for Ping {
     const NAME: &'static [u8] = b"Ping";
 }
 
-/// Adds two numbers together.
 #[no_mangle]
 pub extern "C" fn log0() {
     Ping.log0();
+}
+
+#[no_mangle]
+pub extern "C" fn log1() {
+    Ping.log1(b"pong");
 }

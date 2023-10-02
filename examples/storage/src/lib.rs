@@ -13,30 +13,30 @@ use zink::ffi::evm::{sload, sstore};
 struct Counter;
 
 impl Counter {
-    fn get() -> i64 {
+    fn get() -> i32 {
         unsafe { sload(0) }
     }
 
-    fn set(value: i64) {
+    fn set(value: i32) {
         unsafe { sstore(0, value) }
     }
 }
 
 /// Set value to the storage and get it.
 #[no_mangle]
-pub unsafe extern "C" fn set_and_get(value: i64) -> i64 {
+pub unsafe extern "C" fn set_and_get(value: i32) -> i32 {
     Counter::set(value);
     Counter::get()
 }
 
 /// Set value to the storage.
 #[no_mangle]
-pub unsafe extern "C" fn set(value: i64) {
+pub unsafe extern "C" fn set(value: i32) {
     Counter::set(value);
 }
 
 /// Get value from the storage.
 #[no_mangle]
-pub unsafe extern "C" fn get() -> i64 {
+pub unsafe extern "C" fn get() -> i32 {
     Counter::get()
 }
