@@ -35,7 +35,7 @@ unsafe impl GlobalAlloc for Zallocator {
         }
 
         let mut allocated = 0;
-        if self
+        let remaining = self
             .remaining
             .fetch_update(SeqCst, SeqCst, |mut remaining| {
                 if size > remaining {
@@ -45,11 +45,12 @@ unsafe impl GlobalAlloc for Zallocator {
                 remaining &= align_mask_to_round_down;
                 allocated = remaining;
                 Some(remaining)
-            })
-            .is_err()
-        {
+            });
+
+        if remaining.is_err() {
             return null_mut();
         };
+
         self.arena.get().cast::<u8>().add(allocated)
     }
 
