@@ -64,4 +64,40 @@ impl CodeGen {
 
         Ok(())
     }
+
+    /// Logs a message without topics.
+    pub fn log1(&mut self) -> Result<()> {
+        let topic1 = {
+            let (offset, size) = self.log_data()?;
+            let size = size as usize;
+            let data = self.dataset.load(offset, size)?;
+
+            tracing::debug!("log1 topic1: {:?}", data);
+            data
+        };
+
+        let name = {
+            let (offset, size) = self.log_data()?;
+            let size = size as usize;
+            let data = self.dataset.load(offset, size)?;
+
+            tracing::debug!("log1 name: {:?}", data);
+            data
+        };
+
+        // 1. write data to memory
+        let MemoryInfo { offset, size } = self.masm.memory_write_bytes(&name)?;
+
+        // 2. process log data
+        self.masm.push(&topic1)?;
+
+        // 3. prepare the offset and size of the data.
+        self.masm.push(&size.to_ls_bytes())?;
+        self.masm.push(&offset)?;
+
+        // 4. run log for the data
+        self.masm._log1()?;
+
+        Ok(())
+    }
 }
