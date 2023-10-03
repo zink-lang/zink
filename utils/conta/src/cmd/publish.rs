@@ -67,13 +67,13 @@ impl Publish {
             .collect::<BTreeMap<_, _>>();
 
         packages
-            .into_iter()
+            .iter()
             .filter_map(|pkg| -> Option<Result<_>> {
                 let Some((name, version)) = pkgs.get_key_value(pkg) else {
                     return Some(Err(anyhow!("Package {} not found in metadata", pkg)));
                 };
 
-                if let Ok((crates, _total)) = registry.search(&pkg, 1) {
+                if let Ok((crates, _total)) = registry.search(pkg, 1) {
                     if crates.len() == 1 && crates[0].max_version == *version {
                         println!("Package {}@{} has already been published.", name, version);
                         return None;

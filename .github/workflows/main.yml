@@ -23,7 +23,7 @@ jobs:
         run: cargo nextest run --all-features --no-fail-fast
 
       - name: Build Examples
-        run: cd example && cargo b --release
+        run: cd examples && cargo b --release
 
   check:
     name: Check
