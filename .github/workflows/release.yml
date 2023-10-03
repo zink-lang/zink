@@ -5,6 +5,8 @@ on:
   push:
     tags:
       - "v*"
+  pull_request:
+    branches: [main]
 
 jobs:
   publish:
@@ -16,6 +18,12 @@ jobs:
       - name: Setup rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
-      - run: cargo run --release --bin conta publish
+      - name: Dry run publishing
+        run: cargo run --release --bin conta publish --dry-run
+        if: ${{ github.ref_name != "main" }}
+
+      - name: Release packages to crates.io
+        run: cargo run --release --bin conta publish
+        if: ${{ github.ref_name == "main" }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

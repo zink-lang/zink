@@ -25,9 +25,6 @@ jobs:
       - name: Build Examples
         run: cd example && cargo b --release
 
-      - name: Dry Run Release
-        run: cargo run --release --bin conta publish --dry-run
-
   check:
     name: Check
     runs-on: ubuntu-latest
