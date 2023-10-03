@@ -36,13 +36,14 @@ impl EVM {
         let contract = Contract::new(
             input.to_vec().into(),                       // input
             Bytecode::new_raw(btyecode.to_vec().into()), // code
+            Default::default(),                          // hash
             Default::default(),                          // address
             Default::default(),                          // caller
             U256::ZERO,                                  // value
         );
 
         Self {
-            interpreter: Interpreter::new(contract, INITIAL_GAS, false),
+            interpreter: Interpreter::new(Box::new(contract), INITIAL_GAS, false),
             host: DummyHost::new(Default::default()),
         }
     }
