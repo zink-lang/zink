@@ -10,6 +10,7 @@ on:
 
 jobs:
   publish:
+    name: Publish
     if: github.repository == 'zink-lang/zink'
     runs-on: ubuntu-latest
     steps:
@@ -18,12 +19,7 @@ jobs:
       - name: Setup rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
-      - name: Dry run publishing
-        run: cargo run --release --bin conta publish --dry-run
-        if: ${{ github.ref_name != 'main' }}
-
       - name: Release packages to crates.io
         run: cargo run --release --bin conta publish
-        if: ${{ github.ref_name == 'main' }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
