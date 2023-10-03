@@ -18,7 +18,15 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@nextest
-      - run: cargo nextest run --all-features --no-fail-fast
+
+      - name: Run Tests
+        run: cargo nextest run --all-features --no-fail-fast
+
+      - name: Build Examples
+        run: cd example && cargo b --release
+
+      - name: Dry Run Release
+        run: cargo run --release --bin conta publish --dry-run
 
   check:
     name: Check
