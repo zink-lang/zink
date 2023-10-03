@@ -1,8 +1,10 @@
 //! Command publish
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use cargo_metadata::MetadataCommand;
 use clap::Parser;
-use std::{path::PathBuf, process::Command, thread, time::Duration};
+use crates_io::Registry;
+use curl::easy::Easy;
+use std::{collections::BTreeMap, path::PathBuf, process::Command};
 
 /// Publish crates.
 #[derive(Debug, Parser, Clone)]
@@ -19,13 +21,11 @@ pub struct Publish {
 impl Publish {
     /// Run publish
     pub fn run(&self, manifest: &PathBuf, packages: &[String]) -> Result<()> {
-        self.verify(manifest, packages)?;
+        let pkgs = self.verify(manifest, packages)?;
 
-        for pkg in packages {
-            if !self.publish(pkg)? {
-                // Just handle the rate limit for once.
-                thread::sleep(Duration::from_secs(60 * 6));
-                self.publish(pkg)?;
+        for pkg in pkgs {
+            if !self.publish(&pkg)? {
+                return Err(anyhow!("Failed to publish {pkg}"));
             }
         }
 
@@ -48,7 +48,13 @@ impl Publish {
         Ok(cargo.status()?.success())
     }
 
-    fn verify(&self, manifest: &PathBuf, packages: &[String]) -> Result<()> {
+    fn verify(&self, manifest: &PathBuf, packages: &[String]) -> Result<Vec<String>> {
+        let mut registry = {
+            let mut handle = Easy::new();
+            handle.useragent("zink-lang")?;
+            Registry::new_handle("https://crates.io".into(), None, handle, false)
+        };
+
         let metadata = MetadataCommand::new()
             .no_deps()
             .manifest_path(manifest)
@@ -57,15 +63,25 @@ impl Publish {
         let pkgs = metadata
             .packages
             .iter()
-            .map(|pkg| pkg.name.clone())
-            .collect::<Vec<_>>();
+            .map(|pkg| (pkg.name.clone(), pkg.version.to_string()))
+            .collect::<BTreeMap<_, _>>();
 
-        for pkg in packages {
-            if !pkgs.contains(pkg) {
-                anyhow::bail!("Package {} not found in metadata", pkg);
-            }
-        }
+        packages
+            .iter()
+            .filter_map(|pkg| -> Option<Result<_>> {
+                let Some((name, version)) = pkgs.get_key_value(pkg) else {
+                    return Some(Err(anyhow!("Package {} not found in metadata", pkg)));
+                };
 
-        Ok(())
+                if let Ok((crates, _total)) = registry.search(pkg, 1) {
+                    if crates.len() == 1 && crates[0].max_version == *version {
+                        println!("Package {}@{} has already been published.", name, version);
+                        return None;
+                    }
+                }
+
+                Some(Ok(name.clone()))
+            })
+            .collect::<Result<Vec<_>>>()
     }
 }
