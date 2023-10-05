@@ -2330,6 +2330,14 @@ name = "zink"
 version = "0.1.3"
 
 [[package]]
+name = "zink-codegen"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 2.0.37",
+]
+
+[[package]]
 name = "zinkc"
 version = "0.1.3"
 dependencies = [
