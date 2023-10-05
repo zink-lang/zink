@@ -6,8 +6,8 @@ use syn::{DeriveInput, LitByteStr};
 
 /// Expand the event interface
 pub fn parse(item: DeriveInput) -> TokenStream {
-    let ident = item.ident.clone();
     let name = LitByteStr::new(item.ident.to_string().as_bytes(), Span::call_site().into());
+    let ident = item.ident;
 
     let expanded = quote! {
         impl zink::Event for #ident {

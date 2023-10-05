@@ -1,4 +1,4 @@
-//! Code generation libary for the zink API
+//! Code generation library for the zink API
 
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
