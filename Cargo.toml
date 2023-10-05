@@ -52,6 +52,7 @@ opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3
 zingen =  { path = "codegen", version = "=0.1.3" }
 zinkc = { path = "compiler", version = "=0.1.3" }
 zink = { path = "zink", version = "=0.1.3" }
+zink-codegen = { path = "zink/codegen", version = "=0.1.3" }
 zint = { path = "zint", version = "=0.1.3" }
 
 [profile]

@@ -6,6 +6,7 @@ mod event;
 pub mod ffi;
 
 pub use self::event::Event;
+pub use zink_codegen::Event;
 
 // Panic hook implementation
 #[cfg(not(test))]

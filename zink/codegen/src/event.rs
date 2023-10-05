@@ -11,7 +11,7 @@ pub fn parse(item: DeriveInput) -> TokenStream {
 
     let expanded = quote! {
         impl zink::Event for #ident {
-            const NAME: &'static [u8] = #name
+            const NAME: &'static [u8] = #name;
         }
     };
 
