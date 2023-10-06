@@ -2,14 +2,11 @@
 
 #![no_std]
 
-extern crate alloc;
-
 mod event;
 pub mod ffi;
 mod storage;
 
-pub use self::event::Event;
-pub use self::storage::Storage;
+pub use self::{event::Event, storage::Storage};
 pub use zink_codegen::{storage, Event};
 
 // Panic hook implementation

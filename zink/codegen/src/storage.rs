@@ -2,8 +2,7 @@ extern crate proc_macro;
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use std::sync::atomic::AtomicI32;
-use std::sync::atomic::Ordering::Relaxed;
+use std::sync::atomic::{AtomicI32, Ordering::Relaxed};
 use syn::ItemType;
 
 pub fn parse(input: ItemType) -> TokenStream {
@@ -12,7 +11,7 @@ pub fn parse(input: ItemType) -> TokenStream {
 
     match variable_type.to_string().as_str() {
         "i32" => (),
-        _ => unimplemented!(),
+        _ => unimplemented!("Only support i32 as storage key for now."),
     };
 
     // hash-based storage key derivation (we decided that order-based is better)
@@ -32,17 +31,22 @@ pub fn parse(input: ItemType) -> TokenStream {
     let storage_key = IOTA.fetch_add(1, Relaxed);
 
     let expanded = quote! {
+        // TODO: derive documents (#137)
         struct #variable_name;
 
         impl zink::Storage<#variable_type> for #variable_name {
             const STORAGE_KEY: i32 = #storage_key;
 
             fn get() -> #variable_type {
-                zink::ffi::evm::sload(Self::STORAGE_KEY)
+                unsafe {
+                    zink::ffi::evm::sload(Self::STORAGE_KEY)
+                }
             }
 
             fn set(value: #variable_type) {
-                zink::ffi::evm::sstore(Self::STORAGE_KEY, value);
+                unsafe {
+                    zink::ffi::evm::sstore(Self::STORAGE_KEY, value);
+                }
             }
         }
     };
