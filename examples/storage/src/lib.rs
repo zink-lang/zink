@@ -5,6 +5,8 @@
 #[cfg(not(test))]
 extern crate zink;
 
+use zink::Storage;
+
 /// It gets expanded to 'Counter' struct
 /// that implements zink::Storage trait
 /// (::set and ::get)
