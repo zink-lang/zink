@@ -4,9 +4,10 @@
 
 mod event;
 pub mod ffi;
+mod storage;
 
-pub use self::event::Event;
-pub use zink_codegen::Event;
+pub use self::{event::Event, storage::Storage};
+pub use zink_codegen::{storage, Event};
 
 // Panic hook implementation
 #[cfg(not(test))]
