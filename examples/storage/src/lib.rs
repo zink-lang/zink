@@ -5,22 +5,15 @@
 #[cfg(not(test))]
 extern crate zink;
 
-/// TODO: generate this storage interface with proc macro.
-use zink::ffi::evm::{sload, sstore};
-
-// The number `0` in this struct is for the storage key,
-// it will be convreted to `0x000..0000`.
-struct Counter;
-
-impl Counter {
-    fn get() -> i32 {
-        unsafe { sload(0) }
-    }
-
-    fn set(value: i32) {
-        unsafe { sstore(0, value) }
-    }
-}
+/// It gets expanded to 'Counter' struct
+/// that implements zink::Storage trait
+/// (::set and ::get)
+///
+/// Storage key is taken based on macro order
+/// (e.g this macro is first and only in this project,
+/// so it will take 0x0 contract storage key)
+#[zink::storage]
+pub type Counter = i32;
 
 /// Set value to the storage and get it.
 #[no_mangle]
