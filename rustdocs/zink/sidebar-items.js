@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"derive":["Event"],"fn":["panic"],"mod":["event","ffi"],"trait":["Event"]};
+window.SIDEBAR_ITEMS = {"attr":["storage"],"derive":["Event"],"fn":["panic"],"mod":["event","ffi","storage"],"trait":["Event","Storage"]};

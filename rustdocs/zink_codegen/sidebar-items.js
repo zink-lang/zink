@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"derive":["Event"],"mod":["event"]};
+window.SIDEBAR_ITEMS = {"attr":["storage"],"derive":["Event"],"mod":["event","storage"]};
