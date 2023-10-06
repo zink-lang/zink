@@ -2,11 +2,13 @@
 
 #![no_std]
 
+extern crate alloc;
+
 mod event;
 pub mod ffi;
 
 pub use self::event::Event;
-pub use zink_codegen::Event;
+pub use zink_codegen::Storage;
 
 // Panic hook implementation
 #[cfg(not(test))]
