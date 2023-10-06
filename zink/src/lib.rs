@@ -6,9 +6,11 @@ extern crate alloc;
 
 mod event;
 pub mod ffi;
+mod storage;
 
 pub use self::event::Event;
-pub use zink_codegen::Storage;
+pub use self::storage::Storage;
+pub use zink_codegen::{storage, Event};
 
 // Panic hook implementation
 #[cfg(not(test))]

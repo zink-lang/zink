@@ -81,7 +81,7 @@ impl New {
         let src = self.path.join("src");
         fs::create_dir_all(&src)?;
         fs::write(
-            src.join("mod"),
+            src.join("lib.rs"),
             ADDITION.trim_start().replace(NAME, &name),
         )?;
 

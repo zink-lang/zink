@@ -1,27 +1,18 @@
 extern crate proc_macro;
 
 use proc_macro2::TokenStream;
-use std::any::Any;
+use quote::{quote, ToTokens};
 use std::sync::atomic::AtomicI32;
 use std::sync::atomic::Ordering::Relaxed;
-use quote::{quote, ToTokens};
 use syn::ItemType;
 
-pub trait Storage<T> {
-    const STORAGE_KEY: &'static [u8];
-
-    fn get() -> T;
-    fn set(value: T);
-}
-
 pub fn parse(input: ItemType) -> TokenStream {
-
     let variable_name = input.ident;
     let variable_type = input.ty.to_token_stream();
 
     match variable_type.to_string().as_str() {
         "i32" => (),
-        _ => unimplemented!()
+        _ => unimplemented!(),
     };
 
     // hash-based storage key derivation (we decided that order-based is better)

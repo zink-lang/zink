@@ -9,5 +9,4 @@ proc-macro = true
 [dependencies]
 syn.workspace = true
 quote.workspace = true
-sha3 = "0.10.8"
 proc-macro2 = "1.0.67"
