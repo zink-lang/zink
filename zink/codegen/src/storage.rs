@@ -61,6 +61,6 @@ mod tests {
     #[test]
     fn parse_test() {
         let expr: ItemType = syn::parse_str("pub type Counter = i32;").unwrap();
-        assert_eq!(parse(expr).to_string().as_str(), "struct Counter ; impl zink :: Storage < i32 > for Counter { const STORAGE_KEY : i32 = 0i32 ; fn get () -> i32 { zink :: ffi :: evm :: sload (Self :: STORAGE_KEY) } fn set (value : i32) { zink :: ffi :: evm :: sstore (Self :: STORAGE_KEY , value) ; } }");
+        assert_eq!(parse(expr).to_string().as_str(), "struct Counter ; impl zink :: Storage < i32 > for Counter { const STORAGE_KEY : i32 = 0i32 ; fn get () -> i32 { unsafe { zink :: ffi :: evm :: sload (Self :: STORAGE_KEY) } } fn set (value : i32) { unsafe { zink :: ffi :: evm :: sstore (Self :: STORAGE_KEY , value) ; } } }");
     }
 }
