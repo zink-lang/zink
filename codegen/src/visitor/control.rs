@@ -87,7 +87,7 @@ impl CodeGen {
     /// The select instruction selects one of its first two operands based
     /// on whether its third oprand is zero or not.
     ///
-    /// STACK: [val1, val2, cond] -> [val1] if cond is non-zero, [val2] otherwise.
+    /// STACK: [val1, val2, cond] -> \[val1\] if cond is non-zero, \[val2\] otherwise.
     pub fn _select(&mut self) -> Result<()> {
         tracing::trace!("select");
         let func = Func::Select;

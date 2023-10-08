@@ -13,7 +13,7 @@ pub struct Compile {
     /// The path of the wasm file.
     #[clap(value_name = "INPUT")]
     input: PathBuf,
-    /// Write output to <filename>
+    /// Write output to \<filename\>
     #[clap(short, long)]
     output: Option<PathBuf>,
 }
