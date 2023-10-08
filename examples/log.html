@@ -185,14 +185,8 @@ extern crate zink;
 use zink::Event;
 
 /// A `Ping` event.
-///
-/// TODO: generate this with proc-macro.
+#[derive(Event)]
 struct Ping;
-
-/// TODO: generate this with proc-macro.
-impl Event for Ping {
-    const NAME: &amp;'static [u8] = b&quot;Ping&quot;;
-}
 
 #[no_mangle]
 pub extern &quot;C&quot; fn log1() {

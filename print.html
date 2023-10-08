@@ -396,14 +396,8 @@ extern crate zink;
 use zink::Event;
 
 /// A `Ping` event.
-///
-/// TODO: generate this with proc-macro.
+#[derive(Event)]
 struct Ping;
-
-/// TODO: generate this with proc-macro.
-impl Event for Ping {
-    const NAME: &amp;'static [u8] = b&quot;Ping&quot;;
-}
 
 #[no_mangle]
 pub extern &quot;C&quot; fn log1() {
@@ -465,22 +459,21 @@ and jump back just like calling a real function.</p>
 <pre><code>60003560203560003560203510589190601c575b60005260206000f35b5060060156
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="storage"><a class="header" href="#storage">Storage</a></h1>
-<pre><code class="language-rust">use zink::storage::{sload, sstore};
+<pre><code class="language-rust">// for the panic handler.
+#[cfg(not(test))]
+extern crate zink;
 
-/// TODO: generate this storage interface with proc macro.
-struct Counter;
+use zink::Storage;
 
-// The number `0` in this struct is for the storage key,
-// it will be convreted to `0x000..0000`.
-impl Counter {
-    fn get() -&gt; i64 {
-        unsafe { sload(0) }
-    }
-
-    fn set(value: i64) {
-        unsafe { sstore(0, value) }
-    }
-}
+/// It gets expanded to 'Counter' struct
+/// that implements zink::Storage trait
+/// (::set and ::get)
+///
+/// Storage key is taken based on macro order
+/// (e.g this macro is first and only in this project,
+/// so it will take 0x0 contract storage key)
+#[zink::storage]
+pub type Counter = i32;
 
 /// Set value to storage and get it
 #[no_mangle]
