@@ -2,7 +2,7 @@ packages = [
   "zingen",
   "zint",
   "zinkc",
-  "zink",
   "zink-codegen",
+  "zink",
   "zinkup"
 ]
