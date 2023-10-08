@@ -3,5 +3,6 @@ packages = [
   "zint",
   "zinkc",
   "zink",
+  "zink-codegen",
   "zinkup"
 ]
