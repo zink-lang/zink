@@ -3,7 +3,8 @@
 #![no_std]
 
 mod event;
-pub mod ffi;
+pub mod evm;
+mod primitive;
 mod storage;
 
 pub use self::{event::Event, storage::Storage};

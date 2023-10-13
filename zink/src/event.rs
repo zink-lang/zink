@@ -1,6 +1,6 @@
 //! Event implementation
 
-use crate::ffi;
+use crate::evm;
 
 /// Zink event interface
 ///
@@ -10,25 +10,25 @@ pub trait Event {
 
     fn log0(&self) {
         unsafe {
-            ffi::evm::log0(Self::NAME);
+            evm::log0(Self::NAME);
         }
     }
 
     fn log1(&self, topic: &'static [u8]) {
         unsafe {
-            ffi::evm::log1(Self::NAME, topic);
+            evm::log1(Self::NAME, topic);
         }
     }
 
     fn log2(&self, topic1: &'static [u8], topic2: &'static [u8]) {
         unsafe {
-            ffi::evm::log2(Self::NAME, topic1, topic2);
+            evm::log2(Self::NAME, topic1, topic2);
         }
     }
 
     fn log3(&self, topic1: &'static [u8], topic2: &'static [u8], topic3: &'static [u8]) {
         unsafe {
-            ffi::evm::log3(Self::NAME, topic1, topic2, topic3);
+            evm::log3(Self::NAME, topic1, topic2, topic3);
         }
     }
 
@@ -40,7 +40,7 @@ pub trait Event {
         topic4: &'static [u8],
     ) {
         unsafe {
-            ffi::evm::log4(Self::NAME, topic1, topic2, topic3, topic4);
+            evm::log4(Self::NAME, topic1, topic2, topic3, topic4);
         }
     }
 }

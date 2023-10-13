@@ -1,13 +1,9 @@
 //! EVM imports
 
 // EVM interfaces
-//
-// TODO: Align to 256-bit #20.
 #[link(wasm_import_module = "evm")]
 #[allow(improper_ctypes)]
 extern "C" {
-    // i32 -> 8 bytes
-
     /// Store a value in the storage
     pub fn sstore(key: i32, value: i32);
 
@@ -39,7 +35,4 @@ extern "C" {
         topic3: &'static [u8],
         topic4: &'static [u8],
     );
-
-    /// Copy code running in current environment to memory
-    pub fn codecopy(destOffset: u32, codeOffset: u32, size: u32);
 }

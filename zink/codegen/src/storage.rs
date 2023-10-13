@@ -39,13 +39,13 @@ pub fn parse(input: ItemType) -> TokenStream {
 
             fn get() -> #variable_type {
                 unsafe {
-                    zink::ffi::evm::sload(Self::STORAGE_KEY)
+                    zink::evm::sload(Self::STORAGE_KEY)
                 }
             }
 
             fn set(value: #variable_type) {
                 unsafe {
-                    zink::ffi::evm::sstore(Self::STORAGE_KEY, value);
+                    zink::evm::sstore(Self::STORAGE_KEY, value);
                 }
             }
         }
