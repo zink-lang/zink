@@ -2,11 +2,10 @@
 
 #![no_std]
 
-mod event;
 pub mod ffi;
-mod storage;
+mod traits;
 
-pub use self::{event::Event, storage::Storage};
+pub use traits::{Event, Storage};
 pub use zink_codegen::{external, storage, Event};
 
 // Panic hook implementation

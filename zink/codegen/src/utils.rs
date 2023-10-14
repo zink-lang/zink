@@ -1,4 +1,4 @@
-//! Utils for code genration of zink APIs
+//! Utils for code generation of zink APIs
 use sha3::{Digest, Keccak256};
 
 /// Generate a keccak hash of the input (sha3)

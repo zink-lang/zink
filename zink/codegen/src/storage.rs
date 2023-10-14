@@ -1,6 +1,6 @@
 extern crate proc_macro;
 
-use proc_macro::TokenStream;
+use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use std::sync::atomic::{AtomicI32, Ordering::Relaxed};
 use syn::ItemType;
@@ -51,7 +51,7 @@ pub fn parse(input: ItemType) -> TokenStream {
         }
     };
 
-    expanded.into()
+    expanded
 }
 
 #[cfg(test)]

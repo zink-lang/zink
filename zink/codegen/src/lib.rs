@@ -10,7 +10,7 @@ mod utils;
 
 /// Event logging interface
 ///
-/// ```rust
+/// ```ignore
 /// use zink::Event;
 ///
 /// /// A `Ping` event.
@@ -25,7 +25,7 @@ mod utils;
 ///
 /// will generate:
 ///
-/// ```rust
+/// ```ignore
 /// struct Ping;
 ///
 /// impl zink::Event for Ping {
@@ -41,7 +41,7 @@ pub fn event(input: TokenStream) -> TokenStream {
 /// Order-based storage macro.
 /// Currently only i32 is supported
 ///
-/// ```rust
+/// ```ignore
 /// use zink::storage;
 ///
 /// #[storage]
@@ -50,7 +50,7 @@ pub fn event(input: TokenStream) -> TokenStream {
 ///
 /// will generate:
 ///
-/// ```rust
+/// ```ignore
 /// struct Counter;
 ///
 /// impl zink::Storage<i32> for Counter {

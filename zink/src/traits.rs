@@ -1,5 +1,4 @@
-//! Event implementation
-
+//! Public traits for the EVM interfaces
 use crate::ffi;
 
 /// Zink event interface
@@ -43,4 +42,15 @@ pub trait Event {
             ffi::evm::log4(Self::NAME, topic1, topic2, topic3, topic4);
         }
     }
+}
+
+/// Storage trait. Currently not for public use
+pub trait Storage<T> {
+    const STORAGE_KEY: i32;
+
+    /// Get value from storage.
+    fn get() -> T;
+
+    /// Set value to storage.
+    fn set(value: T);
 }
