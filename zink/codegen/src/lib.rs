@@ -1,10 +1,12 @@
 //! Code generation library for the zink API
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput, ItemType};
+use syn::{parse_macro_input, DeriveInput, ItemFn, ItemType};
 
 mod event;
+mod selector;
 mod storage;
+mod utils;
 
 /// Event logging interface
 ///
@@ -68,4 +70,11 @@ pub fn event(input: TokenStream) -> TokenStream {
 pub fn storage(_args: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemType);
     storage::parse(input).into()
+}
+
+/// Mark the function as an external entry point.
+#[proc_macro_attribute]
+pub fn external(_args: TokenStream, input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as ItemFn);
+    selector::external(input)
 }

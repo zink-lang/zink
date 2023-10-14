@@ -7,7 +7,7 @@ pub mod ffi;
 mod storage;
 
 pub use self::{event::Event, storage::Storage};
-pub use zink_codegen::{storage, Event};
+pub use zink_codegen::{external, storage, Event};
 
 // Panic hook implementation
 #[cfg(not(test))]
