@@ -33,18 +33,18 @@ indexmap = "2.0.0"
 paste = "1.0.13"
 quote = "1.0.33"
 revm = "3.5.0"
-semver = "1.0.18"
-serde = "1.0.171"
+semver = "1.0.20"
+serde = "1.0.189"
 smallvec = "1.11.0"
 syn =  { version = "2.0.38", features = [ "full" ] }
 target-lexicon = "0.12.8"
 thiserror = "1.0.40"
 toml = "0.7.6"
-tracing = "0.1.37"
+tracing = "0.1.39"
 tracing-subscriber = "0.3.17"
 wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
-wat = "1.0.75"
+wat = "1.0.77"
 
 # Local Dependencies.
 zinkup = { path = "cli", version = "=0.1.4" }
