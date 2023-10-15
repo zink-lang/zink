@@ -3,17 +3,17 @@
 use crate::{Error, Result};
 use std::iter::IntoIterator;
 use wasmparser::{
-    Data, DataKind, Export, FuncToValidate, FunctionBody, Import, Operator, Payload,
-    SectionLimited, TypeRef, ValidPayload, Validator, ValidatorResources,
+    Data, DataKind, Export, Import, Operator, Payload, SectionLimited, TypeRef, ValidPayload,
+    Validator,
 };
-use zingen::{DataSet, Exports, Func, Imports};
+use zingen::{DataSet, Exports, Func, Functions, Imports};
 
 /// WASM module parser
 #[derive(Default)]
 pub struct Parser<'p> {
     pub imports: Imports,
     pub data: DataSet,
-    pub funcs: Vec<(FuncToValidate<ValidatorResources>, FunctionBody<'p>)>,
+    pub funcs: Functions<'p>,
     pub exports: Exports,
 }
 
@@ -21,7 +21,6 @@ impl<'p> Parser<'p> {
     /// Parse WASM module.
     pub fn parse(&mut self, wasm: &'p [u8]) -> Result<()> {
         let mut validator = Validator::new();
-        let mut funcs = Vec::new();
 
         // Compile functions.
         for payload in wasmparser::Parser::new(0).parse_all(wasm) {
@@ -36,11 +35,11 @@ impl<'p> Parser<'p> {
             }
 
             if let ValidPayload::Func(to_validator, body) = valid_payload {
-                funcs.push((to_validator, body));
+                self.funcs
+                    .add(to_validator.into_validator(Default::default()), body);
             }
         }
 
-        self.funcs = funcs;
         Ok(())
     }
 

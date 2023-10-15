@@ -36,4 +36,17 @@ impl Exports {
     pub fn get(&self, index: u32) -> Option<&Export> {
         self.0.get(&index)
     }
+
+    /// Get all function selectors
+    pub fn selectors(&self) -> Vec<u32> {
+        let mut selectors = Vec::new();
+
+        for (index, export) in self.0.iter() {
+            if export.kind == ExternalKind::Func && export.name.ends_with("_selector") {
+                selectors.push(*index);
+            }
+        }
+
+        selectors
+    }
 }

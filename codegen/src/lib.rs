@@ -8,7 +8,7 @@ pub use crate::{
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
-    dispatcher::Dispatcher,
+    dispatcher::{Dispatcher, Function, Functions},
     export::Exports,
     func::Func,
     jump::{Code, JumpTable},

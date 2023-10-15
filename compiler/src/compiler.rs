@@ -1,7 +1,7 @@
 //! Zink compiler
 
 use crate::{parser::Parser, Error, Result};
-use wasmparser::{FuncToValidate, FunctionBody, ValidatorResources, WasmModuleResources};
+use wasmparser::{FuncValidator, FunctionBody, ValidatorResources, WasmModuleResources};
 use zingen::{Buffer, CodeGen, DataSet, Dispatcher, Exports, Imports, JumpTable, BUFFER_LIMIT};
 
 /// Zink Compiler
@@ -23,8 +23,8 @@ impl Compiler {
 
         self.compile_dispatcher(imports.clone(), exports)?;
 
-        for (func, body) in funcs.into_iter() {
-            self.compile_func(data.clone(), imports.clone(), func, body)?;
+        for func in funcs.into_funcs() {
+            self.compile_func(data.clone(), imports.clone(), func.validator, func.body)?;
         }
 
         self.finish()
@@ -51,12 +51,11 @@ impl Compiler {
         &mut self,
         dataset: DataSet,
         imports: Imports,
-        validator: FuncToValidate<ValidatorResources>,
+        mut validator: FuncValidator<ValidatorResources>,
         body: FunctionBody,
     ) -> Result<()> {
-        let mut func_validator = validator.into_validator(Default::default());
-        let func_index = func_validator.index();
-        let sig = func_validator
+        let func_index = validator.index();
+        let sig = validator
             .resources()
             .type_of_function(func_index)
             .ok_or(Error::InvalidFunctionSignature)?
@@ -69,8 +68,8 @@ impl Compiler {
         let mut locals_reader = body.get_locals_reader()?;
         let mut ops_reader = body.get_operators_reader()?;
 
-        codegen.emit_locals(&mut locals_reader, &mut func_validator)?;
-        codegen.emit_operators(&mut ops_reader, &mut func_validator)?;
+        codegen.emit_locals(&mut locals_reader, &mut validator)?;
+        codegen.emit_operators(&mut ops_reader, &mut validator)?;
 
         self.emit_buffer(func_index, codegen)?;
         Ok(())

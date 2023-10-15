@@ -34,7 +34,7 @@ const SSTORE: [OpCode; 6] = [
     OpCode::JUMP,
 ];
 
-/// Function selector.
+/// EVM built-in function.
 #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Hash)]
 pub enum Func {
     /// Run function select.
