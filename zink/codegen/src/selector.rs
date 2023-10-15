@@ -19,13 +19,16 @@ pub fn external(mut item: ItemFn) -> TokenStream {
         let func = item.sig.ident.clone().to_string();
         let ident = Ident::new(&(func.clone() + "_selector"), Span::call_site());
         let selector = parse_selector(&item.sig);
-        let doc = "EVM selector for the function `".to_string() + &func + "`";
+        let selector_len = selector.len() as u32;
+        let doc = " EVM selector for the function `".to_string() + &func + "`";
 
         parse_quote! {
             #[no_mangle]
-            #[doc(#doc)]
-            pub extern "C" fn #ident() -> &'static str {
-                #selector
+            #[doc = #doc]
+            pub extern "C" fn #ident() {
+                unsafe {
+                    zink::ffi::emit_abi(#selector.as_ptr() as u32, #selector_len);
+                }
             }
         }
     };
