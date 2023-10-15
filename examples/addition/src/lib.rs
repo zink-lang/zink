@@ -5,10 +5,8 @@
 #[cfg(not(test))]
 extern crate zink;
 
-use zink::external;
-
 /// Adds two numbers together.
-#[external]
+#[zink::external]
 pub fn addition(x: u64, y: u64) -> u64 {
     x + y
 }

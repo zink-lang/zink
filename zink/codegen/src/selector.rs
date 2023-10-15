@@ -1,23 +1,13 @@
 //! Macro for the function selector.
 
-// use once_cell::sync::Lazy;
-// use parking_lot::Mutex;
-use once_cell::sync::Lazy;
-use parking_lot::Mutex;
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens};
-use std::collections::HashMap;
-use syn::{FnArg, ItemFn, Signature};
-
-use crate::utils::keccak;
-
-static mut SELECTOR: Lazy<Mutex<HashMap<u32, Signature>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
+use quote::quote;
+use syn::{parse_quote, ItemFn};
 
 /// Mark the function as external.
-pub fn external(item: ItemFn) -> TokenStream {
-    let selector = parse_selector(&item.sig);
-    unsafe { SELECTOR.lock() }.insert(selector, item.sig.clone());
+pub fn external(mut item: ItemFn) -> TokenStream {
+    item.sig.abi = Some(parse_quote! { extern "C" });
+    item.attrs.push(parse_quote! { #[no_mangle] });
 
     quote! {
         #item
@@ -25,22 +15,22 @@ pub fn external(item: ItemFn) -> TokenStream {
     .into()
 }
 
-/// Hash function signature to EVM selector.
-fn parse_selector(sig: &Signature) -> u32 {
-    let args = sig.inputs.iter().map(|arg| match arg {
-        FnArg::Typed(pat) => pat.ty.clone().into_token_stream().to_string(),
-        _ => panic!(
-            "Unsupported function argument: {:?}",
-            arg.into_token_stream().to_string()
-        ),
-    });
-
-    let mut input = sig.ident.to_string();
-    input = input + "(" + &args.collect::<Vec<_>>().join(", ") + ")";
-
-    let mut selector = [0u8; 4];
-    let hash = keccak(input.as_bytes());
-    selector.copy_from_slice(&hash[..4]);
-
-    u32::from_le_bytes(selector)
-}
+// /// Hash function signature to EVM selector.
+// fn parse_selector(sig: &Signature) -> u32 {
+//     let args = sig.inputs.iter().map(|arg| match arg {
+//         FnArg::Typed(pat) => pat.ty.clone().into_token_stream().to_string(),
+//         _ => panic!(
+//             "Unsupported function argument: {:?}",
+//             arg.into_token_stream().to_string()
+//         ),
+//     });
+//
+//     let mut input = sig.ident.to_string();
+//     input = input + "(" + &args.collect::<Vec<_>>().join(", ") + ")";
+//
+//     let mut selector = [0u8; 4];
+//     let hash = keccak(input.as_bytes());
+//     selector.copy_from_slice(&hash[..4]);
+//
+//     u32::from_le_bytes(selector)
+// }
