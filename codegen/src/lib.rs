@@ -8,6 +8,7 @@ pub use crate::{
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
+    dispatcher::Dispatcher,
     export::Exports,
     func::Func,
     jump::{Code, JumpTable},
@@ -23,6 +24,7 @@ mod backtrace;
 mod codegen;
 mod control;
 mod data;
+mod dispatcher;
 mod export;
 mod func;
 mod jump;

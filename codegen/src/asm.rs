@@ -49,7 +49,6 @@ impl Assembler {
             return Err(Error::StackOverflow(self.sp));
         }
 
-        // tracing::debug!("increment sp: {items} -> {}", self.sp);
         Ok(())
     }
 

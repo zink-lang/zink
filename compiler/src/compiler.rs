@@ -2,7 +2,7 @@
 
 use crate::{parser::Parser, Error, Result};
 use wasmparser::{FuncToValidate, FunctionBody, ValidatorResources, WasmModuleResources};
-use zingen::{Buffer, CodeGen, DataSet, Imports, JumpTable, BUFFER_LIMIT};
+use zingen::{Buffer, CodeGen, DataSet, Dispatcher, Exports, Imports, JumpTable, BUFFER_LIMIT};
 
 /// Zink Compiler
 #[derive(Default)]
@@ -18,14 +18,32 @@ impl Compiler {
             imports,
             data,
             funcs,
-            exports: _,
+            exports,
         } = Parser::try_from(wasm)?;
+
+        self.compile_dispatcher(imports.clone(), exports)?;
 
         for (func, body) in funcs.into_iter() {
             self.compile_func(data.clone(), imports.clone(), func, body)?;
         }
 
         self.finish()
+    }
+
+    /// Compile EVM dispatcher.
+    pub fn compile_dispatcher(&mut self, imports: Imports, exports: Exports) -> Result<()> {
+        let buffer = Dispatcher::default()
+            .imports(imports)
+            .exports(exports)
+            .finish(&mut self.table)?;
+
+        self.buffer.extend_from_slice(&buffer);
+
+        if self.buffer.len() > BUFFER_LIMIT {
+            return Err(Error::BufferOverflow(self.buffer.len()));
+        }
+
+        Ok(())
     }
 
     /// Compile WASM function.
@@ -58,15 +76,6 @@ impl Compiler {
         Ok(())
     }
 
-    /// Finish compilation.
-    pub fn finish(mut self) -> Result<Buffer> {
-        tracing::trace!("buffer length {:x}", self.buffer.len());
-        self.table.code_offset(self.buffer.len() as u16);
-        self.table.relocate(&mut self.buffer)?;
-
-        Ok(self.buffer)
-    }
-
     /// Emit buffer to the inner buffer.
     fn emit_buffer(&mut self, func_index: u32, codegen: CodeGen) -> Result<()> {
         let buffer = codegen.finish(&mut self.table, self.buffer.len() as u16)?;
@@ -74,10 +83,19 @@ impl Compiler {
             .call_offset(func_index, self.buffer.len() as u16)?;
         self.buffer.extend_from_slice(&buffer);
 
-        if buffer.len() > BUFFER_LIMIT {
+        if self.buffer.len() > BUFFER_LIMIT {
             return Err(Error::BufferOverflow(buffer.len()));
         }
 
         Ok(())
+    }
+
+    /// Finish compilation.
+    pub fn finish(mut self) -> Result<Buffer> {
+        tracing::trace!("buffer length {:x}", self.buffer.len());
+        self.table.code_offset(self.buffer.len() as u16);
+        self.table.relocate(&mut self.buffer)?;
+
+        Ok(self.buffer)
     }
 }
