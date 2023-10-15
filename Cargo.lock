@@ -2391,6 +2391,7 @@ dependencies = [
 name = "zink-codegen"
 version = "0.1.4"
 dependencies = [
+ "hex",
  "once_cell",
  "parking_lot",
  "proc-macro2",

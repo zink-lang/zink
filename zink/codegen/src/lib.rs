@@ -6,7 +6,7 @@ use syn::{parse_macro_input, DeriveInput, ItemFn, ItemType};
 mod event;
 mod selector;
 mod storage;
-// mod utils;
+mod utils;
 
 /// Event logging interface
 ///
