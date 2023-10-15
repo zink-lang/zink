@@ -10,6 +10,7 @@ repository = "https://github.com/clearloop/zink.git"
 members = [
   "cli",
   "codegen",
+  "codegen/abi",
   "codegen/opcodes",
   "compiler",
   "utils/*",
@@ -51,6 +52,7 @@ wasmparser = "0.107.0"
 wat = "1.0.75"
 
 # Local Dependencies.
+zabi = { path = "codegen/abi", version = "=0.1.4" }
 zinkup = { path = "cli", version = "=0.1.4" }
 opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
 zingen =  { path = "codegen", version = "=0.1.4" }

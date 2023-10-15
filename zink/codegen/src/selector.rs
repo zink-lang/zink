@@ -1,12 +1,14 @@
 //! Macro for the function selector.
 
-use crate::utils::keccak;
+// use crate::utils::keccak;
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use quote::{quote, ToTokens};
 use syn::{parse_quote, FnArg, ItemFn, Signature};
 
 /// Mark the function as external.
+///
+/// TODO: Generate ABI for functions (#144)
 pub fn external(mut item: ItemFn) -> TokenStream {
     item.sig.abi = Some(parse_quote! { extern "C" });
     item.attrs.push(parse_quote! { #[no_mangle] });
@@ -22,7 +24,7 @@ pub fn external(mut item: ItemFn) -> TokenStream {
         parse_quote! {
             #[no_mangle]
             #[doc(#doc)]
-            pub extern "C" fn #ident() -> u32 {
+            pub extern "C" fn #ident() -> &'static str {
                 #selector
             }
         }
@@ -37,7 +39,7 @@ pub fn external(mut item: ItemFn) -> TokenStream {
 }
 
 /// Hash function signature to EVM selector.
-fn parse_selector(sig: &Signature) -> u32 {
+fn parse_selector(sig: &Signature) -> String {
     let args = sig.inputs.iter().map(|arg| match arg {
         FnArg::Typed(pat) => pat.ty.clone().into_token_stream().to_string(),
         _ => panic!(
@@ -48,10 +50,5 @@ fn parse_selector(sig: &Signature) -> u32 {
 
     let mut input = sig.ident.to_string();
     input = input + "(" + &args.collect::<Vec<_>>().join(", ") + ")";
-
-    let mut selector = [0u8; 4];
-    let hash = keccak(input.as_bytes());
-    selector.copy_from_slice(&hash[..4]);
-
-    u32::from_le_bytes(selector)
+    input
 }

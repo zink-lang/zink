@@ -2347,6 +2347,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "zabi"
+version = "0.1.4"
+dependencies = [
+ "sha3",
+]
+
+[[package]]
 name = "zeroize"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
