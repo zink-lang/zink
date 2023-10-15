@@ -42,3 +42,14 @@ fn basic() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn dispatcher() -> Result<()> {
+    let _bytecode = common::load("storage", "dispatcher")?;
+    // let info = EVM::run(&bytecode, &42.to_bytes32());
+
+    // assert_eq!(info.instr, InstructionResult::Return);
+    // assert_eq!(info.ret, 42.to_bytes32());
+
+    Ok(())
+}

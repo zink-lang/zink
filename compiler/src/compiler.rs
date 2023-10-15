@@ -20,8 +20,8 @@ impl Compiler {
             funcs,
         } = Parser::try_from(wasm)?;
 
-        for (index, (func, body)) in funcs.into_iter() {
-            self.compile_func(index, data.clone(), imports.clone(), func, body)?;
+        for (_, (func, body)) in funcs.into_iter() {
+            self.compile_func(data.clone(), imports.clone(), func, body)?;
         }
 
         self.finish()
@@ -30,26 +30,26 @@ impl Compiler {
     /// Compile WASM function.
     pub fn compile_func(
         &mut self,
-        func_index: u32,
         dataset: DataSet,
         imports: Imports,
         validator: FuncToValidate<ValidatorResources>,
         body: FunctionBody,
     ) -> Result<()> {
         let mut func_validator = validator.into_validator(Default::default());
+        let func_index = func_validator.index();
         let sig = func_validator
             .resources()
             // NOTE: the functions list is [ [imports] [funcs] ] so
             // here we need to add the length of imports to get the
             // correct index.
-            .type_of_function(func_index + imports.len() as u32)
+            .type_of_function(func_index)
             // TODO: Add backtrace here for the function index. (#21)
             .ok_or(Error::InvalidFunctionSignature)?
             .clone();
 
         tracing::debug!("compile function {}: {:?}", func_index, sig);
 
-        let is_main = func_index == 0;
+        let is_main = func_index - (imports.len() as u32) == 0;
         let mut codegen = CodeGen::new(sig, dataset, imports, is_main)?;
         let mut locals_reader = body.get_locals_reader()?;
         let mut ops_reader = body.get_operators_reader()?;

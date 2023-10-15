@@ -3,8 +3,8 @@
 use crate::{Error, Result};
 use std::{collections::BTreeMap, iter::IntoIterator};
 use wasmparser::{
-    Data, DataKind, FuncToValidate, FunctionBody, Import, Operator, Payload, SectionLimited,
-    TypeRef, ValidPayload, Validator, ValidatorResources,
+    Data, DataKind, Export, FuncToValidate, FunctionBody, Import, Operator, Payload,
+    SectionLimited, TypeRef, ValidPayload, Validator, ValidatorResources,
 };
 use zingen::{DataSet, Func, Imports};
 
@@ -31,6 +31,7 @@ impl<'p> Parser<'p> {
             match &payload {
                 Payload::ImportSection(reader) => self.imports = Self::imports(reader),
                 Payload::DataSection(reader) => self.data = Self::data(reader)?,
+                Payload::ExportSection(reader) => Self::exports(reader)?,
                 _ => {}
             }
 
@@ -66,6 +67,16 @@ impl<'p> Parser<'p> {
 
         tracing::debug!("dataset: {:?}", dataset);
         Ok(dataset)
+    }
+
+    /// Parse export section
+    pub fn exports(reader: &SectionLimited<Export>) -> Result<()> {
+        let mut iter = reader.clone().into_iter();
+        while let Some(Ok(export)) = iter.next() {
+            tracing::info!("export: {:?}", export);
+        }
+
+        Ok(())
     }
 
     /// Parse import section.
