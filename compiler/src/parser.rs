@@ -1,27 +1,27 @@
 //! Zink parser
 
 use crate::{Error, Result};
-use std::{collections::BTreeMap, iter::IntoIterator};
+use std::iter::IntoIterator;
 use wasmparser::{
     Data, DataKind, Export, FuncToValidate, FunctionBody, Import, Operator, Payload,
     SectionLimited, TypeRef, ValidPayload, Validator, ValidatorResources,
 };
-use zingen::{DataSet, Func, Imports};
+use zingen::{DataSet, Exports, Func, Imports};
 
 /// WASM module parser
 #[derive(Default)]
 pub struct Parser<'p> {
     pub imports: Imports,
     pub data: DataSet,
-    pub funcs: BTreeMap<u32, (FuncToValidate<ValidatorResources>, FunctionBody<'p>)>,
+    pub funcs: Vec<(FuncToValidate<ValidatorResources>, FunctionBody<'p>)>,
+    pub exports: Exports,
 }
 
 impl<'p> Parser<'p> {
     /// Parse WASM module.
     pub fn parse(&mut self, wasm: &'p [u8]) -> Result<()> {
         let mut validator = Validator::new();
-        let mut func_index = 0u32;
-        let mut funcs = BTreeMap::new();
+        let mut funcs = Vec::new();
 
         // Compile functions.
         for payload in wasmparser::Parser::new(0).parse_all(wasm) {
@@ -31,13 +31,12 @@ impl<'p> Parser<'p> {
             match &payload {
                 Payload::ImportSection(reader) => self.imports = Self::imports(reader),
                 Payload::DataSection(reader) => self.data = Self::data(reader)?,
-                Payload::ExportSection(reader) => Self::exports(reader)?,
+                Payload::ExportSection(reader) => self.exports = Self::exports(reader)?,
                 _ => {}
             }
 
             if let ValidPayload::Func(to_validator, body) = valid_payload {
-                funcs.insert(func_index, (to_validator, body));
-                func_index += 1;
+                funcs.push((to_validator, body));
             }
         }
 
@@ -70,13 +69,14 @@ impl<'p> Parser<'p> {
     }
 
     /// Parse export section
-    pub fn exports(reader: &SectionLimited<Export>) -> Result<()> {
+    pub fn exports(reader: &SectionLimited<Export>) -> Result<Exports> {
+        let mut exports = Exports::default();
         let mut iter = reader.clone().into_iter();
         while let Some(Ok(export)) = iter.next() {
-            tracing::info!("export: {:?}", export);
+            exports.add(&export);
         }
 
-        Ok(())
+        Ok(exports)
     }
 
     /// Parse import section.

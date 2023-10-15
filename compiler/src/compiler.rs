@@ -18,9 +18,10 @@ impl Compiler {
             imports,
             data,
             funcs,
+            exports: _,
         } = Parser::try_from(wasm)?;
 
-        for (_, (func, body)) in funcs.into_iter() {
+        for (func, body) in funcs.into_iter() {
             self.compile_func(data.clone(), imports.clone(), func, body)?;
         }
 
@@ -39,11 +40,7 @@ impl Compiler {
         let func_index = func_validator.index();
         let sig = func_validator
             .resources()
-            // NOTE: the functions list is [ [imports] [funcs] ] so
-            // here we need to add the length of imports to get the
-            // correct index.
             .type_of_function(func_index)
-            // TODO: Add backtrace here for the function index. (#21)
             .ok_or(Error::InvalidFunctionSignature)?
             .clone();
 
