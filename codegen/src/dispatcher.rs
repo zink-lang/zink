@@ -6,6 +6,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 use wasmparser::{FuncValidator, FunctionBody, Operator, ValidatorResources};
+use zabi::Abi;
 
 /// Function with validator.
 pub struct Function<'f> {
@@ -104,15 +105,6 @@ impl Dispatcher {
 
     /// Query exported function from selector.
     fn query_func(&self, name: &str) -> Result<u32> {
-        let name = {
-            let splits = name.split('(').collect::<Vec<_>>();
-            if splits.len() < 2 {
-                return Err(Error::InvalidSelector);
-            }
-
-            splits[0]
-        };
-
         for (index, export) in self.exports.iter() {
             if export.name == name {
                 return Ok(*index);
@@ -122,8 +114,8 @@ impl Dispatcher {
         Err(Error::FuncNotImported(name.into()))
     }
 
-    /// Emit selector to buffer
-    fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
+    /// Load function ABI.
+    fn load_abi(&mut self, selector: &Function<'_>) -> Result<Abi> {
         let mut reader = selector.body.get_operators_reader()?;
 
         // Get data offset.
@@ -143,17 +135,26 @@ impl Dispatcher {
         else {
             return Err(Error::InvalidSelector);
         };
+
         if !self.imports.is_emit_abi(index) {
             return Err(Error::FuncNotImported("emit_abi".into()));
         }
 
-        let data = self.data.load(offset, length as usize)?;
-        let name = String::from_utf8_lossy(&data);
-        let selector = zabi::selector(name.as_bytes());
+        Abi::from_hex_bytes(&self.data.load(offset, length as usize)?).map_err(Into::into)
+    }
 
-        tracing::debug!("Emitting selector {:?} for function: {}", selector, name);
+    /// Emit selector to buffer.
+    fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
+        let abi = self.load_abi(selector)?;
+        let selector = abi.selector();
 
-        let func = self.query_func(&name)?;
+        tracing::debug!(
+            "Emitting selector {:?} for function: {}",
+            selector,
+            abi.name
+        );
+
+        let func = self.query_func(&abi.name)?;
 
         if !last {
             self.asm._dup1()?;
@@ -171,7 +172,7 @@ impl Dispatcher {
     /// Emit compiled code to the given buffer.
     pub fn finish(mut self, selectors: Functions<'_>, table: &mut JumpTable) -> Result<Vec<u8>> {
         if selectors.is_empty() {
-            return Ok(self.asm.buffer().into());
+            return Err(Error::SelectorNotFound);
         }
 
         self.asm._push0()?;

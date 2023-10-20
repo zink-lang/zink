@@ -3,6 +3,9 @@
 /// Codegen error
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    /// Failed to parse function ABI.
+    #[error(transparent)]
+    Abi(#[from] zabi::Error),
     /// Failed to parse WASM with binary reader.
     #[error(transparent)]
     BinaryReader(#[from] wasmparser::BinaryReaderError),
@@ -72,7 +75,7 @@ pub enum Error {
     /// Failed to index data on memory.
     #[error("Memory index is out of range")]
     MemoryOutOfBounds,
-    /// Faild to find function selectors.
+    /// Failed to find function selectors.0
     #[error("Function selector is not found.")]
     SelectorNotFound,
     /// Failed to index data on stack.
