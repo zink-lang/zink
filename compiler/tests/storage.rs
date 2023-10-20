@@ -45,7 +45,7 @@ fn basic() -> Result<()> {
 
 #[test]
 fn dispatcher() -> Result<()> {
-    let _bytecode = common::load("storage", "dispatcher")?;
+    let _bytecode = common::load_with_dispatcher("storage", "dispatcher")?;
 
     // TODO: testing set (#122)
     // {

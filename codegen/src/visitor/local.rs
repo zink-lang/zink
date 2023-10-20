@@ -65,6 +65,7 @@ impl CodeGen {
         let sp = self.masm.sp();
 
         tracing::debug!("local_get: {local_index} {local_sp} {sp}");
+
         // TODO: Arthmetic checks
         self.masm.dup(sp - local_sp)?;
         Ok(())

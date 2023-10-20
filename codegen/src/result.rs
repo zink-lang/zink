@@ -72,6 +72,9 @@ pub enum Error {
     /// Failed to index data on memory.
     #[error("Memory index is out of range")]
     MemoryOutOfBounds,
+    /// Faild to find function selectors.
+    #[error("Function selector is not found.")]
+    SelectorNotFound,
     /// Failed to index data on stack.
     #[error("Stack index is out of range {0}, max is 32 (0x400)")]
     StackIndexOutOfRange(u8),

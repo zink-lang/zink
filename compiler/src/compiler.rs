@@ -11,9 +11,16 @@ use zingen::{
 pub struct Compiler {
     buffer: Buffer,
     table: JumpTable,
+    dispatcher: bool,
 }
 
 impl Compiler {
+    /// Embed dispatcher in bytecode.
+    pub fn with_dispatcher(&mut self) -> &mut Self {
+        self.dispatcher = true;
+        self
+    }
+
     /// Compile wasm module to evm bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
         let Parser {
@@ -27,7 +34,9 @@ impl Compiler {
         tracing::trace!("exports: {:?}", exports);
 
         let selectors = funcs.drain_selectors(&exports);
-        self.compile_dispatcher(data.clone(), exports, imports.clone(), selectors)?;
+        if !selectors.is_empty() && self.dispatcher {
+            self.compile_dispatcher(data.clone(), exports, imports.clone(), selectors)?;
+        }
 
         for func in funcs.into_funcs() {
             self.compile_func(data.clone(), imports.clone(), func.validator, func.body)?;
@@ -74,7 +83,12 @@ impl Compiler {
 
         tracing::debug!("compile function {}: {:?}", func_index, sig);
 
-        let is_main = func_index - (imports.len() as u32) == 0;
+        let is_main = if self.dispatcher {
+            false
+        } else {
+            func_index - (imports.len() as u32) == 0
+        };
+
         let mut codegen = CodeGen::new(sig, dataset, imports, is_main)?;
         let mut locals_reader = body.get_locals_reader()?;
         let mut ops_reader = body.get_operators_reader()?;
