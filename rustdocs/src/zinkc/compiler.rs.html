@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/compiler.rs`."><title>compiler.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (d627cf07c 2023-10-10)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0689c575f077d64f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../zinkc/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/compiler.rs`."><title>compiler.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-deb46770fd761b69.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (4578435e1 2023-10-19)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f34af1a0ee6bacd.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -84,11 +84,38 @@
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
 
 </span><span class="kw">use crate</span>::{parser::Parser, Error, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>wasmparser::{FuncToValidate, FunctionBody, ValidatorResources, WasmModuleResources};
-<span class="kw">use </span>zingen::{Buffer, CodeGen, DataSet, Imports, JumpTable, BUFFER_LIMIT};
+<span class="kw">use </span>wasmparser::{FuncValidator, FunctionBody, ValidatorResources, WasmModuleResources};
+<span class="kw">use </span>zingen::{
+    Buffer, CodeGen, DataSet, Dispatcher, Exports, Functions, Imports, JumpTable, BUFFER_LIMIT,
+};
 
 <span class="doccomment">/// Zink Compiler
 </span><span class="attr">#[derive(Default)]
@@ -103,47 +130,84 @@
         <span class="kw">let </span>Parser {
             imports,
             data,
-            funcs,
+            <span class="kw-2">mut </span>funcs,
+            exports,
         } = Parser::try_from(wasm)<span class="question-mark">?</span>;
+        <span class="macro">tracing::trace!</span>(<span class="string">&quot;imports: {:?}&quot;</span>, imports);
+        <span class="macro">tracing::trace!</span>(<span class="string">&quot;data: {:?}&quot;</span>, data);
+        <span class="macro">tracing::trace!</span>(<span class="string">&quot;exports: {:?}&quot;</span>, exports);
 
-        <span class="kw">for </span>(index, (func, body)) <span class="kw">in </span>funcs.into_iter() {
-            <span class="self">self</span>.compile_func(index, data.clone(), imports.clone(), func, body)<span class="question-mark">?</span>;
+        <span class="kw">let </span>selectors = funcs.drain_selectors(<span class="kw-2">&amp;</span>exports);
+        <span class="self">self</span>.compile_dispatcher(data.clone(), exports, imports.clone(), selectors)<span class="question-mark">?</span>;
+
+        <span class="kw">for </span>func <span class="kw">in </span>funcs.into_funcs() {
+            <span class="self">self</span>.compile_func(data.clone(), imports.clone(), func.validator, func.body)<span class="question-mark">?</span>;
         }
 
         <span class="self">self</span>.finish()
     }
 
+    <span class="doccomment">/// Compile EVM dispatcher.
+    </span><span class="kw">pub fn </span>compile_dispatcher(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        data: DataSet,
+        exports: Exports,
+        imports: Imports,
+        selectors: Functions,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>dispatcher = Dispatcher::default();
+        dispatcher.data(data).exports(exports).imports(imports);
+
+        <span class="kw">let </span>buffer = dispatcher.finish(selectors, <span class="kw-2">&amp;mut </span><span class="self">self</span>.table)<span class="question-mark">?</span>;
+        <span class="self">self</span>.buffer.extend_from_slice(<span class="kw-2">&amp;</span>buffer);
+
+        <span class="kw">if </span><span class="self">self</span>.buffer.len() &gt; BUFFER_LIMIT {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::BufferOverflow(<span class="self">self</span>.buffer.len()));
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
     <span class="doccomment">/// Compile WASM function.
     </span><span class="kw">pub fn </span>compile_func(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        func_index: u32,
         dataset: DataSet,
         imports: Imports,
-        validator: FuncToValidate&lt;ValidatorResources&gt;,
+        <span class="kw-2">mut </span>validator: FuncValidator&lt;ValidatorResources&gt;,
         body: FunctionBody,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>func_validator = validator.into_validator(Default::default());
-        <span class="kw">let </span>sig = func_validator
+        <span class="kw">let </span>func_index = validator.index();
+        <span class="kw">let </span>sig = validator
             .resources()
-            <span class="comment">// NOTE: the functions list is [ [imports] [funcs] ] so
-            // here we need to add the length of imports to get the
-            // correct index.
-            </span>.type_of_function(func_index + imports.len() <span class="kw">as </span>u32)
-            <span class="comment">// TODO: Add backtrace here for the function index. (#21)
-            </span>.ok_or(Error::InvalidFunctionSignature)<span class="question-mark">?
+            .type_of_function(func_index)
+            .ok_or(Error::InvalidFunctionSignature)<span class="question-mark">?
             </span>.clone();
 
         <span class="macro">tracing::debug!</span>(<span class="string">&quot;compile function {}: {:?}&quot;</span>, func_index, sig);
 
-        <span class="kw">let </span>is_main = func_index == <span class="number">0</span>;
+        <span class="kw">let </span>is_main = func_index - (imports.len() <span class="kw">as </span>u32) == <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>codegen = CodeGen::new(sig, dataset, imports, is_main)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>locals_reader = body.get_locals_reader()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ops_reader = body.get_operators_reader()<span class="question-mark">?</span>;
 
-        codegen.emit_locals(<span class="kw-2">&amp;mut </span>locals_reader, <span class="kw-2">&amp;mut </span>func_validator)<span class="question-mark">?</span>;
-        codegen.emit_operators(<span class="kw-2">&amp;mut </span>ops_reader, <span class="kw-2">&amp;mut </span>func_validator)<span class="question-mark">?</span>;
+        codegen.emit_locals(<span class="kw-2">&amp;mut </span>locals_reader, <span class="kw-2">&amp;mut </span>validator)<span class="question-mark">?</span>;
+        codegen.emit_operators(<span class="kw-2">&amp;mut </span>ops_reader, <span class="kw-2">&amp;mut </span>validator)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.emit_buffer(func_index, codegen)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Emit buffer to the inner buffer.
+    </span><span class="kw">fn </span>emit_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, func_index: u32, codegen: CodeGen) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>buffer = codegen.finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>.table, <span class="self">self</span>.buffer.len() <span class="kw">as </span>u16)<span class="question-mark">?</span>;
+        <span class="self">self</span>.table
+            .call_offset(func_index, <span class="self">self</span>.buffer.len() <span class="kw">as </span>u16)<span class="question-mark">?</span>;
+        <span class="self">self</span>.buffer.extend_from_slice(<span class="kw-2">&amp;</span>buffer);
+
+        <span class="kw">if </span><span class="self">self</span>.buffer.len() &gt; BUFFER_LIMIT {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::BufferOverflow(buffer.len()));
+        }
+
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -154,20 +218,6 @@
         <span class="self">self</span>.table.relocate(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.buffer)
-    }
-
-    <span class="doccomment">/// Emit buffer to the inner buffer.
-    </span><span class="kw">fn </span>emit_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, func_index: u32, codegen: CodeGen) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>buffer = codegen.finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>.table, <span class="self">self</span>.buffer.len() <span class="kw">as </span>u16)<span class="question-mark">?</span>;
-        <span class="self">self</span>.table
-            .call_offset(func_index, <span class="self">self</span>.buffer.len() <span class="kw">as </span>u16)<span class="question-mark">?</span>;
-        <span class="self">self</span>.buffer.extend_from_slice(<span class="kw-2">&amp;</span>buffer);
-
-        <span class="kw">if </span>buffer.len() &gt; BUFFER_LIMIT {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::BufferOverflow(buffer.len()));
-        }
-
-        <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div></section></main></body></html>
