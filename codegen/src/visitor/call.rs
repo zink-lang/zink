@@ -53,7 +53,7 @@ impl CodeGen {
         // register the imported function index to the jump table.
         let func = *self
             .imports
-            .get(index as usize)
+            .get(&index)
             .ok_or(Error::ImportedFuncNotFound(index))?;
 
         func.prelude(&mut self.masm)?;

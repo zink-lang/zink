@@ -18,20 +18,20 @@ use zink::Storage;
 pub type Counter = i32;
 
 /// Set value to the storage and get it.
-#[no_mangle]
-pub unsafe extern "C" fn set_and_get(value: i32) -> i32 {
+#[zink::external]
+pub fn set_and_get(value: i32) -> i32 {
     Counter::set(value);
     Counter::get()
 }
 
-/// Set value to the storage.
-#[no_mangle]
-pub unsafe extern "C" fn set(value: i32) {
+/// set value to the storage.
+#[zink::external]
+pub fn set(value: i32) {
     Counter::set(value);
 }
 
 /// Get value from the storage.
-#[no_mangle]
-pub unsafe extern "C" fn get() -> i32 {
+#[zink::external]
+pub fn get() -> i32 {
     Counter::get()
 }

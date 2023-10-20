@@ -1,0 +1,13 @@
+[package]
+name = "zabi"
+description = "Zink ABI generator"
+documentation = "https://docs.rs/zabi"
+version = "0.1.4"
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+sha3.workspace = true

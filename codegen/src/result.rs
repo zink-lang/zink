@@ -27,6 +27,9 @@ pub enum Error {
     /// Failed to find function index in jump table.
     #[error("Function {0} not found in jump table")]
     FuncNotFound(u32),
+    /// Failed to find function index in jump table.
+    #[error("Function {0} not imported")]
+    FuncNotImported(String),
     /// Failed to find host function in compiler.
     #[error("Host function {0}::{1} not found in compiler")]
     HostFuncNotFound(String, String),
@@ -54,6 +57,9 @@ pub enum Error {
     /// Failed to get frame info of the given depth.
     #[error("Invalid contract stack fram depth {0}")]
     InvalidDepth(usize),
+    /// Failed to parse function selector.
+    #[error("Invalid function selector")]
+    InvalidSelector,
     /// Failed to patch jump destination.
     #[error("Invalid frame label")]
     LabelMismatch,
