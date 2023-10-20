@@ -8,7 +8,9 @@ pub use crate::{
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
-    func::Func,
+    dispatcher::{Dispatcher, Function, Functions},
+    export::Exports,
+    import::{Func, Imports},
     jump::{Code, JumpTable},
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
@@ -22,7 +24,9 @@ mod backtrace;
 mod codegen;
 mod control;
 mod data;
-mod func;
+mod dispatcher;
+mod export;
+mod import;
 mod jump;
 mod local;
 mod masm;
@@ -35,7 +39,3 @@ pub const BUFFER_LIMIT: usize = 0x6000;
 
 /// Code generation buffer.
 pub type Buffer = SmallVec<[u8; BUFFER_LIMIT]>;
-
-/// Imported functions.
-/// pub type Imports = IndexMap<u32, Func>;
-pub type Imports = Vec<Func>;

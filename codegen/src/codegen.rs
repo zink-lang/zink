@@ -11,8 +11,6 @@ use crate::{
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
 /// The code generation abstraction.
-///
-/// TODO: add codegen context for backtrace. (#21)
 pub struct CodeGen {
     /// The backtrace.
     pub(crate) backtrace: Backtrace,

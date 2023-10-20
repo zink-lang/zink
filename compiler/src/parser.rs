@@ -1,27 +1,26 @@
 //! Zink parser
 
 use crate::{Error, Result};
-use std::{collections::BTreeMap, iter::IntoIterator};
+use std::iter::IntoIterator;
 use wasmparser::{
-    Data, DataKind, FuncToValidate, FunctionBody, Import, Operator, Payload, SectionLimited,
-    TypeRef, ValidPayload, Validator, ValidatorResources,
+    Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
+    ValidPayload, Validator,
 };
-use zingen::{DataSet, Func, Imports};
+use zingen::{DataSet, Exports, Func, Functions, Imports};
 
 /// WASM module parser
 #[derive(Default)]
 pub struct Parser<'p> {
     pub imports: Imports,
     pub data: DataSet,
-    pub funcs: BTreeMap<u32, (FuncToValidate<ValidatorResources>, FunctionBody<'p>)>,
+    pub funcs: Functions<'p>,
+    pub exports: Exports,
 }
 
 impl<'p> Parser<'p> {
     /// Parse WASM module.
     pub fn parse(&mut self, wasm: &'p [u8]) -> Result<()> {
         let mut validator = Validator::new();
-        let mut func_index = 0u32;
-        let mut funcs = BTreeMap::new();
 
         // Compile functions.
         for payload in wasmparser::Parser::new(0).parse_all(wasm) {
@@ -31,16 +30,16 @@ impl<'p> Parser<'p> {
             match &payload {
                 Payload::ImportSection(reader) => self.imports = Self::imports(reader),
                 Payload::DataSection(reader) => self.data = Self::data(reader)?,
+                Payload::ExportSection(reader) => self.exports = Self::exports(reader)?,
                 _ => {}
             }
 
             if let ValidPayload::Func(to_validator, body) = valid_payload {
-                funcs.insert(func_index, (to_validator, body));
-                func_index += 1;
+                self.funcs
+                    .add(to_validator.into_validator(Default::default()), body);
             }
         }
 
-        self.funcs = funcs;
         Ok(())
     }
 
@@ -64,23 +63,42 @@ impl<'p> Parser<'p> {
             }
         }
 
-        tracing::debug!("dataset: {:?}", dataset);
         Ok(dataset)
+    }
+
+    /// Parse export section
+    pub fn exports(reader: &SectionLimited<Export>) -> Result<Exports> {
+        let mut exports = Exports::default();
+        let mut iter = reader.clone().into_iter();
+        while let Some(Ok(Export {
+            name,
+            kind: ExternalKind::Func,
+            index,
+        })) = iter.next()
+        {
+            exports.add(index, name);
+        }
+
+        Ok(exports)
     }
 
     /// Parse import section.
     pub fn imports(reader: &SectionLimited<Import>) -> Imports {
+        // TODO: use real index from WASM. (#122)
+        let mut index = 0;
+
         let mut imports = Imports::default();
         let mut iter = reader.clone().into_iter();
         while let Some(Ok(Import {
             module,
             name,
-            ty: TypeRef::Func(index),
+            ty: TypeRef::Func(_),
         })) = iter.next()
         {
             if let Ok(func) = Func::try_from((module, name)) {
                 tracing::debug!("imported function: {}::{} at {index}", module, name);
-                imports.push(func);
+                imports.insert(index, func);
+                index += 1;
             }
         }
 

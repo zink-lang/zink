@@ -33,6 +33,8 @@ pub struct EVM {
 impl EVM {
     /// Create a new EVM instance.
     pub fn new(btyecode: &[u8], input: &[u8]) -> Self {
+        tracing::debug!("calldata: 0x{}", hex::encode(input));
+
         let contract = Contract::new(
             input.to_vec().into(),                       // input
             Bytecode::new_raw(btyecode.to_vec().into()), // code
