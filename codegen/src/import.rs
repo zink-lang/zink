@@ -150,7 +150,7 @@ impl TryFrom<(&str, &str)> for Func {
             ("evm", "log4") => Ok(Self::Log4),
             ("zinkc", "emit_abi") => Ok(Self::EmitABI),
             _ => {
-                tracing::error!("Failed to load host function: {:?}", import);
+                tracing::warn!("Failed to load host function: {:?}", import);
                 Err(Error::HostFuncNotFound(module.into(), name.into()))
             }
         }

@@ -2373,6 +2373,7 @@ dependencies = [
  "thiserror",
  "tracing",
  "wasmparser",
+ "zabi",
 ]
 
 [[package]]
@@ -2407,6 +2408,7 @@ dependencies = [
  "tracing-subscriber",
  "wasmparser",
  "wat",
+ "zabi",
  "zingen",
  "zint",
 ]

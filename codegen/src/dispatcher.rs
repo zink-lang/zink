@@ -1,6 +1,6 @@
 //! Code generator for EVM dispatcher.
 
-use crate::{export::Export, DataSet, Error, Exports, Imports, JumpTable, MacroAssembler, Result};
+use crate::{DataSet, Error, Exports, Imports, JumpTable, MacroAssembler, Result};
 use std::{
     collections::BTreeMap,
     ops::{Deref, DerefMut},
@@ -103,10 +103,15 @@ impl Dispatcher {
     }
 
     /// Query exported function from selector.
-    fn query_from_selector(&self, index: u32) -> Result<u32> {
-        let Export { name, kind: _ } = self.exports.get(index).ok_or(Error::InvalidSelector)?;
-        let mut name = name.to_string();
-        name = name.trim_end_matches("_selector").into();
+    fn query_func(&self, name: &str) -> Result<u32> {
+        let name = {
+            let splits = name.split('(').collect::<Vec<_>>();
+            if splits.len() < 2 {
+                return Err(Error::InvalidSelector);
+            }
+
+            splits[0]
+        };
 
         for (index, export) in self.exports.iter() {
             if export.name == name {
@@ -114,11 +119,11 @@ impl Dispatcher {
             }
         }
 
-        Err(Error::FuncNotFound(index))
+        Err(Error::FuncNotImported(name.into()))
     }
 
     /// Emit selector to buffer
-    fn emit_selector(&mut self, target: u32, selector: &Function<'_>) -> Result<()> {
+    fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
         let mut reader = selector.body.get_operators_reader()?;
 
         // Get data offset.
@@ -139,26 +144,45 @@ impl Dispatcher {
             return Err(Error::InvalidSelector);
         };
         if !self.imports.is_emit_abi(index) {
-            return Err(Error::FuncNotImported("emit_abi"));
+            return Err(Error::FuncNotImported("emit_abi".into()));
         }
 
         let data = self.data.load(offset, length as usize)?;
-        let _func = self.query_from_selector(target);
-        tracing::debug!("selector: {:x?}", data);
+        let name = String::from_utf8_lossy(&data);
+        let selector = zabi::selector(name.as_bytes());
 
-        // self.asm._dup1()?;
-        // self.asm.push(&data)?;
-        // self.asm._eq()?;
+        tracing::debug!("Emitting selector {:?} for function: {}", selector, name);
 
-        // JUMPI here.
+        let func = self.query_func(&name)?;
+
+        if !last {
+            self.asm._dup1()?;
+        }
+
+        self.asm.push(&selector)?;
+        self.asm._eq()?;
+        self.asm.increment_sp(1)?;
+        self.table.call(self.asm.pc_offset(), func);
+        self.asm._jumpi()?;
 
         Ok(())
     }
 
     /// Emit compiled code to the given buffer.
     pub fn finish(mut self, selectors: Functions<'_>, table: &mut JumpTable) -> Result<Vec<u8>> {
-        for (index, func) in selectors.iter() {
-            self.emit_selector(*index, func)?;
+        if selectors.is_empty() {
+            return Ok(self.asm.buffer().into());
+        }
+
+        self.asm._push0()?;
+        self.asm._calldataload()?;
+        self.asm.push(&[0xe0])?;
+        self.asm._shr()?;
+
+        let mut len = selectors.len();
+        for (_, func) in selectors.iter() {
+            self.emit_selector(func, len == 0)?;
+            len -= 1;
         }
 
         table.merge(self.table, 0)?;

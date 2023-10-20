@@ -4,15 +4,12 @@ use std::{
     collections::BTreeMap,
     ops::{Deref, DerefMut},
 };
-use wasmparser::{Export as WasmExport, ExternalKind};
 
 /// WASM export.
 #[derive(Debug)]
 pub struct Export {
     /// Name of the export.
     pub name: String,
-    /// Kind of the export.
-    pub kind: ExternalKind,
 }
 
 /// WASM exports
@@ -40,14 +37,8 @@ impl Exports {
     }
 
     /// Add an export.
-    pub fn add(&mut self, export: &WasmExport) {
-        self.0.insert(
-            export.index,
-            Export {
-                name: export.name.into(),
-                kind: export.kind,
-            },
-        );
+    pub fn add(&mut self, index: u32, name: &str) {
+        self.0.insert(index, Export { name: name.into() });
     }
 
     /// Get an export by index.
@@ -60,7 +51,7 @@ impl Exports {
         let mut selectors = Vec::new();
 
         for (index, export) in self.0.iter() {
-            if export.kind == ExternalKind::Func && export.name.ends_with("_selector") {
+            if export.name.ends_with("_selector") {
                 selectors.push(*index);
             }
         }

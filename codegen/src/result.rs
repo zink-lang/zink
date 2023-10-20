@@ -29,7 +29,7 @@ pub enum Error {
     FuncNotFound(u32),
     /// Failed to find function index in jump table.
     #[error("Function {0} not imported")]
-    FuncNotImported(&'static str),
+    FuncNotImported(String),
     /// Failed to find host function in compiler.
     #[error("Host function {0}::{1} not found in compiler")]
     HostFuncNotFound(String, String),
