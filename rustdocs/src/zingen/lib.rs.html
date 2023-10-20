@@ -49,7 +49,9 @@
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
-    func::Func,
+    dispatcher::{Dispatcher, Function, Functions},
+    export::Exports,
+    import::{Func, Imports},
     jump::{Code, JumpTable},
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
@@ -63,7 +65,9 @@
 <span class="kw">mod </span>codegen;
 <span class="kw">mod </span>control;
 <span class="kw">mod </span>data;
-<span class="kw">mod </span>func;
+<span class="kw">mod </span>dispatcher;
+<span class="kw">mod </span>export;
+<span class="kw">mod </span>import;
 <span class="kw">mod </span>jump;
 <span class="kw">mod </span>local;
 <span class="kw">mod </span>masm;
@@ -76,8 +80,4 @@
 
 <span class="doccomment">/// Code generation buffer.
 </span><span class="kw">pub type </span>Buffer = SmallVec&lt;[u8; BUFFER_LIMIT]&gt;;
-
-<span class="doccomment">/// Imported functions.
-/// pub type Imports = IndexMap&lt;u32, Func&gt;;
-</span><span class="kw">pub type </span>Imports = Vec&lt;Func&gt;;
 </code></pre></div></section></main></body></html>

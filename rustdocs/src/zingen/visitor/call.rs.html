@@ -153,7 +153,7 @@
         // register the imported function index to the jump table.
         </span><span class="kw">let </span>func = <span class="kw-2">*</span><span class="self">self
             </span>.imports
-            .get(index <span class="kw">as </span>usize)
+            .get(<span class="kw-2">&amp;</span>index)
             .ok_or(Error::ImportedFuncNotFound(index))<span class="question-mark">?</span>;
 
         func.prelude(<span class="kw-2">&amp;mut </span><span class="self">self</span>.masm)<span class="question-mark">?</span>;
