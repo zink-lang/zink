@@ -1,6 +1,6 @@
 //! Table for the code section.
 
-use crate::func::Func;
+use crate::Func;
 use indexmap::IndexMap;
 
 /// Code section for EVM.

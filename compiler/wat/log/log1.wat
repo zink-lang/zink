@@ -1,7 +1,7 @@
 (module
   (type (;0;) (func))
   (type (;1;) (func (param i32 i32 i32 i32)))
-  (import "evm" "log1" (func (;1;) (type 1)))
+  (import "evm" "log1" (func (;0;) (type 1)))
   (import "env" "memory" (memory (;0;) 17))
   (func (;1;) (type 0)
     i32.const 1048576

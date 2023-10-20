@@ -3,8 +3,7 @@
 use crate::{Error, Result};
 use std::iter::IntoIterator;
 use wasmparser::{
-    Data, DataKind, Export, Import, Operator, Payload, SectionLimited, TypeRef, ValidPayload,
-    Validator,
+    Data, DataKind, Export, Import, Operator, Payload, SectionLimited, ValidPayload, Validator,
 };
 use zingen::{DataSet, Exports, Func, Functions, Imports};
 
@@ -63,7 +62,6 @@ impl<'p> Parser<'p> {
             }
         }
 
-        tracing::debug!("dataset: {:?}", dataset);
         Ok(dataset)
     }
 
@@ -80,17 +78,21 @@ impl<'p> Parser<'p> {
 
     /// Parse import section.
     pub fn imports(reader: &SectionLimited<Import>) -> Imports {
+        // TODO: use real index from WASM. (#122)
+        let mut index = 0;
+
         let mut imports = Imports::default();
         let mut iter = reader.clone().into_iter();
         while let Some(Ok(Import {
             module,
             name,
-            ty: TypeRef::Func(index),
+            ty: _,
         })) = iter.next()
         {
             if let Ok(func) = Func::try_from((module, name)) {
                 tracing::debug!("imported function: {}::{} at {index}", module, name);
-                imports.push(func);
+                imports.insert(index, func);
+                index += 1;
             }
         }
 

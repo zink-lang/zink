@@ -2,7 +2,9 @@
 
 use crate::{parser::Parser, Error, Result};
 use wasmparser::{FuncValidator, FunctionBody, ValidatorResources, WasmModuleResources};
-use zingen::{Buffer, CodeGen, DataSet, Dispatcher, Exports, Imports, JumpTable, BUFFER_LIMIT};
+use zingen::{
+    Buffer, CodeGen, DataSet, Dispatcher, Exports, Functions, Imports, JumpTable, BUFFER_LIMIT,
+};
 
 /// Zink Compiler
 #[derive(Default)]
@@ -17,11 +19,15 @@ impl Compiler {
         let Parser {
             imports,
             data,
-            funcs,
+            mut funcs,
             exports,
         } = Parser::try_from(wasm)?;
+        tracing::trace!("imports: {:?}", imports);
+        tracing::trace!("data: {:?}", data);
+        tracing::trace!("exports: {:?}", exports);
 
-        self.compile_dispatcher(imports.clone(), exports)?;
+        let selectors = funcs.drain_selectors(&exports);
+        self.compile_dispatcher(data.clone(), exports, imports.clone(), selectors)?;
 
         for func in funcs.into_funcs() {
             self.compile_func(data.clone(), imports.clone(), func.validator, func.body)?;
@@ -31,12 +37,17 @@ impl Compiler {
     }
 
     /// Compile EVM dispatcher.
-    pub fn compile_dispatcher(&mut self, imports: Imports, exports: Exports) -> Result<()> {
-        let buffer = Dispatcher::default()
-            .imports(imports)
-            .exports(exports)
-            .finish(&mut self.table)?;
+    pub fn compile_dispatcher(
+        &mut self,
+        data: DataSet,
+        exports: Exports,
+        imports: Imports,
+        selectors: Functions,
+    ) -> Result<()> {
+        let mut dispatcher = Dispatcher::default();
+        dispatcher.data(data).exports(exports).imports(imports);
 
+        let buffer = dispatcher.finish(selectors, &mut self.table)?;
         self.buffer.extend_from_slice(&buffer);
 
         if self.buffer.len() > BUFFER_LIMIT {

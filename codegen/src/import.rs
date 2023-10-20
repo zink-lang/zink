@@ -1,4 +1,9 @@
 //! Built-in functions for EVM
+use std::{
+    collections::BTreeMap,
+    ops::{Deref, DerefMut},
+};
+
 use crate::{Error, MacroAssembler, Result};
 use opcodes::ShangHai as OpCode;
 
@@ -54,7 +59,8 @@ pub enum Func {
     /// Run function log4.
     Log4,
 
-    // zinkc helper functions
+    // Zinkc helper functions
+    /// Emit ABI to the compiler.
     EmitABI,
 }
 
@@ -148,5 +154,30 @@ impl TryFrom<(&str, &str)> for Func {
                 Err(Error::HostFuncNotFound(module.into(), name.into()))
             }
         }
+    }
+}
+
+/// Imported functions
+#[derive(Clone, Debug, Default)]
+pub struct Imports(BTreeMap<u32, Func>);
+
+impl Imports {
+    /// If the function is `emit_abi`.
+    pub fn is_emit_abi(&self, index: u32) -> bool {
+        self.0.get(&index) == Some(&Func::EmitABI)
+    }
+}
+
+impl Deref for Imports {
+    type Target = BTreeMap<u32, Func>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Imports {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }

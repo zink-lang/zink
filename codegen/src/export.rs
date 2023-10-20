@@ -1,9 +1,13 @@
 //! Exports in code generation.
 
-use std::collections::BTreeMap;
+use std::{
+    collections::BTreeMap,
+    ops::{Deref, DerefMut},
+};
 use wasmparser::{Export as WasmExport, ExternalKind};
 
 /// WASM export.
+#[derive(Debug)]
 pub struct Export {
     /// Name of the export.
     pub name: String,
@@ -12,8 +16,22 @@ pub struct Export {
 }
 
 /// WASM exports
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Exports(BTreeMap<u32, Export>);
+
+impl Deref for Exports {
+    type Target = BTreeMap<u32, Export>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Exports {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
 
 impl Exports {
     /// Create a new empty exports.

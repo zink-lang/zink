@@ -10,7 +10,7 @@ pub use crate::{
     data::DataSet,
     dispatcher::{Dispatcher, Function, Functions},
     export::Exports,
-    func::Func,
+    import::{Func, Imports},
     jump::{Code, JumpTable},
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
@@ -26,7 +26,7 @@ mod control;
 mod data;
 mod dispatcher;
 mod export;
-mod func;
+mod import;
 mod jump;
 mod local;
 mod masm;
@@ -39,7 +39,3 @@ pub const BUFFER_LIMIT: usize = 0x6000;
 
 /// Code generation buffer.
 pub type Buffer = SmallVec<[u8; BUFFER_LIMIT]>;
-
-/// Imported functions.
-/// pub type Imports = IndexMap<u32, Func>;
-pub type Imports = Vec<Func>;
