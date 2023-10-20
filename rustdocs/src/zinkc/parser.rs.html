@@ -97,47 +97,30 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink parser
 
 </span><span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>std::iter::IntoIterator;
+<span class="kw">use </span>std::{collections::BTreeMap, iter::IntoIterator};
 <span class="kw">use </span>wasmparser::{
-    Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
-    ValidPayload, Validator,
+    Data, DataKind, FuncToValidate, FunctionBody, Import, Operator, Payload, SectionLimited,
+    TypeRef, ValidPayload, Validator, ValidatorResources,
 };
-<span class="kw">use </span>zingen::{DataSet, Exports, Func, Functions, Imports};
+<span class="kw">use </span>zingen::{DataSet, Func, Imports};
 
 <span class="doccomment">/// WASM module parser
 </span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>Parser&lt;<span class="lifetime">&#39;p</span>&gt; {
     <span class="kw">pub </span>imports: Imports,
     <span class="kw">pub </span>data: DataSet,
-    <span class="kw">pub </span>funcs: Functions&lt;<span class="lifetime">&#39;p</span>&gt;,
-    <span class="kw">pub </span>exports: Exports,
+    <span class="kw">pub </span>funcs: BTreeMap&lt;u32, (FuncToValidate&lt;ValidatorResources&gt;, FunctionBody&lt;<span class="lifetime">&#39;p</span>&gt;)&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;p</span>&gt; Parser&lt;<span class="lifetime">&#39;p</span>&gt; {
     <span class="doccomment">/// Parse WASM module.
     </span><span class="kw">pub fn </span>parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>, wasm: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>validator = Validator::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>func_index = <span class="number">0u32</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>funcs = BTreeMap::new();
 
         <span class="comment">// Compile functions.
         </span><span class="kw">for </span>payload <span class="kw">in </span>wasmparser::Parser::new(<span class="number">0</span>).parse_all(wasm) {
@@ -147,16 +130,16 @@
             <span class="kw">match </span><span class="kw-2">&amp;</span>payload {
                 Payload::ImportSection(reader) =&gt; <span class="self">self</span>.imports = <span class="self">Self</span>::imports(reader),
                 Payload::DataSection(reader) =&gt; <span class="self">self</span>.data = <span class="self">Self</span>::data(reader)<span class="question-mark">?</span>,
-                Payload::ExportSection(reader) =&gt; <span class="self">self</span>.exports = <span class="self">Self</span>::exports(reader)<span class="question-mark">?</span>,
                 <span class="kw">_ </span>=&gt; {}
             }
 
             <span class="kw">if let </span>ValidPayload::Func(to_validator, body) = valid_payload {
-                <span class="self">self</span>.funcs
-                    .add(to_validator.into_validator(Default::default()), body);
+                funcs.insert(func_index, (to_validator, body));
+                func_index += <span class="number">1</span>;
             }
         }
 
+        <span class="self">self</span>.funcs = funcs;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -180,42 +163,23 @@
             }
         }
 
+        <span class="macro">tracing::debug!</span>(<span class="string">&quot;dataset: {:?}&quot;</span>, dataset);
         <span class="prelude-val">Ok</span>(dataset)
-    }
-
-    <span class="doccomment">/// Parse export section
-    </span><span class="kw">pub fn </span>exports(reader: <span class="kw-2">&amp;</span>SectionLimited&lt;Export&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Exports&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>exports = Exports::default();
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = reader.clone().into_iter();
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Export {
-            name,
-            kind: ExternalKind::Func,
-            index,
-        })) = iter.next()
-        {
-            exports.add(index, name);
-        }
-
-        <span class="prelude-val">Ok</span>(exports)
     }
 
     <span class="doccomment">/// Parse import section.
     </span><span class="kw">pub fn </span>imports(reader: <span class="kw-2">&amp;</span>SectionLimited&lt;Import&gt;) -&gt; Imports {
-        <span class="comment">// TODO: use real index from WASM. (#122)
-        </span><span class="kw">let </span><span class="kw-2">mut </span>index = <span class="number">0</span>;
-
         <span class="kw">let </span><span class="kw-2">mut </span>imports = Imports::default();
         <span class="kw">let </span><span class="kw-2">mut </span>iter = reader.clone().into_iter();
         <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Import {
             module,
             name,
-            ty: TypeRef::Func(<span class="kw">_</span>),
+            ty: TypeRef::Func(index),
         })) = iter.next()
         {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(func) = Func::try_from((module, name)) {
                 <span class="macro">tracing::debug!</span>(<span class="string">&quot;imported function: {}::{} at {index}&quot;</span>, module, name);
-                imports.insert(index, func);
-                index += <span class="number">1</span>;
+                imports.push(func);
             }
         }
 

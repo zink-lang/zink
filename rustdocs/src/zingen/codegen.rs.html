@@ -135,6 +135,8 @@
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Code generation implementation.
 </span><span class="kw">use crate</span>::{
     backtrace::Backtrace,
@@ -148,6 +150,8 @@
 <span class="kw">use </span>wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
 <span class="doccomment">/// The code generation abstraction.
+///
+/// TODO: add codegen context for backtrace. (#21)
 </span><span class="kw">pub struct </span>CodeGen {
     <span class="doccomment">/// The backtrace.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) backtrace: Backtrace,

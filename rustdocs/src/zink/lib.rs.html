@@ -14,15 +14,17 @@
 <a href="#14" id="14">14</a>
 <a href="#15" id="15">15</a>
 <a href="#16" id="16">16</a>
+<a href="#17" id="17">17</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink library for developing smart contracts for blockchains.
 
 </span><span class="attr">#![no_std]
 
-</span><span class="kw">pub mod </span>ffi;
-<span class="kw">mod </span>traits;
+</span><span class="kw">mod </span>event;
+<span class="kw">pub mod </span>ffi;
+<span class="kw">mod </span>storage;
 
-<span class="kw">pub use </span>traits::{Event, Storage};
-<span class="kw">pub use </span>zink_codegen::{external, storage, Event};
+<span class="kw">pub use </span><span class="self">self</span>::{event::Event, storage::Storage};
+<span class="kw">pub use </span>zink_codegen::{storage, Event};
 
 <span class="comment">// Panic hook implementation
 </span><span class="attr">#[cfg(not(test))]

@@ -83,8 +83,6 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Re-export REVM interpreter for testing usages.
 
 </span><span class="kw">pub use </span>revm::interpreter::{instruction_result::InstructionResult, primitives::U256};
@@ -120,8 +118,6 @@
 <span class="kw">impl </span>EVM {
     <span class="doccomment">/// Create a new EVM instance.
     </span><span class="kw">pub fn </span>new(btyecode: <span class="kw-2">&amp;</span>[u8], input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
-        <span class="macro">tracing::debug!</span>(<span class="string">&quot;calldata: 0x{}&quot;</span>, hex::encode(input));
-
         <span class="kw">let </span>contract = Contract::new(
             input.to_vec().into(),                       <span class="comment">// input
             </span>Bytecode::new_raw(btyecode.to_vec().into()), <span class="comment">// code

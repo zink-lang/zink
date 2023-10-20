@@ -124,6 +124,7 @@
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
 <a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Low level assembler implementation for EVM.
 //!
 //! TODO: refactor this module with Result as outputs. (issue-21)
@@ -175,7 +176,8 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::StackOverflow(<span class="self">self</span>.sp));
         }
 
-        <span class="prelude-val">Ok</span>(())
+        <span class="comment">// tracing::debug!(&quot;increment sp: {items} -&gt; {}&quot;, self.sp);
+        </span><span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Decrement stack pointer

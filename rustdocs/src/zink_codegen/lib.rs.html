@@ -69,26 +69,17 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Code generation library for the zink API
 
 </span><span class="kw">use </span>proc_macro::TokenStream;
-<span class="kw">use </span>syn::{parse_macro_input, DeriveInput, ItemFn, ItemType};
+<span class="kw">use </span>syn::{parse_macro_input, DeriveInput, ItemType};
 
 <span class="kw">mod </span>event;
-<span class="kw">mod </span>selector;
 <span class="kw">mod </span>storage;
 
 <span class="doccomment">/// Event logging interface
 ///
-/// ```ignore
+/// ```rust
 /// use zink::Event;
 ///
 /// /// A `Ping` event.
@@ -103,7 +94,7 @@
 ///
 /// will generate:
 ///
-/// ```ignore
+/// ```rust
 /// struct Ping;
 ///
 /// impl zink::Event for Ping {
@@ -119,7 +110,7 @@
 <span class="doccomment">/// Order-based storage macro.
 /// Currently only i32 is supported
 ///
-/// ```ignore
+/// ```rust
 /// use zink::storage;
 ///
 /// #[storage]
@@ -128,7 +119,7 @@
 ///
 /// will generate:
 ///
-/// ```ignore
+/// ```rust
 /// struct Counter;
 ///
 /// impl zink::Storage&lt;i32&gt; for Counter {
@@ -148,12 +139,5 @@
 </span><span class="kw">pub fn </span>storage(_args: TokenStream, input: TokenStream) -&gt; TokenStream {
     <span class="kw">let </span>input = <span class="macro">parse_macro_input!</span>(input <span class="kw">as </span>ItemType);
     storage::parse(input).into()
-}
-
-<span class="doccomment">/// Mark the function as an external entry point.
-</span><span class="attr">#[proc_macro_attribute]
-</span><span class="kw">pub fn </span>external(_args: TokenStream, input: TokenStream) -&gt; TokenStream {
-    <span class="kw">let </span>input = <span class="macro">parse_macro_input!</span>(input <span class="kw">as </span>ItemFn);
-    selector::external(input)
 }
 </code></pre></div></section></main></body></html>
