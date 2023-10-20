@@ -11,7 +11,7 @@ repository.workspace = true
 
 [dependencies]
 hex.workspace = true
-postcard = { workspace = true, default-features = true, features = [ "use-std" ] }
+postcard = { workspace = true, default-features = false, features = [ "use-std" ] }
 serde = { workspace = true, features = [ "derive" ] }
 sha3.workspace = true
 thiserror.workspace = true
