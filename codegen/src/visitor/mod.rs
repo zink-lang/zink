@@ -46,8 +46,8 @@ macro_rules! map_wasm_operators {
                 let before = self.masm.buffer().len();
                 self.masm.[< _ $evm >]()?;
 
-                let after = self.masm.buffer().len();
-                self.backtrace.push(after - before);
+                let instr = self.masm.buffer()[before..].to_vec();
+                self.backtrace.push(instr);
 
                 Ok(())
             }
@@ -100,8 +100,9 @@ macro_rules! map_wasm_operators {
 
                 let before = self.masm.buffer().len();
                 self.$($field.)*[< _ $evm >]($($arg),*)?;
-                let after = self.masm.buffer().len();
-                self.backtrace.push(after - before);
+
+                let instr = self.masm.buffer()[before..].to_vec();
+                self.backtrace.push(instr);
                 Ok(())
             }
         }
