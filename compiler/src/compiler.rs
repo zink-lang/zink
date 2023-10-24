@@ -35,7 +35,7 @@ impl Compiler {
 
         let selectors = funcs.drain_selectors(&exports);
         if !selectors.is_empty() && self.dispatcher {
-            self.compile_dispatcher(data.clone(), exports, imports.clone(), selectors)?;
+            self.compile_dispatcher(data.clone(), exports, &funcs, imports.clone(), selectors)?;
         }
 
         for func in funcs.into_funcs() {
@@ -50,10 +50,11 @@ impl Compiler {
         &mut self,
         data: DataSet,
         exports: Exports,
+        funcs: &Functions,
         imports: Imports,
         selectors: Functions,
     ) -> Result<()> {
-        let mut dispatcher = Dispatcher::default();
+        let mut dispatcher = Dispatcher::new(funcs);
         dispatcher.data(data).exports(exports).imports(imports);
 
         let buffer = dispatcher.finish(selectors, &mut self.table)?;

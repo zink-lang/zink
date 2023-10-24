@@ -1,6 +1,20 @@
 //! External Function for the code section.
 use opcodes::ShangHai as OpCode;
 
+trait OpCodesToBytes {
+    fn to_bytes(self) -> Vec<u8>;
+}
+
+impl OpCodesToBytes for &[OpCode] {
+    fn to_bytes(self) -> Vec<u8> {
+        [&[OpCode::JUMPDEST], self]
+            .concat()
+            .iter()
+            .map(|op| (*op).into())
+            .collect()
+    }
+}
+
 /// External function in code section.
 #[derive(PartialEq, Eq, Debug, Clone, Hash)]
 pub struct ExtFunc {
@@ -19,17 +33,13 @@ impl ExtFunc {
             stack_in: 2,
             stack_out: 1,
             bytecode: [
-                OpCode::JUMPDEST,
                 OpCode::POP,
                 OpCode::PUSH1,
                 OpCode::Data(0x06),
                 OpCode::ADD,
                 OpCode::JUMP,
             ]
-            .iter()
-            .copied()
-            .map(|op| op.into())
-            .collect(),
+            .to_bytes(),
         }
     }
 }

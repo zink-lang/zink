@@ -1,6 +1,6 @@
 //! Code generator for EVM dispatcher.
 
-use crate::{DataSet, Error, Exports, Imports, JumpTable, MacroAssembler, Result};
+use crate::{code::ExtFunc, DataSet, Error, Exports, Imports, JumpTable, MacroAssembler, Result};
 use std::{
     collections::BTreeMap,
     ops::{Deref, DerefMut},
@@ -92,12 +92,13 @@ impl<'f> Functions<'f> {
 }
 
 /// Code generator for EVM dispatcher.
-#[derive(Default)]
-pub struct Dispatcher {
+pub struct Dispatcher<'d> {
     /// Code buffer
     pub asm: MacroAssembler,
     /// Module exports
     pub exports: Exports,
+    /// Module functions
+    pub funcs: &'d Functions<'d>,
     /// Module imports
     pub imports: Imports,
     /// Module data
@@ -106,7 +107,19 @@ pub struct Dispatcher {
     pub table: JumpTable,
 }
 
-impl Dispatcher {
+impl<'d> Dispatcher<'d> {
+    /// Create dispatcher with functions.
+    pub fn new(funcs: &'d Functions<'d>) -> Self {
+        Self {
+            asm: Default::default(),
+            exports: Default::default(),
+            funcs,
+            imports: Default::default(),
+            data: Default::default(),
+            table: Default::default(),
+        }
+    }
+
     /// Set exports for the dispatcher.
     pub fn exports(&mut self, exports: Exports) -> &mut Self {
         self.exports = exports;
@@ -165,6 +178,32 @@ impl Dispatcher {
         Abi::from_hex_bytes(&self.data.load(offset, length as usize)?).map_err(Into::into)
     }
 
+    /// Emit return of ext function.
+    fn ext_return(&mut self, func: u32) -> Result<()> {
+        let sig = self
+            .funcs
+            .get(&func)
+            .ok_or(Error::FuncNotFound(func))?
+            .sig()?;
+
+        let asm = self.asm.clone();
+        self.asm.main_return(sig.results())?;
+        let bytecode = {
+            let jumpdest = vec![0x5b];
+            let ret = self.asm.buffer()[asm.buffer().len()..].to_vec();
+            [jumpdest, ret].concat()
+        };
+
+        *self.asm = asm;
+        let ret = ExtFunc {
+            bytecode,
+            stack_in: 0,
+            stack_out: 0,
+        };
+        self.table.ext(self.asm.pc_offset(), ret);
+        Ok(())
+    }
+
     /// Emit selector to buffer.
     fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
         let abi = self.load_abi(selector)?;
@@ -182,8 +221,7 @@ impl Dispatcher {
         //
         // TODO: detect the bytes of the position. (#157)
         self.asm.increment_sp(1)?;
-        let pc = self.asm.pc_offset();
-        self.table.offset(pc, if last { 0xb } else { 0xc });
+        self.ext_return(func)?;
 
         if !last {
             self.asm._dup2()?;
@@ -195,10 +233,7 @@ impl Dispatcher {
 
         self.table.call(self.asm.pc_offset(), func);
         self.asm._jumpi()?;
-        self.asm._jumpdest()?;
-        self.asm.main_return(selector.sig()?.results())?;
-
-        Ok(())
+        self.asm._drop()
     }
 
     /// Emit compiled code to the given buffer.
