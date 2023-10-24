@@ -5,7 +5,9 @@ use std::{
     collections::BTreeMap,
     ops::{Deref, DerefMut},
 };
-use wasmparser::{FuncValidator, FunctionBody, Operator, ValidatorResources};
+use wasmparser::{
+    FuncType, FuncValidator, FunctionBody, Operator, ValidatorResources, WasmModuleResources,
+};
 use zabi::Abi;
 
 /// Function with validator.
@@ -14,6 +16,26 @@ pub struct Function<'f> {
     pub validator: FuncValidator<ValidatorResources>,
     /// Function body.
     pub body: FunctionBody<'f>,
+}
+
+impl Function<'_> {
+    /// Get function index.
+    pub fn index(&self) -> u32 {
+        self.validator.index()
+    }
+
+    /// Get the function signature.
+    pub fn sig(&self) -> Result<FuncType> {
+        let func_index = self.validator.index();
+        let sig = self
+            .validator
+            .resources()
+            .type_of_function(func_index)
+            .ok_or(Error::InvalidFunctionSignature)?
+            .clone();
+
+        Ok(sig)
+    }
 }
 
 /// Functions with indexes.
@@ -146,19 +168,19 @@ impl Dispatcher {
     /// Emit selector to buffer.
     fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
         let abi = self.load_abi(selector)?;
-        let selector = abi.selector();
+        let selector_bytes = abi.selector();
 
         tracing::debug!(
             "Emitting selector {:?} for function: {}",
-            selector,
+            selector_bytes,
             abi.name
         );
 
         let func = self.query_func(&abi.name)?;
 
-        // Jump to the end of the dispatcher.
+        // Jump to the end of the current function.
         //
-        // TODO: detect the bytes of the position.
+        // TODO: detect the bytes of the position. (#157)
         self.asm.increment_sp(1)?;
         let pc = self.asm.pc_offset();
         self.table.offset(pc, if last { 0xb } else { 0xc });
@@ -167,13 +189,14 @@ impl Dispatcher {
             self.asm._dup2()?;
         }
 
-        self.asm.push(&selector)?;
+        self.asm.push(&selector_bytes)?;
         self.asm._eq()?;
         self.asm.increment_sp(1)?;
 
         self.table.call(self.asm.pc_offset(), func);
         self.asm._jumpi()?;
         self.asm._jumpdest()?;
+        self.asm.main_return(selector.sig()?.results())?;
 
         Ok(())
     }

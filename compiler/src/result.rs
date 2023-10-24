@@ -15,9 +15,6 @@ pub enum Error {
     /// Failed in code generation.
     #[error(transparent)]
     Codegen(#[from] zingen::Error),
-    /// Failed parse function signature.
-    #[error("Invalid function signature")]
-    InvalidFunctionSignature,
     /// Failed to parse WASM data with data reader.
     #[error("Invalid data offset")]
     InvalidDataOffset,

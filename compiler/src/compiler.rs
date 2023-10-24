@@ -1,9 +1,9 @@
 //! Zink compiler
 
 use crate::{parser::Parser, Error, Result};
-use wasmparser::{FuncValidator, FunctionBody, ValidatorResources, WasmModuleResources};
 use zingen::{
-    Buffer, CodeGen, DataSet, Dispatcher, Exports, Functions, Imports, JumpTable, BUFFER_LIMIT,
+    Buffer, CodeGen, DataSet, Dispatcher, Exports, Function, Functions, Imports, JumpTable,
+    BUFFER_LIMIT,
 };
 
 /// Zink Compiler
@@ -39,7 +39,7 @@ impl Compiler {
         }
 
         for func in funcs.into_funcs() {
-            self.compile_func(data.clone(), imports.clone(), func.validator, func.body)?;
+            self.compile_func(data.clone(), imports.clone(), func)?;
         }
 
         self.finish()
@@ -71,15 +71,10 @@ impl Compiler {
         &mut self,
         dataset: DataSet,
         imports: Imports,
-        mut validator: FuncValidator<ValidatorResources>,
-        body: FunctionBody,
+        mut func: Function<'_>,
     ) -> Result<()> {
-        let func_index = validator.index();
-        let sig = validator
-            .resources()
-            .type_of_function(func_index)
-            .ok_or(Error::InvalidFunctionSignature)?
-            .clone();
+        let func_index = func.index();
+        let sig = func.sig()?;
 
         tracing::debug!("compile function {}: {:?}", func_index, sig);
 
@@ -90,11 +85,11 @@ impl Compiler {
         };
 
         let mut codegen = CodeGen::new(sig, dataset, imports, is_main)?;
-        let mut locals_reader = body.get_locals_reader()?;
-        let mut ops_reader = body.get_operators_reader()?;
+        let mut locals_reader = func.body.get_locals_reader()?;
+        let mut ops_reader = func.body.get_operators_reader()?;
 
-        codegen.emit_locals(&mut locals_reader, &mut validator)?;
-        codegen.emit_operators(&mut ops_reader, &mut validator)?;
+        codegen.emit_locals(&mut locals_reader, &mut func.validator)?;
+        codegen.emit_operators(&mut ops_reader, &mut func.validator)?;
 
         self.emit_buffer(func_index, codegen)?;
         Ok(())

@@ -13,6 +13,7 @@ mod embed;
 mod float;
 mod integer;
 mod memory;
+mod ret;
 mod stack;
 
 /// EVM MacroAssembler.

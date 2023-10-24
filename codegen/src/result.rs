@@ -42,6 +42,9 @@ pub enum Error {
     /// Failed to mark else block for if block.
     #[error("Invalid else block for if block at {0}")]
     InvalidElseBlock(u16),
+    /// Failed parse function signature.
+    #[error("Invalid function signature")]
+    InvalidFunctionSignature,
     /// Failed to get local with given index.
     #[error("Invalid local index {0}")]
     InvalidLocalIndex(usize),

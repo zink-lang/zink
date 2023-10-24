@@ -12,14 +12,20 @@ impl MacroAssembler {
 
     /// Push a 32-bit integer value on the stack.
     pub fn _i32_const(&mut self, value: i32) -> Result<()> {
-        self.push(value.to_ls_bytes().as_ref())?;
-        Ok(())
+        if value == 0 {
+            self._push0()
+        } else {
+            self.push(value.to_ls_bytes().as_ref())
+        }
     }
 
     /// Push a 64-bit integer value on the stack.
     pub fn _i64_const(&mut self, value: i64) -> Result<()> {
-        self.push(value.to_ls_bytes().as_ref())?;
-        Ok(())
+        if value == 0 {
+            self._push0()
+        } else {
+            self.push(value.to_ls_bytes().as_ref())
+        }
     }
 
     /// Push a 32-bit float value on the stack.
