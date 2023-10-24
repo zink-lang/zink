@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Jump"],"mod":["code","pc","relocate","table"]};
+window.SIDEBAR_ITEMS = {"enum":["Jump"],"mod":["pc","relocate","table"]};

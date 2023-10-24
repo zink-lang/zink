@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["SELECT","SLOAD","SSTORE"],"enum":["Func"],"struct":["Imports"]};
+window.SIDEBAR_ITEMS = {"enum":["Func"],"struct":["Imports"]};

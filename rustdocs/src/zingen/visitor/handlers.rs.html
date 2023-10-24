@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/handlers.rs`."><title>handlers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-deb46770fd761b69.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (4578435e1 2023-10-19)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f34af1a0ee6bacd.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/handlers.rs`."><title>handlers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (cd674d617 2023-10-24)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f34af1a0ee6bacd.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -47,77 +47,17 @@
 <a href="#47" id="47">47</a>
 <a href="#48" id="48">48</a>
 <a href="#49" id="49">49</a>
-<a href="#50" id="50">50</a>
-<a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
-<a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Case handlers
 
-</span><span class="kw">use crate</span>::{CodeGen, ControlStackFrame, ControlStackFrameType, Error, <span class="prelude-ty">Result</span>, ToLSBytes};
+</span><span class="kw">use crate</span>::{CodeGen, ControlStackFrame, ControlStackFrameType, <span class="prelude-ty">Result</span>};
 
 <span class="kw">impl </span>CodeGen {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle_empty_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.masm._push0()<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm._push0()<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm.asm._return()<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
     <span class="doccomment">/// Handle the end of the function.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>results = <span class="self">self</span>.env.results();
         <span class="macro">tracing::debug!</span>(<span class="string">&quot;handle return, results: {results:?}&quot;</span>);
 
-        <span class="kw">if </span>results.is_empty() {
-            <span class="kw">return </span><span class="self">self</span>.handle_empty_return();
-        }
-
-        <span class="kw">let </span>size = <span class="self">self</span>.masm.memory_write(results)<span class="question-mark">?</span>.size;
-        <span class="kw">let </span>offset = <span class="self">self
-            </span>.masm
-            .mp_offset(|mp| mp.checked_sub(size).ok_or_else(|| Error::InvalidMP(<span class="number">0</span>)))<span class="question-mark">?</span>;
-
-        <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>size.to_ls_bytes())<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>offset)<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm.asm._return()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(())
+        <span class="self">self</span>.masm.main_return(results)
     }
 
     <span class="doccomment">/// Handle the return of a call.
@@ -125,27 +65,7 @@
         <span class="kw">let </span>results = <span class="self">self</span>.env.results();
         <span class="macro">tracing::debug!</span>(<span class="string">&quot;handle call return: {:?}&quot;</span>, results);
 
-        <span class="kw">let </span>len = results.len() <span class="kw">as </span>u8;
-        <span class="kw">let </span>sp = <span class="self">self</span>.masm.sp();
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..len {
-            <span class="comment">// TODO: arthmetic overflow.
-            //
-            // 2 is for PC &amp; self.
-            </span><span class="self">self</span>.masm.swap(sp - i - <span class="number">2</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="macro">tracing::debug!</span>(<span class="string">&quot;cleaning frame stack, target: {}&quot;</span>, len + <span class="number">1</span>);
-        <span class="kw">while </span><span class="self">self</span>.masm.sp() &gt; len + <span class="number">1 </span>{
-            <span class="self">self</span>.masm._drop()<span class="question-mark">?</span>;
-        }
-
-        <span class="comment">// TODO: handle the length of results &gt; u8::MAX.
-        </span><span class="self">self</span>.masm.shift_pc(len, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>[<span class="number">0x04</span>])<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm._add()<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm._jump()<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(())
+        <span class="self">self</span>.masm.call_return(results)
     }
 
     <span class="doccomment">/// Handle the popping of a frame.

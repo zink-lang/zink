@@ -1,4 +1,5 @@
 (function() {var implementors = {
+"zabi":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"enum\" href=\"zabi/result/enum.Error.html\" title=\"enum zabi::result::Error\">Error</a>"]],
 "zingen":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"enum\" href=\"zingen/result/enum.Error.html\" title=\"enum zingen::result::Error\">Error</a>"]],
 "zinkc":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"enum\" href=\"zinkc/result/enum.Error.html\" title=\"enum zinkc::result::Error\">Error</a>"]],
 "zinkup":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"enum\" href=\"zinkup/utils/result/enum.Error.html\" title=\"enum zinkup::utils::result::Error\">Error</a>"]]
