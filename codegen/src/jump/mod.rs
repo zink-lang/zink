@@ -1,15 +1,14 @@
 //! Jump table implementation.
 
-pub use self::{code::Code, table::JumpTable};
-use crate::Func;
+use crate::code::ExtFunc;
+pub use table::JumpTable;
 
-mod code;
 mod pc;
 mod relocate;
 mod table;
 
 /// Jump types
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Jump {
     /// offset to the program counter.
     Offset(u16),
@@ -19,7 +18,7 @@ pub enum Jump {
     /// Jump to function.
     Func(u32),
     /// External function.
-    ExtFunc(Func),
+    ExtFunc(ExtFunc),
 }
 
 impl Jump {

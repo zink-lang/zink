@@ -25,8 +25,8 @@ pub enum Error {
     #[error("Program counter {0} already exists in jump table")]
     DuplicateJump(u16),
     /// Failed to find ext function index in jump table.
-    #[error("External function {0:?} not found in jump table")]
-    ExtNotFound(crate::Func),
+    #[error("External function not found in jump table")]
+    ExtFuncNotFound,
     /// Failed to find function index in jump table.
     #[error("Function {0} not found in jump table")]
     FuncNotFound(u32),

@@ -1,8 +1,9 @@
 //! Control flow visitors
 
 use crate::{
+    code::ExtFunc,
     control::{ControlStackFrame, ControlStackFrameType},
-    CodeGen, Func, Result,
+    CodeGen, Result,
 };
 use wasmparser::{BlockType, BrTable};
 
@@ -90,16 +91,20 @@ impl CodeGen {
     /// STACK: [val1, val2, cond] -> \[val1\] if cond is non-zero, \[val2\] otherwise.
     pub fn _select(&mut self) -> Result<()> {
         tracing::trace!("select");
-        let func = Func::Select;
-        func.prelude(&mut self.masm)?;
-        self.masm.decrement_sp(func.stack_in())?;
+        let ext = ExtFunc::select();
 
-        // This if for pushing the PC of jumpdest.
-        self.masm.increment_sp(1)?;
-        self.table.ext(self.masm.pc_offset(), Func::Select);
+        // Reorder the stack inputs.
+        self.masm._pc()?;
+        self.masm._swap2()?;
+        self.masm._swap1()?;
+
+        // Decrement the stack pointer.
+        self.masm.decrement_sp(ext.stack_in)?;
+
+        self.table.ext(self.masm.pc_offset(), ext.clone());
         self.masm._jumpi()?;
         self.masm._jumpdest()?;
-        self.masm.increment_sp(func.stack_out())?;
+        self.masm.increment_sp(ext.stack_out)?;
         Ok(())
     }
 

@@ -1,9 +1,6 @@
 //! Jump Table
 
-use crate::{
-    jump::{Code, Jump},
-    Error, Func, Result,
-};
+use crate::{code::ExtFunc, jump::Jump, Code, Error, Result};
 use std::collections::BTreeMap;
 
 /// Jump table implementation.
@@ -33,15 +30,15 @@ impl JumpTable {
         Ok(())
     }
 
-    /// Register program counter for code section.
+    /// Register the start of the program counter
+    /// of the code section.
     pub fn code_offset(&mut self, offset: u16) {
         self.code.shift(offset);
     }
 
     /// Register a external function.
-    pub fn ext(&mut self, pc: u16, func: Func) {
-        tracing::debug!("register external function: {:?}", func);
-        self.code.try_add_func(func);
+    pub fn ext(&mut self, pc: u16, func: ExtFunc) {
+        self.code.try_add_func(func.clone());
         self.jump.insert(pc, Jump::ExtFunc(func));
     }
 
@@ -89,7 +86,7 @@ impl JumpTable {
             Jump::Offset(offset) => Ok(*offset),
             Jump::Label(label) => Ok(*label),
             Jump::Func(func) => Ok(*self.func.get(func).ok_or(Error::FuncNotFound(*func))?),
-            Jump::ExtFunc(ext) => Ok(self.code.offset_of(ext).ok_or(Error::ExtNotFound(*ext))?),
+            Jump::ExtFunc(ext) => Ok(self.code.offset_of(ext).ok_or(Error::ExtFuncNotFound)?),
         }
     }
 }

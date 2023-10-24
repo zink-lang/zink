@@ -5,13 +5,14 @@
 pub use crate::{
     abi::{ToLSBytes, Type},
     asm::Assembler,
+    code::Code,
     codegen::CodeGen,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
     dispatcher::{Dispatcher, Function, Functions},
     export::Exports,
     import::{Func, Imports},
-    jump::{Code, JumpTable},
+    jump::JumpTable,
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
     result::{Error, Result},
@@ -21,6 +22,7 @@ use smallvec::SmallVec;
 pub mod abi;
 mod asm;
 mod backtrace;
+mod code;
 mod codegen;
 mod control;
 mod data;
