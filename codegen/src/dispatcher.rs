@@ -156,15 +156,24 @@ impl Dispatcher {
 
         let func = self.query_func(&abi.name)?;
 
+        // Jump to the end of the dispatcher.
+        //
+        // TODO: detect the bytes of the position.
+        self.asm.increment_sp(1)?;
+        let pc = self.asm.pc_offset();
+        self.table.offset(pc, if last { 0xb } else { 0xc });
+
         if !last {
-            self.asm._dup1()?;
+            self.asm._dup2()?;
         }
 
         self.asm.push(&selector)?;
         self.asm._eq()?;
         self.asm.increment_sp(1)?;
+
         self.table.call(self.asm.pc_offset(), func);
         self.asm._jumpi()?;
+        self.asm._jumpdest()?;
 
         Ok(())
     }
@@ -182,7 +191,7 @@ impl Dispatcher {
 
         let mut len = selectors.len();
         for (_, func) in selectors.iter() {
-            self.emit_selector(func, len == 0)?;
+            self.emit_selector(func, len == 1)?;
             len -= 1;
         }
 

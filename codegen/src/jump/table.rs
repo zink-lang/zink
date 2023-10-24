@@ -7,6 +7,7 @@ use crate::{
 use std::collections::BTreeMap;
 
 /// Jump table implementation.
+///
 #[derive(Default, Debug)]
 pub struct JumpTable {
     /// Jump table.
@@ -49,6 +50,11 @@ impl JumpTable {
         self.jump.insert(pc, Jump::Label(label));
     }
 
+    /// Register a label.
+    pub fn offset(&mut self, pc: u16, offset: u16) {
+        self.jump.insert(pc, Jump::Offset(offset));
+    }
+
     /// Merge two jump tables.
     ///
     /// Merge other jump table into this one, update the program
@@ -80,6 +86,7 @@ impl JumpTable {
     /// Get the target of a jump.
     pub fn target(&mut self, jump: &Jump) -> Result<u16> {
         match jump {
+            Jump::Offset(offset) => Ok(*offset),
             Jump::Label(label) => Ok(*label),
             Jump::Func(func) => Ok(*self.func.get(func).ok_or(Error::FuncNotFound(*func))?),
             Jump::ExtFunc(ext) => Ok(self.code.offset_of(ext).ok_or(Error::ExtNotFound(*ext))?),

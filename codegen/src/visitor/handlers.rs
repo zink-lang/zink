@@ -52,6 +52,8 @@ impl CodeGen {
 
         // TODO: handle the length of results > u8::MAX.
         self.masm.shift_pc(len, false)?;
+
+        // TODO: [PC, PUSHN, BYTES, JUMPDEST]
         self.masm.push(&[0x04])?;
         self.masm._add()?;
         self.masm._jump()?;

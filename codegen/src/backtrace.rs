@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 /// Backtrace implementation for the code generation.
 ///
 /// TODO: full implementation (#21)
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Backtrace {
     /// Compiled instructions.
     ///
