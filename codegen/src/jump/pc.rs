@@ -74,7 +74,7 @@ impl JumpTable {
                     }
                 }
 
-                Ok((k, *v))
+                Ok((k, v.clone()))
             })
             .collect::<Result<_>>()?;
 

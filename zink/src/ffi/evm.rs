@@ -9,7 +9,7 @@ extern "C" {
     // i32 -> 8 bytes
 
     /// Store a value in the storage
-    pub fn sstore(key: i32, value: i32);
+    pub fn sstore(value: i32, key: i32);
 
     /// Load a value from the storage
     pub fn sload(key: i32) -> i32;

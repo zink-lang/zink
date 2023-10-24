@@ -6,7 +6,7 @@ use crate::{Buffer, Error, Result};
 use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
 
 /// Low level assembler implementation for EVM.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Assembler {
     /// Buffer of the assembler.
     buffer: Buffer,
@@ -97,7 +97,7 @@ impl Assembler {
     /// Mock the stack input and output for checking
     /// the stack usages.
     pub fn emit_op(&mut self, opcode: OpCode) -> Result<()> {
-        tracing::trace!("stack length: {:?}", self.sp);
+        // tracing::trace!("stack length: {:?}", self.sp);
         tracing::trace!("emit opcode: {:?}", opcode);
         self.decrement_sp(opcode.stack_in() as u8)?;
         self.emit(opcode.into());

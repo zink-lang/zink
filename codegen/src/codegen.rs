@@ -59,7 +59,7 @@ impl CodeGen {
             // STACK: PC + params
             codegen.masm.increment_sp(1 + params_count)?;
             codegen.masm._jumpdest()?;
-            codegen.masm.shift_pc(params_count, true)?;
+            codegen.masm.shift_stack(params_count, true)?;
         }
 
         Ok(codegen)

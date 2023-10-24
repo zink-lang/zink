@@ -1,11 +1,16 @@
 //! Code generator for EVM dispatcher.
 
-use crate::{DataSet, Error, Exports, Imports, JumpTable, MacroAssembler, Result};
+use crate::{
+    code::ExtFunc, DataSet, Error, Exports, Imports, JumpTable, MacroAssembler, Result, ToLSBytes,
+};
 use std::{
     collections::BTreeMap,
     ops::{Deref, DerefMut},
 };
-use wasmparser::{FuncValidator, FunctionBody, Operator, ValidatorResources};
+use wasmparser::{
+    FuncType, FuncValidator, FunctionBody, Operator, ValidatorResources, WasmModuleResources,
+};
+use zabi::Abi;
 
 /// Function with validator.
 pub struct Function<'f> {
@@ -13,6 +18,26 @@ pub struct Function<'f> {
     pub validator: FuncValidator<ValidatorResources>,
     /// Function body.
     pub body: FunctionBody<'f>,
+}
+
+impl Function<'_> {
+    /// Get function index.
+    pub fn index(&self) -> u32 {
+        self.validator.index()
+    }
+
+    /// Get the function signature.
+    pub fn sig(&self) -> Result<FuncType> {
+        let func_index = self.validator.index();
+        let sig = self
+            .validator
+            .resources()
+            .type_of_function(func_index)
+            .ok_or(Error::InvalidFunctionSignature)?
+            .clone();
+
+        Ok(sig)
+    }
 }
 
 /// Functions with indexes.
@@ -69,12 +94,13 @@ impl<'f> Functions<'f> {
 }
 
 /// Code generator for EVM dispatcher.
-#[derive(Default)]
-pub struct Dispatcher {
+pub struct Dispatcher<'d> {
     /// Code buffer
     pub asm: MacroAssembler,
     /// Module exports
     pub exports: Exports,
+    /// Module functions
+    pub funcs: &'d Functions<'d>,
     /// Module imports
     pub imports: Imports,
     /// Module data
@@ -83,7 +109,19 @@ pub struct Dispatcher {
     pub table: JumpTable,
 }
 
-impl Dispatcher {
+impl<'d> Dispatcher<'d> {
+    /// Create dispatcher with functions.
+    pub fn new(funcs: &'d Functions<'d>) -> Self {
+        Self {
+            asm: Default::default(),
+            exports: Default::default(),
+            funcs,
+            imports: Default::default(),
+            data: Default::default(),
+            table: Default::default(),
+        }
+    }
+
     /// Set exports for the dispatcher.
     pub fn exports(&mut self, exports: Exports) -> &mut Self {
         self.exports = exports;
@@ -104,15 +142,6 @@ impl Dispatcher {
 
     /// Query exported function from selector.
     fn query_func(&self, name: &str) -> Result<u32> {
-        let name = {
-            let splits = name.split('(').collect::<Vec<_>>();
-            if splits.len() < 2 {
-                return Err(Error::InvalidSelector);
-            }
-
-            splits[0]
-        };
-
         for (index, export) in self.exports.iter() {
             if export.name == name {
                 return Ok(*index);
@@ -122,8 +151,8 @@ impl Dispatcher {
         Err(Error::FuncNotImported(name.into()))
     }
 
-    /// Emit selector to buffer
-    fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
+    /// Load function ABI.
+    fn load_abi(&mut self, selector: &Function<'_>) -> Result<Abi> {
         let mut reader = selector.body.get_operators_reader()?;
 
         // Get data offset.
@@ -143,27 +172,133 @@ impl Dispatcher {
         else {
             return Err(Error::InvalidSelector);
         };
+
         if !self.imports.is_emit_abi(index) {
             return Err(Error::FuncNotImported("emit_abi".into()));
         }
 
-        let data = self.data.load(offset, length as usize)?;
-        let name = String::from_utf8_lossy(&data);
-        let selector = zabi::selector(name.as_bytes());
+        Abi::from_hex_bytes(&self.data.load(offset, length as usize)?).map_err(Into::into)
+    }
 
-        tracing::debug!("Emitting selector {:?} for function: {}", selector, name);
+    /// Emit return of ext function.
+    fn ext_return(&mut self, sig: &FuncType) -> Result<()> {
+        self.asm.increment_sp(1)?;
+        let asm = self.asm.clone();
 
-        let func = self.query_func(&name)?;
-
-        if !last {
-            self.asm._dup1()?;
+        {
+            self.asm.main_return(sig.results())?;
         }
 
-        self.asm.push(&selector)?;
-        self.asm._eq()?;
+        let bytecode = {
+            let jumpdest = vec![0x5b];
+            let ret = self.asm.buffer()[asm.buffer().len()..].to_vec();
+            [jumpdest, ret].concat()
+        };
+
+        *self.asm = asm;
+        let ret = ExtFunc {
+            bytecode,
+            stack_in: 0,
+            stack_out: 0,
+        };
+        self.table.ext(self.asm.pc_offset(), ret);
+        Ok(())
+    }
+
+    // Process to the selected function.
+    //
+    // 1. drop selector.
+    // 2. load calldata to stack.
+    // 3. jump to the callee function.
+    fn process(&mut self, sig: &FuncType) -> Result<()> {
         self.asm.increment_sp(1)?;
-        self.table.call(self.asm.pc_offset(), func);
+        let asm = self.asm.clone();
+        let len = sig.params().len() as u8;
+
+        {
+            // TODO: check the safety of this.
+            //
+            // [ callee, ret, selector ] -> [ selector, callee, ret ]
+            self.asm.shift_stack(2, false)?;
+            // [ selector, callee, ret ] -> [ callee, ret ]
+            self.asm._drop()?;
+            // [ callee, ret ] -> [ param * len, callee, ret ]
+            for p in (0..len).rev() {
+                let offset = 4 + p * 32;
+                self.asm.push(&offset.to_ls_bytes())?;
+                self.asm._calldataload()?;
+            }
+
+            // [ param * len, callee, ret ] -> [ ret, param * len, callee ]
+            self.asm.shift_stack(len + 1, false)?;
+            // [ ret, param * len, callee ] -> [ callee, ret, param * len ]
+            self.asm.shift_stack(len + 1, false)?;
+            self.asm._jump()?;
+        }
+
+        let bytecode = {
+            let jumpdest = vec![0x5b];
+            let ret = self.asm.buffer()[asm.buffer().len()..].to_vec();
+            [jumpdest, ret].concat()
+        };
+        *self.asm = asm;
+        let ret = ExtFunc {
+            bytecode,
+            stack_in: len,
+            stack_out: 1,
+        };
+        self.table.ext(self.asm.pc_offset(), ret);
+        Ok(())
+    }
+
+    /// Emit selector to buffer.
+    fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
+        let abi = self.load_abi(selector)?;
+        let selector_bytes = abi.selector();
+
+        tracing::debug!(
+            "Emitting selector {:?} for function: {}",
+            selector_bytes,
+            abi.name
+        );
+
+        let func = self.query_func(&abi.name)?;
+        let sig = self
+            .funcs
+            .get(&func)
+            .ok_or(Error::FuncNotFound(func))?
+            .sig()?;
+
+        // Jump to the end of the current function.
+        //
+        // TODO: detect the bytes of the position. (#157)
+        self.ext_return(&sig)?;
+
+        // Prepare the `PC` of the callee function.
+        {
+            // TODO: remove this (#160)
+            self.asm._jumpdest()?;
+            self.asm.increment_sp(1)?;
+            self.table.call(self.asm.pc_offset(), func);
+        }
+
+        if !last {
+            self.asm._dup3()?;
+        } else {
+            self.asm._swap2()?;
+        }
+
+        self.asm.push(&selector_bytes)?;
+        self.asm._eq()?;
+        self.process(&sig)?;
         self.asm._jumpi()?;
+
+        if !last {
+            // drop the PC of the previous callee function.
+            self.asm._drop()?;
+            // drop the PC of the previous callee function preprocessor.
+            self.asm._drop()?;
+        }
 
         Ok(())
     }
@@ -171,7 +306,7 @@ impl Dispatcher {
     /// Emit compiled code to the given buffer.
     pub fn finish(mut self, selectors: Functions<'_>, table: &mut JumpTable) -> Result<Vec<u8>> {
         if selectors.is_empty() {
-            return Ok(self.asm.buffer().into());
+            return Err(Error::SelectorNotFound);
         }
 
         self.asm._push0()?;
@@ -181,7 +316,7 @@ impl Dispatcher {
 
         let mut len = selectors.len();
         for (_, func) in selectors.iter() {
-            self.emit_selector(func, len == 0)?;
+            self.emit_selector(func, len == 1)?;
             len -= 1;
         }
 

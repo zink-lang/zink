@@ -1,14 +1,16 @@
 //! Table for the code section.
 
-use crate::Func;
+pub use func::ExtFunc;
 use indexmap::IndexMap;
+
+mod func;
 
 /// Code section for EVM.
 #[derive(Default, Debug)]
 pub struct Code {
     offset: usize,
     /// Function table.
-    funcs: IndexMap<Func, usize>,
+    funcs: IndexMap<ExtFunc, usize>,
 }
 
 impl Code {
@@ -21,7 +23,7 @@ impl Code {
     }
 
     /// Get the functions in the code section.
-    pub fn funcs(&self) -> Vec<Func> {
+    pub fn funcs(&self) -> Vec<ExtFunc> {
         self.funcs.keys().cloned().collect()
     }
 
@@ -34,12 +36,12 @@ impl Code {
     }
 
     /// Add a function to the code section.
-    pub fn try_add_func(&mut self, func: Func) {
+    pub fn try_add_func(&mut self, func: ExtFunc) {
         if self.funcs.contains_key(&func) {
             return;
         }
 
-        let bytecode = func.bytecode();
+        let bytecode = func.bytecode.clone();
         let len = bytecode.len();
         self.funcs.insert(func, self.offset);
         self.offset += len;
@@ -51,7 +53,7 @@ impl Code {
     }
 
     /// Get the offset of a function.
-    pub fn offset_of(&self, func: &Func) -> Option<u16> {
+    pub fn offset_of(&self, func: &ExtFunc) -> Option<u16> {
         self.funcs.get(func).and_then(|i| (*i).try_into().ok())
     }
 
@@ -60,7 +62,7 @@ impl Code {
         let mut code = Vec::new();
         for func in self.funcs.keys() {
             tracing::debug!("add function to code section: {:?}", func);
-            code.extend(func.bytecode());
+            code.extend(func.bytecode.clone());
         }
         code
     }

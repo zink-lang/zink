@@ -30,11 +30,15 @@ impl CodeGen {
     fn call_internal(&mut self, index: u32) -> Result<()> {
         // record the current program counter and
         // pass it to the callee function.
-        self.masm._pc()?;
+        self.table.offset(self.masm.pc_offset(), 6);
+        self.masm.increment_sp(1)?;
+        self.masm._jumpdest()?;
 
         // Call an internal function.
         //
         // register the call index to the jump table.
+        //
+        // TODO: support same pc different jumps. (#160)
         self.table.call(self.masm.pc_offset(), index);
 
         // jump to the callee function
@@ -56,18 +60,6 @@ impl CodeGen {
             .get(&index)
             .ok_or(Error::ImportedFuncNotFound(index))?;
 
-        func.prelude(&mut self.masm)?;
-        if func.is_embedded() {
-            tracing::debug!("embed imported function {func:?} at index {index}");
-            self.call_embedded(func)
-        } else {
-            tracing::debug!("call imported function {func:?} at index {index}");
-            self.call_external(func)
-        }
-    }
-
-    /// Call embedded functions
-    fn call_embedded(&mut self, func: Func) -> Result<()> {
         match func {
             Func::Sstore => self.masm._sstore(),
             Func::Sload => self.masm._sload(),
@@ -81,20 +73,5 @@ impl CodeGen {
                 Err(Error::UnsupportedHostFunc(func))
             }
         }
-    }
-
-    /// Call external functions
-    pub fn call_external(&mut self, func: Func) -> Result<()> {
-        // record the current program counter and
-        // pass it to the callee function.
-        self.masm._pc()?;
-
-        // register function to the jump table.
-        self.table.ext(self.masm.pc_offset(), func);
-        self.masm.decrement_sp(func.stack_in())?;
-        self.masm._jump()?;
-        self.masm._jumpdest()?;
-        self.masm.increment_sp(func.stack_out())?;
-        Ok(())
     }
 }

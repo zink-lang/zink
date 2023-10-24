@@ -45,19 +45,19 @@ fn basic() -> Result<()> {
 
 #[test]
 fn dispatcher() -> Result<()> {
-    let _bytecode = common::load("storage", "dispatcher")?;
+    let bytecode = common::load_with_dispatcher("storage", "dispatcher")?;
 
     // TODO: testing set (#122)
-    // {
-    //     let key = 0;
-    //     let value = 42;
-    //     let mut selector = zabi::selector(b"set(i32)").to_vec();
-    //     selector = [selector, 42.to_bytes32().to_vec()].concat();
-    //     let info = EVM::run(&bytecode, &selector);
-    //     assert_eq!(info.instr, InstructionResult::Return);
-    //     assert_eq!(info.ret, []);
-    //     assert_eq!(info.storage.get(&U256::from(key)), Some(&U256::from(value)));
-    // }
+    {
+        let key = 0;
+        let value = 42;
+        let mut selector = zabi::selector(b"set(i32)").to_vec();
+        selector = [selector, 42.to_bytes32().to_vec()].concat();
+        let info = EVM::run(&bytecode, &selector);
+        assert_eq!(info.instr, InstructionResult::Return);
+        assert_eq!(info.ret, []);
+        assert_eq!(info.storage.get(&U256::from(key)), Some(&U256::from(value)));
+    }
 
     // let info = EVM::run(&bytecode, &42.to_bytes32());
 

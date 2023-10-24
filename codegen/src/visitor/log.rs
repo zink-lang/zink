@@ -8,7 +8,7 @@ impl CodeGen {
         let buffer: Vec<u8> = self.masm.buffer().into();
 
         // Pop offset and size from the bytecode.
-        let data_len = self.backtrace.popn(2);
+        let data_len = self.backtrace.popn(2).concat().len();
         let data = &buffer[(buffer.len() - data_len)..];
         *self.masm.buffer_mut() = buffer[..(buffer.len() - data_len)].into();
 

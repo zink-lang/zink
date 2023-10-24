@@ -3,6 +3,9 @@
 /// Codegen error
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    /// Failed to parse function ABI.
+    #[error(transparent)]
+    Abi(#[from] zabi::Error),
     /// Failed to parse WASM with binary reader.
     #[error(transparent)]
     BinaryReader(#[from] wasmparser::BinaryReaderError),
@@ -22,8 +25,8 @@ pub enum Error {
     #[error("Program counter {0} already exists in jump table")]
     DuplicateJump(u16),
     /// Failed to find ext function index in jump table.
-    #[error("External function {0:?} not found in jump table")]
-    ExtNotFound(crate::Func),
+    #[error("External function not found in jump table")]
+    ExtFuncNotFound,
     /// Failed to find function index in jump table.
     #[error("Function {0} not found in jump table")]
     FuncNotFound(u32),
@@ -39,6 +42,9 @@ pub enum Error {
     /// Failed to mark else block for if block.
     #[error("Invalid else block for if block at {0}")]
     InvalidElseBlock(u16),
+    /// Failed parse function signature.
+    #[error("Invalid function signature")]
+    InvalidFunctionSignature,
     /// Failed to get local with given index.
     #[error("Invalid local index {0}")]
     InvalidLocalIndex(usize),
@@ -72,6 +78,9 @@ pub enum Error {
     /// Failed to index data on memory.
     #[error("Memory index is out of range")]
     MemoryOutOfBounds,
+    /// Failed to find function selectors.0
+    #[error("Function selector is not found.")]
+    SelectorNotFound,
     /// Failed to index data on stack.
     #[error("Stack index is out of range {0}, max is 32 (0x400)")]
     StackIndexOutOfRange(u8),

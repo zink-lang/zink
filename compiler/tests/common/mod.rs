@@ -18,8 +18,8 @@ fn setup_logger() {
         .ok();
 }
 
-/// Load wat as wasm binary from path.
-pub fn load(instr: &str, name: &str) -> Result<Vec<u8>> {
+/// Setup test environment.
+fn compile(compiler: Compiler, instr: &str, name: &str) -> Result<Vec<u8>> {
     setup_logger();
 
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!("wat/{instr}/{name}.wat"));
@@ -27,7 +27,20 @@ pub fn load(instr: &str, name: &str) -> Result<Vec<u8>> {
 
     let wat = fs::read(path)?;
     let wasm = wat::parse_bytes(&wat)?;
-    let bytecode = Compiler::default().compile(&wasm)?.to_vec();
+    let bytecode = compiler.compile(&wasm)?.to_vec();
     tracing::trace!("bytecode: {:?}", hex::encode(&bytecode));
     Ok(bytecode)
+}
+
+/// Load wat as wasm binary from path.
+pub fn load(instr: &str, name: &str) -> Result<Vec<u8>> {
+    compile(Compiler::default(), instr, name)
+}
+
+#[allow(unused)]
+/// Load wat as wasm binary from path with dispatcher enabled.
+pub fn load_with_dispatcher(instr: &str, name: &str) -> Result<Vec<u8>> {
+    let mut compiler = Compiler::default();
+    compiler.with_dispatcher();
+    compile(compiler, instr, name)
 }

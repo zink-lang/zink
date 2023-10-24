@@ -18,7 +18,12 @@ impl JumpTable {
             tracing::debug!("run relocateion for {jump:?}",);
 
             let offset = relocate::offset(pc)?;
-            relocate::pc(buffer, pc, self.target(&jump)?, offset)?;
+            let mut target = self.target(&jump)?;
+            if jump.is_offset() {
+                target += pc;
+            }
+
+            relocate::pc(buffer, pc, target, offset)?;
             self.shift_label_pc(pc, offset)?;
         }
 

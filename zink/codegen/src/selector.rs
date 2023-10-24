@@ -1,10 +1,10 @@
 //! Macro for the function selector.
 
-// use crate::utils::keccak;
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use quote::{quote, ToTokens};
 use syn::{parse_quote, FnArg, ItemFn, Signature};
+use zabi::Abi;
 
 /// Mark the function as external.
 ///
@@ -51,7 +51,10 @@ fn parse_selector(sig: &Signature) -> String {
         ),
     });
 
-    let mut input = sig.ident.to_string();
-    input = input + "(" + &args.collect::<Vec<_>>().join(", ") + ")";
-    input
+    Abi {
+        name: sig.ident.to_string(),
+        inputs: args.collect(),
+    }
+    .to_hex()
+    .expect("Failed to serialize ABI")
 }

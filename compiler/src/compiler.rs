@@ -1,9 +1,9 @@
 //! Zink compiler
 
 use crate::{parser::Parser, Error, Result};
-use wasmparser::{FuncValidator, FunctionBody, ValidatorResources, WasmModuleResources};
 use zingen::{
-    Buffer, CodeGen, DataSet, Dispatcher, Exports, Functions, Imports, JumpTable, BUFFER_LIMIT,
+    Buffer, CodeGen, DataSet, Dispatcher, Exports, Function, Functions, Imports, JumpTable,
+    BUFFER_LIMIT,
 };
 
 /// Zink Compiler
@@ -11,9 +11,16 @@ use zingen::{
 pub struct Compiler {
     buffer: Buffer,
     table: JumpTable,
+    dispatcher: bool,
 }
 
 impl Compiler {
+    /// Embed dispatcher in bytecode.
+    pub fn with_dispatcher(&mut self) -> &mut Self {
+        self.dispatcher = true;
+        self
+    }
+
     /// Compile wasm module to evm bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
         let Parser {
@@ -27,10 +34,12 @@ impl Compiler {
         tracing::trace!("exports: {:?}", exports);
 
         let selectors = funcs.drain_selectors(&exports);
-        self.compile_dispatcher(data.clone(), exports, imports.clone(), selectors)?;
+        if !selectors.is_empty() && self.dispatcher {
+            self.compile_dispatcher(data.clone(), exports, &funcs, imports.clone(), selectors)?;
+        }
 
         for func in funcs.into_funcs() {
-            self.compile_func(data.clone(), imports.clone(), func.validator, func.body)?;
+            self.compile_func(data.clone(), imports.clone(), func)?;
         }
 
         self.finish()
@@ -41,10 +50,11 @@ impl Compiler {
         &mut self,
         data: DataSet,
         exports: Exports,
+        funcs: &Functions,
         imports: Imports,
         selectors: Functions,
     ) -> Result<()> {
-        let mut dispatcher = Dispatcher::default();
+        let mut dispatcher = Dispatcher::new(funcs);
         dispatcher.data(data).exports(exports).imports(imports);
 
         let buffer = dispatcher.finish(selectors, &mut self.table)?;
@@ -62,25 +72,25 @@ impl Compiler {
         &mut self,
         dataset: DataSet,
         imports: Imports,
-        mut validator: FuncValidator<ValidatorResources>,
-        body: FunctionBody,
+        mut func: Function<'_>,
     ) -> Result<()> {
-        let func_index = validator.index();
-        let sig = validator
-            .resources()
-            .type_of_function(func_index)
-            .ok_or(Error::InvalidFunctionSignature)?
-            .clone();
+        let func_index = func.index();
+        let sig = func.sig()?;
 
         tracing::debug!("compile function {}: {:?}", func_index, sig);
 
-        let is_main = func_index - (imports.len() as u32) == 0;
-        let mut codegen = CodeGen::new(sig, dataset, imports, is_main)?;
-        let mut locals_reader = body.get_locals_reader()?;
-        let mut ops_reader = body.get_operators_reader()?;
+        let is_main = if self.dispatcher {
+            false
+        } else {
+            func_index - (imports.len() as u32) == 0
+        };
 
-        codegen.emit_locals(&mut locals_reader, &mut validator)?;
-        codegen.emit_operators(&mut ops_reader, &mut validator)?;
+        let mut codegen = CodeGen::new(sig, dataset, imports, is_main)?;
+        let mut locals_reader = func.body.get_locals_reader()?;
+        let mut ops_reader = func.body.get_operators_reader()?;
+
+        codegen.emit_locals(&mut locals_reader, &mut func.validator)?;
+        codegen.emit_operators(&mut ops_reader, &mut func.validator)?;
 
         self.emit_buffer(func_index, codegen)?;
         Ok(())
