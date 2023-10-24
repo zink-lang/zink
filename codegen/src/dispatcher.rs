@@ -1,6 +1,8 @@
 //! Code generator for EVM dispatcher.
 
-use crate::{code::ExtFunc, DataSet, Error, Exports, Imports, JumpTable, MacroAssembler, Result};
+use crate::{
+    code::ExtFunc, DataSet, Error, Exports, Imports, JumpTable, MacroAssembler, Result, ToLSBytes,
+};
 use std::{
     collections::BTreeMap,
     ops::{Deref, DerefMut},
@@ -179,15 +181,14 @@ impl<'d> Dispatcher<'d> {
     }
 
     /// Emit return of ext function.
-    fn ext_return(&mut self, func: u32) -> Result<()> {
-        let sig = self
-            .funcs
-            .get(&func)
-            .ok_or(Error::FuncNotFound(func))?
-            .sig()?;
-
+    fn ext_return(&mut self, sig: &FuncType) -> Result<()> {
+        self.asm.increment_sp(1)?;
         let asm = self.asm.clone();
-        self.asm.main_return(sig.results())?;
+
+        {
+            self.asm.main_return(sig.results())?;
+        }
+
         let bytecode = {
             let jumpdest = vec![0x5b];
             let ret = self.asm.buffer()[asm.buffer().len()..].to_vec();
@@ -199,6 +200,52 @@ impl<'d> Dispatcher<'d> {
             bytecode,
             stack_in: 0,
             stack_out: 0,
+        };
+        self.table.ext(self.asm.pc_offset(), ret);
+        Ok(())
+    }
+
+    // Process to the selected function.
+    //
+    // 1. drop selector.
+    // 2. load calldata to stack.
+    // 3. jump to the callee function.
+    fn process(&mut self, sig: &FuncType) -> Result<()> {
+        self.asm.increment_sp(1)?;
+        let asm = self.asm.clone();
+        let len = sig.params().len() as u8;
+
+        {
+            // TODO: check the safety of this.
+            //
+            // [ callee, ret, selector ] -> [ selector, callee, ret ]
+            self.asm.shift_stack(2, false)?;
+            // [ selector, callee, ret ] -> [ callee, ret ]
+            self.asm._drop()?;
+            // [ callee, ret ] -> [ param * len, callee, ret ]
+            for p in (0..len).rev() {
+                let offset = 4 + p * 32;
+                self.asm.push(&offset.to_ls_bytes())?;
+                self.asm._calldataload()?;
+            }
+
+            // [ param * len, callee, ret ] -> [ ret, param * len, callee ]
+            self.asm.shift_stack(len + 1, false)?;
+            // [ ret, param * len, callee ] -> [ callee, ret, param * len ]
+            self.asm.shift_stack(len + 1, false)?;
+            self.asm._jump()?;
+        }
+
+        let bytecode = {
+            let jumpdest = vec![0x5b];
+            let ret = self.asm.buffer()[asm.buffer().len()..].to_vec();
+            [jumpdest, ret].concat()
+        };
+        *self.asm = asm;
+        let ret = ExtFunc {
+            bytecode,
+            stack_in: len,
+            stack_out: 1,
         };
         self.table.ext(self.asm.pc_offset(), ret);
         Ok(())
@@ -216,27 +263,40 @@ impl<'d> Dispatcher<'d> {
         );
 
         let func = self.query_func(&abi.name)?;
+        let sig = self
+            .funcs
+            .get(&func)
+            .ok_or(Error::FuncNotFound(func))?
+            .sig()?;
 
         // Jump to the end of the current function.
         //
         // TODO: detect the bytes of the position. (#157)
-        self.asm.increment_sp(1)?;
-        self.ext_return(func)?;
+        self.ext_return(&sig)?;
+
+        // Prepare the `PC` of the callee function.
+        {
+            // TODO: remove this (#160)
+            self.asm._jumpdest()?;
+            self.asm.increment_sp(1)?;
+            self.table.call(self.asm.pc_offset(), func);
+        }
 
         if !last {
-            self.asm._dup2()?;
+            self.asm._dup3()?;
         } else {
-            self.asm._swap1()?;
+            self.asm._swap2()?;
         }
 
         self.asm.push(&selector_bytes)?;
         self.asm._eq()?;
-        self.asm.increment_sp(1)?;
-
-        self.table.call(self.asm.pc_offset(), func);
+        self.process(&sig)?;
         self.asm._jumpi()?;
 
         if !last {
+            // drop the PC of the previous callee function.
+            self.asm._drop()?;
+            // drop the PC of the previous callee function preprocessor.
             self.asm._drop()?;
         }
 

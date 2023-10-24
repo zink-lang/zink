@@ -4,7 +4,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use crate::{Error, MacroAssembler, Result};
+use crate::{Error, Result};
 
 /// EVM built-in function.
 #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Hash)]
@@ -59,14 +59,6 @@ impl Func {
             Self::Log3 => 0,
             Self::Log4 => 0,
             _ => 0,
-        }
-    }
-
-    /// Pre-processing for the function.
-    pub fn prelude(&self, masm: &mut MacroAssembler) -> Result<()> {
-        match self {
-            Self::Sstore => masm._swap1(),
-            _ => Ok(()),
         }
     }
 }

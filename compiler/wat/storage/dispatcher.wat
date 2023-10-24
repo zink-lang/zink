@@ -9,8 +9,8 @@
   (import "zinkc" "emit_abi" (func (;2;) (type 1)))
   (import "env" "memory" (memory (;0;) 17))
   (func (;3;) (type 2) (param i32) (result i32)
-    i32.const 0
     local.get 0
+    i32.const 0
     call 0
     i32.const 0
     call 1)
@@ -19,8 +19,8 @@
     i32.const 34
     call 2)
   (func (;5;) (type 3) (param i32)
-    i32.const 0
     local.get 0
+    i32.const 0
     call 0)
   (func (;6;) (type 0)
     i32.const 1048610

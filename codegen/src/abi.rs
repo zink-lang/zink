@@ -92,6 +92,7 @@ macro_rules! offset {
 
 offset! {
     (usize, 8),
+    (u64, 8),
     (i64, 8),
     (i32, 4),
     (u32, 4),

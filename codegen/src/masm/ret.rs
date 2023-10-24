@@ -46,7 +46,7 @@ impl MacroAssembler {
         }
 
         // TODO: handle the length of results > u8::MAX.
-        self.shift_pc(len, false)?;
+        self.shift_stack(len, false)?;
         self._jump()
     }
 }

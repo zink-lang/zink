@@ -193,7 +193,7 @@ impl MacroAssembler {
     /// Shift the program counter to the bottom or the top of the
     /// parameters. This is used by the callee function for jumping
     /// back to the caller function.
-    pub fn shift_pc(&mut self, count: u8, from_top: bool) -> Result<()> {
+    pub fn shift_stack(&mut self, count: u8, from_top: bool) -> Result<()> {
         let mut swaps = 0;
 
         if from_top {

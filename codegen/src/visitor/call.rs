@@ -60,8 +60,6 @@ impl CodeGen {
             .get(&index)
             .ok_or(Error::ImportedFuncNotFound(index))?;
 
-        func.prelude(&mut self.masm)?;
-
         match func {
             Func::Sstore => self.masm._sstore(),
             Func::Sload => self.masm._sload(),
