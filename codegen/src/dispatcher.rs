@@ -225,6 +225,8 @@ impl<'d> Dispatcher<'d> {
 
         if !last {
             self.asm._dup2()?;
+        } else {
+            self.asm._swap1()?;
         }
 
         self.asm.push(&selector_bytes)?;
@@ -233,7 +235,12 @@ impl<'d> Dispatcher<'d> {
 
         self.table.call(self.asm.pc_offset(), func);
         self.asm._jumpi()?;
-        self.asm._drop()
+
+        if !last {
+            self.asm._drop()?;
+        }
+
+        Ok(())
     }
 
     /// Emit compiled code to the given buffer.

@@ -47,12 +47,6 @@ impl MacroAssembler {
 
         // TODO: handle the length of results > u8::MAX.
         self.shift_pc(len, false)?;
-
-        // TODO: [PC, PUSHN, BYTES, JUMPDEST]
-        self.push(&[0x04])?;
-        self._add()?;
-        self._jump()?;
-
-        Ok(())
+        self._jump()
     }
 }

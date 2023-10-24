@@ -30,11 +30,15 @@ impl CodeGen {
     fn call_internal(&mut self, index: u32) -> Result<()> {
         // record the current program counter and
         // pass it to the callee function.
-        self.masm._pc()?;
+        self.table.offset(self.masm.pc_offset(), 6);
+        self.masm.increment_sp(1)?;
+        self.masm._jumpdest()?;
 
         // Call an internal function.
         //
         // register the call index to the jump table.
+        //
+        // TODO: support same pc different jumps. (#160)
         self.table.call(self.masm.pc_offset(), index);
 
         // jump to the callee function
