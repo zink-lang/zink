@@ -4,5 +4,6 @@ packages = [
   "zinkc",
   "zink-codegen",
   "zink",
+  "elko",
   "zinkup"
 ]

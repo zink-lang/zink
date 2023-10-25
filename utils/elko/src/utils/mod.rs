@@ -1,5 +1,4 @@
 //! CLI Utils
-#![cfg(feature = "elko")]
 
 pub use self::{
     manifest::Manifest,

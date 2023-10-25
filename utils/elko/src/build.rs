@@ -1,5 +1,4 @@
 //! Command `Build`.
-#![cfg(feature = "elko")]
 use crate::utils::{Profile, WasmBuilder};
 use anyhow::{anyhow, Result};
 use clap::Parser;

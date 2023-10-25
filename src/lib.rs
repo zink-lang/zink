@@ -1,5 +1,4 @@
-//! Zink command line tool
-#![deny(missing_docs)]
+//! Zink toolchain.
 
 use anyhow::Error;
 use clap::Parser;
@@ -7,17 +6,12 @@ use color_eyre::{eyre::eyre, Result};
 pub use commands::*;
 use tracing_subscriber::filter::EnvFilter;
 
-mod build;
 mod compile;
-mod new;
-pub mod utils;
-
 mod commands {
-    #[cfg(feature = "elko")]
-    pub use crate::{build::Build, new::New};
-
     #[cfg(feature = "zinkc")]
     pub use crate::compile::Compile;
+    #[cfg(feature = "elko")]
+    pub use elko::{Build, New};
 }
 
 /// Shared application interface.

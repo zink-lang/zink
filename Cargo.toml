@@ -1,3 +1,53 @@
+[package]
+name = "zinkup"
+description = "Zink toolchain"
+documentation = "https://docs.rs/zinkup"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "zinkc"
+required-features = [ "zinkc" ]
+
+[[bin]]
+name = "elko"
+required-features = [ "elko" ]
+
+[dependencies]
+anyhow.workspace = true
+clap = { workspace = true, features = [ "derive" ] }
+color-eyre.workspace = true
+tracing-subscriber = { workspace = true, features = [ "env-filter" ] }
+
+elko = { workspace = true, optional = true }
+zinkc = { workspace = true, optional = true }
+
+[features]
+default = [ "elko", "zinkc" ]
+elko = [ "dep:elko" ]
+zinkc = [ "dep:zinkc" ]
+
+# Workspace manifest
+# ------------------
+
+[workspace]
+members = [
+  "codegen",
+  "codegen/abi",
+  "codegen/opcodes",
+  "compiler",
+  "utils/conta",
+  "utils/elko",
+  "zink",
+  "zink/codegen",
+  "zint"
+]
+resolver = "2"
+
 [workspace.package]
 version = "0.1.4"
 authors = ["clearloop"]
@@ -5,20 +55,6 @@ edition = "2021"
 license = "GPL-3.0-only"
 homepage = "https://github.com/clearloop/zink"
 repository = "https://github.com/clearloop/zink.git"
-
-[workspace]
-members = [
-  "cli",
-  "codegen",
-  "codegen/abi",
-  "codegen/opcodes",
-  "compiler",
-  "utils/*",
-  "zink",
-  "zink/codegen",
-  "zint"
-]
-resolver = "2"
 
 [workspace.dependencies]
 anyhow = "1.0.71"
@@ -53,9 +89,10 @@ wasmparser = "0.107.0"
 wat = "1.0.75"
 
 # Local Dependencies.
+elko = { path = "utils/elko", version = "=0.1.4" }
+opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
 zabi = { path = "codegen/abi", version = "=0.1.4" }
 zinkup = { path = "cli", version = "=0.1.4" }
-opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
 zingen =  { path = "codegen", version = "=0.1.4" }
 zinkc = { path = "compiler", version = "=0.1.4" }
 zink = { path = "zink", version = "=0.1.4" }

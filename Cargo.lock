@@ -670,6 +670,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
+name = "elko"
+version = "0.1.4"
+dependencies = [
+ "anyhow",
+ "cargo_metadata",
+ "clap",
+ "colored",
+ "etc",
+ "semver",
+ "serde",
+ "thiserror",
+ "toml",
+ "tracing",
+ "wasm-opt",
+ "zinkc",
+]
+
+[[package]]
 name = "elliptic-curve"
 version = "0.13.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2403,18 +2421,10 @@ name = "zinkup"
 version = "0.1.4"
 dependencies = [
  "anyhow",
- "cargo_metadata",
  "clap",
  "color-eyre",
- "colored",
- "etc",
- "semver",
- "serde",
- "thiserror",
- "toml",
- "tracing",
+ "elko",
  "tracing-subscriber",
- "wasm-opt",
  "zinkc",
 ]
 

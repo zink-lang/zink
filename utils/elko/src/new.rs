@@ -1,6 +1,4 @@
 //! Command `New`
-#![cfg(feature = "elko")]
-
 use crate::utils::Manifest;
 use anyhow::{anyhow, Result};
 use clap::Parser;

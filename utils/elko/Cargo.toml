@@ -1,0 +1,22 @@
+[package]
+name = "elko"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap = { workspace = true, features = [ "derive" ] }
+cargo_metadata.workspace = true
+colored.workspace = true
+etc.workspace = true
+semver.workspace = true
+serde = { workspace = true, features = [ "derive" ] }
+thiserror.workspace = true
+toml.workspace = true
+tracing.workspace = true
+wasm-opt.workspace = true
+zinkc.workspace = true
