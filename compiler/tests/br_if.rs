@@ -12,11 +12,11 @@ fn as_block_last() -> Result<()> {
 
     let info = EVM::run(&bytecode, &0.to_bytes32());
     assert_eq!(info.instr, InstructionResult::Return);
-    assert_eq!(info.ret, []);
+    assert!(info.ret.is_empty());
 
     let info = EVM::run(&bytecode, &42.to_bytes32());
     assert_eq!(info.instr, InstructionResult::OutOfGas);
-    assert_eq!(info.ret, []);
+    assert!(info.ret.is_empty());
 
     Ok(())
 }

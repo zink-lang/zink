@@ -1,6 +1,6 @@
 [alias]
 be = "build --examples --target wasm32-unknown-unknown --release"
-tt = "nextest run --release --all"
+tt = "nextest run --release --all --no-fail-fast"
 
 [target.wasm32-unknown-unknown]
 rustflags = [

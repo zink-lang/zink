@@ -12,8 +12,7 @@ fn dummy() -> Result<()> {
     let info = EVM::run(&bytecode, &[]);
 
     assert_eq!(info.instr, InstructionResult::Return);
-    assert_eq!(info.ret, []);
-
+    assert!(info.ret.is_empty());
     Ok(())
 }
 

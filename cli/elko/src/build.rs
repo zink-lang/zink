@@ -21,6 +21,9 @@ pub struct Build {
     /// Optimize with default optimizations
     #[clap(long)]
     pub release: bool,
+    /// If enable dispatcher.
+    #[clap(short, long)]
+    pub dispatcher: bool,
 }
 
 impl Build {
@@ -66,7 +69,9 @@ impl Build {
 
         // Compile the wasm to evm bytecode.
         let wasm = fs::read(builder.output()?)?;
-        let bin = Compiler::default().compile(&wasm)?;
+        let bin = Compiler::default()
+            .dispatcher(self.dispatcher)
+            .compile(&wasm)?;
         let dst = builder.output()?.with_extension("bin");
         fs::write(dst, bin)?;
 
