@@ -1,14 +1,14 @@
 [workspace]
 members = [
+  "abi",
   "cli",
+  "cli/conta",
+  "cli/elko",
   "codegen",
+  "codegen/opcodes",
   "compiler",
-  "crates/abi",
-  "crates/codegen",
-  "crates/opcodes",
-  "crates/zint",
-  "utils/conta",
-  "utils/elko",
+  "zink/codegen",
+  "zint",
 ]
 resolver = "2"
 
@@ -52,15 +52,15 @@ wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
 wat = "1.0.75"
 
-elko = { path = "utils/elko", version = "=0.1.4" }
-opcodes = { package = "evm-opcodes", path = "crates/opcodes", version = "=0.0.3", features = ["data"] }
-zabi = { path = "crates/abi", version = "=0.1.4" }
+elko = { path = "cli/elko", version = "=0.1.4" }
+opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
+zabi = { path = "abi", version = "=0.1.4" }
 zinkup = { path = "cli", version = "=0.1.4" }
 zingen =  { path = "codegen", version = "=0.1.4" }
 zinkc = { path = "compiler", version = "=0.1.4" }
 zink = { path = ".", version = "=0.1.4" }
-zink-codegen = { path = "crates/codegen", version = "=0.1.4" }
-zint = { path = "crates/zint", version = "=0.1.4" }
+zink-codegen = { path = "zink/codegen", version = "=0.1.4" }
+zint = { path = "zint", version = "=0.1.4" }
 
 [profile]
 dev = { panic = "abort"}
@@ -79,6 +79,10 @@ edition.workspace = true
 license.workspace = true
 homepage.workspace = true
 repository.workspace = true
+readme = "zink/README.md"
+
+[lib]
+path = "zink/src/lib.rs"
 
 [dependencies]
 zink-codegen.workspace = true
