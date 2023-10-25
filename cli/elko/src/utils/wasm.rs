@@ -141,7 +141,7 @@ impl WasmBuilder {
 
         // run the wasm optimizer
         OptimizationOptions::new_opt_level_4()
-            .debug_info(true)
+            .debug_info(false)
             .mvp_features_only()
             .set_converge()
             .run(src, self.output()?)?;

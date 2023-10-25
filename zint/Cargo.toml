@@ -10,6 +10,13 @@ homepage.workspace = true
 repository.workspace = true
 
 [dependencies]
+anyhow.workspace = true
+cargo_metadata.workspace = true
+etc.workspace = true
 hex.workspace = true
 revm.workspace = true
+serde = { workspace = true, features = [ "derive" ] }
 tracing.workspace = true
+toml.workspace = true
+wasm-opt.workspace = true
+zinkc.workspace = true
