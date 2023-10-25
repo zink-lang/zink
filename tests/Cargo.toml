@@ -1,0 +1,22 @@
+[package]
+name = "zink-tests"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[lib]
+path = "lib.rs"
+
+[dev-dependencies]
+anyhow.workspace = true
+hex.workspace = true
+paste.workspace = true
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"]}
+wat.workspace = true
+zinkc.workspace = true
+zint.workspace = true
+zabi.workspace = true

@@ -672,7 +672,7 @@ checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
 name = "elko"
-version = "0.1.4"
+version = "0.1.5-pre.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -2339,7 +2339,7 @@ dependencies = [
 
 [[package]]
 name = "zabi"
-version = "0.1.4"
+version = "0.1.5-pre.0"
 dependencies = [
  "hex",
  "postcard",
@@ -2390,7 +2390,7 @@ dependencies = [
 
 [[package]]
 name = "zingen"
-version = "0.1.4"
+version = "0.1.5-pre.0"
 dependencies = [
  "anyhow",
  "evm-opcodes",
@@ -2405,14 +2405,14 @@ dependencies = [
 
 [[package]]
 name = "zink"
-version = "0.1.4"
+version = "0.1.5-pre.0"
 dependencies = [
  "zink-codegen",
 ]
 
 [[package]]
 name = "zink-codegen"
-version = "0.1.4"
+version = "0.1.5-pre.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2421,8 +2421,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "zink-tests"
+version = "0.1.5-pre.0"
+dependencies = [
+ "anyhow",
+ "hex",
+ "paste",
+ "tracing",
+ "tracing-subscriber",
+ "wat",
+ "zabi",
+ "zinkc",
+ "zint",
+]
+
+[[package]]
 name = "zinkc"
-version = "0.1.4"
+version = "0.1.5-pre.0"
 dependencies = [
  "anyhow",
  "etc",
@@ -2439,8 +2454,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "zinkc-filetests"
+version = "0.1.5-pre.0"
+dependencies = [
+ "anyhow",
+ "cargo_metadata",
+ "quote",
+ "syn 2.0.38",
+ "tracing",
+ "tracing-subscriber",
+ "wasm-opt",
+ "wat",
+ "zinkc",
+]
+
+[[package]]
 name = "zinkup"
-version = "0.1.4"
+version = "0.1.5-pre.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -2453,7 +2483,7 @@ dependencies = [
 
 [[package]]
 name = "zint"
-version = "0.1.4"
+version = "0.1.5-pre.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",

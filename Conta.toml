@@ -1,7 +1,8 @@
 packages = [
+  "zabi",
   "zingen",
-  "zint",
   "zinkc",
+  "zint",
   "zink-codegen",
   "zink",
   "elko",

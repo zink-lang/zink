@@ -7,13 +7,15 @@ members = [
   "codegen",
   "codegen/opcodes",
   "compiler",
+  "compiler/filetests",
+  "tests",
   "zink/codegen",
   "zint",
 ]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.4"
+version = "0.1.5-pre.0"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -52,15 +54,15 @@ wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
 wat = "1.0.75"
 
-elko = { path = "cli/elko", version = "=0.1.4" }
+elko = { path = "cli/elko", version = "=0.1.5-pre.0" }
 opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
-zabi = { path = "abi", version = "=0.1.4" }
-zinkup = { path = "cli", version = "=0.1.4" }
-zingen =  { path = "codegen", version = "=0.1.4" }
-zinkc = { path = "compiler", version = "=0.1.4" }
-zink = { path = ".", version = "=0.1.4" }
-zink-codegen = { path = "zink/codegen", version = "=0.1.4" }
-zint = { path = "zint", version = "=0.1.4" }
+zabi = { path = "abi", version = "=0.1.5-pre.0" }
+zinkup = { path = "cli", version = "=0.1.5-pre.0" }
+zingen =  { path = "codegen", version = "=0.1.5-pre.0" }
+zinkc = { path = "compiler", version = "=0.1.5-pre.0" }
+zink = { path = ".", version = "=0.1.5-pre.0" }
+zink-codegen = { path = "zink/codegen", version = "=0.1.5-pre.0" }
+zint = { path = "zint", version = "=0.1.5-pre.0" }
 
 [profile]
 dev = { panic = "abort"}
