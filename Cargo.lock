@@ -2425,6 +2425,7 @@ name = "zinkc"
 version = "0.1.4"
 dependencies = [
  "anyhow",
+ "etc",
  "hex",
  "paste",
  "thiserror",

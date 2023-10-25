@@ -41,10 +41,3 @@ pub fn load_wasm(instr: &str, name: &str) -> Result<Vec<u8>> {
 pub fn load(instr: &str, name: &str) -> Result<Vec<u8>> {
     compile(Compiler::default(), instr, name)
 }
-
-#[allow(unused)]
-/// Load wat as wasm binary from path with dispatcher enabled.
-pub fn load_with_dispatcher(instr: &str, name: &str) -> Result<Vec<u8>> {
-    let mut compiler = Compiler::default().dispatcher(true);
-    compile(compiler, instr, name)
-}

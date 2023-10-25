@@ -23,3 +23,4 @@ tracing-subscriber = { workspace = true, features = ["env-filter"]}
 zint.workspace = true
 paste.workspace = true
 zabi.workspace = true
+etc.workspace = true
