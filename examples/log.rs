@@ -1,8 +1,6 @@
 //! Addition example.
-#![no_std]
+#![cfg_attr(target_arch = "wasm32", no_std)]
 
-// for the panic handler.
-#[cfg(not(test))]
 extern crate zink;
 
 use zink::Event;
@@ -35,3 +33,5 @@ pub extern "C" fn log3() {
 pub extern "C" fn log4() {
     Ping.log4(b"pong", b"ping", b"pong", b"pong");
 }
+
+fn main() {}

@@ -1,8 +1,6 @@
-//! Addition example.
-#![no_std]
+//! Storage example.
+#![cfg_attr(target_arch = "wasm32", no_std)]
 
-// for the panic handler.
-#[cfg(not(test))]
 extern crate zink;
 
 use zink::Storage;
@@ -35,3 +33,5 @@ pub fn set(value: i32) {
 pub fn get() -> i32 {
     Counter::get()
 }
+
+fn main() {}

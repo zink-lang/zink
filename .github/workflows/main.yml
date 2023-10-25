@@ -22,10 +22,7 @@ jobs:
       - uses: taiki-e/install-action@nextest
 
       - name: Run Tests
-        run: cargo nextest run --all-features --no-fail-fast
-
-      - name: Build Examples
-        run: cd examples && cargo b --release
+        run: cargo nextest run --all --no-fail-fast
 
   check:
     name: Check
@@ -37,4 +34,4 @@ jobs:
       - name: Format
         run: cargo fmt --check
       - name: Clippy
-        run: cargo clippy --all-features -- -D warnings
+        run: cargo clippy --all -- -D warnings

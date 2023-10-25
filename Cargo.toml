@@ -1,6 +1,3 @@
-# Workspace manifest
-# ------------------
-
 [workspace]
 members = [
   "cli",
@@ -12,7 +9,6 @@ members = [
   "crates/zint",
   "utils/conta",
   "utils/elko",
-  "zink",
 ]
 resolver = "2"
 
@@ -56,17 +52,33 @@ wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
 wat = "1.0.75"
 
-# Local Dependencies.
 elko = { path = "utils/elko", version = "=0.1.4" }
 opcodes = { package = "evm-opcodes", path = "crates/opcodes", version = "=0.0.3", features = ["data"] }
 zabi = { path = "crates/abi", version = "=0.1.4" }
 zinkup = { path = "cli", version = "=0.1.4" }
 zingen =  { path = "codegen", version = "=0.1.4" }
 zinkc = { path = "compiler", version = "=0.1.4" }
-zink = { path = "zink", version = "=0.1.4" }
+zink = { path = ".", version = "=0.1.4" }
 zink-codegen = { path = "crates/codegen", version = "=0.1.4" }
 zint = { path = "crates/zint", version = "=0.1.4" }
 
 [profile]
 dev = { panic = "abort"}
 release = { panic = "unwind" }
+
+# Zink Programming Language
+# -------------------------
+
+[package]
+name = "zink"
+description = "Standard library for zink projects."
+documentation = "https://docs.rs/zink"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[dependencies]
+zink-codegen.workspace = true

@@ -24,6 +24,7 @@ pub fn external(mut item: ItemFn) -> TokenStream {
 
         parse_quote! {
             #[no_mangle]
+            #[cfg(target_arch = "wasm32")]
             #[doc = #doc]
             pub extern "C" fn #ident() {
                 unsafe {

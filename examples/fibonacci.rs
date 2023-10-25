@@ -1,8 +1,7 @@
 //! fibonacci example.
-#![no_std]
+#![cfg_attr(target_arch = "wasm32", no_std)]
 
 // for the panic handler.
-#[cfg(not(test))]
 extern crate zink;
 
 /// Calculates the nth fibonacci number.
@@ -20,3 +19,5 @@ pub extern "C" fn recursion(n: usize) -> usize {
         recursion(n - 1) + recursion(n - 2)
     }
 }
+
+fn main() {}
