@@ -17,6 +17,8 @@ hex.workspace = true
 revm.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
 tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"]}
 toml.workspace = true
 wasm-opt.workspace = true
+zabi.workspace = true
 zinkc.workspace = true
