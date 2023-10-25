@@ -2425,6 +2425,7 @@ dependencies = [
  "color-eyre",
  "elko",
  "tracing-subscriber",
+ "zink",
  "zinkc",
 ]
 
