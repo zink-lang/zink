@@ -5,14 +5,14 @@
 members = [
   "cli",
   "codegen",
-  "codegen/abi",
-  "codegen/opcodes",
   "compiler",
+  "crates/abi",
+  "crates/codegen",
+  "crates/opcodes",
+  "crates/zint",
   "utils/conta",
   "utils/elko",
   "zink",
-  "zink/codegen",
-  "zint"
 ]
 resolver = "2"
 
@@ -58,14 +58,14 @@ wat = "1.0.75"
 
 # Local Dependencies.
 elko = { path = "utils/elko", version = "=0.1.4" }
-opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
-zabi = { path = "codegen/abi", version = "=0.1.4" }
+opcodes = { package = "evm-opcodes", path = "crates/opcodes", version = "=0.0.3", features = ["data"] }
+zabi = { path = "crates/abi", version = "=0.1.4" }
 zinkup = { path = "cli", version = "=0.1.4" }
 zingen =  { path = "codegen", version = "=0.1.4" }
 zinkc = { path = "compiler", version = "=0.1.4" }
 zink = { path = "zink", version = "=0.1.4" }
-zink-codegen = { path = "zink/codegen", version = "=0.1.4" }
-zint = { path = "zint", version = "=0.1.4" }
+zink-codegen = { path = "crates/codegen", version = "=0.1.4" }
+zint = { path = "crates/zint", version = "=0.1.4" }
 
 [profile]
 dev = { panic = "abort"}
