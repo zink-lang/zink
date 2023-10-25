@@ -21,8 +21,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@nextest
 
+      - name: Build Examples
+        run: cargo build --examples --target wasm32-unknown-unknown --release
+
       - name: Run Tests
-        run: cargo nextest run --all --no-fail-fast
+        run: cargo nextest run --all --no-fail-fast --release
 
   check:
     name: Check

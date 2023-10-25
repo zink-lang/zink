@@ -1,5 +1,6 @@
 //! fibonacci example.
 #![cfg_attr(target_arch = "wasm32", no_std)]
+#![cfg_attr(target_arch = "wasm32", no_main)]
 
 // for the panic handler.
 extern crate zink;
@@ -20,4 +21,5 @@ pub extern "C" fn recursion(n: usize) -> usize {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn main() {}
