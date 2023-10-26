@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["external","storage"],"derive":["Event"],"fn":["panic"],"mod":["ffi","traits"],"trait":["Event","Storage"]};
+window.SIDEBAR_ITEMS = {"attr":["external","storage"],"derive":["Event"],"mod":["ffi","traits"],"trait":["Event","Storage"]};

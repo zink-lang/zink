@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["InstructionResult"],"mod":["bytes","evm"],"struct":["EVM","Info"],"trait":["Bytes32"],"type":["U256"]};
+window.SIDEBAR_ITEMS = {"enum":["InstructionResult"],"fn":["setup_logger"],"mod":["bytes","contract","evm"],"struct":["Contract","EVM","Info"],"trait":["Bytes32"],"type":["U256"]};
