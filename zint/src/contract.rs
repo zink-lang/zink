@@ -53,9 +53,11 @@ impl Contract {
     }
 
     /// Create new contract
-    pub fn new(wasm: Vec<u8>) -> Self {
+    pub fn new(wasm: impl AsRef<[u8]>) -> Self {
+        crate::setup_logger();
+
         Self {
-            wasm,
+            wasm: wasm.as_ref().into(),
             dispatcher: true,
             ..Default::default()
         }
@@ -74,6 +76,7 @@ impl Contract {
             .compile(&self.wasm)?
             .to_vec();
 
+        tracing::trace!("bytecode: {:?}", hex::encode(&self.bytecode));
         Ok(self)
     }
 
@@ -112,8 +115,12 @@ impl Contract {
     }
 
     /// Execute the contract.
-    pub fn execute(&mut self, mut inputs: &[impl Bytes32]) -> Result<Info> {
+    pub fn execute<Param>(&mut self, inputs: impl AsRef<[Param]>) -> Result<Info>
+    where
+        Param: Bytes32,
+    {
         let mut calldata = Vec::new();
+        let mut inputs = inputs.as_ref();
         if self.dispatcher {
             if inputs.is_empty() {
                 return Err(anyhow!("no selector provided"));
@@ -127,6 +134,7 @@ impl Contract {
             calldata.extend_from_slice(&input.to_bytes32());
         }
 
+        tracing::debug!("calldata: 0x{:?}", hex::encode(&calldata));
         Ok(EVM::run(&self.bytecode, &calldata))
     }
 }

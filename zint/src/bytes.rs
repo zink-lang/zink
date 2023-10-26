@@ -51,6 +51,16 @@ impl Bytes32 for Vec<u8> {
     }
 }
 
+impl Bytes32 for [u8; 32] {
+    fn to_bytes32(&self) -> [u8; 32] {
+        *self
+    }
+
+    fn to_vec(&self) -> Vec<u8> {
+        self.as_ref().into()
+    }
+}
+
 impl Bytes32 for &[u8] {
     fn to_bytes32(&self) -> [u8; 32] {
         let mut bytes = [0u8; 32];
@@ -60,6 +70,16 @@ impl Bytes32 for &[u8] {
 
     fn to_vec(&self) -> Vec<u8> {
         (*self).into()
+    }
+}
+
+impl Bytes32 for () {
+    fn to_bytes32(&self) -> [u8; 32] {
+        [0; 32]
+    }
+
+    fn to_vec(&self) -> Vec<u8> {
+        Default::default()
     }
 }
 

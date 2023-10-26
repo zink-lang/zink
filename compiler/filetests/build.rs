@@ -1,12 +1,13 @@
 //! Load all wat files to structured tests.
 
 use anyhow::{anyhow, Result};
+use proc_macro2::Span;
 use quote::quote;
 use std::{
     env, fs,
     path::{Path, PathBuf},
 };
-use syn::{parse_quote, ExprArray};
+use syn::{parse_quote, ExprArray, ExprMatch, Ident, ItemConst, ItemMod};
 use wasm_opt::OptimizationOptions;
 
 /// Read the contents of a directory, returning
@@ -96,11 +97,20 @@ fn examples() -> Result<Vec<PathBuf>> {
     Ok(files)
 }
 
-fn parse_tests() -> Result<(ExprArray, ExprArray)> {
+fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
+    let mut consts: ItemMod = parse_quote! {
+        /// Constant tests.
+        mod tests {}
+    };
     let mut examples_arr: ExprArray = parse_quote!([]);
     let mut wat_files_arr: ExprArray = parse_quote!([]);
-    let push = |tests: &mut ExprArray, p: &PathBuf, bytes: &[u8]| {
+    let mut match_expr: ExprMatch = parse_quote! {
+        match (module, name) {}
+    };
+
+    let mut push = |tests: &mut ExprArray, p: &PathBuf, bytes: &[u8]| {
         let name = p
+            .with_extension("")
             .file_name()
             .unwrap_or_default()
             .to_str()
@@ -121,11 +131,31 @@ fn parse_tests() -> Result<(ExprArray, ExprArray)> {
             expr.elems.push(parse_quote!(#byte));
         }
 
+        let item: Ident = {
+            let ident_name = module.to_uppercase() + "_" + &name.to_ascii_uppercase();
+            let ident: Ident = Ident::new(&ident_name.replace('-', "_"), Span::call_site());
+            let len = bytes.len();
+            let item: ItemConst = parse_quote! {
+                #[doc = concat!(" path: ", #module, "::", #name)]
+                pub const #ident: [u8; #len] = #expr;
+            };
+
+            consts.content.as_mut().map(|c| c.1.push(item.into()));
+            match_expr.arms.push(parse_quote! {
+                (#module, #name) => crate::Test {
+                    module: module.into(),
+                    name: name.into(),
+                    wasm: #ident.to_vec(),
+                }
+            });
+            ident
+        };
+
         tests.elems.push(parse_quote! {
             Test {
-                module: #module,
-                name: #name,
-                wasm: #expr.to_vec()
+                module: #module.into(),
+                name: #name.into(),
+                wasm: #item.to_vec()
             }
         })
     };
@@ -141,7 +171,20 @@ fn parse_tests() -> Result<(ExprArray, ExprArray)> {
         push(&mut examples_arr, &example, &wasm);
     }
 
-    Ok((examples_arr, wat_files_arr))
+    match_expr.arms.push(parse_quote! {
+        _ => return Err(anyhow::anyhow!("test not found: {{module: {}, name: {}}}", module, name))
+    });
+    consts.content.as_mut().map(|c| {
+        c.1.push(parse_quote! {
+            impl crate::Test {
+                /// Load test from module and name.
+                pub fn load(module: &str, name: &str) -> anyhow::Result<Self> {
+                    Ok(#match_expr)
+                }
+            }
+        })
+    });
+    Ok((consts, examples_arr, wat_files_arr))
 }
 
 fn main() -> Result<()> {
@@ -151,12 +194,16 @@ fn main() -> Result<()> {
     let tests_rs =
         PathBuf::from(env::var_os("OUT_DIR").ok_or_else(|| anyhow!("OUT_DIR not found"))?)
             .join("tests.rs");
-    let (examples, wat_files) = parse_tests()?;
+    let (consts, examples, wat_files) = parse_tests()?;
 
     fs::write(
         &tests_rs,
         quote! {
-            impl Tests {
+            #consts
+
+            pub use tests::*;
+
+            impl Test {
                 /// Example tests.
                 pub fn examples() -> Vec<Test> {
                     #examples.to_vec()

@@ -1,26 +1,27 @@
 //! Tests for instruction `select`.
 
 use anyhow::Result;
-use zint::{Bytes32, EVM};
-
-mod common;
+use zint::{Bytes32, Contract};
 
 #[test]
 fn log0() -> Result<()> {
-    let bytecode = common::load("log", "log0")?;
+    let mut contract = Contract::new(filetests::LOG_LOG0)
+        .without_dispatcher()
+        .compile()?;
 
     // returns the bigger number.
-    let info = EVM::run(&bytecode, &[]);
+    let info = contract.execute::<()>([])?;
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
     Ok(())
 }
 
 #[test]
 fn log1() -> Result<()> {
-    let bytecode = common::load("log", "log1")?;
+    let mut contract = Contract::new(filetests::LOG_LOG1)
+        .without_dispatcher()
+        .compile()?;
 
-    // returns the bigger number.
-    let info = EVM::run(&bytecode, &[]);
+    let info = contract.execute::<()>([])?;
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
     assert_eq!(
         info.logs[0].topics[0].to_vec(),
@@ -31,10 +32,11 @@ fn log1() -> Result<()> {
 
 #[test]
 fn log2() -> Result<()> {
-    let bytecode = common::load("log", "log2")?;
+    let mut contract = Contract::new(filetests::LOG_LOG2)
+        .without_dispatcher()
+        .compile()?;
+    let info = contract.execute::<()>([])?;
 
-    // returns the bigger number.
-    let info = EVM::run(&bytecode, &[]);
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
     assert_eq!(
         info.logs[0].topics[0].to_vec(),
@@ -49,10 +51,11 @@ fn log2() -> Result<()> {
 
 #[test]
 fn log3() -> Result<()> {
-    let bytecode = common::load("log", "log3")?;
+    let mut contract = Contract::new(filetests::LOG_LOG3)
+        .without_dispatcher()
+        .compile()?;
+    let info = contract.execute::<()>([])?;
 
-    // returns the bigger number.
-    let info = EVM::run(&bytecode, &[]);
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
     assert_eq!(
         info.logs[0].topics[0].to_vec(),
@@ -71,10 +74,11 @@ fn log3() -> Result<()> {
 
 #[test]
 fn log4() -> Result<()> {
-    let bytecode = common::load("log", "log4")?;
+    let mut contract = Contract::new(filetests::LOG_LOG4)
+        .without_dispatcher()
+        .compile()?;
+    let info = contract.execute::<()>([])?;
 
-    // returns the bigger number.
-    let info = EVM::run(&bytecode, &[]);
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
     assert_eq!(
         info.logs[0].topics[0].to_vec(),

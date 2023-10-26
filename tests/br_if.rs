@@ -1,20 +1,18 @@
 //! br_if tests for the zink compiler.
-#![cfg(test)]
-
 use anyhow::Result;
-use zint::{Bytes32, InstructionResult, EVM};
-
-mod common;
+use zint::{Contract, InstructionResult};
 
 #[test]
 fn as_block_last() -> Result<()> {
-    let bytecode = common::load("br_if", "as_block_last")?;
+    let mut contract = Contract::new(filetests::BR_IF_AS_BLOCK_LAST)
+        .without_dispatcher()
+        .compile()?;
 
-    let info = EVM::run(&bytecode, &0.to_bytes32());
+    let info = contract.execute(&[0])?;
     assert_eq!(info.instr, InstructionResult::Return);
     assert!(info.ret.is_empty());
 
-    let info = EVM::run(&bytecode, &42.to_bytes32());
+    let info = contract.execute(&[42])?;
     assert_eq!(info.instr, InstructionResult::OutOfGas);
     assert!(info.ret.is_empty());
 

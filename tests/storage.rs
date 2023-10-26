@@ -2,17 +2,17 @@
 #![cfg(test)]
 
 use anyhow::Result;
-use zint::{Bytes32, Contract, InstructionResult, EVM, U256};
-
-mod common;
+use zint::{Bytes32, Contract, InstructionResult, U256};
 
 #[test]
 fn store() -> Result<()> {
-    let bytecode = common::load("storage", "store")?;
+    let mut contract = Contract::new(filetests::STORAGE_STORE)
+        .without_dispatcher()
+        .compile()?;
+
     let key = 0;
     let value = 42;
-    let info = EVM::run(&bytecode, &value.to_bytes32());
-
+    let info = contract.execute([value])?;
     assert!(info.ret.is_empty());
     assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.storage.get(&U256::from(key)), Some(&U256::from(value)));
@@ -22,21 +22,26 @@ fn store() -> Result<()> {
 
 #[test]
 fn load() -> Result<()> {
-    let bytecode = common::load("storage", "load")?;
-    let value = 42.to_bytes32();
-    let info = EVM::run(&bytecode, &value);
+    let mut contract = Contract::new(filetests::STORAGE_LOAD)
+        .without_dispatcher()
+        .compile()?;
 
+    let value = 42;
+    let info = contract.execute([value])?;
     assert_eq!(info.instr, InstructionResult::Return);
-    assert_eq!(info.ret, value);
+    assert_eq!(info.ret, value.to_bytes32());
 
     Ok(())
 }
 
 #[test]
 fn basic() -> Result<()> {
-    let bytecode = common::load("storage", "basic")?;
-    let info = EVM::run(&bytecode, &42.to_bytes32());
+    let mut contract = Contract::new(filetests::STORAGE_BASIC)
+        .without_dispatcher()
+        .compile()?;
 
+    let value = 42;
+    let info = contract.execute([value])?;
     assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 42.to_bytes32());
 
@@ -45,7 +50,7 @@ fn basic() -> Result<()> {
 
 #[test]
 fn dispatcher() -> Result<()> {
-    let mut contract = Contract::new(common::load_wasm("storage", "dispatcher")?).compile()?;
+    let mut contract = Contract::new(filetests::STORAGE_DISPATCHER).compile()?;
 
     {
         let key = 0;

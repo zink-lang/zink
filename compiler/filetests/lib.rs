@@ -1,46 +1,40 @@
 #![deny(missing_docs)]
 //! Zink filetests
 
-use std::{
-    collections::HashMap,
-    ops::{Deref, DerefMut},
-};
-
 include!(concat!(env!("OUT_DIR"), "/tests.rs"));
 
 /// A wat test
 #[derive(Clone)]
 pub struct Test {
     /// The module name
-    pub module: &'static str,
+    pub module: String,
     /// The test name
-    pub name: &'static str,
+    pub name: String,
     /// The test source
     pub wasm: Vec<u8>,
 }
 
-/// A collection of wasm tests
-pub struct Tests(HashMap<(&'static str, &'static str), Vec<u8>>);
-
-impl Tests {
-    /// Load test from module and name.
-    pub fn load(&self, module: &str, name: &str) -> Vec<u8> {
-        self.0.get(&(module, name)).unwrap().clone()
-    }
-}
-
-impl Deref for Tests {
-    type Target = HashMap<(&'static str, &'static str), Vec<u8>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for Tests {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
+/// Generate tests for different modules.
+#[macro_export]
+macro_rules! impl_tests {
+    (
+        tests: [$($test:ident),+],
+        modules: $modules:tt
+    ) => {
+        $(
+            impl_tests!(@test $test $modules);
+        )*
+    };
+    (@test $test:ident [$($mod:expr),*]) => {
+        $(
+            paste::paste! {
+                #[test]
+                fn [<$mod _ $test>]() -> anyhow::Result<()> {
+                    $test($mod)
+                }
+            }
+        )*
+    };
 }
 
 #[cfg(test)]
@@ -62,10 +56,10 @@ fn run(tests: &[Test]) {
 
 #[test]
 fn examples() {
-    run(&Tests::examples())
+    run(&Test::examples())
 }
 
 #[test]
 fn wat() {
-    run(&Tests::wat_files())
+    run(&Test::wat_files())
 }

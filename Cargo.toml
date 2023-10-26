@@ -8,7 +8,7 @@ members = [
   "codegen/opcodes",
   "compiler",
   "compiler/filetests",
-  "tests",
+  # "tests",
   "zink/codegen",
   "zint",
 ]
@@ -55,6 +55,7 @@ wasmparser = "0.107.0"
 wat = "1.0.75"
 
 elko = { path = "cli/elko", version = "=0.1.5-pre.0" }
+filetests = { path = "compiler/filetests", version = "=0.1.5-pre.0" }
 opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
 zabi = { path = "abi", version = "=0.1.5-pre.0" }
 zinkup = { path = "cli", version = "=0.1.5-pre.0" }
@@ -88,3 +89,9 @@ path = "zink/src/lib.rs"
 
 [dependencies]
 zink-codegen.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+anyhow.workspace = true
+filetests.workspace = true
+paste.workspace = true
+zint.workspace = true

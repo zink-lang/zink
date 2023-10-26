@@ -780,6 +780,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "filetests"
+version = "0.1.5-pre.0"
+dependencies = [
+ "anyhow",
+ "cargo_metadata",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.38",
+ "tracing",
+ "tracing-subscriber",
+ "wasm-opt",
+ "wat",
+ "zinkc",
+]
+
+[[package]]
 name = "form_urlencoded"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2407,7 +2423,11 @@ dependencies = [
 name = "zink"
 version = "0.1.5-pre.0"
 dependencies = [
+ "anyhow",
+ "filetests",
+ "paste",
  "zink-codegen",
+ "zint",
 ]
 
 [[package]]
@@ -2418,21 +2438,6 @@ dependencies = [
  "quote",
  "syn 2.0.38",
  "zabi",
-]
-
-[[package]]
-name = "zink-tests"
-version = "0.1.5-pre.0"
-dependencies = [
- "anyhow",
- "hex",
- "paste",
- "tracing",
- "tracing-subscriber",
- "wat",
- "zabi",
- "zinkc",
- "zint",
 ]
 
 [[package]]
@@ -2451,21 +2456,6 @@ dependencies = [
  "zabi",
  "zingen",
  "zint",
-]
-
-[[package]]
-name = "zinkc-filetests"
-version = "0.1.5-pre.0"
-dependencies = [
- "anyhow",
- "cargo_metadata",
- "quote",
- "syn 2.0.38",
- "tracing",
- "tracing-subscriber",
- "wasm-opt",
- "wat",
- "zinkc",
 ]
 
 [[package]]

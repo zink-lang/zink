@@ -1,22 +1,21 @@
 //! if-else tests for the zink compiler.
-#![cfg(test)]
-
 use anyhow::Result;
-use zint::{Bytes32, InstructionResult, EVM};
-
-mod common;
+use zint::{Bytes32, Contract, InstructionResult};
 
 #[test]
 fn if_then() -> Result<()> {
-    let bytecode = common::load("if", "basic")?;
+    let mut contract = Contract::new(filetests::IF_BASIC)
+        .without_dispatcher()
+        .compile()?;
 
     // Skip the condition.
-    let info = EVM::run(&bytecode, &[0; 32]);
-    assert_eq!(info.ret, [0; 32]);
+    let input = [0; 32];
+    let info = contract.execute(&[input])?;
+    assert_eq!(info.ret, input);
 
     // Enter the if branch.
     let input = 1.to_bytes32();
-    let info = EVM::run(&bytecode, &input);
+    let info = contract.execute(&[input])?;
     assert_eq!(info.ret, input);
 
     Ok(())
@@ -24,17 +23,19 @@ fn if_then() -> Result<()> {
 
 #[test]
 fn singular() -> Result<()> {
-    let bytecode = common::load("if", "singular")?;
+    let mut contract = Contract::new(filetests::IF_SINGULAR)
+        .without_dispatcher()
+        .compile()?;
 
     // test if
     //
     // Enter if block if 1
-    let info = EVM::run(&bytecode, &1.to_bytes32());
+    let info = contract.execute(&[1])?;
     assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 7.to_bytes32());
 
     // test else
-    let info = EVM::run(&bytecode, &0.to_bytes32());
+    let info = contract.execute(&[0])?;
     assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 8.to_bytes32());
 
