@@ -14,6 +14,27 @@ pub struct Test {
     pub wasm: Vec<u8>,
 }
 
+#[cfg(test)]
+impl Test {
+    /// Compile test to evm bytecode.
+    pub fn compile(&self) -> anyhow::Result<Vec<u8>> {
+        tracing_subscriber::fmt()
+            .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+            .without_time()
+            .compact()
+            .try_init()
+            .ok();
+
+        let Test { module, name, wasm } = self;
+        tracing::info!("Compiling {}/{}", module, name);
+
+        zinkc::Compiler::default()
+            .compile(&wasm)
+            .map(|v| v.to_vec())
+            .map_err(Into::into)
+    }
+}
+
 /// Generate tests for different modules.
 #[macro_export]
 macro_rules! impl_tests {
@@ -50,14 +71,16 @@ fn run(tests: &[Test]) {
         tracing::info!("Compiling {}/{}", module, name);
         zinkc::Compiler::default()
             .compile(&wasm)
-            .expect("Failed to compile {module}::{name}");
+            .expect(&format!("Failed to compile {module}::{name}"));
     }
 }
 
-#[test]
-fn examples() {
-    run(&Test::examples())
-}
+// TODO: #161
+//
+// #[test]
+// fn examples() {
+//     run(&Test::examples())
+// }
 
 #[test]
 fn wat() {

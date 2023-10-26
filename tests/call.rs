@@ -2,11 +2,12 @@
 #![cfg(test)]
 
 use anyhow::Result;
+use zinkc_filetests::Test;
 use zint::{Bytes32, Contract, InstructionResult};
 
 #[test]
 fn dummy() -> Result<()> {
-    let mut contract = Contract::new(filetests::CALL_DUMMY)
+    let mut contract = Contract::new(Test::CALL_DUMMY)
         .without_dispatcher()
         .compile()?;
     let info = contract.execute::<()>([])?;
@@ -18,7 +19,7 @@ fn dummy() -> Result<()> {
 
 #[test]
 fn params() -> Result<()> {
-    let mut contract = Contract::new(filetests::CALL_PARAMS)
+    let mut contract = Contract::new(Test::CALL_PARAMS)
         .without_dispatcher()
         .compile()?;
     let info = contract.execute([1, 2])?;
@@ -29,7 +30,7 @@ fn params() -> Result<()> {
 
 #[test]
 fn as_if() -> Result<()> {
-    let mut contract = Contract::new(filetests::CALL_AS_IF)
+    let mut contract = Contract::new(Test::CALL_AS_IF)
         .without_dispatcher()
         .compile()?;
 

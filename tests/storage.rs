@@ -2,11 +2,12 @@
 #![cfg(test)]
 
 use anyhow::Result;
+use zinkc_filetests::Test;
 use zint::{Bytes32, Contract, InstructionResult, U256};
 
 #[test]
 fn store() -> Result<()> {
-    let mut contract = Contract::new(filetests::STORAGE_STORE)
+    let mut contract = Contract::new(Test::STORAGE_STORE)
         .without_dispatcher()
         .compile()?;
 
@@ -22,7 +23,7 @@ fn store() -> Result<()> {
 
 #[test]
 fn load() -> Result<()> {
-    let mut contract = Contract::new(filetests::STORAGE_LOAD)
+    let mut contract = Contract::new(Test::STORAGE_LOAD)
         .without_dispatcher()
         .compile()?;
 
@@ -36,7 +37,7 @@ fn load() -> Result<()> {
 
 #[test]
 fn basic() -> Result<()> {
-    let mut contract = Contract::new(filetests::STORAGE_BASIC)
+    let mut contract = Contract::new(Test::STORAGE_BASIC)
         .without_dispatcher()
         .compile()?;
 
@@ -50,7 +51,7 @@ fn basic() -> Result<()> {
 
 #[test]
 fn dispatcher() -> Result<()> {
-    let mut contract = Contract::new(filetests::STORAGE_DISPATCHER).compile()?;
+    let mut contract = Contract::new(Test::STORAGE_DISPATCHER).compile()?;
 
     {
         let key = 0;

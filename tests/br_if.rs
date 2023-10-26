@@ -1,10 +1,11 @@
 //! br_if tests for the zink compiler.
 use anyhow::Result;
+use zinkc_filetests::Test;
 use zint::{Contract, InstructionResult};
 
 #[test]
 fn as_block_last() -> Result<()> {
-    let mut contract = Contract::new(filetests::BR_IF_AS_BLOCK_LAST)
+    let mut contract = Contract::new(Test::BR_IF_AS_BLOCK_LAST)
         .without_dispatcher()
         .compile()?;
 

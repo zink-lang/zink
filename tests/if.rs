@@ -1,10 +1,11 @@
 //! if-else tests for the zink compiler.
 use anyhow::Result;
+use zinkc_filetests::Test;
 use zint::{Bytes32, Contract, InstructionResult};
 
 #[test]
 fn if_then() -> Result<()> {
-    let mut contract = Contract::new(filetests::IF_BASIC)
+    let mut contract = Contract::new(Test::IF_BASIC)
         .without_dispatcher()
         .compile()?;
 
@@ -23,7 +24,7 @@ fn if_then() -> Result<()> {
 
 #[test]
 fn singular() -> Result<()> {
-    let mut contract = Contract::new(filetests::IF_SINGULAR)
+    let mut contract = Contract::new(Test::IF_SINGULAR)
         .without_dispatcher()
         .compile()?;
 

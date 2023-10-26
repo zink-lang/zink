@@ -15,7 +15,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.5-pre.1"
+version = "0.1.5-pre.2"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -54,16 +54,16 @@ wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
 wat = "1.0.75"
 
-elko = { path = "cli/elko", version = "=0.1.5-pre.1" }
+elko = { path = "cli/elko", version = "=0.1.5-pre.2" }
 opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
-zabi = { path = "abi", version = "=0.1.5-pre.1" }
-zinkup = { path = "cli", version = "=0.1.5-pre.1" }
-zingen =  { path = "codegen", version = "=0.1.5-pre.1" }
-zinkc = { path = "compiler", version = "=0.1.5-pre.1" }
-filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "=0.1.5-pre.1" }
-zink = { path = ".", version = "=0.1.5-pre.1" }
-zink-codegen = { path = "zink/codegen", version = "=0.1.5-pre.1" }
-zint = { path = "zint", version = "=0.1.5-pre.1" }
+zabi = { path = "abi", version = "=0.1.5-pre.2" }
+zinkup = { path = "cli", version = "=0.1.5-pre.2" }
+zingen =  { path = "codegen", version = "=0.1.5-pre.2" }
+zinkc = { path = "compiler", version = "=0.1.5-pre.2" }
+zinkc-filetests = { path = "compiler/filetests", version = "=0.1.5-pre.2" }
+zink = { path = ".", version = "=0.1.5-pre.2" }
+zink-codegen = { path = "zink/codegen", version = "=0.1.5-pre.2" }
+zint = { path = "zint", version = "=0.1.5-pre.2" }
 
 [profile]
 dev = { panic = "abort"}
@@ -92,6 +92,6 @@ zink-codegen.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 anyhow.workspace = true
-filetests.workspace = true
 paste.workspace = true
+zinkc-filetests.workspace = true
 zint.workspace = true

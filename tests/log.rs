@@ -1,11 +1,12 @@
 //! Tests for instruction `select`.
 
 use anyhow::Result;
+use zinkc_filetests::Test;
 use zint::{Bytes32, Contract};
 
 #[test]
 fn log0() -> Result<()> {
-    let mut contract = Contract::new(filetests::LOG_LOG0)
+    let mut contract = Contract::new(Test::LOG_LOG0)
         .without_dispatcher()
         .compile()?;
 
@@ -17,7 +18,7 @@ fn log0() -> Result<()> {
 
 #[test]
 fn log1() -> Result<()> {
-    let mut contract = Contract::new(filetests::LOG_LOG1)
+    let mut contract = Contract::new(Test::LOG_LOG1)
         .without_dispatcher()
         .compile()?;
 
@@ -32,7 +33,7 @@ fn log1() -> Result<()> {
 
 #[test]
 fn log2() -> Result<()> {
-    let mut contract = Contract::new(filetests::LOG_LOG2)
+    let mut contract = Contract::new(Test::LOG_LOG2)
         .without_dispatcher()
         .compile()?;
     let info = contract.execute::<()>([])?;
@@ -51,7 +52,7 @@ fn log2() -> Result<()> {
 
 #[test]
 fn log3() -> Result<()> {
-    let mut contract = Contract::new(filetests::LOG_LOG3)
+    let mut contract = Contract::new(Test::LOG_LOG3)
         .without_dispatcher()
         .compile()?;
     let info = contract.execute::<()>([])?;
@@ -74,7 +75,7 @@ fn log3() -> Result<()> {
 
 #[test]
 fn log4() -> Result<()> {
-    let mut contract = Contract::new(filetests::LOG_LOG4)
+    let mut contract = Contract::new(Test::LOG_LOG4)
         .without_dispatcher()
         .compile()?;
     let info = contract.execute::<()>([])?;

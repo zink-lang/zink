@@ -1,9 +1,10 @@
 use anyhow::Result;
+use zinkc_filetests::Test;
 use zint::{Bytes32, Contract};
 
 #[test]
 fn fibonacci() -> Result<()> {
-    let mut contract = Contract::new(filetests::RECURSION_FIBONACCI)
+    let mut contract = Contract::new(Test::RECURSION_FIBONACCI)
         .without_dispatcher()
         .compile()?;
 

@@ -27,3 +27,6 @@ quote.workspace = true
 syn.workspace = true
 wat.workspace = true
 wasm-opt.workspace = true
+
+[features]
+testing = []

@@ -1,11 +1,12 @@
 //! loop tests
 
 use anyhow::Result;
+use zinkc_filetests::Test;
 use zint::{Bytes32, Contract, InstructionResult};
 
 #[test]
 fn singular() -> Result<()> {
-    let mut contract = Contract::new(filetests::LOOP_SINGULAR)
+    let mut contract = Contract::new(Test::LOOP_SINGULAR)
         .without_dispatcher()
         .compile()?;
     let info = contract.execute::<()>([])?;
@@ -17,7 +18,7 @@ fn singular() -> Result<()> {
 
 #[test]
 fn as_br_if() -> Result<()> {
-    let mut contract = Contract::new(filetests::LOOP_AS_BR_IF)
+    let mut contract = Contract::new(Test::LOOP_AS_BR_IF)
         .without_dispatcher()
         .compile()?;
     let info = contract.execute([0])?;

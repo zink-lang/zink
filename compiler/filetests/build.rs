@@ -2,13 +2,26 @@
 
 use anyhow::Result;
 use proc_macro2::Span;
-use quote::quote;
+use quote::ToTokens;
 use std::{
     env, fs,
     path::{Path, PathBuf},
 };
-use syn::{parse_quote, ExprArray, ExprMatch, Ident, ItemConst, ItemMod};
+use syn::{parse_quote, ExprArray, ExprMatch, Ident, ItemImpl};
 use wasm_opt::OptimizationOptions;
+
+fn main() -> Result<()> {
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=wat");
+
+    let item_impl = parse_tests()?;
+    fs::write(
+        env::var("OUT_DIR")?.parse::<PathBuf>()?.join("tests.rs"),
+        item_impl.to_token_stream().to_string(),
+    )?;
+
+    Ok(())
+}
 
 fn wasm_directory() -> Result<PathBuf> {
     cargo_metadata::MetadataCommand::new()
@@ -101,12 +114,10 @@ fn examples() -> Result<Vec<PathBuf>> {
     Ok(files)
 }
 
-fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
-    let mut consts: ItemMod = parse_quote! {
+fn parse_tests() -> Result<ItemImpl> {
+    let mut item_impl: ItemImpl = parse_quote! {
         /// Constant tests.
-        mod tests {
-            use crate::Test;
-        }
+        impl Test {}
     };
     let mut examples_arr: ExprArray = parse_quote!([]);
     let mut wat_files_arr: ExprArray = parse_quote!([]);
@@ -137,27 +148,20 @@ fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
             expr.elems.push(parse_quote!(#byte));
         }
 
-        let item: Ident = {
+        let ident: Ident = {
             let ident_name = module.to_uppercase() + "_" + &name.to_ascii_uppercase();
             let ident: Ident = Ident::new(&ident_name.replace('-', "_"), Span::call_site());
             let len = bytes.len();
-            let item: ItemConst = parse_quote! {
+            item_impl.items.push(parse_quote! {
                 #[doc = concat!(" path: ", #module, "::", #name)]
                 pub const #ident: [u8; #len] = #expr;
-            };
-
-            consts
-                .content
-                .as_mut()
-                .expect("checked above")
-                .1
-                .push(item.into());
+            });
 
             match_expr.arms.push(parse_quote! {
                 (#module, #name) => Test {
                     module: module.into(),
                     name: name.into(),
-                    wasm: #ident.to_vec(),
+                    wasm: Self::#ident.to_vec(),
                 }
             });
             ident
@@ -167,7 +171,7 @@ fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
             Test {
                 module: #module.into(),
                 name: #name.into(),
-                wasm: #item.to_vec()
+                wasm: Self::#ident.to_vec()
             }
         })
     };
@@ -186,56 +190,33 @@ fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
     match_expr.arms.push(parse_quote! {
         _ => return Err(anyhow::anyhow!("test not found: {{module: {}, name: {}}}", module, name))
     });
-    consts
-        .content
-        .as_mut()
-        .expect("checked above")
-        .1
-        .push(parse_quote! {
-            impl Test {
-                /// Load test from module and name.
-                pub fn load(module: &str, name: &str) -> anyhow::Result<Self> {
-                    Ok(#match_expr)
-                }
+
+    let funcs: ItemImpl = parse_quote! {
+        impl Test {
+            /// Load test from module and name.
+            pub fn load(module: &str, name: &str) -> anyhow::Result<Self> {
+                Ok(#match_expr)
             }
-        });
 
-    Ok((consts, examples_arr, wat_files_arr))
-}
+            /// Example tests.
+            pub fn examples() -> Vec<Test> {
+                #examples_arr.to_vec()
+            }
 
-fn main() -> Result<()> {
-    println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=wat");
+            /// Wat files tests.
+            pub fn wat_files() -> Vec<Test> {
+                #wat_files_arr.to_vec()
+            }
 
-    let (consts, examples, wat_files) = parse_tests()?;
-    fs::write(
-        env::var("OUT_DIR")?.parse::<PathBuf>()?.join("tests.rs"),
-        quote! {
-            #consts
-
-            pub use tests::*;
-
-            impl Test {
-                /// Example tests.
-                pub fn examples() -> Vec<Test> {
-                    #examples.to_vec()
-                }
-
-                /// Wat files tests.
-                pub fn wat_files() -> Vec<Test> {
-                    #wat_files.to_vec()
-                }
-
-                /// All tests.
-                pub fn all() -> Vec<Test> {
-                    let mut tests = Self::examples();
-                    tests.extend(Self::wat_files());
-                    tests
-                }
+            /// All tests.
+            pub fn all() -> Vec<Test> {
+                let mut tests = Self::examples();
+                tests.extend(Self::wat_files());
+                tests
             }
         }
-        .to_string(),
-    )?;
+    };
 
-    Ok(())
+    item_impl.items.extend(funcs.items);
+    Ok(item_impl)
 }
