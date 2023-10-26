@@ -29,7 +29,7 @@ fn list_wat(dir: impl AsRef<Path>, files: &mut Vec<PathBuf>) -> Result<()> {
 
 /// Batch all wat files.
 fn wat_files() -> Result<Vec<PathBuf>> {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!("wat"));
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("wat");
     let mut files = Vec::new();
     list_wat(&path, &mut files)?;
 
@@ -40,8 +40,7 @@ fn wat_files() -> Result<Vec<PathBuf>> {
         .filter(|f| {
             !excludes.contains(
                 &f.file_name()
-                    .map(|n| n.to_str())
-                    .flatten()
+                    .and_then(|n| n.to_str())
                     .expect("file name not found"),
             )
         })
@@ -91,7 +90,7 @@ fn examples() -> Result<Vec<PathBuf>> {
             .debug_info(false)
             .mvp_features_only()
             .set_converge()
-            .run(&wasm, &wasm)?;
+            .run(wasm, wasm)?;
     }
 
     Ok(files)
@@ -140,7 +139,13 @@ fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
                 pub const #ident: [u8; #len] = #expr;
             };
 
-            consts.content.as_mut().map(|c| c.1.push(item.into()));
+            consts
+                .content
+                .as_mut()
+                .expect("checked above")
+                .1
+                .push(item.into());
+
             match_expr.arms.push(parse_quote! {
                 (#module, #name) => crate::Test {
                     module: module.into(),
@@ -174,16 +179,20 @@ fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
     match_expr.arms.push(parse_quote! {
         _ => return Err(anyhow::anyhow!("test not found: {{module: {}, name: {}}}", module, name))
     });
-    consts.content.as_mut().map(|c| {
-        c.1.push(parse_quote! {
+    consts
+        .content
+        .as_mut()
+        .expect("checked above")
+        .1
+        .push(parse_quote! {
             impl crate::Test {
                 /// Load test from module and name.
                 pub fn load(module: &str, name: &str) -> anyhow::Result<Self> {
                     Ok(#match_expr)
                 }
             }
-        })
-    });
+        });
+
     Ok((consts, examples_arr, wat_files_arr))
 }
 
@@ -197,7 +206,7 @@ fn main() -> Result<()> {
     let (consts, examples, wat_files) = parse_tests()?;
 
     fs::write(
-        &tests_rs,
+        tests_rs,
         quote! {
             #consts
 
