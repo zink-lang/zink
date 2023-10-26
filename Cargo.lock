@@ -672,7 +672,7 @@ checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
 name = "elko"
-version = "0.1.5-pre.0"
+version = "0.1.5-pre.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -777,22 +777,6 @@ checksum = "ded41244b729663b1e574f1b4fb731469f69f79c17667b5d776b16cda0479449"
 dependencies = [
  "rand_core",
  "subtle",
-]
-
-[[package]]
-name = "filetests"
-version = "0.1.5-pre.0"
-dependencies = [
- "anyhow",
- "cargo_metadata",
- "proc-macro2",
- "quote",
- "syn 2.0.38",
- "tracing",
- "tracing-subscriber",
- "wasm-opt",
- "wat",
- "zinkc",
 ]
 
 [[package]]
@@ -2355,7 +2339,7 @@ dependencies = [
 
 [[package]]
 name = "zabi"
-version = "0.1.5-pre.0"
+version = "0.1.5-pre.1"
 dependencies = [
  "hex",
  "postcard",
@@ -2406,7 +2390,7 @@ dependencies = [
 
 [[package]]
 name = "zingen"
-version = "0.1.5-pre.0"
+version = "0.1.5-pre.1"
 dependencies = [
  "anyhow",
  "evm-opcodes",
@@ -2421,18 +2405,18 @@ dependencies = [
 
 [[package]]
 name = "zink"
-version = "0.1.5-pre.0"
+version = "0.1.5-pre.1"
 dependencies = [
  "anyhow",
- "filetests",
  "paste",
  "zink-codegen",
+ "zinkc-filetests",
  "zint",
 ]
 
 [[package]]
 name = "zink-codegen"
-version = "0.1.5-pre.0"
+version = "0.1.5-pre.1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2442,7 +2426,7 @@ dependencies = [
 
 [[package]]
 name = "zinkc"
-version = "0.1.5-pre.0"
+version = "0.1.5-pre.1"
 dependencies = [
  "anyhow",
  "etc",
@@ -2455,12 +2439,27 @@ dependencies = [
  "wat",
  "zabi",
  "zingen",
- "zint",
+]
+
+[[package]]
+name = "zinkc-filetests"
+version = "0.1.5-pre.1"
+dependencies = [
+ "anyhow",
+ "cargo_metadata",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.38",
+ "tracing",
+ "tracing-subscriber",
+ "wasm-opt",
+ "wat",
+ "zinkc",
 ]
 
 [[package]]
 name = "zinkup"
-version = "0.1.5-pre.0"
+version = "0.1.5-pre.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -2473,7 +2472,7 @@ dependencies = [
 
 [[package]]
 name = "zint"
-version = "0.1.5-pre.0"
+version = "0.1.5-pre.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",

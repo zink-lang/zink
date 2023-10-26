@@ -1,5 +1,6 @@
 [package]
-name = "filetests"
+name = "zinkc-filetests"
+description = "Filetests for zinkc."
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

@@ -1,6 +1,6 @@
 //! Load all wat files to structured tests.
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use proc_macro2::Span;
 use quote::quote;
 use std::{
@@ -9,6 +9,14 @@ use std::{
 };
 use syn::{parse_quote, ExprArray, ExprMatch, Ident, ItemConst, ItemMod};
 use wasm_opt::OptimizationOptions;
+
+fn wasm_directory() -> Result<PathBuf> {
+    cargo_metadata::MetadataCommand::new()
+        .no_deps()
+        .exec()
+        .map(|m| m.target_directory.join("wasm32-unknown-unknown").into())
+        .map_err(Into::into)
+}
 
 /// Read the contents of a directory, returning
 /// all wat files.
@@ -48,13 +56,10 @@ fn wat_files() -> Result<Vec<PathBuf>> {
 }
 
 fn examples() -> Result<Vec<PathBuf>> {
-    let release = cargo_metadata::MetadataCommand::new()
-        .no_deps()
-        .exec()?
-        .target_directory
-        .join("wasm32-unknown-unknown")
-        .join("release")
-        .join("examples");
+    let release = wasm_directory()?.join("release").join("examples");
+    if !release.exists() {
+        return Ok(Default::default());
+    }
 
     let with_commit_hash = |p: &PathBuf| -> bool {
         let name = p
@@ -99,7 +104,9 @@ fn examples() -> Result<Vec<PathBuf>> {
 fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
     let mut consts: ItemMod = parse_quote! {
         /// Constant tests.
-        mod tests {}
+        mod tests {
+            use crate::Test;
+        }
     };
     let mut examples_arr: ExprArray = parse_quote!([]);
     let mut wat_files_arr: ExprArray = parse_quote!([]);
@@ -147,7 +154,7 @@ fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
                 .push(item.into());
 
             match_expr.arms.push(parse_quote! {
-                (#module, #name) => crate::Test {
+                (#module, #name) => Test {
                     module: module.into(),
                     name: name.into(),
                     wasm: #ident.to_vec(),
@@ -185,7 +192,7 @@ fn parse_tests() -> Result<(ItemMod, ExprArray, ExprArray)> {
         .expect("checked above")
         .1
         .push(parse_quote! {
-            impl crate::Test {
+            impl Test {
                 /// Load test from module and name.
                 pub fn load(module: &str, name: &str) -> anyhow::Result<Self> {
                     Ok(#match_expr)
@@ -200,13 +207,9 @@ fn main() -> Result<()> {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=wat");
 
-    let tests_rs =
-        PathBuf::from(env::var_os("OUT_DIR").ok_or_else(|| anyhow!("OUT_DIR not found"))?)
-            .join("tests.rs");
     let (consts, examples, wat_files) = parse_tests()?;
-
     fs::write(
-        tests_rs,
+        env::var("OUT_DIR")?.parse::<PathBuf>()?.join("tests.rs"),
         quote! {
             #consts
 

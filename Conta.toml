@@ -2,6 +2,7 @@ packages = [
   "zabi",
   "zingen",
   "zinkc",
+  "zinkc-filetests",
   "zint",
   "zink-codegen",
   "zink",
