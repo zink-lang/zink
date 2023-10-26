@@ -1,8 +1,11 @@
 packages = [
+  "zabi",
   "zingen",
-  "zint",
   "zinkc",
+  "zinkc-filetests",
+  "zint",
   "zink-codegen",
   "zink",
+  "elko",
   "zinkup"
 ]

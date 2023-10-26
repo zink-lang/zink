@@ -210,29 +210,38 @@ impl<'d> Dispatcher<'d> {
     // 1. drop selector.
     // 2. load calldata to stack.
     // 3. jump to the callee function.
-    fn process(&mut self, sig: &FuncType) -> Result<()> {
+    fn process(&mut self, len: usize, last: bool) -> Result<()> {
+        let len = len as u8;
+        if last && len == 0 {
+            return Ok(());
+        }
+
         self.asm.increment_sp(1)?;
         let asm = self.asm.clone();
-        let len = sig.params().len() as u8;
-
         {
-            // TODO: check the safety of this.
-            //
-            // [ callee, ret, selector ] -> [ selector, callee, ret ]
-            self.asm.shift_stack(2, false)?;
-            // [ selector, callee, ret ] -> [ callee, ret ]
-            self.asm._drop()?;
-            // [ callee, ret ] -> [ param * len, callee, ret ]
-            for p in (0..len).rev() {
-                let offset = 4 + p * 32;
-                self.asm.push(&offset.to_ls_bytes())?;
-                self.asm._calldataload()?;
+            if !last {
+                // TODO: check the safety of this.
+                //
+                // [ callee, ret, selector ] -> [ selector, callee, ret ]
+                self.asm.shift_stack(2, false)?;
+                // [ selector, callee, ret ] -> [ callee, ret ]
+                self.asm._drop()?;
             }
 
-            // [ param * len, callee, ret ] -> [ ret, param * len, callee ]
-            self.asm.shift_stack(len + 1, false)?;
-            // [ ret, param * len, callee ] -> [ callee, ret, param * len ]
-            self.asm.shift_stack(len + 1, false)?;
+            if len > 0 {
+                // [ callee, ret ] -> [ param * len, callee, ret ]
+                for p in (0..len).rev() {
+                    let offset = 4 + p * 32;
+                    self.asm.push(&offset.to_ls_bytes())?;
+                    self.asm._calldataload()?;
+                }
+
+                // [ param * len, callee, ret ] -> [ ret, param * len, callee ]
+                self.asm.shift_stack(len + 1, false)?;
+                // [ ret, param * len, callee ] -> [ callee, ret, param * len ]
+                self.asm.shift_stack(len + 1, false)?;
+            }
+
             self.asm._jump()?;
         }
 
@@ -290,7 +299,10 @@ impl<'d> Dispatcher<'d> {
 
         self.asm.push(&selector_bytes)?;
         self.asm._eq()?;
-        self.process(&sig)?;
+        self.process(sig.params().len(), last)?;
+        if last {
+            self.asm.shift_stack(2, false)?;
+        }
         self.asm._jumpi()?;
 
         if !last {

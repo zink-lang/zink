@@ -9,7 +9,7 @@ pub use traits::{Event, Storage};
 pub use zink_codegen::{external, storage, Event};
 
 // Panic hook implementation
-#[cfg(not(test))]
+#[cfg(target_arch = "wasm32")]
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}

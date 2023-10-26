@@ -15,9 +15,9 @@ pub struct Compiler {
 }
 
 impl Compiler {
-    /// Embed dispatcher in bytecode.
-    pub fn with_dispatcher(&mut self) -> &mut Self {
-        self.dispatcher = true;
+    /// If embed dispatcher in bytecode.
+    pub fn dispatcher(mut self, dispatcher: bool) -> Self {
+        self.dispatcher = dispatcher;
         self
     }
 

@@ -1,24 +1,26 @@
+[workspace]
+members = [
+  "abi",
+  "cli",
+  "cli/conta",
+  "cli/elko",
+  "codegen",
+  "codegen/opcodes",
+  "compiler",
+  "compiler/filetests",
+  # "tests",
+  "zink/codegen",
+  "zint",
+]
+resolver = "2"
+
 [workspace.package]
-version = "0.1.4"
+version = "0.1.5-pre.2"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
 homepage = "https://github.com/clearloop/zink"
 repository = "https://github.com/clearloop/zink.git"
-
-[workspace]
-members = [
-  "cli",
-  "codegen",
-  "codegen/abi",
-  "codegen/opcodes",
-  "compiler",
-  "utils/*",
-  "zink",
-  "zink/codegen",
-  "zint"
-]
-resolver = "2"
 
 [workspace.dependencies]
 anyhow = "1.0.71"
@@ -52,16 +54,44 @@ wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
 wat = "1.0.75"
 
-# Local Dependencies.
-zabi = { path = "codegen/abi", version = "=0.1.4" }
-zinkup = { path = "cli", version = "=0.1.4" }
+elko = { path = "cli/elko", version = "=0.1.5-pre.2" }
 opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
-zingen =  { path = "codegen", version = "=0.1.4" }
-zinkc = { path = "compiler", version = "=0.1.4" }
-zink = { path = "zink", version = "=0.1.4" }
-zink-codegen = { path = "zink/codegen", version = "=0.1.4" }
-zint = { path = "zint", version = "=0.1.4" }
+zabi = { path = "abi", version = "=0.1.5-pre.2" }
+zinkup = { path = "cli", version = "=0.1.5-pre.2" }
+zingen =  { path = "codegen", version = "=0.1.5-pre.2" }
+zinkc = { path = "compiler", version = "=0.1.5-pre.2" }
+zinkc-filetests = { path = "compiler/filetests", version = "=0.1.5-pre.2" }
+zink = { path = ".", version = "=0.1.5-pre.2" }
+zink-codegen = { path = "zink/codegen", version = "=0.1.5-pre.2" }
+zint = { path = "zint", version = "=0.1.5-pre.2" }
 
 [profile]
 dev = { panic = "abort"}
 release = { panic = "unwind" }
+
+# Zink Programming Language
+# -------------------------
+
+[package]
+name = "zink"
+description = "Standard library for zink projects."
+documentation = "https://docs.rs/zink"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme = "zink/README.md"
+
+[lib]
+path = "zink/src/lib.rs"
+
+[dependencies]
+zink-codegen.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+anyhow.workspace = true
+paste.workspace = true
+zinkc-filetests.workspace = true
+zint.workspace = true

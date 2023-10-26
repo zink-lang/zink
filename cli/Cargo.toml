@@ -10,32 +10,26 @@ homepage.workspace = true
 repository.workspace = true
 
 [[bin]]
-path = "bin/elko.rs"
-name = "elko"
-required-features = ["elko"]
+name = "zinkc"
+required-features = [ "zinkc" ]
 
 [[bin]]
-path = "bin/zinkc.rs"
-name = "zinkc"
-required-features = ["zinkc"]
+name = "elko"
+required-features = [ "elko" ]
 
 [dependencies]
 anyhow.workspace = true
-cargo_metadata = { workspace = true, optional = true }
-clap = { workspace = true, features = ["derive"] }
+clap = { workspace = true, features = [ "derive" ] }
 color-eyre.workspace = true
-colored = { workspace = true, optional = true }
-etc = { workspace = true, optional = true }
-semver = { workspace = true, optional = true }
-serde = { workspace = true, optional = true, features = [ "derive" ] }
-thiserror = { workspace = true, optional = true }
-toml = { workspace = true, optional = true }
-tracing.workspace = true
-tracing-subscriber = { workspace = true, features = ["std", "env-filter"] }
-wasm-opt = { workspace = true, optional = true }
+tracing-subscriber = { workspace = true, features = [ "env-filter" ] }
+
+elko = { workspace = true, optional = true }
 zinkc = { workspace = true, optional = true }
 
+[dev-dependencies]
+zink.workspace = true
+
 [features]
-default = ["elko", "zinkc"]
-elko = [ "cargo_metadata", "colored", "etc", "semver", "serde", "thiserror", "toml", "wasm-opt", "zinkc" ]
+default = [ "elko", "zinkc" ]
+elko = [ "dep:elko" ]
 zinkc = [ "dep:zinkc" ]

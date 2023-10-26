@@ -1,7 +1,6 @@
 [package]
-name = "zint"
-description = "Zink testing utils"
-documentation = "https://docs.rs/zint"
+name = "elko"
+description = "Zink package manager."
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -11,14 +10,14 @@ repository.workspace = true
 
 [dependencies]
 anyhow.workspace = true
+clap = { workspace = true, features = [ "derive" ] }
 cargo_metadata.workspace = true
+colored.workspace = true
 etc.workspace = true
-hex.workspace = true
-revm.workspace = true
+semver.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
-tracing.workspace = true
-tracing-subscriber = { workspace = true, features = ["env-filter"]}
+thiserror.workspace = true
 toml.workspace = true
+tracing.workspace = true
 wasm-opt.workspace = true
-zabi.workspace = true
 zinkc.workspace = true

@@ -16,6 +16,9 @@ pub struct Compile {
     /// Write output to \<filename\>
     #[clap(short, long)]
     output: Option<PathBuf>,
+    /// If enable dispatcher.
+    #[clap(short, long)]
+    dispatcher: bool,
 }
 
 impl Compile {
@@ -27,7 +30,9 @@ impl Compile {
             env::current_dir()?.join(self.input.with_extension(""))
         };
 
-        let bin = Compiler::default().compile(&fs::read(&self.input)?)?;
+        let bin = Compiler::default()
+            .dispatcher(self.dispatcher)
+            .compile(&fs::read(&self.input)?)?;
         fs::write(output, bin)?;
         Ok(())
     }
