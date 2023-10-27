@@ -226,6 +226,8 @@ impl<'d> Dispatcher<'d> {
                 self.asm.shift_stack(2, false)?;
                 // [ selector, ret, callee ] -> [ ret, callee ]
                 self.asm._drop()?;
+            } else {
+                self.asm._swap1()?;
             }
 
             if len > 0 {
