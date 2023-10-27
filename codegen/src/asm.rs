@@ -42,6 +42,15 @@ impl Assembler {
 
     /// Increment stack pointer
     pub fn increment_sp(&mut self, items: u8) -> Result<()> {
+        if items == 0 {
+            return Ok(());
+        }
+
+        tracing::trace!(
+            "increment stack pointer {}({items}) -> {}",
+            self.sp,
+            self.sp + items
+        );
         self.sp += items;
 
         // TODO: fix this limitation: should be 1024. (#127)
@@ -54,12 +63,20 @@ impl Assembler {
 
     /// Decrement stack pointer
     pub fn decrement_sp(&mut self, items: u8) -> Result<()> {
+        if items == 0 {
+            return Ok(());
+        }
+
+        tracing::trace!(
+            "decrement stack pointer {}({items}) -> {}",
+            self.sp,
+            self.sp - items
+        );
         self.sp = self
             .sp
             .checked_sub(items)
             .ok_or(Error::StackUnderflow(self.sp, items))?;
 
-        // tracing::debug!("decrement sp: {items} -> {}", self.sp);
         Ok(())
     }
 

@@ -242,6 +242,8 @@ impl<'d> Dispatcher<'d> {
                 self.asm.shift_stack(len, false)?;
                 // [ ret, param * len, callee ] -> [ callee, ret, param * len ]
                 self.asm.shift_stack(len + 1, false)?;
+            } else {
+                self.asm._swap1()?;
             }
 
             self.asm._jump()?;
@@ -280,19 +282,22 @@ impl<'d> Dispatcher<'d> {
             .ok_or(Error::FuncNotFound(func))?
             .sig()?;
 
-        // Prepare the `PC` of the callee function.
-        //
-        // TODO: remove this (#160)
+        // TODO: optimize this on parameter length (#165)
         {
-            self.asm.increment_sp(1)?;
-            self.table.call(self.asm.pc_offset(), func);
-            self.asm._jumpdest()?;
-        }
+            // Prepare the `PC` of the callee function.
+            //
+            // TODO: remove this (#160)
+            {
+                self.asm.increment_sp(1)?;
+                self.table.call(self.asm.pc_offset(), func);
+                self.asm._jumpdest()?;
+            }
 
-        // Jump to the end of the current function.
-        //
-        // TODO: detect the bytes of the position. (#157)
-        self.ext_return(&sig)?;
+            // Jump to the end of the current function.
+            //
+            // TODO: detect the bytes of the position. (#157)
+            self.ext_return(&sig)?;
+        }
 
         if last {
             self.asm._swap2()?;

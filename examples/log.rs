@@ -37,3 +37,48 @@ pub fn log4() {
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
+
+#[test]
+fn test() -> anyhow::Result<()> {
+    use zint::{Bytes32, Contract};
+    let mut contract = Contract::search("log")?.compile()?;
+
+    let info = contract.execute(["log0()"])?;
+    assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
+
+    let info = contract.execute(["log1()"])?;
+    assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
+    assert_eq!(info.logs[0].topics, vec![b"pong".to_vec().to_bytes32()]);
+
+    let info = contract.execute(["log2()"])?;
+    assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
+    assert_eq!(
+        info.logs[0].topics,
+        vec![b"pong".to_vec().to_bytes32(), b"ping".to_vec().to_bytes32()]
+    );
+
+    let info = contract.execute(["log3()"])?;
+    assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
+    assert_eq!(
+        info.logs[0].topics,
+        vec![
+            b"pong".to_vec().to_bytes32(),
+            b"ping".to_vec().to_bytes32(),
+            b"pong".to_vec().to_bytes32()
+        ]
+    );
+
+    let info = contract.execute(["log4()"])?;
+    assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
+    assert_eq!(
+        info.logs[0].topics,
+        vec![
+            b"pong".to_vec().to_bytes32(),
+            b"ping".to_vec().to_bytes32(),
+            b"pong".to_vec().to_bytes32(),
+            b"pong".to_vec().to_bytes32()
+        ]
+    );
+
+    Ok(())
+}
