@@ -454,13 +454,14 @@ dependencies = [
 
 [[package]]
 name = "const-hex"
-version = "1.9.1"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c37be52ef5e3b394db27a2341010685ad5103c72ac15ce2e9420a7e8f93f342c"
+checksum = "a5104de16b218eddf8e34ffe2f86f74bfa4e61e95a1b89732fccf6325efd0557"
 dependencies = [
  "cfg-if",
  "cpufeatures",
  "hex",
+ "proptest",
  "serde",
 ]
 
@@ -492,9 +493,9 @@ checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
 
 [[package]]
 name = "cpufeatures"
-version = "0.2.10"
+version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fbc60abd742b35f2492f808e1abbb83d45f72db402e14c55057edc9c7b1e9e4"
+checksum = "ce420fe07aecd3e67c5f910618fe65e94158f6dcc0adf44e00d69ce2bdfe0fd0"
 dependencies = [
  "libc",
 ]
@@ -672,7 +673,7 @@ checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
 name = "elko"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -1407,9 +1408,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.3.5"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "567664f262709473930a4bf9e51bf2ebf3348f2e748ccc50dea20646858f8f29"
+checksum = "4722d768eff46b75989dd134e5c353f0d6296e5aaa3132e776cbdb56be7731aa"
 dependencies = [
  "bitflags 1.3.2",
 ]
@@ -1582,9 +1583,9 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-version = "0.38.20"
+version = "0.38.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67ce50cb2e16c2903e30d1cbccfd8387a74b9d4c938b6a4c5ec6cc7556f7a8a0"
+checksum = "2b426b0506e5d50a7d8dafcf2e81471400deb602392c7dd110815afb4eaf02a3"
 dependencies = [
  "bitflags 2.4.1",
  "errno",
@@ -1663,18 +1664,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.189"
+version = "1.0.190"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e422a44e74ad4001bdc8eede9a4570ab52f71190e9c076d14369f38b9200537"
+checksum = "91d3c334ca1ee894a2c6f6ad698fe8c435b76d504b13d436f0685d648d6d96f7"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.189"
+version = "1.0.190"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e48d1f918009ce3145511378cf68d613e3b3d9137d67272562080d68a2b32d5"
+checksum = "67c5609f394e5c2bd7fc51efda478004ea80ef42fee983d5c67a65e34f32c0e3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1862,9 +1863,9 @@ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 
 [[package]]
 name = "tempfile"
-version = "3.8.0"
+version = "3.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb94d2f3cc536af71caac6b6fcebf65860b347e7ce0cc9ebe8f70d3e521054ef"
+checksum = "7ef1adac450ad7f4b3c28589471ade84f25f731a7a0fe30d71dfa9f60fd808e5"
 dependencies = [
  "cfg-if",
  "fastrand",
@@ -2339,7 +2340,7 @@ dependencies = [
 
 [[package]]
 name = "zabi"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "hex",
  "postcard",
@@ -2350,18 +2351,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.7.15"
+version = "0.7.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81ba595b9f2772fbee2312de30eeb80ec773b4cb2f1e8098db024afadda6c06f"
+checksum = "ede7d7c7970ca2215b8c1ccf4d4f354c4733201dfaaba72d44ae5b37472e4901"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.7.15"
+version = "0.7.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "772666c41fb6dceaf520b564b962d738a8e1a83b41bd48945f50837aed78bb1d"
+checksum = "4b27b1bb92570f989aac0ab7e9cbfbacdd65973f7ee920d9f0e71ebac878fd0b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2390,7 +2391,7 @@ dependencies = [
 
 [[package]]
 name = "zingen"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "evm-opcodes",
@@ -2405,7 +2406,7 @@ dependencies = [
 
 [[package]]
 name = "zink"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "paste",
@@ -2416,7 +2417,7 @@ dependencies = [
 
 [[package]]
 name = "zink-codegen"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2426,7 +2427,7 @@ dependencies = [
 
 [[package]]
 name = "zinkc"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "etc",
@@ -2443,7 +2444,7 @@ dependencies = [
 
 [[package]]
 name = "zinkc-filetests"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -2459,7 +2460,7 @@ dependencies = [
 
 [[package]]
 name = "zinkup"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "clap",
@@ -2472,7 +2473,7 @@ dependencies = [
 
 [[package]]
 name = "zint"
-version = "0.1.5-pre.2"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "cargo_metadata",

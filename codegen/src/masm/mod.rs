@@ -144,6 +144,7 @@ impl MacroAssembler {
 
     /// Swap memory by target index.
     pub fn swap(&mut self, index: u8) -> Result<()> {
+        tracing::trace!("swap index: {}", index);
         match index {
             0 => Ok(()),
             1 => self.asm._swap1(),
@@ -168,6 +169,7 @@ impl MacroAssembler {
 
     /// Duplicate stack item by target index.
     pub fn dup(&mut self, index: u8) -> Result<()> {
+        tracing::trace!("dup index: {}", index);
         match index {
             0 => Ok(()),
             1 => self.asm._dup1(),

@@ -8,53 +8,10 @@ use crate::{
 impl JumpTable {
     /// Shift program counter for all items.
     pub fn shift_pc(&mut self, start: u16, offset: u16) -> Result<()> {
-        tracing::debug!("shift pc: 0x{:x} -> 0x{:x}", start, offset);
+        tracing::trace!("shift pc from 0x{start:x} with offset={offset}");
         self.shift_label_pc(start, offset)?;
         self.shift_label_target(start, offset)?;
         self.shift_func_target(start, offset)?;
-
-        Ok(())
-    }
-
-    /// Update program counter for all items.
-    pub fn update_pc(&mut self) -> Result<()> {
-        self.jump
-            .clone()
-            .iter()
-            .try_for_each(|(pc, _jump)| -> Result<()> {
-                self.shift_pc(*pc, relocate::offset(*pc)?)?;
-                Ok(())
-            })
-    }
-
-    /// Shift the target program counters.
-    pub fn shift_targets(&mut self) -> Result<()> {
-        self.jump
-            .clone()
-            .keys()
-            .try_for_each(|pc| -> Result<()> { self.shift_target(*pc, relocate::offset(*pc)?) })
-    }
-
-    /// Shift the program counter of targets with given ptr and offset.
-    pub fn shift_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
-        self.code.shift(offset);
-        self.shift_label_target(ptr, offset)?;
-        self.shift_func_target(ptr, offset)
-    }
-
-    /// Shift program counter for functions.
-    pub fn shift_func_target(&mut self, start: u16, offset: u16) -> Result<()> {
-        self.func.values_mut().try_for_each(|v| {
-            if *v > start {
-                tracing::debug!("shift function target: 0x{:x} -> 0x{:x}", v, *v + offset);
-                *v += offset;
-                if *v > BUFFER_LIMIT as u16 {
-                    return Err(Error::InvalidPC(*v as usize));
-                }
-            }
-
-            Ok(())
-        })?;
 
         Ok(())
     }
@@ -67,7 +24,10 @@ impl JumpTable {
             .map(|(k, v)| {
                 let mut k = *k;
                 if k > start {
-                    tracing::debug!("shift label pc: 0x{:x} -> 0x{:x}", k, k + offset);
+                    tracing::trace!(
+                        "shift {v:x?} pc with offset={offset}: 0x{k:x}(0x{start:x}) -> 0x{:x}",
+                        k + offset
+                    );
                     k += offset;
                     if k > BUFFER_LIMIT as u16 {
                         return Err(Error::InvalidPC(k as usize));
@@ -81,15 +41,60 @@ impl JumpTable {
         Ok(())
     }
 
+    /// Shift the target program counters.
+    ///
+    /// Calculating target pc from the offset of original pc.
+    pub fn shift_targets(&mut self) -> Result<()> {
+        let mut total_offset = 0;
+        self.jump
+            .clone()
+            .keys()
+            .try_for_each(|original_pc| -> Result<()> {
+                let pc = original_pc + total_offset;
+                let offset = relocate::offset(pc)?;
+                total_offset += offset;
+                self.shift_target(pc, offset)
+            })
+    }
+
+    /// Shift the program counter of targets with given ptr and offset.
+    ///
+    /// 1. shift code section.
+    /// 2. shift label targets.
+    /// 3. shift function targets.
+    pub fn shift_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
+        self.code.shift(offset);
+        self.shift_label_target(ptr, offset)?;
+        self.shift_func_target(ptr, offset)
+    }
+
+    /// Shift program counter for functions.
+    pub fn shift_func_target(&mut self, start: u16, offset: u16) -> Result<()> {
+        self.func.iter_mut().try_for_each(|(k, v)| {
+            if *v > start {
+                tracing::trace!(
+                    "shift Func({k}) target with offset={offset}: 0x{v:x}(0x{start:x}) -> 0x{:x}",
+                    *v + offset
+                );
+                *v += offset;
+                if *v > BUFFER_LIMIT as u16 {
+                    return Err(Error::InvalidPC(*v as usize));
+                }
+            }
+
+            Ok(())
+        })?;
+
+        Ok(())
+    }
+
     /// Shift target program counter for labels.
     pub fn shift_label_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
-        self.jump.values_mut().try_for_each(|target| {
+        self.jump.iter_mut().try_for_each(|(pc, target)| {
             if let Jump::Label(label) = target {
                 if *label > ptr {
-                    tracing::debug!(
-                        "shift label target, original: 0x{:x}, cmp: 0x{:x}, after: 0x{:x}",
-                        label,
-                        ptr,
+                    tracing::trace!(
+                        "shift Label(pc=0x{pc:x}) target with offset={offset} 0x{label:x}(0x{ptr:x}) -> 0x{:x}",
                         *label + offset
                     );
                     *label += offset;

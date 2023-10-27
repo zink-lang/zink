@@ -1,7 +1,6 @@
 //! Control flow visitors
 
 use crate::{
-    code::ExtFunc,
     control::{ControlStackFrame, ControlStackFrameType},
     CodeGen, Result,
 };
@@ -88,23 +87,16 @@ impl CodeGen {
     /// The select instruction selects one of its first two operands based
     /// on whether its third oprand is zero or not.
     ///
-    /// STACK: [val1, val2, cond] -> \[val1\] if cond is non-zero, \[val2\] otherwise.
+    /// STACK: [cond, val2, val1] -> \[val1\] if cond is non-zero, \[val2\] otherwise.
     pub fn _select(&mut self) -> Result<()> {
         tracing::trace!("select");
-        let ext = ExtFunc::select();
-
-        // Reorder the stack inputs.
-        self.masm._pc()?;
-        self.masm._swap2()?;
-        self.masm._swap1()?;
-
-        // Decrement the stack pointer.
-        self.masm.decrement_sp(ext.stack_in)?;
-
-        self.table.ext(self.masm.pc_offset(), ext.clone());
+        self.masm._iszero()?;
+        self.masm.increment_sp(1)?;
+        self.table.offset(self.masm.pc_offset(), 4);
         self.masm._jumpi()?;
+        self.masm._drop()?;
         self.masm._jumpdest()?;
-        self.masm.increment_sp(ext.stack_out)?;
+
         Ok(())
     }
 
@@ -147,10 +139,10 @@ impl CodeGen {
         if let Ok(frame) = self.control.pop() {
             self.handle_frame_popping(frame)
         } else if !self.is_main {
-            tracing::debug!("end of call");
+            tracing::trace!("end of call");
             self.handle_call_return()
         } else {
-            tracing::debug!("end of main function");
+            tracing::trace!("end of main function");
             self.handle_return()
         }
     }

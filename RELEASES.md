@@ -2,21 +2,28 @@
 
 ### Added
 
-- Crate `zabi`
 - Function dispatcher
-- new `proc-macro` `zink::external`
-- `dispatcher` flag for `elko` and `zinkc`
-- Jump with offset in jump table
+  - Crate `zabi`
+  - Host function `emit_abi`
+  - new `proc-macro` `zink::external`
+  - `dispatcher` flag for `elko` and `zinkc`
+  - Jump with offset in jump table
 - `Contract` instance in `zint`
-- Host function `emit_abi`
-- filetests for the compiler
+  - Built-in tests for all examples
+  - filetests of the compiler
 
-## Changed
+### Changed
 
 - Map functions in codegen for different usages
 - Move `zink` to the top level
 - Move previous compiler tests to the top level
 - Move examples out of crates
+- The PC order of return and callee labels
+
+#### Fixed
+
+- Add up original PC offset while shifting themselves in PC relocation
+- clean stack on loading data from data section
 
 ---
 

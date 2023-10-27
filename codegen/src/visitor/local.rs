@@ -20,7 +20,7 @@ impl CodeGen {
         let local = self.locals.get(index)?;
         let local_sp = local.sp as u8;
 
-        tracing::debug!("local_set: {index} {local_sp} {sp}");
+        tracing::trace!("local_set: {index} {local_sp} {sp}");
         self.masm.swap(sp - local_sp - 1)?;
         self.masm._drop()?;
 
@@ -60,11 +60,18 @@ impl CodeGen {
             return Err(Error::InvalidLocalIndex(local_index));
         }
 
+        // If local is already on stack.
+        if self.masm.buffer().len() == self.locals.len() + 1 {
+            return Ok(());
+        }
+
+        tracing::debug!("buffer: {:?}", self.masm.buffer());
+
         let local = self.locals.get(local_index)?;
         let local_sp = local.sp as u8;
         let sp = self.masm.sp();
 
-        tracing::debug!("local_get: {local_index} {local_sp} {sp}");
+        tracing::trace!("local_get: {local_index} {local_sp} {sp}");
 
         // TODO: Arthmetic checks
         self.masm.dup(sp - local_sp)?;

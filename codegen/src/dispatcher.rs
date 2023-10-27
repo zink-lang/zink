@@ -210,10 +210,10 @@ impl<'d> Dispatcher<'d> {
     // 1. drop selector.
     // 2. load calldata to stack.
     // 3. jump to the callee function.
-    fn process(&mut self, len: usize, last: bool) -> Result<()> {
+    fn process(&mut self, len: usize, last: bool) -> Result<bool> {
         let len = len as u8;
         if last && len == 0 {
-            return Ok(());
+            return Ok(false);
         }
 
         self.asm.increment_sp(1)?;
@@ -222,24 +222,28 @@ impl<'d> Dispatcher<'d> {
             if !last {
                 // TODO: check the safety of this.
                 //
-                // [ callee, ret, selector ] -> [ selector, callee, ret ]
+                // [ ret, callee, selector ] -> [ selector, ret, callee ]
                 self.asm.shift_stack(2, false)?;
-                // [ selector, callee, ret ] -> [ callee, ret ]
+                // [ selector, ret, callee ] -> [ ret, callee ]
                 self.asm._drop()?;
+            } else {
+                self.asm._swap1()?;
             }
 
             if len > 0 {
-                // [ callee, ret ] -> [ param * len, callee, ret ]
+                // [ ret, callee ] -> [ param * len, ret, callee ]
                 for p in (0..len).rev() {
                     let offset = 4 + p * 32;
                     self.asm.push(&offset.to_ls_bytes())?;
                     self.asm._calldataload()?;
                 }
 
-                // [ param * len, callee, ret ] -> [ ret, param * len, callee ]
-                self.asm.shift_stack(len + 1, false)?;
+                // [ param * len, ret, callee ] -> [ ret, param * len, callee ]
+                self.asm.shift_stack(len, false)?;
                 // [ ret, param * len, callee ] -> [ callee, ret, param * len ]
                 self.asm.shift_stack(len + 1, false)?;
+            } else {
+                self.asm._swap1()?;
             }
 
             self.asm._jump()?;
@@ -257,7 +261,7 @@ impl<'d> Dispatcher<'d> {
             stack_out: 1,
         };
         self.table.ext(self.asm.pc_offset(), ret);
-        Ok(())
+        Ok(true)
     }
 
     /// Emit selector to buffer.
@@ -265,10 +269,10 @@ impl<'d> Dispatcher<'d> {
         let abi = self.load_abi(selector)?;
         let selector_bytes = abi.selector();
 
-        tracing::debug!(
+        tracing::trace!(
             "Emitting selector {:?} for function: {}",
             selector_bytes,
-            abi.name
+            abi.signature()
         );
 
         let func = self.query_func(&abi.name)?;
@@ -278,30 +282,34 @@ impl<'d> Dispatcher<'d> {
             .ok_or(Error::FuncNotFound(func))?
             .sig()?;
 
-        // Jump to the end of the current function.
-        //
-        // TODO: detect the bytes of the position. (#157)
-        self.ext_return(&sig)?;
-
-        // Prepare the `PC` of the callee function.
+        // TODO: optimize this on parameter length (#165)
         {
+            // Prepare the `PC` of the callee function.
+            //
             // TODO: remove this (#160)
-            self.asm._jumpdest()?;
-            self.asm.increment_sp(1)?;
-            self.table.call(self.asm.pc_offset(), func);
+            {
+                self.asm.increment_sp(1)?;
+                self.table.call(self.asm.pc_offset(), func);
+                self.asm._jumpdest()?;
+            }
+
+            // Jump to the end of the current function.
+            //
+            // TODO: detect the bytes of the position. (#157)
+            self.ext_return(&sig)?;
         }
 
-        if !last {
-            self.asm._dup3()?;
-        } else {
+        if last {
             self.asm._swap2()?;
+        } else {
+            self.asm._dup3()?;
         }
 
         self.asm.push(&selector_bytes)?;
         self.asm._eq()?;
-        self.process(sig.params().len(), last)?;
-        if last {
-            self.asm.shift_stack(2, false)?;
+        let processed = self.process(sig.params().len(), last)?;
+        if last && !processed {
+            self.asm._swap1()?;
         }
         self.asm._jumpi()?;
 
