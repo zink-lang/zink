@@ -210,10 +210,10 @@ impl<'d> Dispatcher<'d> {
     // 1. drop selector.
     // 2. load calldata to stack.
     // 3. jump to the callee function.
-    fn process(&mut self, len: usize, last: bool) -> Result<()> {
+    fn process(&mut self, len: usize, last: bool) -> Result<bool> {
         let len = len as u8;
         if last && len == 0 {
-            return Ok(());
+            return Ok(false);
         }
 
         self.asm.increment_sp(1)?;
@@ -226,10 +226,13 @@ impl<'d> Dispatcher<'d> {
                 self.asm.shift_stack(2, false)?;
                 // [ selector, callee, ret ] -> [ callee, ret ]
                 self.asm._drop()?;
+            } else {
+                self.asm._swap1()?;
             }
 
             if len > 0 {
-                // [ callee, ret ] -> [ param * len, callee, ret ]
+                // last: [ callee, ret ] -> [ param * len, ret, callee ]
+                // !last: [ callee, ret ] -> [ param * len, callee, ret ]
                 for p in (0..len).rev() {
                     let offset = 4 + p * 32;
                     self.asm.push(&offset.to_ls_bytes())?;
@@ -257,7 +260,7 @@ impl<'d> Dispatcher<'d> {
             stack_out: 1,
         };
         self.table.ext(self.asm.pc_offset(), ret);
-        Ok(())
+        Ok(true)
     }
 
     /// Emit selector to buffer.
@@ -268,7 +271,7 @@ impl<'d> Dispatcher<'d> {
         tracing::debug!(
             "Emitting selector {:?} for function: {}",
             selector_bytes,
-            abi.name
+            abi.signature()
         );
 
         let func = self.query_func(&abi.name)?;
@@ -291,16 +294,16 @@ impl<'d> Dispatcher<'d> {
             self.table.call(self.asm.pc_offset(), func);
         }
 
-        if !last {
-            self.asm._dup3()?;
-        } else {
+        if last {
             self.asm._swap2()?;
+        } else {
+            self.asm._dup3()?;
         }
 
         self.asm.push(&selector_bytes)?;
         self.asm._eq()?;
-        self.process(sig.params().len(), last)?;
-        if last {
+        let processed = self.process(sig.params().len(), last)?;
+        if last && !processed {
             self.asm.shift_stack(2, false)?;
         }
         self.asm._jumpi()?;

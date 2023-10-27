@@ -15,7 +15,7 @@ impl JumpTable {
         self.shift_targets()?;
         tracing::debug!("code section offset: 0x{:x}", self.code.offset());
         while let Some((pc, jump)) = self.jump.pop_first() {
-            tracing::debug!("run relocateion for {jump:?}",);
+            tracing::trace!("run relocateion for {jump:?}",);
 
             let offset = relocate::offset(pc)?;
             let mut target = self.target(&jump)?;
@@ -76,7 +76,7 @@ fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16, offset: u16) -> Res
     }
 
     let pc_offset = target_pc.to_ls_bytes();
-    tracing::debug!("push bytes: 0x{:x?} at 0x{:x}", pc_offset, original_pc);
+    tracing::trace!("push bytes: 0x{:x?} at 0x{:x}", pc_offset, original_pc);
     new_buffer.extend_from_slice(&pc_offset);
     new_buffer.extend_from_slice(&rest_buffer);
 

@@ -29,7 +29,7 @@ impl Code {
 
     /// Shift the code section.
     pub fn shift(&mut self, offset: u16) {
-        tracing::debug!("shift code section by 0x{:x} bytes.", offset);
+        tracing::trace!("shift code section by 0x{:x} bytes.", offset);
         let offset = offset as usize;
         self.offset += offset;
         self.funcs.values_mut().for_each(|pc| *pc += offset);

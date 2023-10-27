@@ -21,6 +21,7 @@ pub fn external(mut item: ItemFn) -> TokenStream {
         let selector = parse_selector(&item.sig);
         let selector_len = selector.len() as u32;
         let doc = " EVM selector for the function `".to_string() + &func + "`";
+        println!("selector: {}", selector);
 
         parse_quote! {
             #[no_mangle]

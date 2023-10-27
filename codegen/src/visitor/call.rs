@@ -16,18 +16,16 @@ impl CodeGen {
 
     /// The call instruction calls a function specified by its index.
     pub fn _call(&mut self, index: u32) -> Result<()> {
-        // TODO: check the safety of the function index.
-        let base = self.imports.len() as u32;
-
-        if base > index {
+        if self.imports.len() as u32 > index {
             self.call_imported(index)
         } else {
-            self.call_internal(base + index)
+            self.call_internal(index)
         }
     }
 
     /// Call internal functions
     fn call_internal(&mut self, index: u32) -> Result<()> {
+        tracing::debug!("call internal function: index={index}");
         // record the current program counter and
         // pass it to the callee function.
         self.table.offset(self.masm.pc_offset(), 6);
@@ -52,6 +50,7 @@ impl CodeGen {
 
     /// Call imported functions
     fn call_imported(&mut self, index: u32) -> Result<()> {
+        tracing::debug!("call imported function: index={index}");
         // call an imported function.
         //
         // register the imported function index to the jump table.

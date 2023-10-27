@@ -34,6 +34,7 @@ impl Test {
 }
 
 /// Generate tests for different modules.
+#[allow(clippy::crate_in_macro_def)]
 #[macro_export]
 macro_rules! impl_tests {
     (

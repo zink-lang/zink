@@ -10,10 +10,18 @@ use std::{
 use wasm_opt::OptimizationOptions;
 use zinkc::Compiler;
 
+/// Cargo Manifest for parsing package.
+#[derive(Deserialize)]
+struct Manifest {
+    /// The package.
+    pub package: Package,
+}
+
 /// Cargo Package for parsing package name.
 #[derive(Deserialize)]
 struct Package {
-    name: String,
+    /// Package name.
+    pub name: String,
 }
 
 /// Contract instance for testing.
@@ -76,15 +84,18 @@ impl Contract {
             .compile(&self.wasm)?
             .to_vec();
 
-        tracing::trace!("bytecode: {:?}", hex::encode(&self.bytecode));
+        tracing::debug!("bytecode: {:?}", hex::encode(&self.bytecode));
         Ok(self)
     }
 
     /// Load zink contract defined in the current
     /// package.
+    ///
+    /// NOTE: This only works if the current contract
+    /// is not an example.
     pub fn current() -> Result<Self> {
         let manifest = fs::read_to_string(etc::find_up("Cargo.toml")?)?;
-        let name = toml::from_str::<Package>(&manifest)?.name;
+        let name = toml::from_str::<Manifest>(&manifest)?.package.name;
 
         Self::search(&name)
     }
@@ -134,7 +145,6 @@ impl Contract {
             calldata.extend_from_slice(&input.to_bytes32());
         }
 
-        tracing::debug!("calldata: 0x{:?}", hex::encode(&calldata));
         Ok(EVM::run(&self.bytecode, &calldata))
     }
 }
