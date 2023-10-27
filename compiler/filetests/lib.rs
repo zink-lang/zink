@@ -37,21 +37,23 @@ impl Test {
 #[macro_export]
 macro_rules! impl_tests {
     (
-        tests: [$($test:ident),+],
-        modules: $modules:tt
+        tests: $tests:tt,
+        modules: [$($mod:expr),+]
     ) => {
         $(
-            impl_tests!(@test $test $modules);
+            impl_tests!(@module $mod, $tests);
         )*
     };
-    (@test $test:ident [$($mod:expr),*]) => {
-        $(
-            paste::paste! {
-                #[test]
-                fn [<$mod _ $test>]() -> anyhow::Result<()> {
-                    $test($mod)
-                }
+    (@module  $module:tt, [$($test:ident),+]) => {
+        paste::paste! {
+            mod [< $module >] {
+                $(
+                    #[test]
+                    fn $test() -> anyhow::Result<()> {
+                        crate::$test($module)
+                    }
+                )*
             }
-        )*
-    };
+        }
+    }
 }
