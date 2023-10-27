@@ -222,25 +222,22 @@ impl<'d> Dispatcher<'d> {
             if !last {
                 // TODO: check the safety of this.
                 //
-                // [ callee, ret, selector ] -> [ selector, callee, ret ]
+                // [ ret, callee, selector ] -> [ selector, ret, callee ]
                 self.asm.shift_stack(2, false)?;
-                // [ selector, callee, ret ] -> [ callee, ret ]
+                // [ selector, ret, callee ] -> [ ret, callee ]
                 self.asm._drop()?;
-            } else {
-                self.asm._swap1()?;
             }
 
             if len > 0 {
-                // last: [ callee, ret ] -> [ param * len, ret, callee ]
-                // !last: [ callee, ret ] -> [ param * len, callee, ret ]
+                // [ ret, callee ] -> [ param * len, ret, callee ]
                 for p in (0..len).rev() {
                     let offset = 4 + p * 32;
                     self.asm.push(&offset.to_ls_bytes())?;
                     self.asm._calldataload()?;
                 }
 
-                // [ param * len, callee, ret ] -> [ ret, param * len, callee ]
-                self.asm.shift_stack(len + 1, false)?;
+                // [ param * len, ret, callee ] -> [ ret, param * len, callee ]
+                self.asm.shift_stack(len, false)?;
                 // [ ret, param * len, callee ] -> [ callee, ret, param * len ]
                 self.asm.shift_stack(len + 1, false)?;
             }
@@ -281,18 +278,19 @@ impl<'d> Dispatcher<'d> {
             .ok_or(Error::FuncNotFound(func))?
             .sig()?;
 
+        // Prepare the `PC` of the callee function.
+        //
+        // TODO: remove this (#160)
+        {
+            self.asm.increment_sp(1)?;
+            self.table.call(self.asm.pc_offset(), func);
+            self.asm._jumpdest()?;
+        }
+
         // Jump to the end of the current function.
         //
         // TODO: detect the bytes of the position. (#157)
         self.ext_return(&sig)?;
-
-        // Prepare the `PC` of the callee function.
-        {
-            // TODO: remove this (#160)
-            self.asm._jumpdest()?;
-            self.asm.increment_sp(1)?;
-            self.table.call(self.asm.pc_offset(), func);
-        }
 
         if last {
             self.asm._swap2()?;
@@ -304,7 +302,7 @@ impl<'d> Dispatcher<'d> {
         self.asm._eq()?;
         let processed = self.process(sig.params().len(), last)?;
         if last && !processed {
-            self.asm.shift_stack(2, false)?;
+            self.asm._swap1()?;
         }
         self.asm._jumpi()?;
 
