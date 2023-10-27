@@ -82,7 +82,7 @@ pub enum Error {
     #[error("Function selector is not found.")]
     SelectorNotFound,
     /// Failed to index data on stack.
-    #[error("Stack index is out of range {0}, max is 32 (0x400)")]
+    #[error("Stack index is out of range {0}, max is 255 (0x400)")]
     StackIndexOutOfRange(u8),
     /// Failed to increment stack pointer.
     #[error("Stack overflow, max is 1024 stack items, got {0}")]

@@ -60,6 +60,13 @@ impl CodeGen {
             return Err(Error::InvalidLocalIndex(local_index));
         }
 
+        // If local is already on stack.
+        if self.masm.buffer().len() == self.locals.len() + 1 {
+            return Ok(());
+        }
+
+        tracing::debug!("buffer: {:?}", self.masm.buffer());
+
         let local = self.locals.get(local_index)?;
         let local_sp = local.sp as u8;
         let sp = self.masm.sp();

@@ -33,11 +33,12 @@ impl MacroAssembler {
     pub fn call_return(&mut self, results: &[ValType]) -> Result<()> {
         let len = results.len() as u8;
         let sp = self.sp();
+        tracing::trace!("current stack items: {sp}");
         for i in 0..len {
             // TODO: arthmetic overflow.
             //
-            // 2 is for PC & self.
-            self.swap(sp - i - 2)?;
+            // 2 is for PC and self.
+            self.swap(sp.saturating_sub(i).saturating_sub(2))?;
         }
 
         tracing::trace!("cleaning frame stack, target: {}", len + 1);
