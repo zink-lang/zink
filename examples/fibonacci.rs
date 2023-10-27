@@ -40,13 +40,13 @@ fn test() -> anyhow::Result<()> {
     let info = contract.execute([selector, &3usize.to_bytes32()])?;
     assert_eq!(2.to_bytes32().to_vec(), info.ret);
 
-    // // x = 4
-    // let info = contract.execute([selector, &4usize.to_bytes32()])?;
-    // assert_eq!(3.to_bytes32().to_vec(), info.ret);
+    // x = 4
+    let info = contract.execute([selector, &4usize.to_bytes32()])?;
+    assert_eq!(3.to_bytes32().to_vec(), info.ret);
 
-    // // x = 5
-    // let info = contract.execute([selector, &5usize.to_bytes32()])?;
-    // assert_eq!(5.to_bytes32().to_vec(), info.ret);
+    // x = 5
+    let info = contract.execute([selector, &5usize.to_bytes32()])?;
+    assert_eq!(5.to_bytes32().to_vec(), info.ret);
 
     Ok(())
 }

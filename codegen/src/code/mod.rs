@@ -61,7 +61,7 @@ impl Code {
     pub fn finish(&self) -> Vec<u8> {
         let mut code = Vec::new();
         for func in self.funcs.keys() {
-            tracing::debug!("add function to code section: {:?}", func);
+            tracing::trace!("add function to code section: {:?}", func);
             code.extend(func.bytecode.clone());
         }
         code

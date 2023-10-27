@@ -77,7 +77,7 @@ impl Compiler {
         let func_index = func.index();
         let sig = func.sig()?;
 
-        tracing::debug!("compile function {}: {:?}", func_index, sig);
+        tracing::trace!("compile function {}: {:?}", func_index, sig);
 
         let is_main = if self.dispatcher {
             false

@@ -40,7 +40,7 @@ impl MacroAssembler {
             self.swap(sp - i - 2)?;
         }
 
-        tracing::debug!("cleaning frame stack, target: {}", len + 1);
+        tracing::trace!("cleaning frame stack, target: {}", len + 1);
         while self.sp() > len + 1 {
             self._drop()?;
         }

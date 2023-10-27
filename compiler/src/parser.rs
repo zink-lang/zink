@@ -96,7 +96,7 @@ impl<'p> Parser<'p> {
         })) = iter.next()
         {
             if let Ok(func) = Func::try_from((module, name)) {
-                tracing::debug!("imported function: {}::{} at {index}", module, name);
+                tracing::trace!("imported function: {}::{} at {index}", module, name);
                 imports.insert(index, func);
                 index += 1;
             }

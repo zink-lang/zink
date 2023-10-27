@@ -25,7 +25,7 @@ impl CodeGen {
 
     /// Call internal functions
     fn call_internal(&mut self, index: u32) -> Result<()> {
-        tracing::debug!("call internal function: index={index}");
+        tracing::trace!("call internal function: index={index}");
         // record the current program counter and
         // pass it to the callee function.
         self.table.offset(self.masm.pc_offset(), 6);
@@ -50,7 +50,7 @@ impl CodeGen {
 
     /// Call imported functions
     fn call_imported(&mut self, index: u32) -> Result<()> {
-        tracing::debug!("call imported function: index={index}");
+        tracing::trace!("call imported function: index={index}");
         // call an imported function.
         //
         // register the imported function index to the jump table.

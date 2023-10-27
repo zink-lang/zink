@@ -267,7 +267,7 @@ impl<'d> Dispatcher<'d> {
         let abi = self.load_abi(selector)?;
         let selector_bytes = abi.selector();
 
-        tracing::debug!(
+        tracing::trace!(
             "Emitting selector {:?} for function: {}",
             selector_bytes,
             abi.signature()

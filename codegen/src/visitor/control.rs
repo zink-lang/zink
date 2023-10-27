@@ -147,10 +147,10 @@ impl CodeGen {
         if let Ok(frame) = self.control.pop() {
             self.handle_frame_popping(frame)
         } else if !self.is_main {
-            tracing::debug!("end of call");
+            tracing::trace!("end of call");
             self.handle_call_return()
         } else {
-            tracing::debug!("end of main function");
+            tracing::trace!("end of main function");
             self.handle_return()
         }
     }

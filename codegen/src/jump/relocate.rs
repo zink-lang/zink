@@ -13,9 +13,10 @@ impl JumpTable {
     /// considering move it to the compiler.
     pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
         self.shift_targets()?;
-        tracing::debug!("code section offset: 0x{:x}", self.code.offset());
+        tracing::trace!("code section offset: 0x{:x}", self.code.offset());
+
         while let Some((pc, jump)) = self.jump.pop_first() {
-            tracing::trace!("run relocateion for {jump:?}",);
+            tracing::trace!("run relocation for {jump:?}");
 
             let offset = relocate::offset(pc)?;
             let mut target = self.target(&jump)?;
