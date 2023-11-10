@@ -24,6 +24,7 @@ mod asm;
 mod backtrace;
 mod code;
 mod codegen;
+mod constructor;
 mod control;
 mod data;
 mod dispatcher;
