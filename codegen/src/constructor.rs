@@ -1,6 +1,6 @@
 //! Contract constructor.
 
-use crate::{Buffer, CodeGen, Function, JumpTable, MacroAssembler, Result};
+use crate::{Buffer, CodeGen, Function, JumpTable, MacroAssembler, Result, ToLSBytes};
 
 /// Contract constructor.
 ///
@@ -30,7 +30,8 @@ impl Constructor {
                 constructor.sig()?,
                 Default::default(),
                 Default::default(),
-                true,
+                // No `return` instruction in the generated code.
+                false,
             )?;
 
             let mut jump_table = JumpTable::default();
@@ -46,7 +47,56 @@ impl Constructor {
     }
 
     /// Concat the constructor code.
-    pub fn finish(&self) -> Result<Buffer> {
+    ///
+    /// Here we override the memory totally with
+    /// the runtime bytecode.
+    pub fn finish(&mut self) -> Result<Buffer> {
+        let init_code_length = self.init_code.len();
+        let runtime_bytecode_length = self.runtime_bytecode.len();
+
+        // Copy init code and runtime bytecode to memory from offset 0.
+        //
+        // 1. code size ( init_code + runtime_bytecode )
+        // 2. byte offset of code which is fixed to N.
+        // 3. destination offset which is fixed to 0.
+        {
+            self.masm
+                .push(&(init_code_length + runtime_bytecode_length).to_ls_bytes())?;
+            self.masm._push0()?;
+            // # SAFETY
+            //
+            // The length of the most significiant bytes of
+            // the bytecode offset is fixed to 1.
+            self.masm
+                .push(&((self.masm.pc_offset() as usize + 8).to_ls_bytes()))?;
+            self.masm._codecopy()?;
+        }
+
+        // Process instruction `CREATE`
+        {
+            self.masm._push0()?;
+            self.masm._push0()?;
+            self.masm._push0()?;
+            self.masm._calldataload()?;
+            self.masm._create()?;
+        }
+
+        self.masm.buffer_mut().extend_from_slice(&self.init_code);
+
+        // Process `RETURN`.
+        //
+        // 1. size of the runtime bytecode
+        // 2. offset of the runtime bytecode in memory
+        {
+            self.masm.push(&init_code_length.to_ls_bytes())?;
+            self.masm.push(&runtime_bytecode_length.to_ls_bytes())?;
+            self.masm._return()?;
+        }
+
+        self.masm
+            .buffer_mut()
+            .extend_from_slice(&self.runtime_bytecode);
+
         Ok(self.masm.buffer().into())
     }
 }
