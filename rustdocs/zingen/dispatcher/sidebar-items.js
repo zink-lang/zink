@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Dispatcher","Function","Functions"]};
+window.SIDEBAR_ITEMS = {"struct":["Dispatcher"]};
