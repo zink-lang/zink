@@ -30,3 +30,13 @@ pub fn constructor(value: i32) {
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
+
+#[test]
+fn test() -> anyhow::Result<()> {
+    use zint::Contract;
+    let mut _contract = Contract::search("constructor")?
+        .constructor(true)
+        .compile()?;
+
+    Ok(())
+}

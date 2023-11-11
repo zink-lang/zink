@@ -31,6 +31,8 @@ pub struct Contract {
     pub bytecode: Vec<u8>,
     /// If enable dispatcher.
     pub dispatcher: bool,
+    /// If enable constructor.
+    pub constructor: bool,
     /// The source WASM of the contract.
     pub wasm: Vec<u8>,
 }
@@ -72,6 +74,12 @@ impl Contract {
     }
 
     /// Disable dispatcher.
+    pub fn constructor(mut self, constructor: bool) -> Self {
+        self.constructor = constructor;
+        self
+    }
+
+    /// Disable dispatcher.
     pub fn without_dispatcher(mut self) -> Self {
         self.dispatcher = false;
         self
@@ -80,6 +88,7 @@ impl Contract {
     /// Compile WASM to EVM bytecode.
     pub fn compile(mut self) -> Result<Self> {
         self.bytecode = Compiler::default()
+            .constructor(self.constructor)
             .dispatcher(self.dispatcher)
             .compile(&self.wasm)?
             .to_vec();
@@ -103,6 +112,8 @@ impl Contract {
     /// Search for zink contract in the target
     /// directory.
     pub fn search(name: &str) -> Result<Self> {
+        crate::setup_logger();
+
         let target = Self::target_dir()?;
         let search = |profile: &str| -> Result<PathBuf> {
             let target = target.join(profile);

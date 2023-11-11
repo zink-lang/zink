@@ -46,6 +46,17 @@ impl Constructor {
         })
     }
 
+    fn return_instr_length(init_code_length: usize, runtime_bytecode_length: usize) -> usize {
+        let mut expected_length =
+            runtime_bytecode_length.to_ls_bytes().len() + init_code_length.to_ls_bytes().len() + 3;
+
+        if init_code_length < 0xff && init_code_length + expected_length > 0xff {
+            expected_length += 1;
+        }
+
+        expected_length
+    }
+
     /// Concat the constructor code.
     ///
     /// Here we override the memory totally with
@@ -53,22 +64,25 @@ impl Constructor {
     pub fn finish(&mut self) -> Result<Buffer> {
         let init_code_length = self.init_code.len();
         let runtime_bytecode_length = self.runtime_bytecode.len();
+        let return_instr_length =
+            Self::return_instr_length(init_code_length, runtime_bytecode_length);
 
         // Copy init code and runtime bytecode to memory from offset 0.
         //
-        // 1. code size ( init_code + runtime_bytecode )
+        // 1. code size ( init_code + instr_return + runtime_bytecode )
         // 2. byte offset of code which is fixed to N.
         // 3. destination offset which is fixed to 0.
         {
-            self.masm
-                .push(&(init_code_length + runtime_bytecode_length).to_ls_bytes())?;
-            self.masm._push0()?;
+            self.masm.push(
+                &(init_code_length + return_instr_length + runtime_bytecode_length).to_ls_bytes(),
+            )?;
             // # SAFETY
             //
             // The length of the most significiant bytes of
             // the bytecode offset is fixed to 1.
             self.masm
-                .push(&((self.masm.pc_offset() as usize + 8).to_ls_bytes()))?;
+                .push(&((self.masm.pc_offset() as usize + 9).to_ls_bytes()))?;
+            self.masm._push0()?;
             self.masm._codecopy()?;
         }
 
@@ -88,9 +102,10 @@ impl Constructor {
         // 1. size of the runtime bytecode
         // 2. offset of the runtime bytecode in memory
         {
-            self.masm.push(&init_code_length.to_ls_bytes())?;
             self.masm.push(&runtime_bytecode_length.to_ls_bytes())?;
-            self.masm._return()?;
+            self.masm
+                .push(&(init_code_length + return_instr_length).to_ls_bytes())?;
+            self.masm.asm._return()?;
         }
 
         self.masm
