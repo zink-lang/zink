@@ -10,8 +10,9 @@ pub use crate::{
     constructor::Constructor,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
-    dispatcher::{Dispatcher, Function, Functions},
+    dispatcher::Dispatcher,
     export::Exports,
+    func::{Function, Functions},
     import::{Func, Imports},
     jump::JumpTable,
     local::{LocalSlot, Locals},
@@ -30,6 +31,7 @@ mod control;
 mod data;
 mod dispatcher;
 mod export;
+mod func;
 mod import;
 mod jump;
 mod local;

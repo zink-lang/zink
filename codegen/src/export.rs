@@ -50,7 +50,7 @@ impl Exports {
     pub fn selectors(&self) -> Vec<u32> {
         let mut selectors = Vec::new();
 
-        for (index, export) in self.0.iter() {
+        for (index, export) in self.iter() {
             if export.name.ends_with("_selector") {
                 selectors.push(*index);
             }

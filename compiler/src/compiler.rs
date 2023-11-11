@@ -1,7 +1,9 @@
 //! Zink compiler
 
 use crate::{parser::Parser, Config, Error, Result};
-use zingen::{Buffer, CodeGen, DataSet, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT};
+use zingen::{
+    Buffer, CodeGen, Constructor, DataSet, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT,
+};
 
 /// Zink Compiler
 #[derive(Default)]
@@ -25,16 +27,25 @@ impl Compiler {
     }
 
     /// Compile wasm module to evm bytecode.
-    pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
+    ///
+    /// Returns runtime bytecode.
+    pub fn compile(&mut self, wasm: &[u8]) -> Result<Buffer> {
         let mut parser = Parser::try_from(wasm)?;
+        let constructor = parser.remove_constructor();
 
         self.compile_dispatcher(&mut parser)?;
-
         for func in parser.funcs.into_funcs() {
             self.compile_func(parser.data.clone(), parser.imports.clone(), func)?;
         }
 
-        self.finish()
+        self.table.code_offset(self.buffer.len() as u16);
+        self.table.relocate(&mut self.buffer)?;
+
+        if self.config.constructor {
+            self.bytecode(constructor)
+        } else {
+            Ok(self.buffer.clone())
+        }
     }
 
     /// Compile EVM dispatcher.
@@ -105,18 +116,10 @@ impl Compiler {
         Ok(())
     }
 
-    /// Finish compilation.
-    pub fn finish(mut self) -> Result<Buffer> {
-        tracing::trace!("buffer length {:x}", self.buffer.len());
-        self.table.code_offset(self.buffer.len() as u16);
-        self.table.relocate(&mut self.buffer)?;
-
-        // TODO:
-        //
-        // If constructor is enable,
-        //   returns bytecode,
-        //   else runtime bytecode.
-
-        Ok(self.buffer)
+    /// Returns bytecode.
+    fn bytecode(&self, constructor: Option<Function<'_>>) -> Result<Buffer> {
+        Constructor::new(constructor, self.buffer.clone())?
+            .finish()
+            .map_err(Into::into)
     }
 }
