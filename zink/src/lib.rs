@@ -6,7 +6,7 @@ pub mod ffi;
 mod traits;
 
 pub use traits::{Event, Storage};
-pub use zink_codegen::{external, storage, Event};
+pub use zink_codegen::{constructor, external, storage, Event};
 
 // Panic hook implementation
 #[cfg(target_arch = "wasm32")]

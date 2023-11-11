@@ -7,8 +7,6 @@ use syn::{parse_quote, FnArg, ItemFn, Signature};
 use zabi::Abi;
 
 /// Mark the function as external.
-///
-/// TODO: Generate ABI for functions (#144)
 pub fn external(mut item: ItemFn) -> TokenStream {
     item.sig.abi = Some(parse_quote! { extern "C" });
     item.attrs.push(parse_quote! { #[no_mangle] });

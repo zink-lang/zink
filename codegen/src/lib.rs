@@ -7,10 +7,12 @@ pub use crate::{
     asm::Assembler,
     code::Code,
     codegen::CodeGen,
+    constructor::Constructor,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
-    dispatcher::{Dispatcher, Function, Functions},
+    dispatcher::Dispatcher,
     export::Exports,
+    func::{Function, Functions},
     import::{Func, Imports},
     jump::JumpTable,
     local::{LocalSlot, Locals},
@@ -24,10 +26,12 @@ mod asm;
 mod backtrace;
 mod code;
 mod codegen;
+mod constructor;
 mod control;
 mod data;
 mod dispatcher;
 mod export;
+mod func;
 mod import;
 mod jump;
 mod local;

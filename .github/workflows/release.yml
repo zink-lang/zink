@@ -18,6 +18,6 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
 
       - name: Release packages to crates.io
-        run: cargo run --release --bin conta publish
+        run: cargo run --release --package conta publish
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
