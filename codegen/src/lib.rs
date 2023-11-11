@@ -7,6 +7,7 @@ pub use crate::{
     asm::Assembler,
     code::Code,
     codegen::CodeGen,
+    constructor::Constructor,
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
     dispatcher::{Dispatcher, Function, Functions},

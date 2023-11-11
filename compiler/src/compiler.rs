@@ -1,61 +1,57 @@
 //! Zink compiler
 
-use crate::{parser::Parser, Error, Result};
-use zingen::{
-    Buffer, CodeGen, DataSet, Dispatcher, Exports, Function, Functions, Imports, JumpTable,
-    BUFFER_LIMIT,
-};
+use crate::{parser::Parser, Config, Error, Result};
+use zingen::{Buffer, CodeGen, DataSet, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT};
 
 /// Zink Compiler
 #[derive(Default)]
 pub struct Compiler {
     buffer: Buffer,
     table: JumpTable,
-    dispatcher: bool,
+    config: Config,
 }
 
 impl Compiler {
+    /// If embed constructor in bytecode.
+    pub fn constructor(mut self, constructor: bool) -> Self {
+        self.config.constructor = constructor;
+        self
+    }
+
     /// If embed dispatcher in bytecode.
     pub fn dispatcher(mut self, dispatcher: bool) -> Self {
-        self.dispatcher = dispatcher;
+        self.config.dispatcher = dispatcher;
         self
     }
 
     /// Compile wasm module to evm bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Buffer> {
-        let Parser {
-            imports,
-            data,
-            mut funcs,
-            exports,
-        } = Parser::try_from(wasm)?;
-        tracing::trace!("imports: {:?}", imports);
-        tracing::trace!("data: {:?}", data);
-        tracing::trace!("exports: {:?}", exports);
+        let mut parser = Parser::try_from(wasm)?;
 
-        let selectors = funcs.drain_selectors(&exports);
-        if !selectors.is_empty() && self.dispatcher {
-            self.compile_dispatcher(data.clone(), exports, &funcs, imports.clone(), selectors)?;
-        }
+        self.compile_dispatcher(&mut parser)?;
 
-        for func in funcs.into_funcs() {
-            self.compile_func(data.clone(), imports.clone(), func)?;
+        for func in parser.funcs.into_funcs() {
+            self.compile_func(parser.data.clone(), parser.imports.clone(), func)?;
         }
 
         self.finish()
     }
 
     /// Compile EVM dispatcher.
-    pub fn compile_dispatcher(
-        &mut self,
-        data: DataSet,
-        exports: Exports,
-        funcs: &Functions,
-        imports: Imports,
-        selectors: Functions,
-    ) -> Result<()> {
-        let mut dispatcher = Dispatcher::new(funcs);
-        dispatcher.data(data).exports(exports).imports(imports);
+    ///
+    /// Drain selectors anyway, if dispatcher is
+    /// enabled, compile dispatcher.
+    pub fn compile_dispatcher(&mut self, parser: &mut Parser) -> Result<()> {
+        let selectors = parser.funcs.drain_selectors(&parser.exports);
+        if !self.config.dispatcher {
+            return Ok(());
+        }
+
+        let mut dispatcher = Dispatcher::new(&parser.funcs);
+        dispatcher
+            .data(parser.data.clone())
+            .exports(parser.exports.clone())
+            .imports(parser.imports.clone());
 
         let buffer = dispatcher.finish(selectors, &mut self.table)?;
         self.buffer.extend_from_slice(&buffer);
@@ -78,8 +74,7 @@ impl Compiler {
         let sig = func.sig()?;
 
         tracing::trace!("compile function {}: {:?}", func_index, sig);
-
-        let is_main = if self.dispatcher {
+        let is_main = if self.config.dispatcher {
             false
         } else {
             func_index - (imports.len() as u32) == 0
@@ -115,6 +110,12 @@ impl Compiler {
         tracing::trace!("buffer length {:x}", self.buffer.len());
         self.table.code_offset(self.buffer.len() as u16);
         self.table.relocate(&mut self.buffer)?;
+
+        // TODO:
+        //
+        // If constructor is enable,
+        //   returns bytecode,
+        //   else runtime bytecode.
 
         Ok(self.buffer)
     }

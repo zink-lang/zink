@@ -6,14 +6,14 @@ use std::{
 };
 
 /// WASM export.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Export {
     /// Name of the export.
     pub name: String,
 }
 
 /// WASM exports
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Exports(BTreeMap<u32, Export>);
 
 impl Deref for Exports {
