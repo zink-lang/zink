@@ -1,0 +1,14 @@
+[package]
+name = "zsdk"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[dependencies]
+ethers.workspace = true
+hex.workspace = true
+thiserror.workspace = true
+url.workspace = true
