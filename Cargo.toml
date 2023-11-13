@@ -14,7 +14,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.5"
+version = "0.1.6"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -53,16 +53,16 @@ wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
 wat = "1.0.75"
 
-elko = { path = "cli/elko", version = "=0.1.5" }
+elko = { path = "cli/elko", version = "=0.1.6" }
 opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
-zabi = { path = "abi", version = "=0.1.5" }
-zinkup = { path = "cli", version = "=0.1.5" }
-zingen =  { path = "codegen", version = "=0.1.5" }
-zinkc = { path = "compiler", version = "=0.1.5" }
-zinkc-filetests = { path = "compiler/filetests", version = "=0.1.5" }
-zink = { path = ".", version = "=0.1.5" }
-zink-codegen = { path = "zink/codegen", version = "=0.1.5" }
-zint = { path = "zint", version = "=0.1.5" }
+zabi = { path = "abi", version = "=0.1.6" }
+zinkup = { path = "cli", version = "=0.1.6" }
+zingen =  { path = "codegen", version = "=0.1.6" }
+zinkc = { path = "compiler", version = "=0.1.6" }
+zinkc-filetests = { path = "compiler/filetests", version = "=0.1.6" }
+zink = { path = ".", version = "=0.1.6" }
+zink-codegen = { path = "zink/codegen", version = "=0.1.6" }
+zint = { path = "zint", version = "=0.1.6" }
 
 [profile]
 dev = { panic = "abort"}
