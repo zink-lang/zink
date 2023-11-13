@@ -9,7 +9,7 @@ use ethers::{
     types::H160,
     utils::{Anvil, AnvilInstance},
 };
-use result::Result;
+pub use result::Result;
 use std::{str::FromStr, sync::Arc, time::Duration};
 
 mod result;
@@ -30,9 +30,16 @@ pub struct Api {
 }
 
 impl Api {
+    /// Get signer from API.
+    pub fn signer(&self) -> Arc<Signer> {
+        self.signer.clone()
+    }
+
     /// Create a new API instance with anvil.
     pub fn anvil() -> Result<Self> {
-        let anvil = Anvil::new().spawn();
+        let anvil = Anvil::new()
+            .args(["--gas-limit", "2000000000000", "--gas-price", "0"])
+            .spawn();
 
         let mut api = Self::new(
             &anvil.endpoint(),
@@ -89,5 +96,43 @@ impl Api {
             abi.into(),
             self.signer.clone(),
         ))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{Api, Result};
+    use ethers::abi::{Abi, Function, Param, ParamType, StateMutability};
+
+    #[ignore]
+    #[allow(deprecated)]
+    #[tokio::test]
+    async fn deploy() -> Result<()> {
+        let api = Api::anvil()?;
+        let mut abi: Abi = Default::default();
+        abi.functions.insert(
+            "get".into(),
+            vec![Function {
+                name: "get".into(),
+                inputs: Default::default(),
+                outputs: vec![Param {
+                    name: Default::default(),
+                    kind: ParamType::Int(32usize),
+                    internal_type: None,
+                }],
+                constant: None,
+                state_mutability: StateMutability::View,
+            }],
+        );
+        let factory = api.factory(
+            abi,
+            hex::decode("6029600b5f395f5f5f35f060246005f35f3560e01c60135b601b91636d4ce63c1490575b5f5460010190565b60005260206000f3").unwrap(),
+        )?;
+
+        let contract = factory.deploy(())?.send().await?;
+        let r = contract.method::<(), i32>("get", ())?.call().await?;
+        assert_eq!(r, 1);
+
+        Ok(())
     }
 }

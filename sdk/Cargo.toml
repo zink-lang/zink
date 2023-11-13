@@ -12,3 +12,6 @@ ethers.workspace = true
 hex.workspace = true
 thiserror.workspace = true
 url.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = [ "macros", "test-util" ] }

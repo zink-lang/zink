@@ -19,7 +19,7 @@ pub type Counter = i32;
 /// Get value from the storage.
 #[zink::external]
 pub fn get() -> i32 {
-    Counter::get()
+    Counter::get() + 1
 }
 
 /// Set value to the storage.
@@ -34,9 +34,12 @@ fn main() {}
 #[test]
 fn test() -> anyhow::Result<()> {
     use zint::Contract;
-    let mut _contract = Contract::search("constructor")?
+
+    let _contract = Contract::search("constructor")?
         .constructor(true)
         .compile()?;
 
+    // let info = contract.execute(["get()"])?;
+    // assert_eq!(info.ret, 1.to_bytes32());
     Ok(())
 }
