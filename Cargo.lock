@@ -672,7 +672,7 @@ checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
 name = "elko"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -2330,7 +2330,7 @@ dependencies = [
 
 [[package]]
 name = "zabi"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "hex",
  "postcard",
@@ -2381,7 +2381,7 @@ dependencies = [
 
 [[package]]
 name = "zingen"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "evm-opcodes",
@@ -2396,7 +2396,7 @@ dependencies = [
 
 [[package]]
 name = "zink"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "paste",
@@ -2407,7 +2407,7 @@ dependencies = [
 
 [[package]]
 name = "zink-codegen"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2417,7 +2417,7 @@ dependencies = [
 
 [[package]]
 name = "zinkc"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "etc",
@@ -2434,7 +2434,7 @@ dependencies = [
 
 [[package]]
 name = "zinkc-filetests"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -2450,7 +2450,7 @@ dependencies = [
 
 [[package]]
 name = "zinkup"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "clap",
@@ -2463,7 +2463,7 @@ dependencies = [
 
 [[package]]
 name = "zint"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "cargo_metadata",
