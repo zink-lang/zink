@@ -1,3 +1,9 @@
+## v0.1.6
+
+### Added
+
+- Contract constructor implementation.
+
 ## v0.1.5
 
 ### Added

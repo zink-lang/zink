@@ -1,6 +1,6 @@
 //! WASM Builder
 
-use crate::utils::{Profile, Result};
+use crate::utils::Result;
 use anyhow::anyhow;
 use cargo_metadata::{Metadata, MetadataCommand, Package};
 use etc::{Etc, FileSystem};
@@ -46,17 +46,6 @@ impl WasmBuilder {
         })
     }
 
-    /// Get the profile.
-    pub fn profile(&self) -> &Profile {
-        &self.profile
-    }
-
-    /// Set the profile.
-    pub fn with_profile(&mut self, profile: impl Into<Profile>) -> &mut Self {
-        self.profile = profile.into();
-        self
-    }
-
     /// Get the output filename.
     pub fn output(&self) -> Result<PathBuf> {
         let out_dir = self.out_dir()?;
@@ -82,11 +71,7 @@ impl WasmBuilder {
         let out_dir: PathBuf = if let Some(out_dir) = self.out_dir.as_ref() {
             out_dir.into()
         } else {
-            let out_dir = self
-                .metadata
-                .target_directory
-                .join("zink")
-                .join(self.profile.as_ref());
+            let out_dir = self.metadata.target_directory.join("zink");
             if !out_dir.exists() {
                 fs::create_dir_all(&out_dir)?;
             }
@@ -111,7 +96,7 @@ impl WasmBuilder {
 
     /// Compile project to WASM.
     fn compile(&self) -> Result<()> {
-        let mut args = vec![
+        let args = vec![
             "build",
             "--manifest-path",
             self.package.manifest_path.as_str(),
