@@ -9,7 +9,6 @@ use wasm_opt::OptimizationOptions;
 
 /// WASM Builder
 pub struct WasmBuilder {
-    profile: Profile,
     metadata: Metadata,
     package: Package,
     output: Option<PathBuf>,
@@ -40,7 +39,6 @@ impl WasmBuilder {
             .clone();
 
         Ok(Self {
-            profile: Profile::Debug,
             metadata,
             package,
             output: None,
@@ -119,11 +117,8 @@ impl WasmBuilder {
             self.package.manifest_path.as_str(),
             "--target",
             "wasm32-unknown-unknown",
+            "--release",
         ];
-
-        if self.profile == Profile::Release {
-            args.push("--release");
-        }
 
         Command::new("cargo").args(&args).status()?;
         Ok(())
@@ -135,7 +130,7 @@ impl WasmBuilder {
             .metadata
             .target_directory
             .join("wasm32-unknown-unknown")
-            .join(self.profile.as_ref())
+            .join("release")
             .join(self.package.name.as_str())
             .with_extension("wasm");
 

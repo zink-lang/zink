@@ -1,5 +1,5 @@
 //! Command `Build`.
-use crate::utils::{Profile, WasmBuilder};
+use crate::utils::WasmBuilder;
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use etc::{Etc, FileSystem};
@@ -18,9 +18,6 @@ pub struct Build {
     /// Write output to compiler-chosen filename in \<dir\>
     #[clap(long, value_name = "dir")]
     pub out_dir: Option<PathBuf>,
-    /// Optimize with default optimizations
-    #[clap(long)]
-    pub release: bool,
     /// If enable dispatcher.
     #[clap(short, long)]
     pub dispatcher: bool,
@@ -29,12 +26,6 @@ pub struct Build {
 impl Build {
     /// Run build
     pub fn run(&self) -> Result<()> {
-        let profile = if self.release {
-            Profile::Release
-        } else {
-            Profile::Debug
-        };
-
         // Get and check the input.
         let input = if let Some(input) = self.input.as_ref() {
             input.clone()
@@ -64,7 +55,7 @@ impl Build {
                 builder.with_output(output);
             }
 
-            builder.with_profile(profile).build()?;
+            builder.build()?;
         }
 
         // Compile the wasm to evm bytecode.
