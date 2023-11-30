@@ -163,7 +163,7 @@ impl Tests {
     fn push(&mut self, p: &Path, wasm: &[u8]) -> Result<()> {
         let (module, name) = (
             Self::file_name(p.parent().expect("parent not found")),
-            Self::file_name(&p.with_extension("")),
+            Self::file_name(p.with_extension("")),
         );
 
         let ident_name = name.replace('-', "_");
