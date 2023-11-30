@@ -1,6 +1,6 @@
 //! Zink sdk results.
 
-use crate::zethers::Signer;
+use crate::api::Signer;
 
 /// Zint error.
 #[derive(thiserror::Error, Debug)]
