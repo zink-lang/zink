@@ -1,3 +1,9 @@
+## v0.1.7
+
+### Added
+
+- testing utils for deployment
+
 ## v0.1.6
 
 ### Added
@@ -26,7 +32,7 @@
 - Move examples out of crates
 - The PC order of return and callee labels
 
-#### Fixed
+### Fixed
 
 - Add up original PC offset while shifting themselves in PC relocation
 - clean stack on loading data from data section

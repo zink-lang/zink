@@ -39,8 +39,9 @@ pub fn get() -> i32 {
 fn main() {}
 
 #[test]
-fn test() -> anyhow::Result<()> {
+fn selector() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, InstructionResult, U256};
+
     let mut contract = Contract::search("storage")?.compile()?;
 
     {
