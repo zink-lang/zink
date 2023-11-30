@@ -70,3 +70,8 @@ fn test() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+// #[test]
+// fn constructor() {
+//     use zint::{Ethers, Result};
+// }

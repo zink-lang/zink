@@ -3878,19 +3878,7 @@ dependencies = [
  "num_cpus",
  "pin-project-lite",
  "socket2 0.5.5",
- "tokio-macros",
  "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "tokio-macros"
-version = "2.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b8a1e28f2deaa14e508979454cb3a223b10b938b45af148bc0986de36f1923b"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.39",
 ]
 
 [[package]]
@@ -4790,12 +4778,15 @@ dependencies = [
  "anyhow",
  "cargo_metadata 0.15.4",
  "etc",
+ "ethers",
  "hex",
  "revm",
  "serde",
+ "thiserror",
  "toml 0.7.8",
  "tracing",
  "tracing-subscriber",
+ "url",
  "wasm-opt",
  "zabi",
  "zinkc",
@@ -4819,17 +4810,6 @@ dependencies = [
  "sha1",
  "time",
  "zstd",
-]
-
-[[package]]
-name = "zsdk"
-version = "0.1.6"
-dependencies = [
- "ethers",
- "hex",
- "thiserror",
- "tokio",
- "url",
 ]
 
 [[package]]

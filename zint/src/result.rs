@@ -1,8 +1,8 @@
 //! Zink sdk results.
 
-use crate::Signer;
+use crate::ethers::Signer;
 
-/// Zink SDK error.
+/// Zint error.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Ethers abi error.
@@ -19,5 +19,5 @@ pub enum Error {
     Wallet(#[from] ethers::signers::WalletError),
 }
 
-/// Zink SDK result.
+/// Zint result.
 pub type Result<T> = std::result::Result<T, Error>;

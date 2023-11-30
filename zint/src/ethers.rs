@@ -1,5 +1,6 @@
 //! Zink SDK.
 
+use crate::Result;
 use ethers::{
     abi::Abi,
     contract::{BaseContract, Contract, ContractFactory},
@@ -9,17 +10,13 @@ use ethers::{
     types::H160,
     utils::{Anvil, AnvilInstance},
 };
-pub use result::Result;
 use std::{str::FromStr, sync::Arc, time::Duration};
 
-mod result;
+/// Ethers signer middleware.
+pub type Signer = SignerMiddleware<Provider<Http>, LocalWallet>;
 
-type Signer = SignerMiddleware<Provider<Http>, LocalWallet>;
-
-/// Zink SDK API.
-///
-/// TODO: support websocket.
-pub struct Api {
+/// Ethers API.
+pub struct Ethers {
     /// Ethers signer middleware.
     signer: Arc<Signer>,
 
@@ -29,7 +26,7 @@ pub struct Api {
     anvil: Option<AnvilInstance>,
 }
 
-impl Api {
+impl Ethers {
     /// Get signer from API.
     pub fn signer(&self) -> Arc<Signer> {
         self.signer.clone()
@@ -99,40 +96,40 @@ impl Api {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use crate::{Api, Result};
-    use ethers::abi::{Abi, Function, Param, ParamType, StateMutability};
-
-    #[ignore]
-    #[allow(deprecated)]
-    #[tokio::test]
-    async fn deploy() -> Result<()> {
-        let api = Api::anvil()?;
-        let mut abi: Abi = Default::default();
-        abi.functions.insert(
-            "get".into(),
-            vec![Function {
-                name: "get".into(),
-                inputs: Default::default(),
-                outputs: vec![Param {
-                    name: Default::default(),
-                    kind: ParamType::Int(32usize),
-                    internal_type: None,
-                }],
-                constant: None,
-                state_mutability: StateMutability::View,
-            }],
-        );
-        let factory = api.factory(
-            abi,
-            hex::decode("6029600b5f395f5f5f35f060246005f35f3560e01c60135b601b91636d4ce63c1490575b5f5460010190565b60005260206000f3").unwrap(),
-        )?;
-
-        let contract = factory.deploy(())?.send().await?;
-        let r = contract.method::<(), i32>("get", ())?.call().await?;
-        assert_eq!(r, 1);
-
-        Ok(())
-    }
-}
+// #[cfg(test)]
+// mod test {
+//     use crate::{Ethers, Result};
+//     use ethers::abi::{Abi, Function, Param, ParamType, StateMutability};
+//
+//     #[ignore]
+//     #[allow(deprecated)]
+//     #[tokio::test]
+//     async fn deploy() -> Result<()> {
+//         let api = Ethers::anvil()?;
+//         let mut abi: Abi = Default::default();
+//         abi.functions.insert(
+//             "get".into(),
+//             vec![Function {
+//                 name: "get".into(),
+//                 inputs: Default::default(),
+//                 outputs: vec![Param {
+//                     name: Default::default(),
+//                     kind: ParamType::Int(32usize),
+//                     internal_type: None,
+//                 }],
+//                 constant: None,
+//                 state_mutability: StateMutability::View,
+//             }],
+//         );
+//         let factory = api.factory(
+//             abi,
+//             hex::decode("6029600b5f395f5f5f35f060246005f35f3560e01c60135b601b91636d4ce63c1490575b5f5460010190565b60005260206000f3").unwrap(),
+//         )?;
+//
+//         let contract = factory.deploy(())?.send().await?;
+//         let r = contract.method::<(), i32>("get", ())?.call().await?;
+//         assert_eq!(r, 1);
+//
+//         Ok(())
+//     }
+// }

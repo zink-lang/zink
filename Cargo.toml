@@ -8,7 +8,6 @@ members = [
   "codegen/opcodes",
   "compiler",
   "compiler/filetests",
-  "sdk",
   "zink/codegen",
   "zint",
 ]

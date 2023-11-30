@@ -1,1 +1,0 @@
-//! Zink contract factory.
