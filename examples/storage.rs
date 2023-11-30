@@ -71,7 +71,40 @@ fn test() -> anyhow::Result<()> {
     Ok(())
 }
 
-// #[test]
-// fn constructor() {
-//     use zint::{Ethers, Result};
-// }
+#[tokio::test]
+#[allow(deprecated)]
+async fn constructor() -> zint::Result<()> {
+    use zint::{
+        ethers::abi::{Abi, Function, Param, ParamType, StateMutability},
+        Contract, Ethers,
+    };
+    let api = Ethers::anvil()?;
+    let bytecode = Contract::search("storage")?
+        .constructor(true)
+        .compile()?
+        .bytecode;
+
+    // TODO: Generate ABI issue #47
+    let mut abi: Abi = Default::default();
+    abi.functions.insert(
+        "get".into(),
+        vec![Function {
+            name: "get".into(),
+            inputs: Default::default(),
+            outputs: vec![Param {
+                name: Default::default(),
+                kind: ParamType::Int(32usize),
+                internal_type: None,
+            }],
+            constant: None,
+            state_mutability: StateMutability::View,
+        }],
+    );
+
+    let factory = api.factory(abi, bytecode)?;
+    let contract = factory.deploy(())?.legacy().send().await?;
+    let r = contract.method::<(), i32>("get", ())?.call().await?;
+
+    assert_eq!(r, 0);
+    Ok(())
+}

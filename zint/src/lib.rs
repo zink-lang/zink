@@ -1,19 +1,20 @@
 //! Zink testing framework.
 #![deny(missing_docs)]
 
+mod api;
 mod bytes;
 mod contract;
-mod ethers;
 mod evm;
 mod result;
 
 pub use self::{
+    api::Ethers,
     bytes::Bytes32,
     contract::Contract,
-    ethers::Ethers,
     evm::{Info, InstructionResult, EVM, U256},
     result::Result,
 };
+pub use ethers;
 use tracing_subscriber::EnvFilter;
 
 /// Set up the logger.

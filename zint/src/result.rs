@@ -1,6 +1,6 @@
 //! Zink sdk results.
 
-use crate::ethers::Signer;
+use crate::zethers::Signer;
 
 /// Zint error.
 #[derive(thiserror::Error, Debug)]
@@ -8,6 +8,9 @@ pub enum Error {
     /// Ethers abi error.
     #[error(transparent)]
     Abi(#[from] ethers::abi::AbiError),
+    /// Anyhow error.
+    #[error(transparent)]
+    Anyhow(#[from] anyhow::Error),
     /// Ethers contract error.
     #[error(transparent)]
     Contract(#[from] ethers::middleware::contract::ContractError<Signer>),
