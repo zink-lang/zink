@@ -56,16 +56,16 @@ wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
 wat = "1.0.75"
 
-elko = { path = "cli/elko", version = "=0.1.6" }
+elko = { path = "cli/elko", version = "=0.1.7" }
 opcodes = { package = "evm-opcodes", path = "codegen/opcodes", version = "=0.0.3", features = ["data"] }
-zabi = { path = "abi", version = "=0.1.6" }
-zinkup = { path = "cli", version = "=0.1.6" }
-zingen =  { path = "codegen", version = "=0.1.6" }
-zinkc = { path = "compiler", version = "=0.1.6" }
-zinkc-filetests = { path = "compiler/filetests", version = "=0.1.6" }
-zink = { path = ".", version = "=0.1.6" }
-zink-codegen = { path = "zink/codegen", version = "=0.1.6" }
-zint = { path = "zint", version = "=0.1.6" }
+zabi = { path = "abi", version = "=0.1.7" }
+zinkup = { path = "cli", version = "=0.1.7" }
+zingen =  { path = "codegen", version = "=0.1.7" }
+zinkc = { path = "compiler", version = "=0.1.7" }
+zinkc-filetests = { path = "compiler/filetests", version = "=0.1.7" }
+zink = { path = ".", version = "=0.1.7" }
+zink-codegen = { path = "zink/codegen", version = "=0.1.7" }
+zint = { path = "zint", version = "=0.1.7" }
 
 [profile]
 dev = { panic = "abort"}
