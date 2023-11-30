@@ -98,4 +98,3 @@ paste.workspace = true
 zinkc-filetests.workspace = true
 zint.workspace = true
 tokio = { workspace = true, features = [ "macros" ] }
-hex.workspace = true
