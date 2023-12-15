@@ -148,7 +148,7 @@ impl Contract {
                 return Err(anyhow!("no selector provided"));
             }
 
-            calldata.extend_from_slice(&zabi::selector(&inputs[0].to_vec()));
+            calldata.extend_from_slice(&zabi::util::selector(&inputs[0].to_vec()));
             inputs = &inputs[1..];
         }
 
