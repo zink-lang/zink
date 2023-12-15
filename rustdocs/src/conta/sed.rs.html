@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/conta/src/sed.rs`."><title>sed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="conta" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (b10cfcd65 2023-11-29)" data-channel="nightly" data-search-js="search-56a624991a76cfad.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/conta/src/sed.rs`."><title>sed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="conta" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -124,9 +124,9 @@
     path::{Path, PathBuf},
 };
 
-<span class="kw">const </span>WORKSPACE_PACKAGE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;[workspace.package]&quot;</span>;
-<span class="kw">const </span>WORKSPACE_DEPENDENCIES: <span class="kw-2">&amp;</span>str = <span class="string">&quot;[workspace.dependencies]&quot;</span>;
-<span class="kw">const </span>PATT_VERSION: <span class="kw-2">&amp;</span>str = <span class="string">&quot;version = \&quot;&quot;</span>;
+<span class="kw">const </span>WORKSPACE_PACKAGE: <span class="kw-2">&amp;</span>str = <span class="string">"[workspace.package]"</span>;
+<span class="kw">const </span>WORKSPACE_DEPENDENCIES: <span class="kw-2">&amp;</span>str = <span class="string">"[workspace.dependencies]"</span>;
+<span class="kw">const </span>PATT_VERSION: <span class="kw-2">&amp;</span>str = <span class="string">"version = \""</span>;
 
 <span class="doccomment">/// Position of version field
 ///
@@ -137,7 +137,7 @@
 ///
 /// ```toml
 /// [workspace.package]
-/// version = &quot;0.1.0&quot;
+/// version = "0.1.0"
 /// ```
 ///
 /// The range of Pos will be the first and the second quote.
@@ -160,19 +160,19 @@
     </span><span class="kw">pub fn </span>find_version(context: <span class="kw-2">&amp;</span>str, start: usize, patt: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Pos&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>start = context[start..]
             .find(patt)
-            .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;pattern {patt} not found&quot;</span>))<span class="question-mark">?
+            .ok_or(<span class="macro">anyhow!</span>(<span class="string">"pattern {patt} not found"</span>))<span class="question-mark">?
             </span>+ start
             + patt.len();
 
         start = context[start..]
             .find(PATT_VERSION)
-            .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;version not found&quot;</span>))<span class="question-mark">?
+            .ok_or(<span class="macro">anyhow!</span>(<span class="string">"version not found"</span>))<span class="question-mark">?
             </span>+ start
             + PATT_VERSION.len();
 
         <span class="kw">let </span>end = context[start..]
-            .find(<span class="string">&#39;&quot;&#39;</span>)
-            .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;the end of version field is invalid&quot;</span>))<span class="question-mark">?
+            .find(<span class="string">'"'</span>)
+            .ok_or(<span class="macro">anyhow!</span>(<span class="string">"the end of version field is invalid"</span>))<span class="question-mark">?
             </span>+ start;
 
         <span class="prelude-val">Ok</span>(Pos { start, end })
@@ -206,11 +206,11 @@
             <span class="kw">let </span>context = String::from_utf8_lossy(<span class="kw-2">&amp;</span>buf);
             <span class="kw">let </span>start = context
                 .find(WORKSPACE_DEPENDENCIES)
-                .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;workspace.dependencies not found&quot;</span>))<span class="question-mark">?</span>;
+                .ok_or(<span class="macro">anyhow!</span>(<span class="string">"workspace.dependencies not found"</span>))<span class="question-mark">?</span>;
 
             <span class="comment">// TODO: Refactor the lines above
 
-            </span><span class="kw">let </span>pos = <span class="self">Self</span>::find_version(<span class="kw-2">&amp;</span>context, start, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{package} &quot;</span>))<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>pos = <span class="self">Self</span>::find_version(<span class="kw-2">&amp;</span>context, start, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{package} "</span>))<span class="question-mark">?</span>;
             <span class="self">self</span>.set_version(<span class="kw-2">&amp;</span>version.to_string(), <span class="kw-2">&amp;</span>pos)<span class="question-mark">?</span>;
         }
 

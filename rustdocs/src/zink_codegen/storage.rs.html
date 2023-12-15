@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zink/codegen/src/storage.rs`."><title>storage.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (b10cfcd65 2023-11-29)" data-channel="nightly" data-search-js="search-56a624991a76cfad.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zink/codegen/src/storage.rs`."><title>storage.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -76,8 +76,8 @@
     <span class="kw">let </span>variable_type = input.ty.to_token_stream();
 
     <span class="kw">match </span>variable_type.to_string().as_str() {
-        <span class="string">&quot;i32&quot; </span>=&gt; (),
-        <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Only support i32 as storage key for now.&quot;</span>),
+        <span class="string">"i32" </span>=&gt; (),
+        <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">"Only support i32 as storage key for now."</span>),
     };
 
     <span class="comment">// hash-based storage key derivation (we decided that order-based is better)
@@ -86,14 +86,14 @@
     // h.update(variable_name.to_string().as_bytes());
     // let storage_key = h.finalize();
     //
-    // // lmfao i&#39;m sure there&#39;s a better way to do this but i don&#39;t know how
-    // let mut storage_key_string = storage_key.as_slice().into_iter().map(|i| i.to_string()).collect::&lt;Vec&lt;String&gt;&gt;().join(&quot;, &quot;);
-    // storage_key_string.insert(0, &#39;[&#39;);
-    // storage_key_string.push(&#39;]&#39;);
+    // // lmfao i'm sure there's a better way to do this but i don't know how
+    // let mut storage_key_string = storage_key.as_slice().into_iter().map(|i| i.to_string()).collect::&lt;Vec&lt;String&gt;&gt;().join(", ");
+    // storage_key_string.insert(0, '[');
+    // storage_key_string.push(']');
     // let storage_key_literal = syn::parse_str::&lt;ExprArray&gt;(&amp;storage_key_string).unwrap();
 
     </span><span class="kw">static </span>IOTA: AtomicI32 = AtomicI32::new(<span class="number">0</span>);
-    <span class="comment">// temporary solution, we&#39;ll switch to 32 byte storage keys later
+    <span class="comment">// temporary solution, we'll switch to 32 byte storage keys later
     </span><span class="kw">let </span>storage_key = IOTA.fetch_add(<span class="number">1</span>, Relaxed);
 
     <span class="kw">let </span>expanded = <span class="macro">quote! </span>{
@@ -126,8 +126,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_test() {
-        <span class="kw">let </span>expr: ItemType = syn::parse_str(<span class="string">&quot;pub type Counter = i32;&quot;</span>).unwrap();
-        <span class="macro">assert_eq!</span>(parse(expr).to_string().as_str(), <span class="string">&quot;struct Counter ; impl zink :: Storage &lt; i32 &gt; for Counter { const STORAGE_KEY : i32 = 0i32 ; fn get () -&gt; i32 { unsafe { zink :: ffi :: evm :: sload (Self :: STORAGE_KEY) } } fn set (value : i32) { unsafe { zink :: ffi :: evm :: sstore (value , Self :: STORAGE_KEY) ; } } }&quot;</span>);
+        <span class="kw">let </span>expr: ItemType = syn::parse_str(<span class="string">"pub type Counter = i32;"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(parse(expr).to_string().as_str(), <span class="string">"struct Counter ; impl zink :: Storage &lt; i32 &gt; for Counter { const STORAGE_KEY : i32 = 0i32 ; fn get () -&gt; i32 { unsafe { zink :: ffi :: evm :: sload (Self :: STORAGE_KEY) } } fn set (value : i32) { unsafe { zink :: ffi :: evm :: sstore (value , Self :: STORAGE_KEY) ; } } }"</span>);
     }
 }
 </code></pre></div></section></main></body></html>
