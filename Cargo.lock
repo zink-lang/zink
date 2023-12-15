@@ -435,20 +435,6 @@ dependencies = [
 
 [[package]]
 name = "cargo_metadata"
-version = "0.15.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eee4243f1f26fc7a42710e7439c149e2b10b05472f88090acce52632f231a73a"
-dependencies = [
- "camino",
- "cargo-platform",
- "semver",
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "cargo_metadata"
 version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d886547e41f740c616ae73108f6eb70afe6d940c7bc697cb30f13daec073037"
@@ -697,13 +683,13 @@ name = "conta"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "clap",
  "crates-io",
  "curl",
  "semver",
  "serde",
- "toml 0.7.8",
+ "toml",
 ]
 
 [[package]]
@@ -1032,14 +1018,14 @@ name = "elko"
 version = "0.1.7"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "clap",
  "colored",
  "etc",
  "semver",
  "serde",
  "thiserror",
- "toml 0.7.8",
+ "toml",
  "tracing",
  "wasm-opt",
  "zinkc",
@@ -1276,7 +1262,7 @@ dependencies = [
  "serde",
  "serde_json",
  "syn 2.0.41",
- "toml 0.8.8",
+ "toml",
  "walkdir",
 ]
 
@@ -1304,7 +1290,7 @@ checksum = "2f03e0bdc216eeb9e355b90cf610ef6c5bb8aca631f97b5ae9980ce34ea7878d"
 dependencies = [
  "arrayvec",
  "bytes",
- "cargo_metadata 0.18.1",
+ "cargo_metadata",
  "chrono",
  "const-hex",
  "elliptic-curve",
@@ -3932,18 +3918,6 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.7.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd79e69d3b627db300ff956027cc6c3798cef26d22526befdfcd12feeb6d2257"
-dependencies = [
- "serde",
- "serde_spanned",
- "toml_datetime",
- "toml_edit 0.19.15",
-]
-
-[[package]]
-name = "toml"
 version = "0.8.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1a195ec8c9da26928f773888e0742ca3ca1040c6cd859c919c9f59c1954ab35"
@@ -3970,8 +3944,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
 dependencies = [
  "indexmap 2.1.0",
- "serde",
- "serde_spanned",
  "toml_datetime",
  "winnow",
 ]
@@ -4758,7 +4730,7 @@ name = "zinkc-filetests"
 version = "0.1.7"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "proc-macro2",
  "quote",
  "syn 2.0.41",
@@ -4787,14 +4759,14 @@ name = "zint"
 version = "0.1.7"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "etc",
  "ethers",
  "hex",
  "revm",
  "serde",
  "thiserror",
- "toml 0.7.8",
+ "toml",
  "tracing",
  "tracing-subscriber",
  "url",
