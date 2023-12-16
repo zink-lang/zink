@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["PATT_VERSION","WORKSPACE_DEPENDENCIES","WORKSPACE_PACKAGE"],"struct":["Pos","Sed"]};

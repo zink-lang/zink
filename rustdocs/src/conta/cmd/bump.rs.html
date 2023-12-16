@@ -51,29 +51,13 @@
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
-<a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Command bump
-</span><span class="kw">use crate</span>::{Config, Sed};
-<span class="kw">use </span>anyhow::Result;
-<span class="kw">use </span>cargo_metadata::MetadataCommand;
-<span class="kw">use </span>clap::Parser;
-<span class="kw">use </span>semver::{Version, VersionReq};
-<span class="kw">use </span>std::path::PathBuf;
+</span><span class="kw">use </span><span class="kw">crate</span>::Config;
+<span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>ccli::clap::{<span class="self">self</span>, Parser};
+<span class="kw">use </span>semver::Version;
+<span class="kw">use </span>std::{fs, path::PathBuf, str::FromStr};
+<span class="kw">use </span>toml_edit::Document;
 
 <span class="doccomment">/// Bump versions.
 </span><span class="attr">#[derive(Debug, Parser, Clone)]
@@ -84,10 +68,7 @@
     <span class="doccomment">/// Dry run the command and print the result.
     </span><span class="attr">#[clap(short, long, value_name = <span class="string">"dry-run"</span>)]
     </span>dry_run: bool,
-    <span class="comment">// TODO:
-    //
-    // support bump major, minor, patch, pre, build.
-</span>}
+}
 
 <span class="kw">impl </span>Bump {
     <span class="doccomment">/// Bumps the version to the given one.
@@ -95,43 +76,30 @@
     /// NOTE: This implementation only works for workspace
     /// for now.
     </span><span class="kw">pub fn </span>run(<span class="kw-2">&amp;</span><span class="self">self</span>, manifest: <span class="kw-2">&amp;</span>PathBuf, config: Config) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>sed = Sed::new(manifest)<span class="question-mark">?</span>;
-
-        sed.set_workspace_version(<span class="kw-2">&amp;</span><span class="self">self</span>.version)<span class="question-mark">?</span>;
-        <span class="kw">let </span>version_req = <span class="macro">format!</span>(<span class="string">"={}"</span>, <span class="self">self</span>.version);
-        sed.set_dep_versions(<span class="kw-2">&amp;</span>VersionReq::parse(<span class="kw-2">&amp;</span>version_req)<span class="question-mark">?</span>, <span class="kw-2">&amp;</span>config.packages)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>workspace = Document::from_str(<span class="kw-2">&amp;</span>std::fs::read_to_string(manifest)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>version = <span class="self">self</span>.version.to_string();
+        workspace[<span class="string">"workspace"</span>][<span class="string">"package"</span>][<span class="string">"version"</span>] = toml_edit::value(version.clone());
 
         <span class="kw">if </span><span class="self">self</span>.dry_run {
-            <span class="macro">println!</span>(<span class="string">"{}"</span>, String::from_utf8_lossy(<span class="kw-2">&amp;</span>sed.buf));
-        } <span class="kw">else </span>{
-            sed.flush()<span class="question-mark">?</span>;
-            <span class="self">self</span>.verify(manifest, <span class="kw-2">&amp;</span>config.packages)<span class="question-mark">?</span>;
+            <span class="macro">println!</span>(<span class="string">"{workspace}"</span>);
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="prelude-val">Ok</span>(())
-    }
+        <span class="kw">let </span><span class="prelude-val">Some</span>(deps) = workspace[<span class="string">"workspace"</span>][<span class="string">"dependencies"</span>].as_table_mut() <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(
+                <span class="string">"Failed to parse dependencies from workspace {manifest:?}"
+            </span>));
+        };
 
-    <span class="doccomment">/// Get the metadata of the workspace.
-    </span><span class="kw">pub fn </span>verify(<span class="kw-2">&amp;</span><span class="self">self</span>, manifest: <span class="kw-2">&amp;</span>PathBuf, packages: <span class="kw-2">&amp;</span>[String]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>metadata = MetadataCommand::new()
-            .no_deps()
-            .manifest_path(manifest)
-            .exec()<span class="question-mark">?</span>;
-
-        <span class="kw">for </span>package <span class="kw">in </span>metadata.packages.iter() {
-            <span class="kw">if </span>!packages.contains(<span class="kw-2">&amp;</span>package.name) {
-                <span class="kw">continue</span>;
+        <span class="kw">for </span>package <span class="kw">in </span>config.packages {
+            <span class="kw">if </span>!deps.contains_key(<span class="kw-2">&amp;</span>package) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"package {} not found"</span>, package));
             }
 
-            <span class="kw">if </span>package.version != <span class="self">self</span>.version {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(
-                    <span class="string">"incorrect crate version {} in {}"</span>,
-                    <span class="self">self</span>.version,
-                    package.name
-                ));
-            }
+            deps[<span class="kw-2">&amp;</span>package][<span class="string">"version"</span>] = toml_edit::value(version.clone());
         }
 
+        fs::write(manifest, workspace.to_string())<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }

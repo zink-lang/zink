@@ -1,6 +1,6 @@
 var srcIndex = new Map(JSON.parse('[\
 ["ccli",["",[],["lib.rs"]]],\
-["conta",["",[["cmd",[],["bump.rs","mod.rs","publish.rs"]]],["config.rs","lib.rs","sed.rs"]]],\
+["conta",["",[["cmd",[],["bump.rs","mod.rs","publish.rs"]]],["config.rs","lib.rs","version.rs"]]],\
 ["elko",["",[["utils",[],["manifest.rs","mod.rs","result.rs","wasm.rs"]]],["build.rs","lib.rs","new.rs"]]],\
 ["evm_opcodes",["",[],["lib.rs","shanghai.rs"]]],\
 ["sol_abi",["",[],["abi.rs","arg.rs","lib.rs"]]],\

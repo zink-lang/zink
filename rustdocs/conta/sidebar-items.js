@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["cmd","config","sed"],"struct":["Bump","Config","Conta","Publish","Sed"]};
+window.SIDEBAR_ITEMS = {"mod":["cmd","config","version"],"struct":["Bump","Config","Conta","Publish"]};

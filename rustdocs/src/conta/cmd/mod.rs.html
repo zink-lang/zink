@@ -67,12 +67,23 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
 </pre></div><pre class="rust"><code><span class="kw">pub use crate</span>::{
     cmd::{bump::Bump, publish::Publish},
     Config,
 };
 <span class="kw">use </span>anyhow::Result;
-<span class="kw">use </span>clap::Parser;
+<span class="kw">use </span>ccli::{
+    clap::{<span class="self">self</span>, Parser},
+    App,
+};
 <span class="kw">use </span>std::{fs, path::PathBuf};
 
 <span class="kw">mod </span>bump;
@@ -123,15 +134,20 @@
 
         toml::from_str(<span class="kw-2">&amp;</span>fs::read_to_string(path)<span class="question-mark">?</span>).map_err(Into::into)
     }
+}
 
-    <span class="doccomment">/// Process commands
-    </span><span class="kw">pub fn </span>run(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<span class="kw">impl </span>App <span class="kw">for </span>Conta {
+    <span class="kw">fn </span>verbose(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="number">0
+    </span>}
+
+    <span class="kw">fn </span>run(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>manifest = <span class="self">self</span>.manifest();
         <span class="kw">let </span>config = <span class="self">self</span>.config()<span class="question-mark">?</span>;
 
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.command {
             Command::Bump(bump) =&gt; bump.run(<span class="kw-2">&amp;</span>manifest, config),
-            Command::Publish(publish) =&gt; publish.run(<span class="kw-2">&amp;</span>manifest, <span class="kw-2">&amp;</span>config.packages),
+            Command::Publish(publish) =&gt; publish.run(<span class="kw-2">&amp;</span>manifest, config.packages),
         }
     }
 }
