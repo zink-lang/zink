@@ -33,7 +33,11 @@ impl Publish {
     }
 
     /// Publish cargo package
-    fn publish(&self, package: &str) -> Result<bool> {
+    fn publish(&self, mut package: &str) -> Result<bool> {
+        if package == "zinkc-filetests" {
+            package = "filetests";
+        }
+
         let mut cargo = Command::new("cargo");
         cargo.arg("publish").arg("-p").arg(package);
 
@@ -67,13 +71,19 @@ impl Publish {
             .collect::<BTreeMap<_, _>>();
 
         packages
-            .iter()
+            .into_iter()
             .filter_map(|pkg| -> Option<Result<_>> {
-                let Some((name, version)) = pkgs.get_key_value(pkg) else {
+                let pkg = if pkg.as_str() == "filetests" {
+                    "zinkc-filetests".into()
+                } else {
+                    pkg.clone()
+                };
+
+                let Some((name, version)) = pkgs.get_key_value(&pkg) else {
                     return Some(Err(anyhow!("Package {} not found in metadata", pkg)));
                 };
 
-                if let Ok((crates, _total)) = registry.search(pkg, 1) {
+                if let Ok((crates, _total)) = registry.search(&pkg, 1) {
                     if crates.len() == 1 && crates[0].max_version == *version {
                         println!("Package {}@{} has already been published.", name, version);
                         return None;
