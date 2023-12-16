@@ -1,18 +1,25 @@
-//! Input of solidity ABI.
+//! Arg of solidity ABI.
 
-/// Input of solidity ABI.
-#[derive(Debug, Clone)]
+use core::{convert::Infallible, str::FromStr};
+
+#[cfg(not(feature = "std"))]
+use crate::std::{String, ToString};
+
+/// Arg of solidity ABI.
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Input {
+pub struct Arg {
     /// Name of the input.
     pub name: String,
     /// Type of the input.
+    #[cfg_attr(feature = "serde", serde(rename = "type"))]
     pub ty: Param,
 }
 
 /// The canonical type of the parameter.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
 pub enum Param {
     /// A 32-bit integer.
     Int32,
@@ -23,6 +30,7 @@ pub enum Param {
     /// A 64-bit unsigned integer.
     UInt64,
     /// An unknown type.
+    #[default]
     Unknown,
 }
 
@@ -38,6 +46,14 @@ impl From<&str> for Param {
     }
 }
 
+impl FromStr for Param {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(s))
+    }
+}
+
 impl AsRef<str> for Param {
     fn as_ref(&self) -> &str {
         match self {
@@ -47,6 +63,12 @@ impl AsRef<str> for Param {
             Param::UInt64 => "uint64",
             Param::Unknown => "unknown",
         }
+    }
+}
+
+impl ToString for Param {
+    fn to_string(&self) -> String {
+        self.as_ref().to_string()
     }
 }
 

@@ -7,6 +7,7 @@ pub use crate::{
     result::{Error, Result},
 };
 
+pub mod cli;
 mod compiler;
 mod config;
 mod parser;

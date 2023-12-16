@@ -8,7 +8,7 @@ pub mod selector;
 use core::ops::{Deref, DerefMut};
 
 /// Function ABI.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Abi(sol_abi::Abi);
 

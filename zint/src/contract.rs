@@ -8,6 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use wasm_opt::OptimizationOptions;
+use zabi::Abi;
 use zinkc::Compiler;
 
 /// Cargo Manifest for parsing package.
@@ -33,6 +34,8 @@ pub struct Contract {
     pub dispatcher: bool,
     /// If enable constructor.
     pub constructor: bool,
+    /// The ABI of the contract.
+    pub abi: Vec<Abi>,
     /// The source WASM of the contract.
     pub wasm: Vec<u8>,
 }
@@ -85,14 +88,21 @@ impl Contract {
         self
     }
 
+    /// Get the JSON ABI of the contract.
+    pub fn json_abi(&self) -> Result<String> {
+        serde_json::to_string_pretty(&self.abi).map_err(Into::into)
+    }
+
     /// Compile WASM to EVM bytecode.
     pub fn compile(mut self) -> Result<Self> {
-        self.bytecode = Compiler::default()
+        let mut compiler = Compiler::default()
             .constructor(self.constructor)
-            .dispatcher(self.dispatcher)
-            .compile(&self.wasm)?
-            .to_vec();
+            .dispatcher(self.dispatcher);
 
+        self.bytecode = compiler.compile(&self.wasm)?.to_vec();
+        self.abi = compiler.abi();
+
+        tracing::debug!("abi: {:#}", self.json_abi()?);
         tracing::debug!("bytecode: {:?}", hex::encode(&self.bytecode));
         Ok(self)
     }

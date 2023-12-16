@@ -1,6 +1,7 @@
 //! Zink compiler
 
 use crate::{parser::Parser, Config, Error, Result};
+use zabi::Abi;
 use zingen::{
     Buffer, CodeGen, Constructor, DataSet, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT,
 };
@@ -8,6 +9,7 @@ use zingen::{
 /// Zink Compiler
 #[derive(Default)]
 pub struct Compiler {
+    abi: Vec<Abi>,
     buffer: Buffer,
     table: JumpTable,
     config: Config,
@@ -71,6 +73,7 @@ impl Compiler {
             return Err(Error::BufferOverflow(self.buffer.len()));
         }
 
+        self.abi = dispatcher.abi;
         Ok(())
     }
 
@@ -114,6 +117,11 @@ impl Compiler {
         }
 
         Ok(())
+    }
+
+    /// Get the abi of the compiled contract.
+    pub fn abi(&self) -> Vec<Abi> {
+        self.abi.clone()
     }
 
     /// Returns bytecode.

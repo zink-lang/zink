@@ -6,7 +6,7 @@ use indexmap::IndexMap;
 mod func;
 
 /// Code section for EVM.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Code {
     offset: usize,
     /// Function table.

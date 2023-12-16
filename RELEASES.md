@@ -1,10 +1,18 @@
 ## v0.1.8
 
+### Added
+
+- ABI output in zink compiler
+- no_std solidity ABI
+
 ### Changes
 
 - Solidity compatible ABI
 - Refactor `zabi` a wrapper a `sol-abi`
 - Conditional compilation for abi related crates
+- Compile `zinkc` binary in crate `zinkc`
+- Use generated ABI for the constructor tests
+- Rename zinkc-filetests to filetests
 
 ## v0.1.7
 

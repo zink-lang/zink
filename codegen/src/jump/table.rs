@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 
 /// Jump table implementation.
 ///
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct JumpTable {
     /// Jump table.
     pub(crate) jump: BTreeMap<u16, Jump>,

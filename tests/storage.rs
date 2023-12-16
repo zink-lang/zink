@@ -2,7 +2,7 @@
 #![cfg(test)]
 
 use anyhow::Result;
-use zinkc_filetests::Test;
+use filetests::Test;
 use zint::{Bytes32, Contract, InstructionResult, U256};
 
 #[test]

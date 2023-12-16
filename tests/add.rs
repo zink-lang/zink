@@ -2,7 +2,7 @@
 #![cfg(test)]
 
 use anyhow::Result;
-use zinkc_filetests::{impl_tests, Test};
+use filetests::{impl_tests, Test};
 use zint::{Bytes32, Contract};
 
 fn params(module: &str) -> Result<()> {

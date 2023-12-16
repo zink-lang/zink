@@ -1,9 +1,7 @@
 [workspace]
 members = [
   "abi",
-  "cli",
-  "cli/conta",
-  "cli/elko",
+  "cli/*",
   "codegen",
   "compiler",
   "compiler/filetests",
@@ -15,7 +13,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.7"
+version = "0.1.8"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -29,7 +27,7 @@ clap = "4.4.11"
 curl = "0.4.44"
 color-eyre = "0.6.2"
 colored = "2.1.0"
-crates-io = "0.37.0"
+crates-io = "0.39.0"
 etc = "0.1.16"
 ethers = "2.0.11"
 hex = "0.4.3"
@@ -42,32 +40,36 @@ proc-macro2 = "1.0.70"
 quote = "1.0.33"
 revm = "3.5.0"
 semver = "1.0.20"
-serde = "1.0.193"
+serde = { version = "1.0.193", default-features = false }
+serde_json = "1.0.108"
 sha3 = "0.10.8"
 smallvec = "1.11.2"
 syn =  { version = "2.0.41", features = [ "full" ] }
 target-lexicon = "0.12.12"
-thiserror = "1.0.50"
+thiserror = "1.0.51"
 tokio = "1.35.0"
 toml = "0.8.8"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 url = "2.5.0"
-wasm-opt = "0.113.0"
-wasmparser = "0.107.0"
+wasm-opt = "0.116.0"
+wasmparser = "0.118.1"
 wat = "1.0.82"
 
-elko = { path = "cli/elko", version = "=0.1.7" }
-opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = ["data"] }
+## Local packages
+ccli = { path = "cli/cli", version = "=0.0.1" }
 sol-abi = { path = "evm/abi", version = "=0.0.1" }
-zabi = { path = "abi", version = "=0.1.7" }
-zinkup = { path = "cli", version = "=0.1.7" }
-zingen =  { path = "codegen", version = "=0.1.7" }
-zinkc = { path = "compiler", version = "=0.1.7" }
-zinkc-filetests = { path = "compiler/filetests", version = "=0.1.7" }
-zink = { path = ".", version = "=0.1.7" }
-zink-codegen = { path = "zink/codegen", version = "=0.1.7" }
-zint = { path = "zint", version = "=0.1.7" }
+opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = [ "data" ] }
+
+## Zink packages
+elko = { path = "cli/elko", version = "=0.1.8" }
+zabi = { path = "abi", version = "=0.1.8" }
+zingen =  { path = "codegen", version = "=0.1.8" }
+zinkc = { path = "compiler", version = "=0.1.8" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "=0.1.8" }
+zink = { path = ".", version = "=0.1.8" }
+zink-codegen = { path = "zink/codegen", version = "=0.1.8" }
+zint = { path = "zint", version = "=0.1.8" }
 
 [profile]
 dev = { panic = "abort"}
@@ -97,6 +99,6 @@ zink-codegen.workspace = true
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 anyhow.workspace = true
 paste.workspace = true
-zinkc-filetests.workspace = true
+filetests.workspace = true
 zint.workspace = true
 tokio = { workspace = true, features = [ "macros" ] }

@@ -1,17 +1,16 @@
-//! Zink Compiler
+//! Zink compiler.
 #![deny(missing_docs)]
+#![cfg(feature = "cli")]
 
-use clap::Parser;
-use color_eyre::Result;
-use zinkup::{App, Compile};
+use ccli::{clap, App, Parser, Result};
+use zinkc::cli::Compile;
 
-/// Zink Compiler
+/// The Zink Compiler.
 #[derive(Debug, Parser)]
-#[command(name = "zinkc", version)]
+#[command(name = "zinkc", version, arg_required_else_help(true))]
 pub struct Zinkc {
-    /// The entry of the zinkc compiler.
-    #[command(flatten)]
-    pub compile: Compile,
+    #[clap(flatten)]
+    command: Compile,
     /// Verbose mode (-v, -vv, -vvv, etc.)
     #[clap(short, long, action = clap::ArgAction::Count)]
     verbose: u8,
@@ -23,7 +22,7 @@ impl App for Zinkc {
     }
 
     fn run(&self) -> anyhow::Result<()> {
-        self.compile.run()
+        self.command.run()
     }
 }
 
