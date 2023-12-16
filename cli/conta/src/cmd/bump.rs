@@ -25,14 +25,14 @@ impl Bump {
     pub fn run(&self, manifest: &PathBuf, config: Config) -> Result<()> {
         let mut workspace = Document::from_str(&std::fs::read_to_string(manifest)?)?;
         let version = self.version.to_string();
-        workspace["packages"]["version"] = toml_edit::value(version.clone());
+        workspace["workspace"]["package"]["version"] = toml_edit::value(version.clone());
 
         if self.dry_run {
             println!("{workspace}");
             return Ok(());
         }
 
-        let Some(deps) = workspace["worskpace"]["dependencies"].as_table_mut() else {
+        let Some(deps) = workspace["workspace"]["dependencies"].as_table_mut() else {
             return Err(anyhow!(
                 "Failed to parse dependencies from workspace {manifest:?}"
             ));

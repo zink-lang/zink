@@ -37,7 +37,7 @@ postcard = { version = "1.0.8", default-features = false }
 proc-macro2 = "1.0.70"
 quote = "1.0.33"
 revm = "3.5.0"
-reqwest = "0.11.22"
+reqwest = { version = "0.11.22", default-features = false }
 semver = "1.0.20"
 serde = { version = "1.0.193", default-features = false }
 serde_json = "1.0.108"
@@ -62,14 +62,14 @@ sol-abi = { path = "evm/abi", version = "=0.0.1" }
 opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = [ "data" ] }
 
 ## Zink packages
-elko = { path = "cli/elko", version = "=0.1.8" }
-zabi = { path = "abi", version = "=0.1.8" }
-zingen =  { path = "codegen", version = "=0.1.8" }
-zinkc = { path = "compiler", version = "=0.1.8" }
-filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "=0.1.8" }
-zink = { path = ".", version = "=0.1.8" }
-zink-codegen = { path = "zink/codegen", version = "=0.1.8" }
-zint = { path = "zint", version = "=0.1.8" }
+elko = { path = "cli/elko", version = "0.1.8" }
+zabi = { path = "abi", version = "0.1.8" }
+zingen =  { path = "codegen", version = "0.1.8" }
+zinkc = { path = "compiler", version = "0.1.8" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.8" }
+zink = { path = ".", version = "0.1.8" }
+zink-codegen = { path = "zink/codegen", version = "0.1.8" }
+zint = { path = "zint", version = "0.1.8" }
 
 [profile]
 dev = { panic = "abort"}
