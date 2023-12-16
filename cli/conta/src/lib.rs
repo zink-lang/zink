@@ -9,3 +9,4 @@ pub use crate::{
 mod cmd;
 mod config;
 mod sed;
+mod version;

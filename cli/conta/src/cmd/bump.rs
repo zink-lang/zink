@@ -2,7 +2,7 @@
 use crate::{Config, Sed};
 use anyhow::Result;
 use cargo_metadata::MetadataCommand;
-use clap::Parser;
+use ccli::clap::{self, Parser};
 use semver::{Version, VersionReq};
 use std::path::PathBuf;
 

@@ -3,7 +3,10 @@ pub use crate::{
     Config,
 };
 use anyhow::Result;
-use clap::Parser;
+use ccli::{
+    clap::{self, Parser},
+    App,
+};
 use std::{fs, path::PathBuf};
 
 mod bump;
@@ -54,15 +57,20 @@ impl Conta {
 
         toml::from_str(&fs::read_to_string(path)?).map_err(Into::into)
     }
+}
 
-    /// Process commands
-    pub fn run(&self) -> Result<()> {
+impl App for Conta {
+    fn verbose(&self) -> u8 {
+        0
+    }
+
+    fn run(&self) -> Result<()> {
         let manifest = self.manifest();
         let config = self.config()?;
 
         match &self.command {
             Command::Bump(bump) => bump.run(&manifest, config),
-            Command::Publish(publish) => publish.run(&manifest, &config.packages),
+            Command::Publish(publish) => publish.run(&manifest, config.packages),
         }
     }
 }
