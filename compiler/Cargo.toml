@@ -9,6 +9,10 @@ license.workspace = true
 homepage.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "zinkc"
+required-features = [ "cli" ]
+
 [dependencies]
 anyhow.workspace = true
 thiserror.workspace = true

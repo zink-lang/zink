@@ -2,17 +2,16 @@
 #![cfg(feature = "cli")]
 
 use crate::Compiler;
-use ccli::{Parser, Result};
+use ccli::{clap, Parser};
 use std::{env, fs, path::PathBuf};
 
 /// Compile WASM to EVM bytecode.
 #[derive(Debug, Parser)]
-#[command(name = "build", version)]
 pub struct Compile {
     /// The path of the wasm file.
     #[clap(value_name = "INPUT")]
     input: PathBuf,
-    /// Write output to \<filename\>
+    /// Write output to <filename>
     #[clap(short, long)]
     output: Option<PathBuf>,
     /// If enable dispatcher.

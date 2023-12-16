@@ -1,4 +1,4 @@
-//! Common command line inteface.
+//! Common command line interface.
 
 use anyhow::Error;
 pub use clap::{self, Parser};

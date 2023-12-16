@@ -1,14 +1,15 @@
-//! Zink's package manager
+//! The package manager of zink.
 #![deny(missing_docs)]
 
 use ccli::{clap::Subcommand, App, Parser, Result};
-use elko::{Build, New};
+use elko::{Build, Compile, New};
 
 /// Elko commands
 #[derive(Debug, Subcommand)]
 enum Command {
     New(New),
     Build(Build),
+    Compile(Compile),
 }
 
 /// The package manager of zink.
@@ -31,6 +32,7 @@ impl App for Elko {
         match &self.command {
             Command::Build(build) => build.run(),
             Command::New(new) => new.run(),
+            Command::Compile(compile) => compile.run(),
         }
     }
 }

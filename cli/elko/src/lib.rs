@@ -5,3 +5,4 @@ mod new;
 pub mod utils;
 
 pub use self::{build::Build, new::New};
+pub use zinkc::cli::Compile;
