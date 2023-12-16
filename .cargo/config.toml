@@ -1,4 +1,5 @@
 [alias]
+bb = "build --all --all-features --release"
 be = "build --examples --target wasm32-unknown-unknown --release"
 tt = "nextest run --release --all --no-fail-fast"
 te = "nextest run --workspace --no-fail-fast --release --examples"

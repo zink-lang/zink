@@ -1,26 +1,19 @@
 //! Command publish
+
+use crate::version;
 use anyhow::{anyhow, Result};
-use cargo_metadata::MetadataCommand;
-use clap::Parser;
-use crates_io::Registry;
-use curl::easy::Easy;
-use std::{collections::BTreeMap, path::PathBuf, process::Command};
+use ccli::clap::{self, Parser};
+use core::str::FromStr;
+use std::{path::PathBuf, process::Command};
+use toml_edit::Document;
 
 /// Publish crates.
 #[derive(Debug, Parser, Clone)]
-pub struct Publish {
-    /// If allow dirty publish.
-    #[clap(short, long, value_name = "dry-run")]
-    allow_dirty: bool,
-
-    /// If dry run.
-    #[clap(short, long, value_name = "dry-run")]
-    dry_run: bool,
-}
+pub struct Publish;
 
 impl Publish {
     /// Run publish
-    pub fn run(&self, manifest: &PathBuf, packages: &[String]) -> Result<()> {
+    pub fn run(&self, manifest: &PathBuf, packages: Vec<String>) -> Result<()> {
         let pkgs = self.verify(manifest, packages)?;
 
         for pkg in pkgs {
@@ -33,65 +26,48 @@ impl Publish {
     }
 
     /// Publish cargo package
-    fn publish(&self, mut package: &str) -> Result<bool> {
-        if package == "zinkc-filetests" {
-            package = "filetests";
-        }
-
-        let mut cargo = Command::new("cargo");
-        cargo.arg("publish").arg("-p").arg(package);
-
-        if self.dry_run {
-            cargo.arg("--dry-run");
-        }
-
-        if self.allow_dirty {
-            cargo.arg("--allow-dirty");
-        }
-
-        Ok(cargo.status()?.success())
+    fn publish(&self, package: &str) -> Result<bool> {
+        Command::new("cargo")
+            .arg("publish")
+            .arg("-p")
+            .arg(package)
+            .arg("--allow-dirty")
+            .status()
+            .map(|status| status.success())
+            .map_err(|err| err.into())
     }
 
-    fn verify(&self, manifest: &PathBuf, packages: &[String]) -> Result<Vec<String>> {
-        let mut registry = {
-            let mut handle = Easy::new();
-            handle.useragent("zink-lang")?;
-            Registry::new_handle("https://crates.io".into(), None, handle, false)
+    fn verify(&self, manifest: &PathBuf, packages: Vec<String>) -> Result<Vec<String>> {
+        let workspace = Document::from_str(&std::fs::read_to_string(manifest)?)?;
+        let version = workspace["workspace"]["package"]["version"]
+            .as_str()
+            .ok_or_else(|| anyhow!("Failed to parse version from workspace {manifest:?}"))?;
+
+        let Some(deps) = workspace["workspace"]["dependencies"].as_table() else {
+            return Err(anyhow!(
+                "Failed to parse dependencies from workspace {manifest:?}"
+            ));
         };
 
-        let metadata = MetadataCommand::new()
-            .no_deps()
-            .manifest_path(manifest)
-            .exec()?;
+        let mut unpublished = vec![];
+        for package in packages {
+            if !deps.contains_key(&package) {
+                continue;
+            }
 
-        let pkgs = metadata
-            .packages
-            .iter()
-            .map(|pkg| (pkg.name.clone(), pkg.version.to_string()))
-            .collect::<BTreeMap<_, _>>();
+            let name = deps[&package]
+                .get("package")
+                .and_then(|p| p.as_str())
+                .unwrap_or(&package);
 
-        packages
-            .iter()
-            .filter_map(|pkg| -> Option<Result<_>> {
-                let pkg = if pkg.as_str() == "filetests" {
-                    "zinkc-filetests".into()
-                } else {
-                    pkg.clone()
-                };
+            if version::verify(name, version)? {
+                println!("Package {name}@{version} has already been published.");
+                continue;
+            }
 
-                let Some((name, version)) = pkgs.get_key_value(&pkg) else {
-                    return Some(Err(anyhow!("Package {} not found in metadata", pkg)));
-                };
+            unpublished.push(name.into());
+        }
 
-                if let Ok((crates, _total)) = registry.search(&pkg, 1) {
-                    if crates.len() == 1 && crates[0].max_version == *version {
-                        println!("Package {}@{} has already been published.", name, version);
-                        return None;
-                    }
-                }
-
-                Some(Ok(name.clone()))
-            })
-            .collect::<Result<Vec<_>>>()
+        Ok(unpublished)
     }
 }

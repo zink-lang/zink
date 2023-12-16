@@ -1,7 +1,6 @@
-use anyhow::Result;
-use clap::Parser;
+use ccli::{App, Result};
 use conta::Conta;
 
 fn main() -> Result<()> {
-    Conta::parse().run()
+    Conta::start()
 }

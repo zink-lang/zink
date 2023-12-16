@@ -11,10 +11,9 @@ repository.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-cargo_metadata.workspace = true
-clap = { workspace = true, features = [ "derive" ] }
-crates-io.workspace = true
-curl.workspace = true
+ccli.workspace = true
+reqwest = { workspace = true, features = [ "blocking", "json", "default-tls" ] }
 semver.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
 toml.workspace = true
+toml_edit.workspace = true

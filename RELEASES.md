@@ -1,3 +1,13 @@
+## v0.1.9
+
+### Changes
+
+- Refactor conta with `toml_edit`
+
+### FIXED
+
+- Missing logic of adapt package alias in conta
+
 ## v0.1.8
 
 ### Added
