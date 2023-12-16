@@ -9,12 +9,14 @@ pub struct Input {
     /// Name of the input.
     pub name: String,
     /// Type of the input.
+    #[serde(rename = "type")]
     pub ty: Param,
 }
 
 /// The canonical type of the parameter.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[serde(rename_all = "lowercase")]
 pub enum Param {
     /// A 32-bit integer.
     Int32,
@@ -58,6 +60,12 @@ impl AsRef<str> for Param {
             Param::UInt64 => "uint64",
             Param::Unknown => "unknown",
         }
+    }
+}
+
+impl ToString for Param {
+    fn to_string(&self) -> String {
+        self.as_ref().to_string()
     }
 }
 

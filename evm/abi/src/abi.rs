@@ -10,6 +10,7 @@ pub struct Abi {
     /// ABI name.
     pub name: String,
     /// ABI type.
+    #[serde(rename = "type")]
     pub ty: Type,
     /// ABI inputs.
     pub inputs: Vec<Input>,
@@ -40,6 +41,7 @@ impl From<&syn::Signature> for Abi {
 /// Solidity ABI type.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[serde(rename_all = "lowercase")]
 pub enum Type {
     /// Constructor ABI.
     Constructor,

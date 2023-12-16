@@ -17,6 +17,7 @@ ethers.workspace = true
 hex.workspace = true
 revm.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
+serde_json.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 tracing-subscriber = { workspace = true, features = ["env-filter"]}

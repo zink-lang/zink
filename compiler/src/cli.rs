@@ -8,7 +8,7 @@ use std::{env, fs, path::PathBuf};
 /// Compile WASM to EVM bytecode.
 #[derive(Debug, Parser)]
 pub struct Compile {
-    /// Display compiled ABI.
+    /// Write ABI to disk.
     #[clap(short, long)]
     abi: bool,
     /// The path of the wasm file.
@@ -51,10 +51,7 @@ impl Compile {
             )
             .with_extension("abi.json");
 
-        fs::write(
-            abi,
-            serde_json::to_string_pretty(&compiler.abi()).map_err(|e| anyhow::anyhow!("{e:?}"))?,
-        )?;
+        fs::write(abi, serde_json::to_string_pretty(&compiler.abi())?)?;
         Ok(())
     }
 }
