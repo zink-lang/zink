@@ -1,4 +1,6 @@
-//! Utils for generating of zink ABI
+//! EVM ABI implementation
+//!
+//! https://docs.soliditylang.org/en/latest/abi-spec.html#json
 pub use self::result::{Error, Result};
 use serde::{Deserialize, Serialize};
 

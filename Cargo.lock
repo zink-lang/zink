@@ -1444,6 +1444,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "evm-abi"
+version = "0.0.1"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "evm-opcodes"
 version = "0.0.3"
 dependencies = [
