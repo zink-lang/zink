@@ -2,6 +2,9 @@
 
 use core::{convert::Infallible, str::FromStr};
 
+#[cfg(not(feature = "std"))]
+use crate::std::{String, ToString};
+
 /// Arg of solidity ABI.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -9,14 +12,14 @@ pub struct Arg {
     /// Name of the input.
     pub name: String,
     /// Type of the input.
-    #[serde(rename = "type")]
+    #[cfg_attr(feature = "serde", serde(rename = "type"))]
     pub ty: Param,
 }
 
 /// The canonical type of the parameter.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
 pub enum Param {
     /// A 32-bit integer.
     Int32,

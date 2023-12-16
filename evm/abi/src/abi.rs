@@ -3,6 +3,9 @@
 use crate::Arg;
 use core::{convert::Infallible, str::FromStr};
 
+#[cfg(not(feature = "std"))]
+use crate::std::{String, ToString, Vec};
+
 /// Solidity ABI abstraction.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -10,7 +13,7 @@ pub struct Abi {
     /// ABI name.
     pub name: String,
     /// ABI type.
-    #[serde(rename = "type")]
+    #[cfg_attr(feature = "serde", serde(rename = "type"))]
     pub ty: Type,
     /// An array of arguments.
     pub inputs: Vec<Arg>,
@@ -58,7 +61,7 @@ impl From<&syn::Signature> for Abi {
 /// Solidity ABI type.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
 pub enum Type {
     /// Constructor ABI.
     Constructor,

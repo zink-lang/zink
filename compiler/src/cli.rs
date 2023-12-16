@@ -7,6 +7,7 @@ use std::{env, fs, path::PathBuf};
 
 /// Compile WASM to EVM bytecode.
 #[derive(Debug, Parser)]
+#[command(name = "zinkc")]
 pub struct Compile {
     /// Write ABI to disk.
     #[clap(short, long)]

@@ -40,7 +40,7 @@ proc-macro2 = "1.0.70"
 quote = "1.0.33"
 revm = "3.5.0"
 semver = "1.0.20"
-serde = "1.0.193"
+serde = { version = "1.0.193", default-features = false }
 serde_json = "1.0.108"
 sha3 = "0.10.8"
 smallvec = "1.11.2"

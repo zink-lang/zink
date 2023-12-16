@@ -1,6 +1,8 @@
 [package]
 name = "sol-abi"
+description = "Solidity ABI implementation"
 version = "0.0.1"
+keywords = [ "no-std", "solidity", "ethereum" ]
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -8,10 +10,11 @@ homepage.workspace = true
 repository.workspace = true
 
 [dependencies]
-serde = { workspace = true, optional = true }
+serde = { workspace = true, features = [ "derive" ], optional = true }
 syn = { workspace = true, optional = true }
 quote = { workspace = true, optional = true }
 
 [features]
 default = [ "serde", "syn" ]
-syn = [ "dep:syn", "quote" ]
+syn = [ "dep:syn", "quote", "std" ]
+std = [ "serde/std" ]
