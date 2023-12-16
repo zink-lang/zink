@@ -24,6 +24,6 @@ impl Abi {
     /// Get function selector.
     pub fn selector(&self) -> [u8; 4] {
         let sig = self.signature();
-        util::selector(&sig.as_bytes())
+        util::selector(sig.as_bytes())
     }
 }
