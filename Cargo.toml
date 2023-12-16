@@ -1,9 +1,7 @@
 [workspace]
 members = [
   "abi",
-  "cli",
-  "cli/conta",
-  "cli/elko",
+  "cli/*",
   "codegen",
   "compiler",
   "compiler/filetests",
@@ -57,11 +55,12 @@ wasm-opt = "0.113.0"
 wasmparser = "0.107.0"
 wat = "1.0.82"
 
+# Local packages
+ccli = { path = "cli/cli", version = "=0.0.1" }
 elko = { path = "cli/elko", version = "=0.1.7" }
 opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = ["data"] }
 sol-abi = { path = "evm/abi", version = "=0.0.1" }
 zabi = { path = "abi", version = "=0.1.7" }
-zinkup = { path = "cli", version = "=0.1.7" }
 zingen =  { path = "codegen", version = "=0.1.7" }
 zinkc = { path = "compiler", version = "=0.1.7" }
 zinkc-filetests = { path = "compiler/filetests", version = "=0.1.7" }

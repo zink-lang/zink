@@ -1,18 +1,9 @@
-//! Zink toolchain.
+//! Common command line inteface.
 
 use anyhow::Error;
-use clap::Parser;
-use color_eyre::{eyre::eyre, Result};
-pub use commands::*;
+pub use clap::{self, Parser};
+pub use color_eyre::{eyre::eyre, Result};
 use tracing_subscriber::filter::EnvFilter;
-
-mod compile;
-mod commands {
-    #[cfg(feature = "zinkc")]
-    pub use crate::compile::Compile;
-    #[cfg(feature = "elko")]
-    pub use elko::{Build, New};
-}
 
 /// Shared application interface.
 pub trait App: Parser {
@@ -32,7 +23,7 @@ pub trait App: Parser {
             EnvFilter::try_from_default_env().unwrap_or(EnvFilter::new(match app.verbose() {
                 0 => format!("{name}=info"),
                 1 => format!("{name}=debug"),
-                2 => format!("{name}=trace"),
+                2 => "debug".into(),
                 _ => "trace".into(),
             }));
 

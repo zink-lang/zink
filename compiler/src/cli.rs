@@ -1,10 +1,9 @@
-//! Command `Compile`.
-#![cfg(feature = "zinkc")]
+//! Zink compiler command line interface.
+#![cfg(feature = "cli")]
 
-use anyhow::Result;
-use clap::Parser;
+use crate::Compiler;
+use ccli::{Parser, Result};
 use std::{env, fs, path::PathBuf};
-use zinkc::Compiler;
 
 /// Compile WASM to EVM bytecode.
 #[derive(Debug, Parser)]
@@ -23,7 +22,7 @@ pub struct Compile {
 
 impl Compile {
     /// Run compile.
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&self) -> anyhow::Result<()> {
         let output = if let Some(output) = self.output.as_ref() {
             output.into()
         } else {
@@ -33,6 +32,7 @@ impl Compile {
         let bin = Compiler::default()
             .dispatcher(self.dispatcher)
             .compile(&fs::read(&self.input)?)?;
+
         fs::write(output, bin)?;
         Ok(())
     }

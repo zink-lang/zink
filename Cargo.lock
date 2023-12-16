@@ -458,6 +458,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ccli"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "clap",
+ "color-eyre",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "cexpr"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1019,6 +1029,7 @@ version = "0.1.7"
 dependencies = [
  "anyhow",
  "cargo_metadata",
+ "ccli",
  "clap",
  "colored",
  "etc",
@@ -4724,6 +4735,7 @@ name = "zinkc"
 version = "0.1.7"
 dependencies = [
  "anyhow",
+ "ccli",
  "etc",
  "hex",
  "paste",
@@ -4749,19 +4761,6 @@ dependencies = [
  "tracing-subscriber",
  "wasm-opt",
  "wat",
- "zinkc",
-]
-
-[[package]]
-name = "zinkup"
-version = "0.1.7"
-dependencies = [
- "anyhow",
- "clap",
- "color-eyre",
- "elko",
- "tracing-subscriber",
- "zink",
  "zinkc",
 ]
 

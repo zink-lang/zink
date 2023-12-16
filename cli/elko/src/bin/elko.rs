@@ -1,18 +1,17 @@
 //! Zink's package manager
 #![deny(missing_docs)]
 
-use clap::{Parser, Subcommand};
-use color_eyre::Result;
-use zinkup::{App, Build, New};
+use ccli::{clap::Subcommand, App, Parser, Result};
+use elko::{Build, New};
 
-/// elko commands
+/// Elko commands
 #[derive(Debug, Subcommand)]
 enum Command {
     New(New),
     Build(Build),
 }
 
-/// Zink's package manager
+/// The package manager of zink.
 #[derive(Debug, Parser)]
 #[command(name = "elko", version)]
 pub struct Elko {

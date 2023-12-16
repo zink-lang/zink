@@ -119,6 +119,11 @@ impl Compiler {
         Ok(())
     }
 
+    /// Get the abi of the compiled contract.
+    pub fn abi(&self) -> Vec<Abi> {
+        self.abi.clone()
+    }
+
     /// Returns bytecode.
     fn bytecode(&self, constructor: Option<Function<'_>>) -> Result<Buffer> {
         Constructor::new(constructor, self.buffer.clone())?
