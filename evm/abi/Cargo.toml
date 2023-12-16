@@ -1,5 +1,5 @@
 [package]
-name = "evm-abi"
+name = "sol-abi"
 version = "0.0.1"
 authors.workspace = true
 edition.workspace = true

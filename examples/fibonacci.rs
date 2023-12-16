@@ -22,7 +22,7 @@ fn main() {}
 fn test() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract};
     let mut contract = Contract::search("fibonacci")?.compile()?;
-    let selector = "fib(usize)".as_bytes();
+    let selector = "fib(uint64)".as_bytes();
 
     // x = 0
     let info = contract.execute([selector, &0usize.to_bytes32()])?;

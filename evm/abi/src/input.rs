@@ -32,7 +32,7 @@ impl From<&str> for Param {
             "i32" | "int32" => Param::Int32,
             "i64" | "int64" => Param::Int64,
             "u32" | "uint32" => Param::UInt32,
-            "u64" | "uint64" => Param::UInt64,
+            "usize" | "u64" | "uint64" => Param::UInt64,
             _ => Param::Unknown,
         }
     }

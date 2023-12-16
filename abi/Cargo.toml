@@ -10,7 +10,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-evm-abi.workspace = true
+sol-abi.workspace = true
 
 # optional features
 hex = { workspace = true, optional = true }
@@ -26,5 +26,5 @@ default = [ "hex", "selector", "syn" ]
 bytes = [ "postcard", "serde" ]
 hex = [ "dep:hex", "thiserror", "bytes" ]
 selector = [ "sha3" ]
-serde = [ "dep:serde", "evm-abi/serde" ]
-syn = [ "dep:syn", "evm-abi/syn" ]
+serde = [ "dep:serde", "sol-abi/serde" ]
+syn = [ "dep:syn", "sol-abi/syn" ]

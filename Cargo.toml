@@ -58,8 +58,8 @@ wasmparser = "0.107.0"
 wat = "1.0.82"
 
 elko = { path = "cli/elko", version = "=0.1.7" }
-evm-abi = { path = "evm/abi", version = "=0.0.1" }
 opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = ["data"] }
+sol-abi = { path = "evm/abi", version = "=0.0.1" }
 zabi = { path = "abi", version = "=0.1.7" }
 zinkup = { path = "cli", version = "=0.1.7" }
 zingen =  { path = "codegen", version = "=0.1.7" }

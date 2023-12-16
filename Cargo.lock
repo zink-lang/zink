@@ -1444,15 +1444,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "evm-abi"
-version = "0.0.1"
-dependencies = [
- "quote",
- "serde",
- "syn 2.0.41",
-]
-
-[[package]]
 name = "evm-opcodes"
 version = "0.0.3"
 dependencies = [
@@ -3544,6 +3535,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-abi"
+version = "0.0.1"
+dependencies = [
+ "quote",
+ "serde",
+ "syn 2.0.41",
+]
+
+[[package]]
 name = "solang-parser"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4633,11 +4633,11 @@ checksum = "09041cd90cf85f7f8b2df60c646f853b7f535ce68f85244eb6731cf89fa498ec"
 name = "zabi"
 version = "0.1.7"
 dependencies = [
- "evm-abi",
  "hex",
  "postcard",
  "serde",
  "sha3",
+ "sol-abi",
  "syn 2.0.41",
  "thiserror",
 ]

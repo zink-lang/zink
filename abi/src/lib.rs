@@ -10,10 +10,10 @@ use core::ops::{Deref, DerefMut};
 /// Function ABI.
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Abi(evm_abi::Abi);
+pub struct Abi(sol_abi::Abi);
 
 impl Deref for Abi {
-    type Target = evm_abi::Abi;
+    type Target = sol_abi::Abi;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -74,6 +74,6 @@ mod hex_impl {
 #[cfg(feature = "syn")]
 impl From<&syn::Signature> for Abi {
     fn from(sig: &syn::Signature) -> Self {
-        Self(evm_abi::Abi::from(sig))
+        Self(sol_abi::Abi::from(sig))
     }
 }
