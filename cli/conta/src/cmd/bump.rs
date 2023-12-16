@@ -1,10 +1,10 @@
 //! Command bump
-use crate::{Config, Sed};
-use anyhow::Result;
-use cargo_metadata::MetadataCommand;
+use crate::Config;
+use anyhow::{anyhow, Result};
 use ccli::clap::{self, Parser};
-use semver::{Version, VersionReq};
-use std::path::PathBuf;
+use semver::Version;
+use std::{fs, path::PathBuf, str::FromStr};
+use toml_edit::Document;
 
 /// Bump versions.
 #[derive(Debug, Parser, Clone)]
@@ -15,9 +15,6 @@ pub struct Bump {
     /// Dry run the command and print the result.
     #[clap(short, long, value_name = "dry-run")]
     dry_run: bool,
-    // TODO:
-    //
-    // support bump major, minor, patch, pre, build.
 }
 
 impl Bump {
@@ -26,43 +23,30 @@ impl Bump {
     /// NOTE: This implementation only works for workspace
     /// for now.
     pub fn run(&self, manifest: &PathBuf, config: Config) -> Result<()> {
-        let mut sed = Sed::new(manifest)?;
-
-        sed.set_workspace_version(&self.version)?;
-        let version_req = format!("={}", self.version);
-        sed.set_dep_versions(&VersionReq::parse(&version_req)?, &config.packages)?;
+        let mut workspace = Document::from_str(&std::fs::read_to_string(manifest)?)?;
+        let version = self.version.to_string();
+        workspace["packages"]["version"] = toml_edit::value(version.clone());
 
         if self.dry_run {
-            println!("{}", String::from_utf8_lossy(&sed.buf));
-        } else {
-            sed.flush()?;
-            self.verify(manifest, &config.packages)?;
+            println!("{workspace}");
+            return Ok(());
         }
 
-        Ok(())
-    }
+        let Some(deps) = workspace["worskpace"]["dependencies"].as_table_mut() else {
+            return Err(anyhow!(
+                "Failed to parse dependencies from workspace {manifest:?}"
+            ));
+        };
 
-    /// Get the metadata of the workspace.
-    pub fn verify(&self, manifest: &PathBuf, packages: &[String]) -> Result<()> {
-        let metadata = MetadataCommand::new()
-            .no_deps()
-            .manifest_path(manifest)
-            .exec()?;
-
-        for package in metadata.packages.iter() {
-            if !packages.contains(&package.name) {
-                continue;
+        for package in config.packages {
+            if !deps.contains_key(&package) {
+                return Err(anyhow!("package {} not found", package));
             }
 
-            if package.version != self.version {
-                return Err(anyhow::anyhow!(
-                    "incorrect crate version {} in {}",
-                    self.version,
-                    package.name
-                ));
-            }
+            deps[&package]["version"] = toml_edit::value(version.clone());
         }
 
+        fs::write(manifest, workspace.to_string())?;
         Ok(())
     }
 }

@@ -3,10 +3,8 @@
 pub use crate::{
     cmd::{Bump, Conta, Publish},
     config::Config,
-    sed::Sed,
 };
 
 mod cmd;
 mod config;
-mod sed;
 mod version;

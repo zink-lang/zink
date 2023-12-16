@@ -11,7 +11,6 @@ repository.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-cargo_metadata.workspace = true
 ccli.workspace = true
 reqwest = { workspace = true, features = [ "blocking", "json", "default-tls" ] }
 semver.workspace = true

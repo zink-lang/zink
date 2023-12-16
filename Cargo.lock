@@ -693,7 +693,6 @@ name = "conta"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "cargo_metadata",
  "ccli",
  "reqwest",
  "semver",

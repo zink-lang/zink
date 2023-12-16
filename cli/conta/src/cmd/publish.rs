@@ -22,6 +22,11 @@ impl Publish {
             }
         }
 
+        Command::new("git")
+            .args(["add", manifest.to_string_lossy().as_ref()])
+            .status()?;
+        Command::new("git").arg("stash").status()?;
+        Command::new("git").args(["stash", "drop"]).status()?;
         Ok(())
     }
 
