@@ -21,6 +21,7 @@ wasmparser.workspace = true
 zabi.workspace = true
 zingen.workspace = true
 ccli = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
 
 [dev-dependencies]
 hex.workspace = true
@@ -31,4 +32,4 @@ zabi.workspace = true
 etc.workspace = true
 
 [features]
-cli = [ "ccli" ]
+cli = [ "ccli", "serde_json" ]

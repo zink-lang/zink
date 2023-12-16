@@ -8,6 +8,9 @@ use std::{env, fs, path::PathBuf};
 /// Compile WASM to EVM bytecode.
 #[derive(Debug, Parser)]
 pub struct Compile {
+    /// Display compiled ABI.
+    #[clap(short, long)]
+    abi: bool,
     /// The path of the wasm file.
     #[clap(value_name = "INPUT")]
     input: PathBuf,
@@ -28,11 +31,30 @@ impl Compile {
             env::current_dir()?.join(self.input.with_extension(""))
         };
 
-        let bin = Compiler::default()
-            .dispatcher(self.dispatcher)
-            .compile(&fs::read(&self.input)?)?;
+        let mut compiler = Compiler::default().dispatcher(self.dispatcher);
+        let bin = compiler.compile(&fs::read(&self.input)?)?;
 
-        fs::write(output, bin)?;
+        output.parent().map(fs::create_dir_all);
+        fs::write(&output, bin)?;
+
+        if !self.abi {
+            return Ok(());
+        }
+
+        let abi = output
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("invalid output path: {output:?}"))?
+            .join(
+                output
+                    .file_name()
+                    .ok_or_else(|| anyhow::anyhow!("invalid file name: {output:?}"))?,
+            )
+            .with_extension("abi.json");
+
+        fs::write(
+            abi,
+            serde_json::to_string_pretty(&compiler.abi()).map_err(|e| anyhow::anyhow!("{e:?}"))?,
+        )?;
         Ok(())
     }
 }
