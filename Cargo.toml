@@ -64,7 +64,7 @@ sol-abi = { path = "evm/abi", version = "=0.0.1" }
 zabi = { path = "abi", version = "=0.1.7" }
 zingen =  { path = "codegen", version = "=0.1.7" }
 zinkc = { path = "compiler", version = "=0.1.7" }
-zinkc-filetests = { path = "compiler/filetests", version = "=0.1.7" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "=0.1.7" }
 zink = { path = ".", version = "=0.1.7" }
 zink-codegen = { path = "zink/codegen", version = "=0.1.7" }
 zint = { path = "zint", version = "=0.1.7" }
@@ -97,6 +97,6 @@ zink-codegen.workspace = true
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 anyhow.workspace = true
 paste.workspace = true
-zinkc-filetests.workspace = true
+filetests.workspace = true
 zint.workspace = true
 tokio = { workspace = true, features = [ "macros" ] }

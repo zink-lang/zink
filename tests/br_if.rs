@@ -1,6 +1,6 @@
 //! br_if tests for the zink compiler.
 use anyhow::Result;
-use zinkc_filetests::Test;
+use filetests::Test;
 use zint::{Contract, InstructionResult};
 
 #[test]
