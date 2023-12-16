@@ -21,6 +21,10 @@ pub struct Dispatcher<'d> {
     pub data: DataSet,
     /// Jump table
     pub table: JumpTable,
+    /// ABI for the current function
+    ///
+    /// TODO: refactor this. (#192)
+    pub abi: Vec<Abi>,
 }
 
 impl<'d> Dispatcher<'d> {
@@ -33,6 +37,7 @@ impl<'d> Dispatcher<'d> {
             imports: Default::default(),
             data: Default::default(),
             table: Default::default(),
+            abi: Default::default(),
         }
     }
 
@@ -179,6 +184,10 @@ impl<'d> Dispatcher<'d> {
     /// Emit selector to buffer.
     fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
         let abi = self.load_abi(selector)?;
+
+        // TODO: refactor this. (#192)
+        self.abi.push(abi.clone());
+
         let selector_bytes = abi.selector();
 
         tracing::trace!(
@@ -236,7 +245,7 @@ impl<'d> Dispatcher<'d> {
     }
 
     /// Emit compiled code to the given buffer.
-    pub fn finish(mut self, selectors: Functions<'_>, table: &mut JumpTable) -> Result<Vec<u8>> {
+    pub fn finish(&mut self, selectors: Functions<'_>, table: &mut JumpTable) -> Result<Vec<u8>> {
         if selectors.is_empty() {
             return Err(Error::SelectorNotFound);
         }
@@ -252,7 +261,7 @@ impl<'d> Dispatcher<'d> {
             len -= 1;
         }
 
-        table.merge(self.table, 0)?;
+        table.merge(self.table.clone(), 0)?;
         Ok(self.asm.buffer().into())
     }
 }

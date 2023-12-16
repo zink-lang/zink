@@ -1,7 +1,9 @@
 //! Input of solidity ABI.
 
+use core::{convert::Infallible, str::FromStr};
+
 /// Input of solidity ABI.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Input {
     /// Name of the input.
@@ -11,7 +13,7 @@ pub struct Input {
 }
 
 /// The canonical type of the parameter.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Param {
     /// A 32-bit integer.
@@ -23,6 +25,7 @@ pub enum Param {
     /// A 64-bit unsigned integer.
     UInt64,
     /// An unknown type.
+    #[default]
     Unknown,
 }
 
@@ -35,6 +38,14 @@ impl From<&str> for Param {
             "usize" | "u64" | "uint64" => Param::UInt64,
             _ => Param::Unknown,
         }
+    }
+}
+
+impl FromStr for Param {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(s))
     }
 }
 

@@ -1,8 +1,10 @@
 //! Solidity ABI abstraction.
+
 use crate::Input;
+use core::{convert::Infallible, str::FromStr};
 
 /// Solidity ABI abstraction.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Abi {
     /// ABI name.
@@ -36,13 +38,31 @@ impl From<&syn::Signature> for Abi {
 }
 
 /// Solidity ABI type.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Type {
     /// Constructor ABI.
     Constructor,
     /// Function ABI.
+    #[default]
     Function,
+}
+
+impl From<&str> for Type {
+    fn from(s: &str) -> Self {
+        match s {
+            "constructor" => Type::Constructor,
+            _ => Type::Function,
+        }
+    }
+}
+
+impl FromStr for Type {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(s))
+    }
 }
 
 impl AsRef<str> for Type {

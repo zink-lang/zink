@@ -14,6 +14,7 @@ anyhow.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 wasmparser.workspace = true
+zabi.workspace = true
 zingen.workspace = true
 
 [dev-dependencies]
