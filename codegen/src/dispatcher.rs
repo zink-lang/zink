@@ -184,7 +184,7 @@ impl<'d> Dispatcher<'d> {
         tracing::trace!(
             "Emitting selector {:?} for function: {}",
             selector_bytes,
-            abi.signature()
+            abi.name,
         );
 
         let func = self.query_func(&abi.name)?;

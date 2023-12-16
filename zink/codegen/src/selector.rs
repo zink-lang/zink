@@ -2,8 +2,8 @@
 
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
-use quote::{quote, ToTokens};
-use syn::{parse_quote, FnArg, ItemFn, Signature};
+use quote::quote;
+use syn::{parse_quote, ItemFn};
 use zabi::Abi;
 
 /// Mark the function as external.
@@ -16,7 +16,7 @@ pub fn external(mut item: ItemFn) -> TokenStream {
     let selector: ItemFn = {
         let func = item.sig.ident.clone().to_string();
         let ident = Ident::new(&(func.clone() + "_selector"), Span::call_site());
-        let selector = parse_selector(&item.sig);
+        let selector = Abi::from(&item.sig).to_hex().expect("ABI is not supported");
         let selector_len = selector.len() as u32;
         let doc = " EVM selector for the function `".to_string() + &func + "`";
 
@@ -38,22 +38,4 @@ pub fn external(mut item: ItemFn) -> TokenStream {
         #selector
     }
     .into()
-}
-
-/// Hash function signature to EVM selector.
-fn parse_selector(sig: &Signature) -> String {
-    let args = sig.inputs.iter().map(|arg| match arg {
-        FnArg::Typed(pat) => pat.ty.clone().into_token_stream().to_string(),
-        _ => panic!(
-            "Unsupported function argument: {:?}",
-            arg.into_token_stream().to_string()
-        ),
-    });
-
-    Abi {
-        name: sig.ident.to_string(),
-        inputs: args.collect(),
-    }
-    .to_hex()
-    .expect("Failed to serialize ABI")
 }

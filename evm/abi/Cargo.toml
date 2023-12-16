@@ -9,6 +9,9 @@ repository.workspace = true
 
 [dependencies]
 serde = { workspace = true, optional = true }
+syn = { workspace = true, optional = true }
+quote = { workspace = true, optional = true }
 
 [features]
-default = [ "serde" ]
+default = [ "serde", "syn" ]
+syn = [ "dep:syn", "quote" ]

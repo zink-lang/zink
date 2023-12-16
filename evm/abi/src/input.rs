@@ -22,6 +22,20 @@ pub enum Param {
     UInt32,
     /// A 64-bit unsigned integer.
     UInt64,
+    /// An unknown type.
+    Unknown,
+}
+
+impl From<&str> for Param {
+    fn from(s: &str) -> Self {
+        match s {
+            "i32" | "int32" => Param::Int32,
+            "i64" | "int64" => Param::Int64,
+            "u32" | "uint32" => Param::UInt32,
+            "u64" | "uint64" => Param::UInt64,
+            _ => Param::Unknown,
+        }
+    }
 }
 
 impl AsRef<str> for Param {
@@ -31,12 +45,17 @@ impl AsRef<str> for Param {
             Param::Int64 => "int64",
             Param::UInt32 => "uint32",
             Param::UInt64 => "uint64",
+            Param::Unknown => "unknown",
         }
     }
 }
 
-impl ToString for Param {
-    fn to_string(&self) -> String {
-        self.as_ref().to_string()
+#[cfg(feature = "syn")]
+impl From<&Box<syn::Type>> for Param {
+    fn from(ty: &Box<syn::Type>) -> Self {
+        use quote::ToTokens;
+
+        let ident = ty.into_token_stream().to_string();
+        Self::from(ident.as_str())
     }
 }
