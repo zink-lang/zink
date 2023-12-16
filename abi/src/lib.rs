@@ -1,71 +1,79 @@
-//! Utils for generating of zink ABI
-pub use self::result::{Error, Result};
-use serde::{Deserialize, Serialize};
-use sha3::{Digest, Keccak256};
+//! Zink ABI implementation
+//!
+//! Currently just a wrapper of solidity ABI.
 
-mod result;
+pub mod result;
+pub mod selector;
 
-/// Generate a keccak hash of the input (sha3)
-pub fn keccak256(input: &[u8]) -> [u8; 32] {
-    let mut hasher = Keccak256::new();
-    hasher.update(input);
-    hasher.finalize().into()
-}
-
-/// Get function selector from function signature.
-pub fn selector(input: &[u8]) -> [u8; 4] {
-    let mut selector = [0u8; 4];
-    selector.copy_from_slice(&keccak256(input)[..4]);
-
-    selector
-}
+use core::ops::{Deref, DerefMut};
 
 /// Function ABI.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Abi {
-    /// Function name.
-    pub name: String,
-    /// Function inputs.
-    pub inputs: Vec<String>,
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Abi(sol_abi::Abi);
+
+impl Deref for Abi {
+    type Target = sol_abi::Abi;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
+impl DerefMut for Abi {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+#[cfg(feature = "bytes")]
 impl Abi {
-    /// Get function signature.
-    pub fn signature(&self) -> String {
-        self.name.clone() + "(" + &self.inputs.join(",") + ")"
+    /// Convert [`Abi`] to bytes.
+    pub fn to_bytes(&self) -> postcard::Result<Vec<u8>> {
+        postcard::to_stdvec(self).map_err(Into::into)
     }
 
-    /// Get function selector.
-    pub fn selector(&self) -> [u8; 4] {
-        let sig = self.signature();
-        let mut selector = [0u8; 4];
-        selector.copy_from_slice(&keccak256(sig.as_bytes())[..4]);
+    /// Convert bytes to [`Abi`].
+    pub fn from_bytes(bytes: impl AsRef<[u8]>) -> postcard::Result<Self> {
+        postcard::from_bytes(bytes.as_ref()).map_err(Into::into)
+    }
+}
 
-        selector
+#[cfg(feature = "hex")]
+mod hex_impl {
+    use crate::{result::Result, Abi};
+
+    impl Abi {
+        /// Convert [`Abi`] to hex string.
+        pub fn to_hex(&self) -> Result<String> {
+            Ok("0x".to_string() + &hex::encode(self.to_bytes()?))
+        }
+
+        /// Convert hex string to [`Abi`].
+        pub fn from_hex(hex: impl AsRef<str>) -> Result<Self> {
+            Self::from_bytes(hex::decode(hex.as_ref().trim_start_matches("0x"))?)
+                .map_err(Into::into)
+        }
     }
 
-    /// Parse ABI from bytes.
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self> {
-        postcard::from_bytes(bytes).map_err(Into::into)
+    impl ToString for Abi {
+        fn to_string(&self) -> String {
+            self.to_hex().unwrap_or_default()
+        }
     }
 
-    /// Decode ABI form hex string.
-    pub fn from_hex(hex: &str) -> Result<Self> {
-        Self::from_bytes(&hex::decode(hex)?)
-    }
+    impl core::str::FromStr for Abi {
+        type Err = crate::result::Error;
 
-    /// Decode ABI form hex string.
-    pub fn from_hex_bytes(bytes: &[u8]) -> Result<Self> {
-        Self::from_hex(&String::from_utf8_lossy(bytes))
+        fn from_str(hex: &str) -> Result<Self> {
+            Self::from_hex(hex)
+        }
     }
+}
 
-    /// Convert ABI to hex string.
-    pub fn to_hex(&self) -> Result<String> {
-        self.to_bytes().map(hex::encode)
-    }
-
-    /// Convert ABI to bytes.
-    pub fn to_bytes(&self) -> Result<Vec<u8>> {
-        postcard::to_stdvec(&self).map_err(Into::into)
+#[cfg(feature = "syn")]
+impl From<&syn::Signature> for Abi {
+    fn from(sig: &syn::Signature) -> Self {
+        Self(sol_abi::Abi::from(sig))
     }
 }

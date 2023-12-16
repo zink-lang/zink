@@ -1,3 +1,11 @@
+## v0.1.8
+
+### Changes
+
+- Solidity compatible ABI
+- Refactor `zabi` a wrapper a `sol-abi`
+- Conditional compilation for abi related crates
+
 ## v0.1.7
 
 ### Added

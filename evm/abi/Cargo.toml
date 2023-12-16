@@ -1,0 +1,17 @@
+[package]
+name = "sol-abi"
+version = "0.0.1"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde = { workspace = true, optional = true }
+syn = { workspace = true, optional = true }
+quote = { workspace = true, optional = true }
+
+[features]
+default = [ "serde", "syn" ]
+syn = [ "dep:syn", "quote" ]

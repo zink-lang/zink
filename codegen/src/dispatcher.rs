@@ -88,7 +88,8 @@ impl<'d> Dispatcher<'d> {
             return Err(Error::FuncNotImported("emit_abi".into()));
         }
 
-        Abi::from_hex_bytes(&self.data.load(offset, length as usize)?).map_err(Into::into)
+        let abi = self.data.load(offset, length as usize)?;
+        Abi::from_hex(String::from_utf8_lossy(&abi)).map_err(Into::into)
     }
 
     /// Emit return of ext function.
@@ -183,7 +184,7 @@ impl<'d> Dispatcher<'d> {
         tracing::trace!(
             "Emitting selector {:?} for function: {}",
             selector_bytes,
-            abi.signature()
+            abi.signature(),
         );
 
         let func = self.query_func(&abi.name)?;

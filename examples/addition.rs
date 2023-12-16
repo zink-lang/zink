@@ -18,7 +18,7 @@ fn test() -> anyhow::Result<()> {
     let mut contract = Contract::search("addition")?.compile()?;
 
     let info = contract.execute([
-        "addition(u64,u64)".as_bytes(),
+        "addition(uint64,uint64)".as_bytes(),
         &1u64.to_bytes32(),
         &2u64.to_bytes32(),
     ])?;

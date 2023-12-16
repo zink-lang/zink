@@ -1,4 +1,5 @@
 //! Abi results
+#![cfg(feature = "hex")]
 
 /// ABI error
 #[derive(Debug, thiserror::Error)]

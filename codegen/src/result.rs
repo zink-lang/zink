@@ -5,7 +5,7 @@
 pub enum Error {
     /// Failed to parse function ABI.
     #[error(transparent)]
-    Abi(#[from] zabi::Error),
+    Abi(#[from] zabi::result::Error),
     /// Failed to parse WASM with binary reader.
     #[error(transparent)]
     BinaryReader(#[from] wasmparser::BinaryReaderError),
