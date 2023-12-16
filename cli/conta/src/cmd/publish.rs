@@ -71,7 +71,7 @@ impl Publish {
             .collect::<BTreeMap<_, _>>();
 
         packages
-            .into_iter()
+            .iter()
             .filter_map(|pkg| -> Option<Result<_>> {
                 let pkg = if pkg.as_str() == "filetests" {
                     "zinkc-filetests".into()
