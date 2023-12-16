@@ -4,9 +4,9 @@
 #![deny(missing_docs)]
 
 mod abi;
-mod input;
+mod arg;
 
 pub use self::{
     abi::Abi,
-    input::{Input, Param},
+    arg::{Arg, Param},
 };

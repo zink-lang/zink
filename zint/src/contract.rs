@@ -88,6 +88,11 @@ impl Contract {
         self
     }
 
+    /// Get the JSON ABI of the contract.
+    pub fn json_abi(&self) -> Result<String> {
+        serde_json::to_string_pretty(&self.abi).map_err(Into::into)
+    }
+
     /// Compile WASM to EVM bytecode.
     pub fn compile(mut self) -> Result<Self> {
         let mut compiler = Compiler::default()
@@ -97,7 +102,7 @@ impl Contract {
         self.bytecode = compiler.compile(&self.wasm)?.to_vec();
         self.abi = compiler.abi();
 
-        tracing::debug!("abi: {:#}", serde_json::to_string_pretty(&self.abi)?);
+        tracing::debug!("abi: {:#}", self.json_abi()?);
         tracing::debug!("bytecode: {:?}", hex::encode(&self.bytecode));
         Ok(self)
     }

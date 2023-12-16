@@ -1,11 +1,11 @@
-//! Input of solidity ABI.
+//! Arg of solidity ABI.
 
 use core::{convert::Infallible, str::FromStr};
 
-/// Input of solidity ABI.
+/// Arg of solidity ABI.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Input {
+pub struct Arg {
     /// Name of the input.
     pub name: String,
     /// Type of the input.

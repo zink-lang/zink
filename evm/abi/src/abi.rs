@@ -1,6 +1,6 @@
 //! Solidity ABI abstraction.
 
-use crate::Input;
+use crate::Arg;
 use core::{convert::Infallible, str::FromStr};
 
 /// Solidity ABI abstraction.
@@ -12,28 +12,45 @@ pub struct Abi {
     /// ABI type.
     #[serde(rename = "type")]
     pub ty: Type,
-    /// ABI inputs.
-    pub inputs: Vec<Input>,
+    /// An array of arguments.
+    pub inputs: Vec<Arg>,
+    /// An array of arguments, similar to inputs.
+    pub outputs: Vec<Arg>,
 }
 
 #[cfg(feature = "syn")]
 impl From<&syn::Signature> for Abi {
     fn from(sig: &syn::Signature) -> Self {
-        let args = sig.inputs.iter().filter_map(|arg| {
-            if let syn::FnArg::Typed(syn::PatType { ty, .. }) = arg {
-                Some(Input {
-                    name: sig.ident.to_string(),
-                    ty: crate::Param::from(ty),
-                })
-            } else {
-                None
-            }
-        });
+        let inputs = sig
+            .inputs
+            .iter()
+            .filter_map(|arg| {
+                if let syn::FnArg::Typed(syn::PatType { ty, .. }) = arg {
+                    Some(Arg {
+                        name: sig.ident.to_string(),
+                        ty: crate::Param::from(ty),
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect();
 
+        let outputs = if let syn::ReturnType::Type(_, ty) = &sig.output {
+            vec![Arg {
+                name: sig.ident.to_string(),
+                ty: crate::Param::from(ty),
+            }]
+        } else {
+            vec![]
+        };
+
+        let name = sig.ident.to_string();
         Abi {
-            name: sig.ident.to_string(),
-            inputs: args.collect(),
-            ty: Type::Function,
+            ty: Type::from(name.as_str()),
+            name,
+            inputs,
+            outputs,
         }
     }
 }

@@ -33,38 +33,19 @@ fn main() {}
 
 #[cfg(test)]
 mod tests {
-    use zint::{
-        ethers::abi::{Abi, Function, Param, ParamType, StateMutability},
-        Contract, Ethers,
-    };
+    use zint::{ethers::abi::Abi, Contract, Ethers};
 
     #[tokio::test]
     #[allow(deprecated)]
     async fn constructor() -> zint::Result<()> {
         let api = Ethers::anvil()?;
-        let bytecode = Contract::search("constructor")?
+        let contract = Contract::search("constructor")?
             .constructor(true)
-            .compile()?
-            .bytecode;
+            .compile()?;
 
-        // TODO: Generate ABI issue #47
-        let mut abi: Abi = Default::default();
-        abi.functions.insert(
-            "get".into(),
-            vec![Function {
-                name: "get".into(),
-                inputs: Default::default(),
-                outputs: vec![Param {
-                    name: Default::default(),
-                    kind: ParamType::Int(32usize),
-                    internal_type: None,
-                }],
-                constant: None,
-                state_mutability: StateMutability::View,
-            }],
-        );
-
-        let factory = api.factory(abi, bytecode)?;
+        let abi: Abi = Abi::load(&*contract.json_abi()?.as_bytes())
+            .map_err(|e| anyhow::anyhow!("Failed to load abi {e}"))?;
+        let factory = api.factory(abi, contract.bytecode)?;
         let contract = factory.deploy(())?.legacy().send().await?;
         let r = contract.method::<(), i32>("get", ())?.call().await?;
 
