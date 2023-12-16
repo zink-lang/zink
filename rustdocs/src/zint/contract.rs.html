@@ -160,6 +160,16 @@
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
 <a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Contract Instance
 
 </span><span class="kw">use crate</span>::{Bytes32, Info, EVM};
@@ -170,6 +180,7 @@
     path::{Path, PathBuf},
 };
 <span class="kw">use </span>wasm_opt::OptimizationOptions;
+<span class="kw">use </span>zabi::Abi;
 <span class="kw">use </span>zinkc::Compiler;
 
 <span class="doccomment">/// Cargo Manifest for parsing package.
@@ -195,6 +206,8 @@
     </span><span class="kw">pub </span>dispatcher: bool,
     <span class="doccomment">/// If enable constructor.
     </span><span class="kw">pub </span>constructor: bool,
+    <span class="doccomment">/// The ABI of the contract.
+    </span><span class="kw">pub </span>abi: Vec&lt;Abi&gt;,
     <span class="doccomment">/// The source WASM of the contract.
     </span><span class="kw">pub </span>wasm: Vec&lt;u8&gt;,
 }
@@ -247,14 +260,21 @@
         <span class="self">self
     </span>}
 
+    <span class="doccomment">/// Get the JSON ABI of the contract.
+    </span><span class="kw">pub fn </span>json_abi(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        serde_json::to_string_pretty(<span class="kw-2">&amp;</span><span class="self">self</span>.abi).map_err(Into::into)
+    }
+
     <span class="doccomment">/// Compile WASM to EVM bytecode.
     </span><span class="kw">pub fn </span>compile(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">self</span>.bytecode = Compiler::default()
+        <span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::default()
             .constructor(<span class="self">self</span>.constructor)
-            .dispatcher(<span class="self">self</span>.dispatcher)
-            .compile(<span class="kw-2">&amp;</span><span class="self">self</span>.wasm)<span class="question-mark">?
-            </span>.to_vec();
+            .dispatcher(<span class="self">self</span>.dispatcher);
 
+        <span class="self">self</span>.bytecode = compiler.compile(<span class="kw-2">&amp;</span><span class="self">self</span>.wasm)<span class="question-mark">?</span>.to_vec();
+        <span class="self">self</span>.abi = compiler.abi();
+
+        <span class="macro">tracing::debug!</span>(<span class="string">"abi: {:#}"</span>, <span class="self">self</span>.json_abi()<span class="question-mark">?</span>);
         <span class="macro">tracing::debug!</span>(<span class="string">"bytecode: {:?}"</span>, hex::encode(<span class="kw-2">&amp;</span><span class="self">self</span>.bytecode));
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }

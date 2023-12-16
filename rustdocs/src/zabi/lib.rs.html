@@ -88,7 +88,7 @@
 <span class="kw">use </span>core::ops::{Deref, DerefMut};
 
 <span class="doccomment">/// Function ABI.
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Abi(sol_abi::Abi);
 

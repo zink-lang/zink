@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Param"],"mod":["abi","input"],"struct":["Abi","Input"]};
+window.SIDEBAR_ITEMS = {"enum":["Param"],"mod":["abi","arg"],"struct":["Abi","Arg"]};

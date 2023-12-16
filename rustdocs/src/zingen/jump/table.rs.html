@@ -98,7 +98,7 @@
 
 <span class="doccomment">/// Jump table implementation.
 ///
-</span><span class="attr">#[derive(Default, Debug)]
+</span><span class="attr">#[derive(Clone, Default, Debug)]
 </span><span class="kw">pub struct </span>JumpTable {
     <span class="doccomment">/// Jump table.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) jump: BTreeMap&lt;u16, Jump&gt;,

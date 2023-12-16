@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ADDITION","NAME","README"],"struct":["New"]};

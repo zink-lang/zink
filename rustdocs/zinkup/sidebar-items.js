@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["commands","compile"],"struct":["Build","Compile","New"],"trait":["App"]};

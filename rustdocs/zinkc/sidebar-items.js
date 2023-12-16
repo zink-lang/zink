@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["Zinkc"]};
+window.SIDEBAR_ITEMS = {"enum":["Error"],"mod":["cli","compiler","config","parser","result"],"struct":["Compiler","Config"],"type":["Result"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":["Parser"],"macro":["eyre"],"trait":["App","Parser"],"type":["Result"]};
