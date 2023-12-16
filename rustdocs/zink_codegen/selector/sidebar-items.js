@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["external","parse_selector"]};
+window.SIDEBAR_ITEMS = {"fn":["external"]};

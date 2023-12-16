@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abi/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zabi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abi/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-804b98a1284a310a.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zabi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a96d57bdb 2023-12-15)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -69,75 +70,91 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Utils for generating of zink ABI
-</span><span class="kw">pub use </span><span class="self">self</span>::result::{Error, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>serde::{Deserialize, Serialize};
-<span class="kw">use </span>sha3::{Digest, Keccak256};
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Zink ABI implementation
+//!
+//! Currently just a wrapper of solidity ABI.
 
-<span class="kw">mod </span>result;
+</span><span class="kw">pub mod </span>result;
+<span class="kw">pub mod </span>selector;
 
-<span class="doccomment">/// Generate a keccak hash of the input (sha3)
-</span><span class="kw">pub fn </span>keccak256(input: <span class="kw-2">&amp;</span>[u8]) -&gt; [u8; <span class="number">32</span>] {
-    <span class="kw">let </span><span class="kw-2">mut </span>hasher = Keccak256::new();
-    hasher.update(input);
-    hasher.finalize().into()
-}
-
-<span class="doccomment">/// Get function selector from function signature.
-</span><span class="kw">pub fn </span>selector(input: <span class="kw-2">&amp;</span>[u8]) -&gt; [u8; <span class="number">4</span>] {
-    <span class="kw">let </span><span class="kw-2">mut </span>selector = [<span class="number">0u8</span>; <span class="number">4</span>];
-    selector.copy_from_slice(<span class="kw-2">&amp;</span>keccak256(input)[..<span class="number">4</span>]);
-
-    selector
-}
+<span class="kw">use </span>core::ops::{Deref, DerefMut};
 
 <span class="doccomment">/// Function ABI.
-</span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>Abi {
-    <span class="doccomment">/// Function name.
-    </span><span class="kw">pub </span>name: String,
-    <span class="doccomment">/// Function inputs.
-    </span><span class="kw">pub </span>inputs: Vec&lt;String&gt;,
+</span><span class="attr">#[derive(Debug, Clone)]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub struct </span>Abi(sol_abi::Abi);
+
+<span class="kw">impl </span>Deref <span class="kw">for </span>Abi {
+    <span class="kw">type </span>Target = sol_abi::Abi;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="kw">impl </span>Abi {
-    <span class="doccomment">/// Get function signature.
-    </span><span class="kw">pub fn </span>signature(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="self">self</span>.name.clone() + <span class="string">"(" </span>+ <span class="kw-2">&amp;</span><span class="self">self</span>.inputs.join(<span class="string">","</span>) + <span class="string">")"
+<span class="kw">impl </span>DerefMut <span class="kw">for </span>Abi {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
     </span>}
+}
 
-    <span class="doccomment">/// Get function selector.
-    </span><span class="kw">pub fn </span>selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [u8; <span class="number">4</span>] {
-        <span class="kw">let </span>sig = <span class="self">self</span>.signature();
-        <span class="kw">let </span><span class="kw-2">mut </span>selector = [<span class="number">0u8</span>; <span class="number">4</span>];
-        selector.copy_from_slice(<span class="kw-2">&amp;</span>keccak256(sig.as_bytes())[..<span class="number">4</span>]);
-
-        selector
+<span class="attr">#[cfg(feature = <span class="string">"bytes"</span>)]
+</span><span class="kw">impl </span>Abi {
+    <span class="doccomment">/// Convert [`Abi`] to bytes.
+    </span><span class="kw">pub fn </span>to_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; postcard::Result&lt;Vec&lt;u8&gt;&gt; {
+        postcard::to_stdvec(<span class="self">self</span>).map_err(Into::into)
     }
 
-    <span class="doccomment">/// Parse ABI from bytes.
-    </span><span class="kw">pub fn </span>from_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        postcard::from_bytes(bytes).map_err(Into::into)
+    <span class="doccomment">/// Convert bytes to [`Abi`].
+    </span><span class="kw">pub fn </span>from_bytes(bytes: <span class="kw">impl </span>AsRef&lt;[u8]&gt;) -&gt; postcard::Result&lt;<span class="self">Self</span>&gt; {
+        postcard::from_bytes(bytes.as_ref()).map_err(Into::into)
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"hex"</span>)]
+</span><span class="kw">mod </span>hex_impl {
+    <span class="kw">use crate</span>::{result::Result, Abi};
+
+    <span class="kw">impl </span>Abi {
+        <span class="doccomment">/// Convert [`Abi`] to hex string.
+        </span><span class="kw">pub fn </span>to_hex(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+            <span class="prelude-val">Ok</span>(<span class="string">"0x"</span>.to_string() + <span class="kw-2">&amp;</span>hex::encode(<span class="self">self</span>.to_bytes()<span class="question-mark">?</span>))
+        }
+
+        <span class="doccomment">/// Convert hex string to [`Abi`].
+        </span><span class="kw">pub fn </span>from_hex(hex: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+            <span class="self">Self</span>::from_bytes(hex::decode(hex.as_ref().trim_start_matches(<span class="string">"0x"</span>))<span class="question-mark">?</span>)
+                .map_err(Into::into)
+        }
     }
 
-    <span class="doccomment">/// Decode ABI form hex string.
-    </span><span class="kw">pub fn </span>from_hex(hex: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::from_bytes(<span class="kw-2">&amp;</span>hex::decode(hex)<span class="question-mark">?</span>)
+    <span class="kw">impl </span>ToString <span class="kw">for </span>Abi {
+        <span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+            <span class="self">self</span>.to_hex().unwrap_or_default()
+        }
     }
 
-    <span class="doccomment">/// Decode ABI form hex string.
-    </span><span class="kw">pub fn </span>from_hex_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::from_hex(<span class="kw-2">&amp;</span>String::from_utf8_lossy(bytes))
-    }
+    <span class="kw">impl </span>core::str::FromStr <span class="kw">for </span>Abi {
+        <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw">crate</span>::result::Error;
 
-    <span class="doccomment">/// Convert ABI to hex string.
-    </span><span class="kw">pub fn </span>to_hex(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="self">self</span>.to_bytes().map(hex::encode)
+        <span class="kw">fn </span>from_str(hex: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+            <span class="self">Self</span>::from_hex(hex)
+        }
     }
+}
 
-    <span class="doccomment">/// Convert ABI to bytes.
-    </span><span class="kw">pub fn </span>to_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        postcard::to_stdvec(<span class="kw-2">&amp;</span><span class="self">self</span>).map_err(Into::into)
+<span class="attr">#[cfg(feature = <span class="string">"syn"</span>)]
+</span><span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>syn::Signature&gt; <span class="kw">for </span>Abi {
+    <span class="kw">fn </span>from(sig: <span class="kw-2">&amp;</span>syn::Signature) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(sol_abi::Abi::from(sig))
     }
 }
 </code></pre></div></section></main></body></html>
