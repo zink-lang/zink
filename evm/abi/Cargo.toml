@@ -3,6 +3,7 @@ name = "sol-abi"
 description = "Solidity ABI implementation"
 version = "0.0.1"
 keywords = [ "no-std", "solidity", "ethereum" ]
+documentation = "https://docs.rs/sol-abi"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
