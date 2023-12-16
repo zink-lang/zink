@@ -1,6 +1,5 @@
 //! Common command line interface.
 
-use anyhow::Error;
 pub use clap::{self, Parser};
 pub use color_eyre::{eyre::eyre, Result};
 use tracing_subscriber::filter::EnvFilter;
@@ -11,7 +10,7 @@ pub trait App: Parser {
     fn verbose(&self) -> u8;
 
     /// Run application.
-    fn run(&self) -> std::result::Result<(), Error>;
+    fn run(&self) -> anyhow::Result<()>;
 
     /// Start application.
     fn start() -> Result<()> {
