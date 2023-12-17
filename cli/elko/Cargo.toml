@@ -23,4 +23,5 @@ tracing.workspace = true
 zinkc = { workspace = true, features = [ "cli", "utils" ] }
 
 [features]
+default = [ "wasm-opt" ]
 wasm-opt = [ "zinkc/wasm-opt" ]

@@ -27,4 +27,5 @@ zabi.workspace = true
 zinkc =  { workspace = true, features = [ "utils" ] }
 
 [features]
+default = [ "wasm-opt" ]
 wasm-opt = [ "zinkc/wasm-opt" ]
