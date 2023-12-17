@@ -35,5 +35,5 @@ zabi.workspace = true
 etc.workspace = true
 
 [features]
-cli = [ "ccli", "serde_json", "utils" ]
+cli = [ "ccli", "serde_json" ]
 utils = [ ]
