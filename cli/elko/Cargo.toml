@@ -21,3 +21,6 @@ thiserror.workspace = true
 toml.workspace = true
 tracing.workspace = true
 zinkc = { workspace = true, features = [ "cli", "utils" ] }
+
+[features]
+wasm-opt = [ "zinkc/wasm-opt" ]
