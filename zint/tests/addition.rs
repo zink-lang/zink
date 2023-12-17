@@ -1,4 +1,4 @@
-use zint::EVM;
+use zint::Interp;
 
 const ADDITION_BYTECODE: &str = "6000356020350160005260206000f3";
 const INPUT: &str = "00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002";
@@ -6,7 +6,7 @@ const RESULT: &str = "0000000000000000000000000000000000000000000000000000000000
 
 #[test]
 fn addition() {
-    let info = EVM::run(
+    let info = Interp::run(
         &hex::decode(ADDITION_BYTECODE).expect("Invalid bytecode"),
         &hex::decode(INPUT).expect("Invalid input"),
     );

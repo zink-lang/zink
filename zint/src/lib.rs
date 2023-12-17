@@ -4,13 +4,14 @@
 mod api;
 mod bytes;
 mod contract;
-mod evm;
+// mod evm;
+mod interp;
 mod result;
 
 pub use self::{
     bytes::Bytes32,
     contract::Contract,
-    evm::{Info, InstructionResult, EVM, U256},
+    interp::{Info, InstructionResult, Interp, U256},
     result::Result,
 };
 use tracing_subscriber::EnvFilter;
