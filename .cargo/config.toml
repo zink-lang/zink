@@ -4,6 +4,7 @@ be = "build --examples --target wasm32-unknown-unknown --release"
 tt = "nextest run --release --all --no-fail-fast"
 te = "nextest run --workspace --no-fail-fast --release --examples"
 cc = "clippy --all -- -D warnings"
+docs = "doc --workspace --document-private-items --all-features --open"
 conta = "run --release -p conta"
 
 [target.wasm32-unknown-unknown]
