@@ -3,6 +3,8 @@
 ### Changes
 
 - Refactor conta with `toml_edit`
+- Optional ethers
+- Optional exports wasm-opt from zinkc
 
 ### FIXED
 
