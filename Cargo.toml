@@ -100,5 +100,5 @@ zink-codegen.workspace = true
 anyhow.workspace = true
 paste.workspace = true
 filetests.workspace = true
-zint.workspace = true
+zint = { workspace = true, features = [ "ethers" ] }
 tokio = { workspace = true, features = [ "macros" ] }

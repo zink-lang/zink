@@ -26,7 +26,7 @@ proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true
 wat.workspace = true
-wasm-opt.workspace = true
+zinkc = { workspace = true, features = [ "utils", "wasm-opt" ] }
 
 [features]
 testing = []

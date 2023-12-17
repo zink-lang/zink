@@ -80,8 +80,8 @@ impl EVM {
     pub fn run(btyecode: &[u8], input: &[u8]) -> Info {
         let mut evm = Self::new(btyecode, input);
         let info = evm.execute();
-        tracing::debug!("{info:?}");
 
+        tracing::debug!("{info:?}");
         info
     }
 }

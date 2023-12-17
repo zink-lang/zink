@@ -1,22 +1,23 @@
 //! Zink sdk results.
 
-use crate::api::Signer;
-
 /// Zint error.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[cfg(feature = "ethers")]
     /// Ethers abi error.
     #[error(transparent)]
     Abi(#[from] ethers::abi::AbiError),
     /// Anyhow error.
     #[error(transparent)]
     Anyhow(#[from] anyhow::Error),
+    #[cfg(feature = "ethers")]
     /// Ethers contract error.
     #[error(transparent)]
-    Contract(#[from] ethers::middleware::contract::ContractError<Signer>),
+    Contract(#[from] ethers::middleware::contract::ContractError<crate::api::Signer>),
     /// Url parser error.
     #[error(transparent)]
     Url(#[from] url::ParseError),
+    #[cfg(feature = "ethers")]
     /// Ethers wallet error.
     #[error(transparent)]
     Wallet(#[from] ethers::signers::WalletError),
