@@ -1,6 +1,8 @@
-//! Zink SDK.
+//! Zink ethers integration.
+#![cfg(feature = "ethers")]
 
 use crate::Result;
+pub use ethers;
 use ethers::{
     abi::Abi,
     contract::ContractFactory,

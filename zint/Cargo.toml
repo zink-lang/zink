@@ -13,7 +13,7 @@ repository.workspace = true
 anyhow.workspace = true
 cargo_metadata.workspace = true
 etc.workspace = true
-ethers.workspace = true
+ethers = { workspace = true, optional = true }
 hex.workspace = true
 revm.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
