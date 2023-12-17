@@ -3,11 +3,7 @@
 use crate::{Bytes32, Info, EVM};
 use anyhow::{anyhow, Result};
 use serde::Deserialize;
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
-use wasm_opt::OptimizationOptions;
+use std::{fs, path::PathBuf};
 use zabi::Abi;
 use zinkc::Compiler;
 
@@ -53,16 +49,6 @@ impl Contract {
                     .join("wasm32-unknown-unknown")
                     .into()
             })
-    }
-
-    /// Run wasm-opt on the given WASM file.
-    fn wasm_opt(wasm: impl AsRef<Path>) -> Result<()> {
-        OptimizationOptions::new_opt_level_4()
-            .debug_info(false)
-            .mvp_features_only()
-            .set_converge()
-            .run(&wasm, &wasm)
-            .map_err(Into::into)
     }
 
     /// Create new contract
@@ -140,7 +126,7 @@ impl Contract {
         };
 
         let wasm = search("release").or_else(|_| search("debug"))?;
-        Self::wasm_opt(&wasm)?;
+        zinkc::utils::wasm_opt(&wasm, &wasm)?;
 
         tracing::debug!("loading contract from {}", wasm.display());
         Ok(Self::new(fs::read(wasm)?))

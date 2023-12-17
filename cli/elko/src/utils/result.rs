@@ -15,9 +15,6 @@ pub enum Error {
     /// IO error
     #[error(transparent)]
     Io(#[from] std::io::Error),
-    /// Serde JSON error
-    #[error(transparent)]
-    WasmOpt(#[from] wasm_opt::OptimizationError),
 }
 
 /// Zinkc result

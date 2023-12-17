@@ -5,7 +5,6 @@ use anyhow::anyhow;
 use cargo_metadata::{Metadata, MetadataCommand, Package};
 use etc::{Etc, FileSystem};
 use std::{fs, path::PathBuf, process::Command};
-use wasm_opt::OptimizationOptions;
 
 /// WASM Builder
 pub struct WasmBuilder {
@@ -120,11 +119,7 @@ impl WasmBuilder {
             .with_extension("wasm");
 
         // run the wasm optimizer
-        OptimizationOptions::new_opt_level_4()
-            .debug_info(false)
-            .mvp_features_only()
-            .set_converge()
-            .run(src, self.output()?)?;
+        zinkc::utils::wasm_opt(src, self.output()?)?;
 
         Ok(())
     }

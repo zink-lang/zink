@@ -993,7 +993,6 @@ dependencies = [
  "thiserror",
  "toml",
  "tracing",
- "wasm-opt",
  "zinkc",
 ]
 
@@ -4778,6 +4777,7 @@ dependencies = [
  "thiserror",
  "tracing",
  "tracing-subscriber",
+ "wasm-opt",
  "wasmparser",
  "wat",
  "zabi",
@@ -4795,7 +4795,6 @@ dependencies = [
  "syn 2.0.41",
  "tracing",
  "tracing-subscriber",
- "wasm-opt",
  "wat",
  "zinkc",
 ]
@@ -4817,7 +4816,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "url",
- "wasm-opt",
  "zabi",
  "zinkc",
 ]

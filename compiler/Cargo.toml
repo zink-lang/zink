@@ -20,8 +20,11 @@ tracing.workspace = true
 wasmparser.workspace = true
 zabi.workspace = true
 zingen.workspace = true
+
+# Optional dependencies
 ccli = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
+wasm-opt = { workspace = true, optional = true }
 
 [dev-dependencies]
 hex.workspace = true
@@ -32,4 +35,5 @@ zabi.workspace = true
 etc.workspace = true
 
 [features]
-cli = [ "ccli", "serde_json" ]
+cli = [ "ccli", "serde_json", "utils" ]
+utils = [ ]

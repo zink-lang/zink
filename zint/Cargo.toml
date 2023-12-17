@@ -23,6 +23,5 @@ tracing.workspace = true
 tracing-subscriber = { workspace = true, features = ["env-filter"]}
 toml.workspace = true
 url.workspace = true
-wasm-opt.workspace = true
 zabi.workspace = true
-zinkc.workspace = true
+zinkc =  { workspace = true, features = [ "utils" ] }

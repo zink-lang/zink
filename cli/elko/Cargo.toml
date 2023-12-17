@@ -20,5 +20,4 @@ serde = { workspace = true, features = [ "derive" ] }
 thiserror.workspace = true
 toml.workspace = true
 tracing.workspace = true
-wasm-opt.workspace = true
-zinkc = { workspace = true, features = [ "cli" ] }
+zinkc = { workspace = true, features = [ "cli", "utils" ] }

@@ -9,7 +9,6 @@ use std::{
     path::{Path, PathBuf},
 };
 use syn::{parse_quote, ExprArray, ExprMatch, Ident, ItemImpl, ItemMod};
-use wasm_opt::OptimizationOptions;
 
 fn main() -> Result<()> {
     println!("cargo:rerun-if-changed=build.rs");
@@ -97,11 +96,7 @@ fn examples() -> Result<Vec<PathBuf>> {
         .collect::<Vec<_>>();
 
     for wasm in &files {
-        OptimizationOptions::new_opt_level_4()
-            .debug_info(false)
-            .mvp_features_only()
-            .set_converge()
-            .run(wasm, wasm)?;
+        zinkc::utils::wasm_opt(wasm, wasm)?;
     }
 
     Ok(files)
