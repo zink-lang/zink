@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["InstructionResult"],"fn":["setup_logger"],"mod":["bytes","contract","evm","result"],"struct":["Contract","EVM","Info"],"trait":["Bytes32"],"type":["Result","U256"]};
+window.SIDEBAR_ITEMS = {"enum":["Halt","OutOfGasError"],"fn":["keccak256","setup_logger"],"mod":["bytes","contract","evm","result"],"struct":["Contract","EVM","Info"],"trait":["Bytes32"],"type":["Result","U256"]};
