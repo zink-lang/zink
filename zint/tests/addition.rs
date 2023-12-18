@@ -5,11 +5,9 @@ const INPUT: &str = "00000000000000000000000000000000000000000000000000000000000
 const RESULT: &str = "0000000000000000000000000000000000000000000000000000000000000003";
 
 #[test]
-fn addition() {
-    let info = EVM::run(
-        &hex::decode(ADDITION_BYTECODE).expect("Invalid bytecode"),
-        &hex::decode(INPUT).expect("Invalid input"),
-    );
+fn addition() -> anyhow::Result<()> {
+    let info = EVM::interp(&hex::decode(ADDITION_BYTECODE)?, &hex::decode(INPUT)?)?;
+    assert_eq!(info.ret, hex::decode(RESULT)?);
 
-    assert_eq!(info.ret, hex::decode(RESULT).expect("Invalid result"));
+    Ok(())
 }

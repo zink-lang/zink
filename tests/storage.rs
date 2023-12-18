@@ -3,7 +3,7 @@
 
 use anyhow::Result;
 use filetests::Test;
-use zint::{Bytes32, Contract, InstructionResult, U256};
+use zint::{Bytes32, Contract, U256};
 
 #[test]
 fn store() -> Result<()> {
@@ -11,11 +11,10 @@ fn store() -> Result<()> {
         .without_dispatcher()
         .compile()?;
 
-    let key = 0;
-    let value = 42;
+    let key = 0u64;
+    let value = 42u64;
     let info = contract.execute([value])?;
     assert!(info.ret.is_empty());
-    assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.storage.get(&U256::from(key)), Some(&U256::from(value)));
 
     Ok(())
@@ -29,7 +28,6 @@ fn load() -> Result<()> {
 
     let value = 42;
     let info = contract.execute([value])?;
-    assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, value.to_bytes32());
 
     Ok(())
@@ -43,7 +41,6 @@ fn basic() -> Result<()> {
 
     let value = 42;
     let info = contract.execute([value])?;
-    assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 42.to_bytes32());
 
     Ok(())

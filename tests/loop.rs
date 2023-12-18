@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 use filetests::Test;
-use zint::{Bytes32, Contract, InstructionResult};
+use zint::{Bytes32, Contract, Halt, OutOfGasError};
 
 #[test]
 fn singular() -> Result<()> {
@@ -22,10 +22,12 @@ fn as_br_if() -> Result<()> {
         .without_dispatcher()
         .compile()?;
     let info = contract.execute([0])?;
-    assert_eq!(info.instr, InstructionResult::OutOfGas);
+    assert_eq!(
+        info.halt,
+        Some(Halt::OutOfGas(OutOfGasError::BasicOutOfGas))
+    );
 
     let info = contract.execute([1])?;
-    assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 7.to_bytes32());
 
     Ok(())

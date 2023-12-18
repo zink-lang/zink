@@ -132,8 +132,8 @@ impl Contract {
         Ok(Self::new(fs::read(wasm)?))
     }
 
-    /// Execute the contract.
-    pub fn execute<Param>(&mut self, inputs: impl AsRef<[Param]>) -> Result<Info>
+    /// Encode call data
+    pub fn encode<Param>(&self, inputs: impl AsRef<[Param]>) -> Result<Vec<u8>>
     where
         Param: Bytes32,
     {
@@ -152,6 +152,14 @@ impl Contract {
             calldata.extend_from_slice(&input.to_bytes32());
         }
 
-        Ok(EVM::run(&self.bytecode, &calldata))
+        Ok(calldata)
+    }
+
+    /// Execute the contract.
+    pub fn execute<Param>(&mut self, inputs: impl AsRef<[Param]>) -> Result<Info>
+    where
+        Param: Bytes32,
+    {
+        EVM::interp(&self.bytecode, &self.encode(inputs)?)
     }
 }

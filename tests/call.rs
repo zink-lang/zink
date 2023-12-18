@@ -3,7 +3,7 @@
 
 use anyhow::Result;
 use filetests::Test;
-use zint::{Bytes32, Contract, InstructionResult};
+use zint::{Bytes32, Contract};
 
 #[test]
 fn dummy() -> Result<()> {
@@ -12,7 +12,6 @@ fn dummy() -> Result<()> {
         .compile()?;
     let info = contract.execute::<()>([])?;
 
-    assert_eq!(info.instr, InstructionResult::Return);
     assert!(info.ret.is_empty());
     Ok(())
 }

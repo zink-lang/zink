@@ -37,3 +37,6 @@ etc.workspace = true
 [features]
 cli = [ "ccli", "serde_json", "utils" ]
 utils = [ "wasm-opt" ]
+
+[package.metadata.docs.rs]
+all-features = true

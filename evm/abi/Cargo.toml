@@ -19,3 +19,6 @@ quote = { workspace = true, optional = true }
 default = [ "serde", "syn" ]
 syn = [ "dep:syn", "quote", "std" ]
 std = [ "serde/std" ]
+
+[package.metadata.docs.rs]
+all-features = true

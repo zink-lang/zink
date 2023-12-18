@@ -31,7 +31,8 @@ jobs:
           RUSTDOCFLAGS="--enable-index-page -Zunstable-options" cargo doc \
           --workspace \
           --no-deps \
-          --document-private-items
+          --document-private-items \
+          --all-features
 
       - name: Assemble docs
         run: mv target/doc docs/book/rustdocs

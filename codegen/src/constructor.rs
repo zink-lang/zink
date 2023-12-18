@@ -10,6 +10,8 @@ use crate::{Buffer, CodeGen, Function, JumpTable, MacroAssembler, Result, ToLSBy
 ///   - `INIT_LOGIC`
 ///   - `RETURN RUNTIME_BYTECODE`
 /// - `RUNTIME_BYTECODE`
+///
+/// TODO: introduce ABI for constructor
 pub struct Constructor {
     /// Code buffer.
     pub masm: MacroAssembler,
@@ -46,6 +48,7 @@ impl Constructor {
         })
     }
 
+    /// Returns the length of instructions.
     fn return_instr_length(init_code_length: usize, runtime_bytecode_length: usize) -> usize {
         let mut expected_length =
             runtime_bytecode_length.to_ls_bytes().len() + init_code_length.to_ls_bytes().len() + 3;
