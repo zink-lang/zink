@@ -73,7 +73,7 @@ impl Compiler {
             return Err(Error::BufferOverflow(self.buffer.len()));
         }
 
-        self.abi = dispatcher.abi;
+        self.abi.append(&mut dispatcher.abi);
         Ok(())
     }
 

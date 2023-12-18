@@ -3,8 +3,8 @@
 use anyhow::{anyhow, Result};
 use revm::{
     primitives::{
-        AccountInfo, Bytecode, Bytes, Eval, ExecutionResult, Halt, Log, ResultAndState, TransactTo,
-        U256,
+        AccountInfo, Bytecode, Bytes, CreateScheme, Eval, ExecutionResult, Halt, Log, Output,
+        ResultAndState, TransactTo, U256,
     },
     InMemoryDB, EVM as REVM,
 };
@@ -38,21 +38,31 @@ impl Default for EVM {
 }
 
 impl EVM {
-    fn db(&mut self) -> &mut InMemoryDB {
-        self.inner
-            .db()
-            .unwrap_or_else(|| unreachable!("provided on initialization"))
+    /// Interpret runtime bytecode with provided arguments
+    pub fn interp(runtime_bytecode: &[u8], input: &[u8]) -> Result<Info> {
+        Self::default()
+            .contract(runtime_bytecode)
+            .calldata(input)
+            .call(CONTRACT)
     }
 
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
-        self.inner.env.tx.transact_to = TransactTo::Call(to.into());
+        let to = TransactTo::Call(to.into());
+        self.inner.env.tx.transact_to = to.clone();
         let result = self.inner.transact_ref().map_err(|e| anyhow!(e))?;
         (result, to).try_into()
     }
 
+    /// Interpret runtime bytecode with provided arguments
+    pub fn deploy(&mut self, bytecode: &[u8]) -> Result<Info> {
+        self.calldata(bytecode);
+        self.inner.env.tx.transact_to = TransactTo::Create(CreateScheme::Create);
+        self.inner.transact_commit()?.try_into()
+    }
+
     /// Fill the calldata of the present transaction.
-    pub fn calldata(mut self, input: &[u8]) -> Self {
+    pub fn calldata(&mut self, input: &[u8]) -> &mut Self {
         self.inner.env.tx.data = Bytes::copy_from_slice(input);
         self
     }
@@ -72,18 +82,18 @@ impl EVM {
         self
     }
 
-    /// Interpret runtime bytecode with provided arguments
-    pub fn interp(runtime_bytecode: &[u8], input: &[u8]) -> Result<Info> {
-        Self::default()
-            .contract(runtime_bytecode)
-            .calldata(input)
-            .call(CONTRACT)
+    fn db(&mut self) -> &mut InMemoryDB {
+        self.inner
+            .db()
+            .unwrap_or_else(|| unreachable!("provided on initialization"))
     }
 }
 
 /// Interp execution result info.
 #[derive(Debug, Default)]
 pub struct Info {
+    /// the created contract address if any.
+    pub address: [u8; 20],
     /// Gas spent.
     pub gas: u64,
     /// Return value.
@@ -96,13 +106,14 @@ pub struct Info {
     pub halt: Option<Halt>,
 }
 
-impl TryFrom<(ResultAndState, [u8; 20])> for Info {
+impl TryFrom<ExecutionResult> for Info {
     type Error = anyhow::Error;
 
-    fn try_from((res, address): (ResultAndState, [u8; 20])) -> Result<Self> {
-        let ResultAndState { result, state } = res;
-        let mut info: Self = Default::default();
-        info.gas = result.gas_used();
+    fn try_from(result: ExecutionResult) -> Result<Self> {
+        let mut info = Info {
+            gas: result.gas_used(),
+            ..Default::default()
+        };
 
         match result {
             ExecutionResult::Success {
@@ -112,11 +123,25 @@ impl TryFrom<(ResultAndState, [u8; 20])> for Info {
                 ..
             } => {
                 if reason != Eval::Return {
-                    return Err(anyhow!("Transaction not returned: {reason:?}."));
+                    return Err(anyhow!("Transaction is not returned: {reason:?}"));
                 }
-
                 info.logs = logs;
-                info.ret = output.into_data().to_vec();
+
+                let ret = match output {
+                    Output::Call(bytes) => bytes,
+                    Output::Create(bytes, maybe_address) => {
+                        let Some(address) = maybe_address else {
+                            return Err(anyhow!(
+                                "No contract created after the creation transaction."
+                            ));
+                        };
+
+                        info.address = *address.as_ref();
+                        bytes
+                    }
+                };
+
+                info.ret = ret.into();
             }
             ExecutionResult::Halt { reason, .. } => {
                 info.halt = Some(reason);
@@ -124,13 +149,26 @@ impl TryFrom<(ResultAndState, [u8; 20])> for Info {
             _ => unreachable!("This should never happen"),
         }
 
-        info.storage = state
-            .get(&address)
-            .ok_or_else(|| anyhow!("no state found for account 0x{}", hex::encode(&address)))?
-            .storage
-            .iter()
-            .map(|(k, v)| (*k, v.present_value))
-            .collect();
+        Ok(info)
+    }
+}
+
+impl TryFrom<(ResultAndState, TransactTo)> for Info {
+    type Error = anyhow::Error;
+
+    fn try_from((res, to): (ResultAndState, TransactTo)) -> Result<Self> {
+        let ResultAndState { result, state } = res;
+        let mut info = Self::try_from(result)?;
+
+        if let TransactTo::Call(address) = to {
+            info.storage = state
+                .get(&address)
+                .ok_or_else(|| anyhow!("no state found for account 0x{}", hex::encode(address)))?
+                .storage
+                .iter()
+                .map(|(k, v)| (*k, v.present_value))
+                .collect();
+        }
 
         Ok(info)
     }

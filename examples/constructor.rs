@@ -31,28 +31,21 @@ pub fn constructor(value: i32) {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-#[cfg(test)]
-mod tests {
-    use zint::{ethers::abi::Abi, Contract, Ethers};
+#[test]
+fn deploy() -> anyhow::Result<()> {
+    use zint::{Bytes32, Contract, EVM};
 
-    #[tokio::test]
-    #[allow(deprecated)]
-    async fn constructor() -> zint::Result<()> {
-        let api = Ethers::anvil()?;
-        let contract = Contract::search("constructor")?
-            .constructor(true)
-            .compile()?;
+    let contract = Contract::search("constructor")?
+        .without_dispatcher()
+        .constructor(true)
+        .compile()?;
 
-        // let info = contract.execute([])?;
-        // println!("{:?}", info);
+    let mut evm = EVM::default();
+    let mut info = evm.deploy(&contract.bytecode)?;
+    info = evm
+        .calldata(&contract.encode(&["get()"])?)
+        .call(info.address)?;
 
-        let abi: Abi = Abi::load(&*contract.json_abi()?.as_bytes())
-            .map_err(|e| anyhow::anyhow!("Failed to load abi {e}"))?;
-        let factory = api.factory(abi, contract.bytecode)?;
-        let contract = factory.deploy(())?.legacy().send().await?;
-        let r = contract.method::<(), i32>("get", ())?.call().await?;
-
-        assert_eq!(r, 1);
-        Ok(())
-    }
+    assert_eq!(info.ret, 1.to_bytes32());
+    Ok(())
 }
