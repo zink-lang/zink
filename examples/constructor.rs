@@ -43,6 +43,9 @@ mod tests {
             .constructor(true)
             .compile()?;
 
+        // let info = contract.execute([])?;
+        // println!("{:?}", info);
+
         let abi: Abi = Abi::load(&*contract.json_abi()?.as_bytes())
             .map_err(|e| anyhow::anyhow!("Failed to load abi {e}"))?;
         let factory = api.factory(abi, contract.bytecode)?;

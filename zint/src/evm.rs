@@ -1,87 +1,137 @@
-//! Re-export REVM interpreter for testing usages.
+//! Wrapper of revm
 
-pub use revm::interpreter::{instruction_result::InstructionResult, primitives::U256};
-use revm::interpreter::{
-    primitives::{bytecode::Bytecode, specification::ShanghaiSpec, Log},
-    Contract, DummyHost, Interpreter,
+use anyhow::{anyhow, Result};
+use revm::{
+    primitives::{
+        AccountInfo, Bytecode, Bytes, Eval, ExecutionResult, Halt, Log, ResultAndState, TransactTo,
+        U256,
+    },
+    InMemoryDB, EVM as REVM,
 };
 use std::collections::HashMap;
 
-const INITIAL_GAS: u64 = 1_000_000_000;
+/// Transaction gas limit.
+const GAS_LIMIT: u64 = 1_000_000_000;
 
-/// EVM execution result info.
-#[derive(Debug)]
+/// Alice account address.
+pub const ALICE: [u8; 20] = [0; 20];
+
+/// Contract address if any.
+pub const CONTRACT: [u8; 20] = [1; 20];
+
+/// Wrapper of full REVM
+pub struct EVM {
+    inner: REVM<InMemoryDB>,
+}
+
+impl Default for EVM {
+    fn default() -> Self {
+        let mut db = InMemoryDB::default();
+        db.insert_account_info(ALICE.into(), AccountInfo::from_balance(U256::MAX));
+
+        let mut evm = REVM::new();
+        evm.database(db);
+        evm.env.tx.gas_limit = GAS_LIMIT;
+
+        Self { inner: evm }
+    }
+}
+
+impl EVM {
+    fn db(&mut self) -> &mut InMemoryDB {
+        self.inner
+            .db()
+            .unwrap_or_else(|| unreachable!("provided on initialization"))
+    }
+
+    /// Send transaction to the provided address.
+    pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
+        self.inner.env.tx.transact_to = TransactTo::Call(to.into());
+        let result = self.inner.transact_ref().map_err(|e| anyhow!(e))?;
+        (result, to).try_into()
+    }
+
+    /// Fill the calldata of the present transaction.
+    pub fn calldata(mut self, input: &[u8]) -> Self {
+        self.inner.env.tx.data = Bytes::copy_from_slice(input);
+        self
+    }
+
+    /// Override the present contract
+    pub fn contract(mut self, runtime_bytecode: &[u8]) -> Self {
+        self.db().insert_account_info(
+            CONTRACT.into(),
+            AccountInfo::new(
+                Default::default(),
+                0,
+                Default::default(),
+                Bytecode::new_raw(Bytes::copy_from_slice(runtime_bytecode)),
+            ),
+        );
+
+        self
+    }
+
+    /// Interpret runtime bytecode with provided arguments
+    pub fn interp(runtime_bytecode: &[u8], input: &[u8]) -> Result<Info> {
+        Self::default()
+            .contract(runtime_bytecode)
+            .calldata(input)
+            .call(CONTRACT)
+    }
+}
+
+/// Interp execution result info.
+#[derive(Debug, Default)]
 pub struct Info {
     /// Gas spent.
     pub gas: u64,
-    /// The last instruction.
-    pub instr: InstructionResult,
     /// Return value.
     pub ret: Vec<u8>,
     /// The storage.
     pub storage: HashMap<U256, U256>,
     /// Execution logs.
     pub logs: Vec<Log>,
+    /// Transaction halt reason.
+    pub halt: Option<Halt>,
 }
 
-/// EVM interpreter.
-pub struct EVM {
-    interpreter: Interpreter,
-    host: DummyHost,
-}
+impl TryFrom<(ResultAndState, [u8; 20])> for Info {
+    type Error = anyhow::Error;
 
-impl EVM {
-    /// Create a new EVM instance.
-    pub fn new(btyecode: &[u8], input: &[u8]) -> Self {
-        tracing::debug!("calldata: 0x{}", hex::encode(input));
+    fn try_from((res, address): (ResultAndState, [u8; 20])) -> Result<Self> {
+        let ResultAndState { result, state } = res;
+        let mut info: Self = Default::default();
+        info.gas = result.gas_used();
 
-        let contract = Contract::new(
-            input.to_vec().into(),                       // input
-            Bytecode::new_raw(btyecode.to_vec().into()), // code
-            Default::default(),                          // hash
-            Default::default(),                          // address
-            Default::default(),                          // caller
-            U256::ZERO,                                  // value
-        );
+        match result {
+            ExecutionResult::Success {
+                logs,
+                reason,
+                output,
+                ..
+            } => {
+                if reason != Eval::Return {
+                    return Err(anyhow!("Transaction not returned: {reason:?}."));
+                }
 
-        Self {
-            interpreter: Interpreter::new(Box::new(contract), INITIAL_GAS, false),
-            host: DummyHost::new(Default::default()),
+                info.logs = logs;
+                info.ret = output.into_data().to_vec();
+            }
+            ExecutionResult::Halt { reason, .. } => {
+                info.halt = Some(reason);
+            }
+            _ => unreachable!("This should never happen"),
         }
-    }
 
-    /// Execute a contract.
-    pub fn execute(&mut self) -> Info {
-        let instr = self
-            .interpreter
-            .run::<DummyHost, ShanghaiSpec>(&mut self.host);
-
-        let ret = self.interpreter.return_value().to_vec();
-        self.interpreter.gas();
-
-        let storage = self
-            .host
+        info.storage = state
+            .get(&address)
+            .ok_or_else(|| anyhow!("no state found for account 0x{}", hex::encode(&address)))?
             .storage
-            .clone()
-            .into_iter()
-            .map(|(k, v)| (k, U256::from_le_bytes(v.to_le_bytes::<32>())))
+            .iter()
+            .map(|(k, v)| (*k, v.present_value))
             .collect();
 
-        Info {
-            gas: self.interpreter.gas().spend(),
-            instr,
-            ret,
-            storage,
-            logs: self.host.log.clone(),
-        }
-    }
-
-    /// Run a contract.
-    pub fn run(btyecode: &[u8], input: &[u8]) -> Info {
-        let mut evm = Self::new(btyecode, input);
-        let info = evm.execute();
-
-        tracing::debug!("{info:?}");
-        info
+        Ok(info)
     }
 }

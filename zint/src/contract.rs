@@ -1,6 +1,6 @@
 //! Contract Instance
 
-use crate::{interp::Interp, Bytes32, Info};
+use crate::{Bytes32, Info, EVM};
 use anyhow::{anyhow, Result};
 use serde::Deserialize;
 use std::{fs, path::PathBuf};
@@ -152,6 +152,6 @@ impl Contract {
             calldata.extend_from_slice(&input.to_bytes32());
         }
 
-        Ok(Interp::run(&self.bytecode, &calldata))
+        EVM::interp(&self.bytecode, &calldata)
     }
 }

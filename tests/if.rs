@@ -1,7 +1,7 @@
 //! if-else tests for the zink compiler.
 use anyhow::Result;
 use filetests::Test;
-use zint::{Bytes32, Contract, InstructionResult};
+use zint::{Bytes32, Contract};
 
 #[test]
 fn if_then() -> Result<()> {
@@ -32,12 +32,10 @@ fn singular() -> Result<()> {
     //
     // Enter if block if 1
     let info = contract.execute(&[1])?;
-    assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 7.to_bytes32());
 
     // test else
     let info = contract.execute(&[0])?;
-    assert_eq!(info.instr, InstructionResult::Return);
     assert_eq!(info.ret, 8.to_bytes32());
 
     Ok(())

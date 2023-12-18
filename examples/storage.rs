@@ -40,7 +40,7 @@ fn main() {}
 
 #[test]
 fn selector() -> anyhow::Result<()> {
-    use zint::{Bytes32, Contract, InstructionResult, U256};
+    use zint::{Bytes32, Contract, U256};
 
     let mut contract = Contract::search("storage")?.compile()?;
 
@@ -49,13 +49,11 @@ fn selector() -> anyhow::Result<()> {
         let value: i32 = 42;
         let info = contract.execute(&[b"set(int32)".to_vec(), value.to_bytes32().to_vec()])?;
         assert!(info.ret.is_empty());
-        assert_eq!(info.instr, InstructionResult::Return);
         assert_eq!(info.storage.get(&U256::from(key)), Some(&U256::from(value)));
     }
 
     {
         let info = contract.execute(&["get()"])?;
-        assert_eq!(info.instr, InstructionResult::Return);
         assert_eq!(info.ret, 0.to_bytes32());
     }
 
@@ -64,7 +62,6 @@ fn selector() -> anyhow::Result<()> {
         let value = 42;
         let info =
             contract.execute(&[b"set_and_get(int32)".to_vec(), value.to_bytes32().to_vec()])?;
-        assert_eq!(info.instr, InstructionResult::Return);
         assert_eq!(info.ret, value.to_bytes32());
         assert_eq!(info.storage.get(&U256::from(key)), Some(&U256::from(value)));
     }

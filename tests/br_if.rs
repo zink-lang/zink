@@ -1,7 +1,7 @@
 //! br_if tests for the zink compiler.
 use anyhow::Result;
 use filetests::Test;
-use zint::{Contract, InstructionResult};
+use zint::{Contract, Halt, OutOfGasError};
 
 #[test]
 fn as_block_last() -> Result<()> {
@@ -10,11 +10,13 @@ fn as_block_last() -> Result<()> {
         .compile()?;
 
     let info = contract.execute(&[0])?;
-    assert_eq!(info.instr, InstructionResult::Return);
     assert!(info.ret.is_empty());
 
     let info = contract.execute(&[42])?;
-    assert_eq!(info.instr, InstructionResult::OutOfGas);
+    assert_eq!(
+        info.halt,
+        Some(Halt::OutOfGas(OutOfGasError::BasicOutOfGas))
+    );
     assert!(info.ret.is_empty());
 
     Ok(())

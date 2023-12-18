@@ -4,16 +4,16 @@
 mod api;
 mod bytes;
 mod contract;
-// mod evm;
-mod interp;
+mod evm;
 mod result;
 
 pub use self::{
     bytes::Bytes32,
     contract::Contract,
-    interp::{Info, InstructionResult, Interp, U256},
+    evm::{Info, EVM},
     result::Result,
 };
+pub use revm::primitives::{Halt, OutOfGasError, U256};
 use tracing_subscriber::EnvFilter;
 
 #[cfg(feature = "ethers")]
