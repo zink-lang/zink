@@ -1,3 +1,7 @@
+[profile]
+dev = { panic = "abort"}
+release = { panic = "unwind" }
+
 [workspace]
 members = [
   "abi",
@@ -66,9 +70,8 @@ zink = { path = ".", version = "0.1.8" }
 zink-codegen = { path = "zink/codegen", version = "0.1.8" }
 zint = { path = "zint", version = "0.1.8" }
 
-[profile]
-dev = { panic = "abort"}
-release = { panic = "unwind" }
+[workspace.metadata.release]
+enable-all-features = true
 
 # Zink Programming Language
 # -------------------------
