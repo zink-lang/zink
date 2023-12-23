@@ -1,8 +1,8 @@
 //! System instructions
 
-use crate::{masm::MemoryInfo, CodeGen, Error, Result, ToLSBytes};
+use crate::{masm::MemoryInfo, wasm::ToLSBytes, Error, Function, Result};
 
-impl CodeGen {
+impl Function {
     /// Parse log data from the bytecode.
     fn log_data(&mut self) -> Result<(i32, i32)> {
         let buffer: Vec<u8> = self.masm.buffer().into();

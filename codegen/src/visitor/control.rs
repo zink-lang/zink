@@ -2,11 +2,11 @@
 
 use crate::{
     control::{ControlStackFrame, ControlStackFrameType},
-    CodeGen, Result,
+    Function, Result,
 };
 use wasmparser::{BlockType, BrTable};
 
-impl CodeGen {
+impl Function {
     /// The beginning of an if construct with an implicit block.
     pub fn _if(&mut self, blockty: BlockType) -> Result<()> {
         // Emit iszero to check the condition.

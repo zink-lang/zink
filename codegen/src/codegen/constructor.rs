@@ -1,6 +1,9 @@
 //! Contract constructor.
 
-use crate::{Buffer, CodeGen, Function, JumpTable, MacroAssembler, Result, ToLSBytes};
+use crate::{
+    wasm::{self, ToLSBytes},
+    Buffer, Function, JumpTable, MacroAssembler, Result,
+};
 
 /// Contract constructor.
 ///
@@ -25,10 +28,10 @@ pub struct Constructor {
 
 impl Constructor {
     /// Create a new constructor.
-    pub fn new(constructor: Option<Function<'_>>, runtime_bytecode: Buffer) -> Result<Self> {
+    pub fn new(constructor: Option<wasm::Function<'_>>, runtime_bytecode: Buffer) -> Result<Self> {
         let mut init_code = Buffer::new();
         if let Some(constructor) = constructor {
-            let codegen = CodeGen::new(
+            let codegen = Function::new(
                 constructor.sig()?,
                 Default::default(),
                 Default::default(),

@@ -1,8 +1,8 @@
 //! Case handlers
 
-use crate::{CodeGen, ControlStackFrame, ControlStackFrameType, Result};
+use crate::{ControlStackFrame, ControlStackFrameType, Function, Result};
 
-impl CodeGen {
+impl Function {
     /// Handle the end of the function.
     pub(crate) fn handle_return(&mut self) -> Result<()> {
         let results = self.env.results();

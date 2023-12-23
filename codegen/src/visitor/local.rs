@@ -1,8 +1,8 @@
 //! Local instructions
 
-use crate::{CodeGen, Error, Result};
+use crate::{Error, Function, Result};
 
-impl CodeGen {
+impl Function {
     /// This instruction gets the value of a variable.
     pub fn _local_get(&mut self, local_index: u32) -> Result<()> {
         let local_index = local_index as usize;

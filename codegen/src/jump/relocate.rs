@@ -2,7 +2,8 @@
 
 use crate::{
     jump::{relocate, JumpTable},
-    Buffer, Error, Result, ToLSBytes, BUFFER_LIMIT,
+    wasm::ToLSBytes,
+    Buffer, Error, Result, BUFFER_LIMIT,
 };
 use opcodes::ShangHai as OpCode;
 

@@ -1,10 +1,10 @@
 //! This module is the central place for machine code emission.
 //!
 //! It defines an implementation of wasmparser's Visitor trait for
-//! `CodeGen`; which defines a visitor per op-code, which validates
+//! `Function`; which defines a visitor per op-code, which validates
 //! and dispatches to the corresponding machine code emitter.
 
-use crate::{CodeGen, Result};
+use crate::{Function, Result};
 use paste::paste;
 use tracing::trace;
 use wasmparser::{for_each_operator, BlockType, BrTable, Ieee32, Ieee64, MemArg, VisitOperator};
@@ -189,7 +189,7 @@ macro_rules! map_wasm_operators {
     };
 }
 
-impl<'a> VisitOperator<'a> for CodeGen {
+impl<'a> VisitOperator<'a> for Function {
     type Output = Result<()>;
 
     for_each_operator!(impl_visit_operator);

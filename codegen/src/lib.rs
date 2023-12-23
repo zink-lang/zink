@@ -3,17 +3,9 @@
 #![recursion_limit = "1024"]
 
 pub use crate::{
-    abi::{ToLSBytes, Type},
     asm::Assembler,
-    code::Code,
-    codegen::CodeGen,
-    constructor::Constructor,
+    codegen::{Code, Constructor, Dispatcher, Function},
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
-    data::DataSet,
-    dispatcher::Dispatcher,
-    export::Exports,
-    func::{Function, Functions},
-    import::{Func, Imports},
     jump::JumpTable,
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
@@ -21,24 +13,17 @@ pub use crate::{
 };
 use smallvec::SmallVec;
 
-pub mod abi;
 mod asm;
 mod backtrace;
-mod code;
 mod codegen;
-mod constructor;
 mod control;
-mod data;
-mod dispatcher;
-mod export;
-mod func;
-mod import;
 mod jump;
 mod local;
 mod masm;
 mod result;
 mod validator;
 mod visitor;
+pub mod wasm;
 
 /// Maximum size of a evm bytecode in bytes.
 pub const BUFFER_LIMIT: usize = 0x6000;

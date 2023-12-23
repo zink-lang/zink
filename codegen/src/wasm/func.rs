@@ -1,5 +1,5 @@
 //! Function handler
-use crate::{Error, Exports, Result};
+use crate::{wasm::Exports, Error, Result};
 use std::{
     collections::BTreeMap,
     ops::{Deref, DerefMut},
@@ -71,7 +71,7 @@ impl<'f> Functions<'f> {
     /// Remove constructor function
     pub fn remove_constructor(&mut self, exports: &Exports) -> Option<Function<'f>> {
         for (index, export) in exports.iter() {
-            if &export.name == "constructor" {
+            if export.as_str() == "constructor" {
                 return self.remove(index);
             }
         }

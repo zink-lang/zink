@@ -1,13 +1,11 @@
 //! Table for the code section.
 
-pub use func::ExtFunc;
 use indexmap::IndexMap;
-
-mod func;
 
 /// Code section for EVM.
 #[derive(Clone, Default, Debug)]
 pub struct Code {
+    /// The offset of the code section
     offset: usize,
     /// Function table.
     funcs: IndexMap<ExtFunc, usize>,
@@ -66,4 +64,15 @@ impl Code {
         }
         code
     }
+}
+
+/// External function in code section.
+#[derive(PartialEq, Eq, Debug, Clone, Hash)]
+pub struct ExtFunc {
+    /// Stack input.
+    pub stack_out: u8,
+    /// Stack output.
+    pub stack_in: u8,
+    /// The bytecode of the external function.
+    pub bytecode: Vec<u8>,
 }

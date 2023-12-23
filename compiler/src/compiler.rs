@@ -3,7 +3,8 @@
 use crate::{parser::Parser, Config, Error, Result};
 use zabi::Abi;
 use zingen::{
-    Buffer, CodeGen, Constructor, DataSet, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT,
+    wasm::{self, Data, Imports},
+    Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
 /// Zink Compiler
@@ -80,9 +81,9 @@ impl Compiler {
     /// Compile WASM function.
     pub fn compile_func(
         &mut self,
-        dataset: DataSet,
+        dataset: Data,
         imports: Imports,
-        mut func: Function<'_>,
+        mut func: wasm::Function<'_>,
     ) -> Result<()> {
         let func_index = func.index();
         let sig = func.sig()?;
@@ -94,7 +95,7 @@ impl Compiler {
             func_index - (imports.len() as u32) == 0
         };
 
-        let mut codegen = CodeGen::new(sig, dataset, imports, is_main)?;
+        let mut codegen = Function::new(sig, dataset, imports, is_main)?;
         let mut locals_reader = func.body.get_locals_reader()?;
         let mut ops_reader = func.body.get_operators_reader()?;
 
@@ -106,7 +107,7 @@ impl Compiler {
     }
 
     /// Emit buffer to the inner buffer.
-    fn emit_buffer(&mut self, func_index: u32, codegen: CodeGen) -> Result<()> {
+    fn emit_buffer(&mut self, func_index: u32, codegen: Function) -> Result<()> {
         let buffer = codegen.finish(&mut self.table, self.buffer.len() as u16)?;
         self.table
             .call_offset(func_index, self.buffer.len() as u16)?;
@@ -125,7 +126,7 @@ impl Compiler {
     }
 
     /// Returns bytecode.
-    fn bytecode(&self, constructor: Option<Function<'_>>) -> Result<Buffer> {
+    fn bytecode(&self, constructor: Option<wasm::Function<'_>>) -> Result<Buffer> {
         Constructor::new(constructor, self.buffer.clone())?
             .finish()
             .map_err(Into::into)

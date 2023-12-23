@@ -13,4 +13,5 @@ runs:
         key: ${{ runner.os }}-conta
 
     - name: Install Conta
+      shell: bash
       run: cargo install conta

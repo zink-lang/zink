@@ -1,7 +1,7 @@
 //! WASM local slot.
 
 use crate::{
-    abi::{ToLSBytes, Type},
+    wasm::{ToLSBytes, Type},
     Error, Result,
 };
 use smallvec::SmallVec;

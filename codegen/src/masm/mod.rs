@@ -1,8 +1,8 @@
 //! MacroAssembler used by the code generation.
 
 use crate::{
-    abi::{ToLSBytes, Type},
     asm::Assembler,
+    wasm::{ToLSBytes, Type},
     Error, Result,
 };
 use smallvec::SmallVec;

@@ -1,0 +1,15 @@
+name: Deps
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  review:
+    name: Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3

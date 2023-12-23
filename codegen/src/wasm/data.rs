@@ -10,9 +10,9 @@ use std::{
 ///
 /// NOTE: current only support constant expression.
 #[derive(Default, Clone, Debug)]
-pub struct DataSet(BTreeMap<i32, Vec<u8>>);
+pub struct Data(BTreeMap<i32, Vec<u8>>);
 
-impl DataSet {
+impl Data {
     /// Load data from offset and size
     pub fn load(&self, offset: i32, size: usize) -> Result<Vec<u8>> {
         for ptr in self.0.keys().cloned().rev() {
@@ -28,7 +28,7 @@ impl DataSet {
     }
 }
 
-impl Deref for DataSet {
+impl Deref for Data {
     type Target = BTreeMap<i32, Vec<u8>>;
 
     fn deref(&self) -> &Self::Target {
@@ -36,7 +36,7 @@ impl Deref for DataSet {
     }
 }
 
-impl DerefMut for DataSet {
+impl DerefMut for Data {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

@@ -1,8 +1,9 @@
 //! Code generator for EVM dispatcher.
 
 use crate::{
-    code::ExtFunc, DataSet, Error, Exports, Function, Functions, Imports, JumpTable,
-    MacroAssembler, Result, ToLSBytes,
+    codegen::code::ExtFunc,
+    wasm::{self, Data, Exports, Functions, Imports, ToLSBytes},
+    Error, JumpTable, MacroAssembler, Result,
 };
 use wasmparser::{FuncType, Operator};
 use zabi::Abi;
@@ -18,12 +19,12 @@ pub struct Dispatcher<'d> {
     /// Module imports
     pub imports: Imports,
     /// Module data
-    pub data: DataSet,
+    pub data: Data,
     /// Jump table
     pub table: JumpTable,
     /// ABI for the current function
     ///
-    /// TODO: refactor this. (#192)
+    /// TODO: refactor this. (#206)
     pub abi: Vec<Abi>,
 }
 
@@ -54,7 +55,7 @@ impl<'d> Dispatcher<'d> {
     }
 
     /// Set data for the dispatcher.
-    pub fn data(&mut self, data: DataSet) -> &mut Self {
+    pub fn data(&mut self, data: Data) -> &mut Self {
         self.data = data;
         self
     }
@@ -62,7 +63,7 @@ impl<'d> Dispatcher<'d> {
     /// Query exported function from selector.
     fn query_func(&self, name: &str) -> Result<u32> {
         for (index, export) in self.exports.iter() {
-            if export.name == name {
+            if export == name {
                 return Ok(*index);
             }
         }
@@ -71,7 +72,7 @@ impl<'d> Dispatcher<'d> {
     }
 
     /// Load function ABI.
-    fn load_abi(&mut self, selector: &Function<'_>) -> Result<Abi> {
+    fn load_abi(&mut self, selector: &wasm::Function<'_>) -> Result<Abi> {
         let mut reader = selector.body.get_operators_reader()?;
 
         let Operator::I32Const { value: offset } = reader.read()? else {
@@ -182,10 +183,10 @@ impl<'d> Dispatcher<'d> {
     }
 
     /// Emit selector to buffer.
-    fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
+    fn emit_selector(&mut self, selector: &wasm::Function<'_>, last: bool) -> Result<()> {
         let abi = self.load_abi(selector)?;
 
-        // TODO: refactor this. (#192)
+        // TODO: refactor this. (#206)
         self.abi.push(abi.clone());
 
         let selector_bytes = abi.selector();

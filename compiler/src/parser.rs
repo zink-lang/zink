@@ -6,7 +6,7 @@ use wasmparser::{
     Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
     ValidPayload, Validator,
 };
-use zingen::{DataSet, Exports, Func, Function, Functions, Imports};
+use zingen::wasm::{self, Data as DataSet, Exports, Functions, HostFunc, Imports};
 
 /// WASM module parser
 #[derive(Default)]
@@ -76,7 +76,7 @@ impl<'p> Parser<'p> {
             index,
         })) = iter.next()
         {
-            exports.add(index, name);
+            exports.insert(index, name.into());
         }
 
         Ok(exports)
@@ -95,7 +95,7 @@ impl<'p> Parser<'p> {
             ty: TypeRef::Func(_),
         })) = iter.next()
         {
-            if let Ok(func) = Func::try_from((module, name)) {
+            if let Ok(func) = HostFunc::try_from((module, name)) {
                 tracing::trace!("imported function: {}::{} at {index}", module, name);
                 imports.insert(index, func);
                 index += 1;
@@ -106,7 +106,7 @@ impl<'p> Parser<'p> {
     }
 
     /// Returns constructor if some.
-    pub fn remove_constructor(&mut self) -> Option<Function<'p>> {
+    pub fn remove_constructor(&mut self) -> Option<wasm::Function<'p>> {
         self.funcs.remove_constructor(&self.exports)
     }
 }

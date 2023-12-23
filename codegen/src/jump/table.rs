@@ -1,6 +1,6 @@
 //! Jump Table
 
-use crate::{code::ExtFunc, jump::Jump, Code, Error, Result};
+use crate::{codegen::ExtFunc, jump::Jump, Code, Error, Result};
 use std::collections::BTreeMap;
 
 /// Jump table implementation.
