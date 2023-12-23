@@ -7,7 +7,7 @@
 - Use full revm instead of ethers in zint
 - Remove ethers
 - Move out ccli and conta
-- Use `anyhow::Result` intead for the result of `zint`
+- Use `anyhow::Result` instead for the result of `zint`
 
 ### FIXED
 
