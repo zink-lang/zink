@@ -66,6 +66,19 @@ zink-codegen = { path = "zink/codegen", version = "0.1.9" }
 zinkc = { path = "compiler", version = "0.1.9" }
 zint = { path = "zint", version = "0.1.9" }
 
+[workspace.metadata.conta]
+packages = [
+  "zabi",
+  "zingen",
+  "zinkc",
+  "filetests",
+  "zint",
+  "zink-codegen",
+  "zink",
+  "elko"
+]
+
+
 # Zink Programming Language
 # -------------------------
 
