@@ -97,7 +97,7 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! Command `New`
 </span><span class="kw">use </span><span class="kw">crate</span>::utils::Manifest;
 <span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>clap::Parser;
+<span class="kw">use </span>ccli::clap::{<span class="self">self</span>, Parser};
 <span class="kw">use </span>colored::<span class="kw-2">*</span>;
 <span class="kw">use </span>std::{fs, path::PathBuf};
 
