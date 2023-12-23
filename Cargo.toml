@@ -5,10 +5,10 @@ release = { panic = "unwind" }
 [workspace]
 members = [
   "abi",
-  "cli/*",
   "codegen",
   "compiler",
   "compiler/filetests",
+  "elko",
   "evm/opcodes",
   "evm/abi",
   "zink/codegen",
@@ -27,6 +27,7 @@ repository = "https://github.com/clearloop/zink.git"
 [workspace.dependencies]
 anyhow = "1.0.76"
 cargo_metadata = "0.18.1"
+ccli = "0.0.1"
 clap = "4.4.11"
 color-eyre = "0.6.2"
 colored = "2.1.0"
@@ -56,22 +57,18 @@ wasmparser = "0.118.1"
 wat = "1.0.82"
 
 ## Local packages
-ccli = { path = "cli/cli", version = "=0.0.1" }
-sol-abi = { path = "evm/abi", version = "=0.0.1" }
 opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = [ "data" ] }
+sol-abi = { path = "evm/abi", version = "=0.0.1" }
 
 ## Zink packages
-elko = { path = "cli/elko", version = "0.1.8" }
+elko = { path = "elko", version = "0.1.8" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.8" }
 zabi = { path = "abi", version = "0.1.8" }
 zingen =  { path = "codegen", version = "0.1.8" }
 zinkc = { path = "compiler", version = "0.1.8" }
-filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.8" }
 zink = { path = ".", version = "0.1.8" }
 zink-codegen = { path = "zink/codegen", version = "0.1.8" }
 zint = { path = "zint", version = "0.1.8" }
-
-[workspace.metadata.release]
-enable-all-features = true
 
 # Zink Programming Language
 # -------------------------
