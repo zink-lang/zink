@@ -6,7 +6,7 @@ use wasmparser::{
     Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
     ValidPayload, Validator,
 };
-use zingen::{DataSet, Exports, Func, Function, Functions, Imports};
+use zingen::{DataSet, Exports, Function, Functions, HostFunc, Imports};
 
 /// WASM module parser
 #[derive(Default)]
@@ -76,7 +76,7 @@ impl<'p> Parser<'p> {
             index,
         })) = iter.next()
         {
-            exports.add(index, name);
+            exports.insert(index, name.into());
         }
 
         Ok(exports)
@@ -95,7 +95,7 @@ impl<'p> Parser<'p> {
             ty: TypeRef::Func(_),
         })) = iter.next()
         {
-            if let Ok(func) = Func::try_from((module, name)) {
+            if let Ok(func) = HostFunc::try_from((module, name)) {
                 tracing::trace!("imported function: {}::{} at {index}", module, name);
                 imports.insert(index, func);
                 index += 1;

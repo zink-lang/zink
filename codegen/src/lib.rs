@@ -11,13 +11,12 @@ pub use crate::{
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     data::DataSet,
     dispatcher::Dispatcher,
-    export::Exports,
     func::{Function, Functions},
-    import::{Func, Imports},
     jump::JumpTable,
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
     result::{Error, Result},
+    wasm::{Exports, HostFunc, Imports},
 };
 use smallvec::SmallVec;
 
@@ -30,15 +29,14 @@ mod constructor;
 mod control;
 mod data;
 mod dispatcher;
-mod export;
 mod func;
-mod import;
 mod jump;
 mod local;
 mod masm;
 mod result;
 mod validator;
 mod visitor;
+mod wasm;
 
 /// Maximum size of a evm bytecode in bytes.
 pub const BUFFER_LIMIT: usize = 0x6000;

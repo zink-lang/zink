@@ -62,7 +62,7 @@ impl<'d> Dispatcher<'d> {
     /// Query exported function from selector.
     fn query_func(&self, name: &str) -> Result<u32> {
         for (index, export) in self.exports.iter() {
-            if export.name == name {
+            if export == name {
                 return Ok(*index);
             }
         }

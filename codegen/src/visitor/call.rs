@@ -1,6 +1,6 @@
 //! call instructions
 
-use crate::{CodeGen, Error, Func, Result};
+use crate::{wasm::HostFunc, CodeGen, Error, Result};
 
 impl CodeGen {
     /// The call indirect instruction calls a function indirectly
@@ -60,15 +60,15 @@ impl CodeGen {
             .ok_or(Error::ImportedFuncNotFound(index))?;
 
         match func {
-            Func::Sstore => self.masm._sstore(),
-            Func::Sload => self.masm._sload(),
-            Func::Log0 => self.log(0),
-            Func::Log1 => self.log(1),
-            Func::Log2 => self.log(2),
-            Func::Log3 => self.log(3),
-            Func::Log4 => self.log(4),
+            HostFunc::Sstore => self.masm._sstore(),
+            HostFunc::Sload => self.masm._sload(),
+            HostFunc::Log0 => self.log(0),
+            HostFunc::Log1 => self.log(1),
+            HostFunc::Log2 => self.log(2),
+            HostFunc::Log3 => self.log(3),
+            HostFunc::Log4 => self.log(4),
             _ => {
-                tracing::error!("unsupported embedded function {func:?}");
+                tracing::error!("unsupported host function {func:?}");
                 Err(Error::UnsupportedHostFunc(func))
             }
         }

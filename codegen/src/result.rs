@@ -95,7 +95,7 @@ pub enum Error {
     StackNotBalanced(u8),
     /// Failed to queue host functions.
     #[error("Unsupported host function {0:?}")]
-    UnsupportedHostFunc(crate::Func),
+    UnsupportedHostFunc(crate::wasm::HostFunc),
 }
 
 /// Codegen result
