@@ -1,10 +1,14 @@
+[profile]
+dev = { panic = "abort"}
+release = { panic = "unwind" }
+
 [workspace]
 members = [
   "abi",
-  "cli/*",
   "codegen",
   "compiler",
   "compiler/filetests",
+  "elko",
   "evm/opcodes",
   "evm/abi",
   "zink/codegen",
@@ -13,7 +17,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.8"
+version = "0.1.9"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -21,54 +25,46 @@ homepage = "https://github.com/clearloop/zink"
 repository = "https://github.com/clearloop/zink.git"
 
 [workspace.dependencies]
-anyhow = "1.0.75"
+anyhow = "1.0.76"
 cargo_metadata = "0.18.1"
+ccli = "0.0.1"
 clap = "4.4.11"
-color-eyre = "0.6.2"
 colored = "2.1.0"
 etc = "0.1.16"
 hex = "0.4.3"
 indexmap = "2.1.0"
 paste = "1.0.14"
 postcard = { version = "1.0.8", default-features = false }
-proc-macro2 = "1.0.70"
+proc-macro2 = "1.0.71"
 quote = "1.0.33"
 revm = "3.5.0"
-reqwest = { version = "0.11.22", default-features = false }
 semver = "1.0.20"
 serde = { version = "1.0.193", default-features = false }
 serde_json = "1.0.108"
 sha3 = "0.10.8"
 smallvec = "1.11.2"
-syn =  { version = "2.0.41", features = [ "full" ] }
+syn =  { version = "2.0.42", features = [ "full" ] }
 thiserror = "1.0.51"
 toml = "0.8.8"
-toml_edit = "0.21.0"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-url = "2.5.0"
 wasm-opt = "0.116.0"
 wasmparser = "0.118.1"
 wat = "1.0.82"
 
-## Local packages
-ccli = { path = "cli/cli", version = "=0.0.1" }
-sol-abi = { path = "evm/abi", version = "=0.0.1" }
+## EVM packages
 opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = [ "data" ] }
+sol-abi = { path = "evm/abi", version = "=0.0.1" }
 
 ## Zink packages
-elko = { path = "cli/elko", version = "0.1.8" }
-zabi = { path = "abi", version = "0.1.8" }
-zingen =  { path = "codegen", version = "0.1.8" }
-zinkc = { path = "compiler", version = "0.1.8" }
-filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.8" }
-zink = { path = ".", version = "0.1.8" }
-zink-codegen = { path = "zink/codegen", version = "0.1.8" }
-zint = { path = "zint", version = "0.1.8" }
-
-[profile]
-dev = { panic = "abort"}
-release = { panic = "unwind" }
+elko = { path = "elko", version = "0.1.9" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.9" }
+zabi = { path = "abi", version = "0.1.9" }
+zingen =  { path = "codegen", version = "0.1.9" }
+zink = { path = ".", version = "0.1.9" }
+zink-codegen = { path = "zink/codegen", version = "0.1.9" }
+zinkc = { path = "compiler", version = "0.1.9" }
+zint = { path = "zint", version = "0.1.9" }
 
 # Zink Programming Language
 # -------------------------

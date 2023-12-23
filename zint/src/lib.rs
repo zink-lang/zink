@@ -1,17 +1,14 @@
 //! Zink testing framework.
 #![deny(missing_docs)]
 
-mod api;
 mod bytes;
 mod contract;
 mod evm;
-mod result;
 
 pub use self::{
     bytes::Bytes32,
     contract::Contract,
     evm::{Info, EVM},
-    result::Result,
 };
 pub use hex;
 pub use revm::primitives::{Halt, OutOfGasError, U256};
