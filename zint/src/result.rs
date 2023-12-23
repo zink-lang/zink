@@ -14,9 +14,6 @@ pub enum Error {
     /// Ethers contract error.
     #[error(transparent)]
     Contract(#[from] ethers::middleware::contract::ContractError<crate::api::Signer>),
-    /// Url parser error.
-    #[error(transparent)]
-    Url(#[from] url::ParseError),
     #[cfg(feature = "ethers")]
     /// Ethers wallet error.
     #[error(transparent)]
