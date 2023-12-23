@@ -1,6 +1,9 @@
 //! WASM local slot.
 
-use crate::{Error, Result, ToLSBytes, Type};
+use crate::{
+    wasm::{ToLSBytes, Type},
+    Error, Result,
+};
 use smallvec::SmallVec;
 use wasmparser::ValType;
 

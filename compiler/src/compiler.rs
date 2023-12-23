@@ -3,7 +3,8 @@
 use crate::{parser::Parser, Config, Error, Result};
 use zabi::Abi;
 use zingen::{
-    wasm, Buffer, Constructor, Data, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT,
+    wasm::{self, Data, Imports},
+    Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
 /// Zink Compiler

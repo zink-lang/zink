@@ -1,6 +1,6 @@
 // Integer instructions
 
-use crate::{MacroAssembler, Result, ToLSBytes};
+use crate::{wasm::ToLSBytes, MacroAssembler, Result};
 use wasmparser::{Ieee32, Ieee64};
 
 impl MacroAssembler {

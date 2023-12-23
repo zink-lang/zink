@@ -1,9 +1,6 @@
 //! Table for the code section.
 
-pub use func::ExtFunc;
 use indexmap::IndexMap;
-
-mod func;
 
 /// Code section for EVM.
 #[derive(Clone, Default, Debug)]
@@ -67,4 +64,15 @@ impl Code {
         }
         code
     }
+}
+
+/// External function in code section.
+#[derive(PartialEq, Eq, Debug, Clone, Hash)]
+pub struct ExtFunc {
+    /// Stack input.
+    pub stack_out: u8,
+    /// Stack output.
+    pub stack_in: u8,
+    /// The bytecode of the external function.
+    pub bytecode: Vec<u8>,
 }

@@ -10,7 +10,6 @@ pub use crate::{
     local::{LocalSlot, Locals},
     masm::MacroAssembler,
     result::{Error, Result},
-    wasm::{Data, Exports, Functions, HostFunc, Imports, ToLSBytes, Type},
 };
 use smallvec::SmallVec;
 

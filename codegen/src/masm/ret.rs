@@ -1,6 +1,6 @@
 //! Return handlers
 
-use crate::{Error, MacroAssembler, Result, ToLSBytes};
+use crate::{wasm::ToLSBytes, Error, MacroAssembler, Result};
 use wasmparser::ValType;
 
 impl MacroAssembler {

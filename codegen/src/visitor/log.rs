@@ -1,6 +1,6 @@
 //! System instructions
 
-use crate::{masm::MemoryInfo, Error, Function, Result, ToLSBytes};
+use crate::{masm::MemoryInfo, wasm::ToLSBytes, Error, Function, Result};
 
 impl Function {
     /// Parse log data from the bytecode.

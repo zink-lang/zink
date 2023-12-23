@@ -6,7 +6,8 @@ use crate::{
     local::{LocalSlot, LocalSlotType, Locals},
     masm::MacroAssembler,
     validator::ValidateThenVisit,
-    Buffer, Data, Error, Imports, Result,
+    wasm::{Data, Imports},
+    Buffer, Error, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 

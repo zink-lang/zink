@@ -1,8 +1,9 @@
 //! Code generator for EVM dispatcher.
 
 use crate::{
-    codegen::code::ExtFunc, wasm, Data, Error, Exports, Functions, Imports, JumpTable,
-    MacroAssembler, Result, ToLSBytes,
+    codegen::code::ExtFunc,
+    wasm::{self, Data, Exports, Functions, Imports, ToLSBytes},
+    Error, JumpTable, MacroAssembler, Result,
 };
 use wasmparser::{FuncType, Operator};
 use zabi::Abi;

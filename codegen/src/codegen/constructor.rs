@@ -1,6 +1,9 @@
 //! Contract constructor.
 
-use crate::{wasm, Buffer, Function, JumpTable, MacroAssembler, Result, ToLSBytes};
+use crate::{
+    wasm::{self, ToLSBytes},
+    Buffer, Function, JumpTable, MacroAssembler, Result,
+};
 
 /// Contract constructor.
 ///

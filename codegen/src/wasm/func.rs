@@ -1,5 +1,5 @@
 //! Function handler
-use crate::{Error, Exports, Result};
+use crate::{wasm::Exports, Error, Result};
 use std::{
     collections::BTreeMap,
     ops::{Deref, DerefMut},

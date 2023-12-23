@@ -6,7 +6,7 @@ use wasmparser::{
     Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
     ValidPayload, Validator,
 };
-use zingen::{wasm, Data as DataSet, Exports, Functions, HostFunc, Imports};
+use zingen::wasm::{self, Data as DataSet, Exports, Functions, HostFunc, Imports};
 
 /// WASM module parser
 #[derive(Default)]
