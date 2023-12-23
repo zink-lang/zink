@@ -17,7 +17,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.8"
+version = "0.1.9"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -52,19 +52,19 @@ wasm-opt = "0.116.0"
 wasmparser = "0.118.1"
 wat = "1.0.82"
 
-## Local packages
+## EVM packages
 opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = [ "data" ] }
 sol-abi = { path = "evm/abi", version = "=0.0.1" }
 
 ## Zink packages
-elko = { path = "elko", version = "0.1.8" }
-filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.8" }
-zabi = { path = "abi", version = "0.1.8" }
-zingen =  { path = "codegen", version = "0.1.8" }
-zinkc = { path = "compiler", version = "0.1.8" }
-zink = { path = ".", version = "0.1.8" }
-zink-codegen = { path = "zink/codegen", version = "0.1.8" }
-zint = { path = "zint", version = "0.1.8" }
+elko = { path = "elko", version = "0.1.9" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.9" }
+zabi = { path = "abi", version = "0.1.9" }
+zingen =  { path = "codegen", version = "0.1.9" }
+zink = { path = ".", version = "0.1.9" }
+zink-codegen = { path = "zink/codegen", version = "0.1.9" }
+zinkc = { path = "compiler", version = "0.1.9" }
+zint = { path = "zint", version = "0.1.9" }
 
 # Zink Programming Language
 # -------------------------

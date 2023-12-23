@@ -5,6 +5,9 @@
 - Refactor conta with `toml_edit`
 - Optional exports wasm-opt from zinkc
 - Use full revm instead of ethers in zint
+- Remove ethers
+- Move out ccli and conta
+- Use `anyhow::Result` intead for the result of `zint`
 
 ### FIXED
 
