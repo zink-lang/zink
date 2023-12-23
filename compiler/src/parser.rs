@@ -6,7 +6,7 @@ use wasmparser::{
     Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
     ValidPayload, Validator,
 };
-use zingen::{Data as DataSet, Exports, Function, Functions, HostFunc, Imports};
+use zingen::{wasm, Data as DataSet, Exports, Functions, HostFunc, Imports};
 
 /// WASM module parser
 #[derive(Default)]
@@ -106,7 +106,7 @@ impl<'p> Parser<'p> {
     }
 
     /// Returns constructor if some.
-    pub fn remove_constructor(&mut self) -> Option<Function<'p>> {
+    pub fn remove_constructor(&mut self) -> Option<wasm::Function<'p>> {
         self.funcs.remove_constructor(&self.exports)
     }
 }

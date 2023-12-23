@@ -1,8 +1,8 @@
 //! call instructions
 
-use crate::{wasm::HostFunc, CodeGen, Error, Result};
+use crate::{wasm::HostFunc, Error, Function, Result};
 
-impl CodeGen {
+impl Function {
     /// The call indirect instruction calls a function indirectly
     /// through an operand indexing into a table.
     pub fn _call_indirect(

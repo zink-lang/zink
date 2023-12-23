@@ -11,7 +11,7 @@ use crate::{
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
 /// The code generation abstraction.
-pub struct CodeGen {
+pub struct Function {
     /// The backtrace.
     pub(crate) backtrace: Backtrace,
     /// Control stack frames.
@@ -32,7 +32,7 @@ pub struct CodeGen {
     pub(crate) is_main: bool,
 }
 
-impl CodeGen {
+impl Function {
     /// Create a new code generator.
     pub fn new(env: FuncType, dataset: Data, imports: Imports, is_main: bool) -> Result<Self> {
         let mut params_count = 0;
@@ -109,7 +109,7 @@ impl CodeGen {
         Ok(())
     }
 
-    /// Emit function operators
+    /// Emit function operators.
     pub fn emit_operators(
         &mut self,
         ops: &mut OperatorsReader<'_>,

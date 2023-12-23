@@ -1,8 +1,8 @@
 //! Code generator for EVM dispatcher.
 
 use crate::{
-    code::ExtFunc, Data, Error, Exports, Function, Functions, Imports, JumpTable, MacroAssembler,
-    Result, ToLSBytes,
+    codegen::code::ExtFunc, wasm, Data, Error, Exports, Functions, Imports, JumpTable,
+    MacroAssembler, Result, ToLSBytes,
 };
 use wasmparser::{FuncType, Operator};
 use zabi::Abi;
@@ -71,7 +71,7 @@ impl<'d> Dispatcher<'d> {
     }
 
     /// Load function ABI.
-    fn load_abi(&mut self, selector: &Function<'_>) -> Result<Abi> {
+    fn load_abi(&mut self, selector: &wasm::Function<'_>) -> Result<Abi> {
         let mut reader = selector.body.get_operators_reader()?;
 
         let Operator::I32Const { value: offset } = reader.read()? else {
@@ -182,7 +182,7 @@ impl<'d> Dispatcher<'d> {
     }
 
     /// Emit selector to buffer.
-    fn emit_selector(&mut self, selector: &Function<'_>, last: bool) -> Result<()> {
+    fn emit_selector(&mut self, selector: &wasm::Function<'_>, last: bool) -> Result<()> {
         let abi = self.load_abi(selector)?;
 
         // TODO: refactor this. (#192)

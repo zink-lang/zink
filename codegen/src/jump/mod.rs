@@ -1,6 +1,6 @@
 //! Jump table implementation.
 
-use crate::code::ExtFunc;
+use crate::codegen::ExtFunc;
 pub use table::JumpTable;
 
 mod pc;

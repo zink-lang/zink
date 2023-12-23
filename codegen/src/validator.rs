@@ -1,12 +1,10 @@
 //! Pre-visitor for parsing WASM.
 
-use crate::Result;
+use crate::{Function, Result};
 use wasmparser::{Operator, VisitOperator};
 
-use crate::CodeGen;
-
 /// A pre-visitor that validates the WASM and then visits it.
-pub struct ValidateThenVisit<'a, T>(pub T, pub &'a mut CodeGen);
+pub struct ValidateThenVisit<'a, T>(pub T, pub &'a mut Function);
 
 macro_rules! validate_then_visit {
     ($( @$proposal:ident $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident)*) => {
@@ -40,7 +38,7 @@ trait ReachableState {
     fn is_reachable(&self) -> bool;
 }
 
-impl ReachableState for CodeGen {
+impl ReachableState for Function {
     fn is_reachable(&self) -> bool {
         true
     }
