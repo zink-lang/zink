@@ -1,7 +1,10 @@
 //! The package manager of zink.
 #![deny(missing_docs)]
 
-use ccli::{clap::Subcommand, App, Parser, Result};
+use ccli::{
+    clap::{self, Parser, Subcommand},
+    App, Result,
+};
 use elko::{Build, Compile, New};
 
 /// Elko commands

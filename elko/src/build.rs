@@ -1,7 +1,7 @@
 //! Command `Build`.
 use crate::utils::WasmBuilder;
 use anyhow::{anyhow, Result};
-use clap::Parser;
+use ccli::clap::{self, Parser};
 use etc::{Etc, FileSystem};
 use std::{env, fs, path::PathBuf};
 use zinkc::Compiler;

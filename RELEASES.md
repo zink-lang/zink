@@ -8,6 +8,7 @@
 - Remove ethers
 - Move out ccli and conta
 - Use `anyhow::Result` instead for the result of `zint`
+- Remove clap in elko
 
 ### FIXED
 

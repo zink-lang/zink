@@ -28,7 +28,6 @@ repository = "https://github.com/clearloop/zink.git"
 anyhow = "1.0.76"
 cargo_metadata = "0.18.1"
 ccli = "0.0.1"
-clap = "4.4.11"
 colored = "2.1.0"
 etc = "0.1.16"
 hex = "0.4.3"
@@ -65,6 +64,18 @@ zink = { path = ".", version = "0.1.9" }
 zink-codegen = { path = "zink/codegen", version = "0.1.9" }
 zinkc = { path = "compiler", version = "0.1.9" }
 zint = { path = "zint", version = "0.1.9" }
+
+[workspace.metadata.conta]
+packages = [
+  "zabi",
+  "zingen",
+  "zinkc",
+  "filetests",
+  "zint",
+  "zink-codegen",
+  "zink",
+  "elko"
+]
 
 # Zink Programming Language
 # -------------------------
