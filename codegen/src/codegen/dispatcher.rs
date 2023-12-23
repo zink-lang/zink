@@ -24,7 +24,7 @@ pub struct Dispatcher<'d> {
     pub table: JumpTable,
     /// ABI for the current function
     ///
-    /// TODO: refactor this. (#192)
+    /// TODO: refactor this. (#206)
     pub abi: Vec<Abi>,
 }
 
@@ -186,7 +186,7 @@ impl<'d> Dispatcher<'d> {
     fn emit_selector(&mut self, selector: &wasm::Function<'_>, last: bool) -> Result<()> {
         let abi = self.load_abi(selector)?;
 
-        // TODO: refactor this. (#192)
+        // TODO: refactor this. (#206)
         self.abi.push(abi.clone());
 
         let selector_bytes = abi.selector();

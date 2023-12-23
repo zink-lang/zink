@@ -8,11 +8,11 @@
 mod code;
 mod constructor;
 mod dispatcher;
-mod func;
+mod function;
 
 pub use self::{
     code::{Code, ExtFunc},
     constructor::Constructor,
     dispatcher::Dispatcher,
-    func::Function,
+    function::Function,
 };

@@ -42,13 +42,3 @@ jobs:
         run: cargo fmt --check
       - name: Clippy
         run: cargo clippy --all -- -D warnings
-
-  dep:
-    name: Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v3
