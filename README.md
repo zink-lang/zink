@@ -2,7 +2,7 @@
 
 # The Zink Project
 
-> **Warning**
+> [!CAUTION]
 >
 > This project is still under active development, plz DO NOT use it in production.
 
