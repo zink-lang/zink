@@ -1,10 +1,6 @@
 //! MacroAssembler used by the code generation.
 
-use crate::{
-    abi::{ToLSBytes, Type},
-    asm::Assembler,
-    Error, Result,
-};
+use crate::{asm::Assembler, Error, Result, ToLSBytes, Type};
 use smallvec::SmallVec;
 use std::ops::{Deref, DerefMut};
 

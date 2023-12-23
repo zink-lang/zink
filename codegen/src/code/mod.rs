@@ -8,6 +8,7 @@ mod func;
 /// Code section for EVM.
 #[derive(Clone, Default, Debug)]
 pub struct Code {
+    /// The offset of the code section
     offset: usize,
     /// Function table.
     funcs: IndexMap<ExtFunc, usize>,

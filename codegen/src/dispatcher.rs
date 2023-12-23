@@ -1,8 +1,8 @@
 //! Code generator for EVM dispatcher.
 
 use crate::{
-    code::ExtFunc, DataSet, Error, Exports, Function, Functions, Imports, JumpTable,
-    MacroAssembler, Result, ToLSBytes,
+    code::ExtFunc, Data, Error, Exports, Function, Functions, Imports, JumpTable, MacroAssembler,
+    Result, ToLSBytes,
 };
 use wasmparser::{FuncType, Operator};
 use zabi::Abi;
@@ -18,7 +18,7 @@ pub struct Dispatcher<'d> {
     /// Module imports
     pub imports: Imports,
     /// Module data
-    pub data: DataSet,
+    pub data: Data,
     /// Jump table
     pub table: JumpTable,
     /// ABI for the current function
@@ -54,7 +54,7 @@ impl<'d> Dispatcher<'d> {
     }
 
     /// Set data for the dispatcher.
-    pub fn data(&mut self, data: DataSet) -> &mut Self {
+    pub fn data(&mut self, data: Data) -> &mut Self {
         self.data = data;
         self
     }

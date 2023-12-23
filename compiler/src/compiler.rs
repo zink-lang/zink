@@ -3,7 +3,7 @@
 use crate::{parser::Parser, Config, Error, Result};
 use zabi::Abi;
 use zingen::{
-    Buffer, CodeGen, Constructor, DataSet, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT,
+    Buffer, CodeGen, Constructor, Data, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT,
 };
 
 /// Zink Compiler
@@ -80,7 +80,7 @@ impl Compiler {
     /// Compile WASM function.
     pub fn compile_func(
         &mut self,
-        dataset: DataSet,
+        dataset: Data,
         imports: Imports,
         mut func: Function<'_>,
     ) -> Result<()> {
