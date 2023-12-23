@@ -1,7 +1,7 @@
 //! Command `New`
 use crate::utils::Manifest;
 use anyhow::{anyhow, Result};
-use clap::Parser;
+use ccli::clap::{self, Parser};
 use colored::*;
 use std::{fs, path::PathBuf};
 

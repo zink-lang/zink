@@ -28,7 +28,6 @@ repository = "https://github.com/clearloop/zink.git"
 anyhow = "1.0.76"
 cargo_metadata = "0.18.1"
 ccli = "0.0.1"
-clap = "4.4.11"
 colored = "2.1.0"
 etc = "0.1.16"
 hex = "0.4.3"
@@ -77,7 +76,6 @@ packages = [
   "zink",
   "elko"
 ]
-
 
 # Zink Programming Language
 # -------------------------

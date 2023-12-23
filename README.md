@@ -11,8 +11,7 @@
 [![telegram][telegram-badge]][telegram-group]
 
 [The Zink project][book] mainly provides a singlepass compiler `zinkc` which compiles
-WASM to EVM bytecode, the source code of your smart contract could be any language you
-like!
+WASM to EVM bytecode, the source code of your smart contracts could be any language you like!
 
 ```mermaid
 flowchart LR

@@ -11,7 +11,6 @@ repository.workspace = true
 [dependencies]
 anyhow.workspace = true
 ccli.workspace = true
-clap = { workspace = true, features = [ "derive" ] }
 cargo_metadata.workspace = true
 colored.workspace = true
 etc.workspace = true

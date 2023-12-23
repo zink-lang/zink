@@ -631,7 +631,6 @@ dependencies = [
  "anyhow",
  "cargo_metadata",
  "ccli",
- "clap",
  "colored",
  "etc",
  "semver",
