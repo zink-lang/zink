@@ -1,6 +1,4 @@
 var srcIndex = new Map(JSON.parse('[\
-["ccli",["",[],["lib.rs"]]],\
-["conta",["",[["cmd",[],["bump.rs","mod.rs","publish.rs"]]],["config.rs","lib.rs","version.rs"]]],\
 ["elko",["",[["utils",[],["manifest.rs","mod.rs","result.rs","wasm.rs"]]],["build.rs","lib.rs","new.rs"]]],\
 ["evm_opcodes",["",[],["lib.rs","shanghai.rs"]]],\
 ["sol_abi",["",[],["abi.rs","arg.rs","lib.rs"]]],\
@@ -10,6 +8,6 @@ var srcIndex = new Map(JSON.parse('[\
 ["zink_codegen",["",[],["constructor.rs","event.rs","lib.rs","selector.rs","storage.rs"]]],\
 ["zinkc",["",[],["cli.rs","compiler.rs","config.rs","lib.rs","parser.rs","result.rs","utils.rs"]]],\
 ["zinkc_filetests",["",[],["lib.rs"]]],\
-["zint",["",[],["bytes.rs","contract.rs","evm.rs","lib.rs","result.rs"]]]\
+["zint",["",[],["bytes.rs","contract.rs","evm.rs","lib.rs"]]]\
 ]'));
 createSrcSidebar();

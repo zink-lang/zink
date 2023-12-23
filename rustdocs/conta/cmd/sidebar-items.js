@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Command"],"mod":["bump","publish"],"struct":["Conta"]};

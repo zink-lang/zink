@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["ccli","conta","elko","evm_opcodes","sol_abi","zabi","zingen","zink","zink_codegen","zinkc","zinkc_filetests","zint"];
+window.ALL_CRATES = ["elko","evm_opcodes","sol_abi","zabi","zingen","zink","zink_codegen","zinkc","zinkc_filetests","zint"];
