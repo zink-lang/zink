@@ -166,11 +166,11 @@
 
 </span><span class="kw">use crate</span>::{
     control::{ControlStackFrame, ControlStackFrameType},
-    CodeGen, <span class="prelude-ty">Result</span>,
+    Function, <span class="prelude-ty">Result</span>,
 };
 <span class="kw">use </span>wasmparser::{BlockType, BrTable};
 
-<span class="kw">impl </span>CodeGen {
+<span class="kw">impl </span>Function {
     <span class="doccomment">/// The beginning of an if construct with an implicit block.
     </span><span class="kw">pub fn </span>_if(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blockty: BlockType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="comment">// Emit iszero to check the condition.

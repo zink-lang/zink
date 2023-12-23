@@ -129,7 +129,7 @@
     Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
     ValidPayload, Validator,
 };
-<span class="kw">use </span>zingen::{DataSet, Exports, Func, Function, Functions, Imports};
+<span class="kw">use </span>zingen::wasm::{<span class="self">self</span>, Data <span class="kw">as </span>DataSet, Exports, Functions, HostFunc, Imports};
 
 <span class="doccomment">/// WASM module parser
 </span><span class="attr">#[derive(Default)]
@@ -199,7 +199,7 @@
             index,
         })) = iter.next()
         {
-            exports.add(index, name);
+            exports.insert(index, name.into());
         }
 
         <span class="prelude-val">Ok</span>(exports)
@@ -218,7 +218,7 @@
             ty: TypeRef::Func(<span class="kw">_</span>),
         })) = iter.next()
         {
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(func) = Func::try_from((module, name)) {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(func) = HostFunc::try_from((module, name)) {
                 <span class="macro">tracing::trace!</span>(<span class="string">"imported function: {}::{} at {index}"</span>, module, name);
                 imports.insert(index, func);
                 index += <span class="number">1</span>;
@@ -229,7 +229,7 @@
     }
 
     <span class="doccomment">/// Returns constructor if some.
-    </span><span class="kw">pub fn </span>remove_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Function&lt;<span class="lifetime">'p</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>remove_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;wasm::Function&lt;<span class="lifetime">'p</span>&gt;&gt; {
         <span class="self">self</span>.funcs.remove_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>.exports)
     }
 }

@@ -81,9 +81,9 @@
 <a href="#80" id="80">80</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Local instructions
 
-</span><span class="kw">use crate</span>::{CodeGen, Error, <span class="prelude-ty">Result</span>};
+</span><span class="kw">use crate</span>::{Error, Function, <span class="prelude-ty">Result</span>};
 
-<span class="kw">impl </span>CodeGen {
+<span class="kw">impl </span>Function {
     <span class="doccomment">/// This instruction gets the value of a variable.
     </span><span class="kw">pub fn </span>_local_get(<span class="kw-2">&amp;mut </span><span class="self">self</span>, local_index: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>local_index = local_index <span class="kw">as </span>usize;

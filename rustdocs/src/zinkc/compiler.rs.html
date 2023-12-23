@@ -132,12 +132,14 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
 
 </span><span class="kw">use crate</span>::{parser::Parser, Config, Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>zabi::Abi;
 <span class="kw">use </span>zingen::{
-    Buffer, CodeGen, Constructor, DataSet, Dispatcher, Function, Imports, JumpTable, BUFFER_LIMIT,
+    wasm::{<span class="self">self</span>, Data, Imports},
+    Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
 <span class="doccomment">/// Zink Compiler
@@ -214,9 +216,9 @@
     <span class="doccomment">/// Compile WASM function.
     </span><span class="kw">pub fn </span>compile_func(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        dataset: DataSet,
+        dataset: Data,
         imports: Imports,
-        <span class="kw-2">mut </span>func: Function&lt;<span class="lifetime">'_</span>&gt;,
+        <span class="kw-2">mut </span>func: wasm::Function&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>func_index = func.index();
         <span class="kw">let </span>sig = func.sig()<span class="question-mark">?</span>;
@@ -228,7 +230,7 @@
             func_index - (imports.len() <span class="kw">as </span>u32) == <span class="number">0
         </span>};
 
-        <span class="kw">let </span><span class="kw-2">mut </span>codegen = CodeGen::new(sig, dataset, imports, is_main)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>codegen = Function::new(sig, dataset, imports, is_main)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>locals_reader = func.body.get_locals_reader()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ops_reader = func.body.get_operators_reader()<span class="question-mark">?</span>;
 
@@ -240,7 +242,7 @@
     }
 
     <span class="doccomment">/// Emit buffer to the inner buffer.
-    </span><span class="kw">fn </span>emit_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, func_index: u32, codegen: CodeGen) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">fn </span>emit_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, func_index: u32, codegen: Function) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>buffer = codegen.finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>.table, <span class="self">self</span>.buffer.len() <span class="kw">as </span>u16)<span class="question-mark">?</span>;
         <span class="self">self</span>.table
             .call_offset(func_index, <span class="self">self</span>.buffer.len() <span class="kw">as </span>u16)<span class="question-mark">?</span>;
@@ -259,7 +261,7 @@
     }
 
     <span class="doccomment">/// Returns bytecode.
-    </span><span class="kw">fn </span>bytecode(<span class="kw-2">&amp;</span><span class="self">self</span>, constructor: <span class="prelude-ty">Option</span>&lt;Function&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
+    </span><span class="kw">fn </span>bytecode(<span class="kw-2">&amp;</span><span class="self">self</span>, constructor: <span class="prelude-ty">Option</span>&lt;wasm::Function&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
         Constructor::new(constructor, <span class="self">self</span>.buffer.clone())<span class="question-mark">?
             </span>.finish()
             .map_err(Into::into)

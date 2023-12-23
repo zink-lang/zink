@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["CodeGen"]};
+window.SIDEBAR_ITEMS = {"mod":["code","constructor","dispatcher","function"]};

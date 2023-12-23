@@ -54,7 +54,7 @@
 <a href="#53" id="53">53</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Return handlers
 
-</span><span class="kw">use crate</span>::{Error, MacroAssembler, <span class="prelude-ty">Result</span>, ToLSBytes};
+</span><span class="kw">use crate</span>::{wasm::ToLSBytes, Error, MacroAssembler, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>wasmparser::ValType;
 
 <span class="kw">impl </span>MacroAssembler {

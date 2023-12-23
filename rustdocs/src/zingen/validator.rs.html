@@ -53,17 +53,13 @@
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Pre-visitor for parsing WASM.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::Result;
+</span><span class="kw">use crate</span>::{Function, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>wasmparser::{Operator, VisitOperator};
 
-<span class="kw">use </span><span class="kw">crate</span>::CodeGen;
-
 <span class="doccomment">/// A pre-visitor that validates the WASM and then visits it.
-</span><span class="kw">pub struct </span>ValidateThenVisit&lt;<span class="lifetime">'a</span>, T&gt;(<span class="kw">pub </span>T, <span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>CodeGen);
+</span><span class="kw">pub struct </span>ValidateThenVisit&lt;<span class="lifetime">'a</span>, T&gt;(<span class="kw">pub </span>T, <span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Function);
 
 <span class="macro">macro_rules! </span>validate_then_visit {
     ($( @<span class="macro-nonterminal">$proposal</span>:ident <span class="macro-nonterminal">$op</span>:ident $({ $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$visit</span>:ident)<span class="kw-2">*</span>) =&gt; {
@@ -97,7 +93,7 @@
     </span><span class="kw">fn </span>is_reachable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 }
 
-<span class="kw">impl </span>ReachableState <span class="kw">for </span>CodeGen {
+<span class="kw">impl </span>ReachableState <span class="kw">for </span>Function {
     <span class="kw">fn </span>is_reachable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="bool-val">true
     </span>}

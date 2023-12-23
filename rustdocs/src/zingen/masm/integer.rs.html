@@ -133,7 +133,7 @@
 <a href="#132" id="132">132</a>
 </pre></div><pre class="rust"><code><span class="comment">// Integer instructions
 
-</span><span class="kw">use crate</span>::{MacroAssembler, <span class="prelude-ty">Result</span>, ToLSBytes};
+</span><span class="kw">use crate</span>::{wasm::ToLSBytes, MacroAssembler, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>wasmparser::{Ieee32, Ieee64};
 
 <span class="kw">impl </span>MacroAssembler {

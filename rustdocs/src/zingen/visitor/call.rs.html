@@ -77,9 +77,9 @@
 <a href="#76" id="76">76</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! call instructions
 
-</span><span class="kw">use crate</span>::{CodeGen, Error, Func, <span class="prelude-ty">Result</span>};
+</span><span class="kw">use crate</span>::{wasm::HostFunc, Error, Function, <span class="prelude-ty">Result</span>};
 
-<span class="kw">impl </span>CodeGen {
+<span class="kw">impl </span>Function {
     <span class="doccomment">/// The call indirect instruction calls a function indirectly
     /// through an operand indexing into a table.
     </span><span class="kw">pub fn </span>_call_indirect(
@@ -137,15 +137,15 @@
             .ok_or(Error::ImportedFuncNotFound(index))<span class="question-mark">?</span>;
 
         <span class="kw">match </span>func {
-            Func::Sstore =&gt; <span class="self">self</span>.masm._sstore(),
-            Func::Sload =&gt; <span class="self">self</span>.masm._sload(),
-            Func::Log0 =&gt; <span class="self">self</span>.log(<span class="number">0</span>),
-            Func::Log1 =&gt; <span class="self">self</span>.log(<span class="number">1</span>),
-            Func::Log2 =&gt; <span class="self">self</span>.log(<span class="number">2</span>),
-            Func::Log3 =&gt; <span class="self">self</span>.log(<span class="number">3</span>),
-            Func::Log4 =&gt; <span class="self">self</span>.log(<span class="number">4</span>),
+            HostFunc::Sstore =&gt; <span class="self">self</span>.masm._sstore(),
+            HostFunc::Sload =&gt; <span class="self">self</span>.masm._sload(),
+            HostFunc::Log0 =&gt; <span class="self">self</span>.log(<span class="number">0</span>),
+            HostFunc::Log1 =&gt; <span class="self">self</span>.log(<span class="number">1</span>),
+            HostFunc::Log2 =&gt; <span class="self">self</span>.log(<span class="number">2</span>),
+            HostFunc::Log3 =&gt; <span class="self">self</span>.log(<span class="number">3</span>),
+            HostFunc::Log4 =&gt; <span class="self">self</span>.log(<span class="number">4</span>),
             <span class="kw">_ </span>=&gt; {
-                <span class="macro">tracing::error!</span>(<span class="string">"unsupported embedded function {func:?}"</span>);
+                <span class="macro">tracing::error!</span>(<span class="string">"unsupported host function {func:?}"</span>);
                 <span class="prelude-val">Err</span>(Error::UnsupportedHostFunc(func))
             }
         }

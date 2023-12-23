@@ -90,11 +90,13 @@
 <a href="#89" id="89">89</a>
 <a href="#90" id="90">90</a>
 <a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Program Relocations
 
 </span><span class="kw">use crate</span>::{
     jump::{relocate, JumpTable},
-    Buffer, Error, <span class="prelude-ty">Result</span>, ToLSBytes, BUFFER_LIMIT,
+    wasm::ToLSBytes,
+    Buffer, Error, <span class="prelude-ty">Result</span>, BUFFER_LIMIT,
 };
 <span class="kw">use </span>opcodes::ShangHai <span class="kw">as </span>OpCode;
 

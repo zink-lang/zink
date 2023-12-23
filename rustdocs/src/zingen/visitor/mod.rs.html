@@ -298,10 +298,10 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module is the central place for machine code emission.
 //!
 //! It defines an implementation of wasmparser's Visitor trait for
-//! `CodeGen`; which defines a visitor per op-code, which validates
+//! `Function`; which defines a visitor per op-code, which validates
 //! and dispatches to the corresponding machine code emitter.
 
-</span><span class="kw">use crate</span>::{CodeGen, <span class="prelude-ty">Result</span>};
+</span><span class="kw">use crate</span>::{Function, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>paste::paste;
 <span class="kw">use </span>tracing::trace;
 <span class="kw">use </span>wasmparser::{for_each_operator, BlockType, BrTable, Ieee32, Ieee64, MemArg, VisitOperator};
@@ -486,7 +486,7 @@
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; VisitOperator&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>CodeGen {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; VisitOperator&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Function {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;()&gt;;
 
     <span class="macro">for_each_operator!</span>(impl_visit_operator);
