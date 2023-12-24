@@ -1,9 +1,7 @@
 //! Contract constructor.
 
-use crate::{
-    wasm::{self, ToLSBytes},
-    Buffer, Function, JumpTable, MacroAssembler, Result,
-};
+use crate::{wasm::ToLSBytes, Buffer, Function, JumpTable, MacroAssembler, Result};
+use wasmparser::FuncType;
 
 /// Contract constructor.
 ///
@@ -16,25 +14,22 @@ use crate::{
 ///
 /// TODO: introduce ABI for constructor
 pub struct Constructor {
-    /// Code buffer.
-    pub masm: MacroAssembler,
-
     /// Code generator.
+    pub masm: MacroAssembler,
+    /// Code buffer.
     pub init_code: Buffer,
-
     /// Runtime bytecode.
     pub runtime_bytecode: Buffer,
 }
 
 impl Constructor {
     /// Create a new constructor.
-    pub fn new(constructor: Option<wasm::Function<'_>>, runtime_bytecode: Buffer) -> Result<Self> {
+    pub fn new(constructor: Option<FuncType>, runtime_bytecode: Buffer) -> Result<Self> {
         let mut init_code = Buffer::new();
         if let Some(constructor) = constructor {
             let codegen = Function::new(
-                constructor.sig()?,
                 Default::default(),
-                Default::default(),
+                constructor,
                 // No `return` instruction in the generated code.
                 false,
             )?;

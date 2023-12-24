@@ -2,7 +2,7 @@
 
 use crate::{
     codegen::code::ExtFunc,
-    wasm::{self, Data, Exports, Functions, Imports, ToLSBytes},
+    wasm::{self, Env, Functions, ToLSBytes},
     Error, JumpTable, MacroAssembler, Result,
 };
 use wasmparser::{FuncType, Operator};
@@ -12,14 +12,10 @@ use zabi::Abi;
 pub struct Dispatcher<'d> {
     /// Code buffer
     pub asm: MacroAssembler,
-    /// Module exports
-    pub exports: Exports,
+    /// WASM environment
+    pub env: Env,
     /// Module functions
     pub funcs: &'d Functions<'d>,
-    /// Module imports
-    pub imports: Imports,
-    /// Module data
-    pub data: Data,
     /// Jump table
     pub table: JumpTable,
     /// ABI for the current function
@@ -30,39 +26,19 @@ pub struct Dispatcher<'d> {
 
 impl<'d> Dispatcher<'d> {
     /// Create dispatcher with functions.
-    pub fn new(funcs: &'d Functions<'d>) -> Self {
+    pub fn new(env: Env, funcs: &'d Functions<'d>) -> Self {
         Self {
             asm: Default::default(),
-            exports: Default::default(),
+            env,
             funcs,
-            imports: Default::default(),
-            data: Default::default(),
             table: Default::default(),
             abi: Default::default(),
         }
     }
 
-    /// Set exports for the dispatcher.
-    pub fn exports(&mut self, exports: Exports) -> &mut Self {
-        self.exports = exports;
-        self
-    }
-
-    /// Set imports for the dispatcher.
-    pub fn imports(&mut self, imports: Imports) -> &mut Self {
-        self.imports = imports;
-        self
-    }
-
-    /// Set data for the dispatcher.
-    pub fn data(&mut self, data: Data) -> &mut Self {
-        self.data = data;
-        self
-    }
-
     /// Query exported function from selector.
     fn query_func(&self, name: &str) -> Result<u32> {
-        for (index, export) in self.exports.iter() {
+        for (index, export) in self.env.exports.iter() {
             if export == name {
                 return Ok(*index);
             }
@@ -90,11 +66,11 @@ impl<'d> Dispatcher<'d> {
             return Err(Error::InvalidSelector);
         };
 
-        if !self.imports.is_emit_abi(index) {
+        if !self.env.imports.is_emit_abi(index) {
             return Err(Error::FuncNotImported("emit_abi".into()));
         }
 
-        let abi = self.data.load(offset, length as usize)?;
+        let abi = self.env.data.load(offset, length as usize)?;
         Abi::from_hex(String::from_utf8_lossy(&abi)).map_err(Into::into)
     }
 

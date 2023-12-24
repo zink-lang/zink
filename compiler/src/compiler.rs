@@ -1,32 +1,33 @@
 //! Zink compiler
 
 use crate::{parser::Parser, Config, Error, Result};
+use wasmparser::FuncType;
 use zabi::Abi;
 use zingen::{
-    wasm::{self, Data, Imports},
+    wasm::{self, Env},
     Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
 /// Zink Compiler
 #[derive(Default)]
 pub struct Compiler {
+    /// ABIs of the compiled contract.
     abi: Vec<Abi>,
+    /// EVM bytecode buffer.
     buffer: Buffer,
+    /// Global jump table.
     table: JumpTable,
-    config: Config,
+    /// Compiler configuration.
+    pub config: Config,
 }
 
 impl Compiler {
-    /// If embed constructor in bytecode.
-    pub fn constructor(mut self, constructor: bool) -> Self {
-        self.config.constructor = constructor;
-        self
-    }
-
-    /// If embed dispatcher in bytecode.
-    pub fn dispatcher(mut self, dispatcher: bool) -> Self {
-        self.config.dispatcher = dispatcher;
-        self
+    /// Create a new compiler from config.
+    pub fn new(config: Config) -> Self {
+        Self {
+            config,
+            ..Default::default()
+        }
     }
 
     /// Compile wasm module to evm bytecode.
@@ -37,8 +38,9 @@ impl Compiler {
         let constructor = parser.remove_constructor();
 
         self.compile_dispatcher(&mut parser)?;
+        let env = parser.to_func_env();
         for func in parser.funcs.into_funcs() {
-            self.compile_func(parser.data.clone(), parser.imports.clone(), func)?;
+            self.compile_func(env.clone(), func)?;
         }
 
         self.table.code_offset(self.buffer.len() as u16);
@@ -61,12 +63,7 @@ impl Compiler {
             return Ok(());
         }
 
-        let mut dispatcher = Dispatcher::new(&parser.funcs);
-        dispatcher
-            .data(parser.data.clone())
-            .exports(parser.exports.clone())
-            .imports(parser.imports.clone());
-
+        let mut dispatcher = Dispatcher::new(parser.to_env(), &parser.funcs);
         let buffer = dispatcher.finish(selectors, &mut self.table)?;
         self.buffer.extend_from_slice(&buffer);
 
@@ -79,12 +76,7 @@ impl Compiler {
     }
 
     /// Compile WASM function.
-    pub fn compile_func(
-        &mut self,
-        dataset: Data,
-        imports: Imports,
-        mut func: wasm::Function<'_>,
-    ) -> Result<()> {
+    pub fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<()> {
         let func_index = func.index();
         let sig = func.sig()?;
 
@@ -92,10 +84,10 @@ impl Compiler {
         let is_main = if self.config.dispatcher {
             false
         } else {
-            func_index - (imports.len() as u32) == 0
+            func_index - (env.imports.len() as u32) == 0
         };
 
-        let mut codegen = Function::new(sig, dataset, imports, is_main)?;
+        let mut codegen = Function::new(env, sig, is_main)?;
         let mut locals_reader = func.body.get_locals_reader()?;
         let mut ops_reader = func.body.get_operators_reader()?;
 
@@ -126,7 +118,7 @@ impl Compiler {
     }
 
     /// Returns bytecode.
-    fn bytecode(&self, constructor: Option<wasm::Function<'_>>) -> Result<Buffer> {
+    fn bytecode(&self, constructor: Option<FuncType>) -> Result<Buffer> {
         Constructor::new(constructor, self.buffer.clone())?
             .finish()
             .map_err(Into::into)

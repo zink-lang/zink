@@ -3,10 +3,10 @@
 use crate::{Error, Result};
 use std::iter::IntoIterator;
 use wasmparser::{
-    Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
-    ValidPayload, Validator,
+    Data, DataKind, Export, ExternalKind, FuncType, Import, Operator, Payload, SectionLimited,
+    TypeRef, ValidPayload, Validator,
 };
-use zingen::wasm::{self, Data as DataSet, Exports, Functions, HostFunc, Imports};
+use zingen::wasm::{Data as DataSet, Env, Exports, Functions, HostFunc, Imports};
 
 /// WASM module parser
 #[derive(Default)]
@@ -106,8 +106,26 @@ impl<'p> Parser<'p> {
     }
 
     /// Returns constructor if some.
-    pub fn remove_constructor(&mut self) -> Option<wasm::Function<'p>> {
+    pub fn remove_constructor(&mut self) -> Option<FuncType> {
         self.funcs.remove_constructor(&self.exports)
+    }
+
+    /// Returns full environment.
+    pub fn to_env(&self) -> Env {
+        Env {
+            imports: self.imports.clone(),
+            data: self.data.clone(),
+            exports: self.exports.clone(),
+        }
+    }
+
+    /// Returns function environment.
+    pub fn to_func_env(&self) -> Env {
+        Env {
+            imports: self.imports.clone(),
+            data: self.data.clone(),
+            exports: self.exports.clone(),
+        }
     }
 }
 

@@ -6,7 +6,7 @@ impl Function {
     /// This instruction gets the value of a variable.
     pub fn _local_get(&mut self, local_index: u32) -> Result<()> {
         let local_index = local_index as usize;
-        if self.is_main && local_index < self.env.params().len() {
+        if self.is_main && local_index < self.ty.params().len() {
             self._local_get_calldata(local_index)
         } else {
             self._local_get_var(local_index)

@@ -16,7 +16,7 @@ impl Function {
 
     /// The call instruction calls a function specified by its index.
     pub fn _call(&mut self, index: u32) -> Result<()> {
-        if self.imports.len() as u32 > index {
+        if self.env.imports.len() as u32 > index {
             self.call_imported(index)
         } else {
             self.call_internal(index)
@@ -55,6 +55,7 @@ impl Function {
         //
         // register the imported function index to the jump table.
         let func = *self
+            .env
             .imports
             .get(&index)
             .ok_or(Error::ImportedFuncNotFound(index))?;
