@@ -11,23 +11,23 @@ use zingen::{
 /// Zink Compiler
 #[derive(Default)]
 pub struct Compiler {
+    /// ABIs of the compiled contract.
     abi: Vec<Abi>,
+    /// EVM bytecode buffer.
     buffer: Buffer,
+    /// Global jump table.
     table: JumpTable,
-    config: Config,
+    /// Compiler configuration.
+    pub config: Config,
 }
 
 impl Compiler {
-    /// If embed constructor in bytecode.
-    pub fn constructor(mut self, constructor: bool) -> Self {
-        self.config.constructor = constructor;
-        self
-    }
-
-    /// If embed dispatcher in bytecode.
-    pub fn dispatcher(mut self, dispatcher: bool) -> Self {
-        self.config.dispatcher = dispatcher;
-        self
+    /// Create a new compiler from config.
+    pub fn new(config: Config) -> Self {
+        Self {
+            config,
+            ..Default::default()
+        }
     }
 
     /// Compile wasm module to evm bytecode.

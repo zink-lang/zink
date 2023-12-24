@@ -1,7 +1,7 @@
 //! Zink compiler command line interface.
 #![cfg(feature = "cli")]
 
-use crate::Compiler;
+use crate::{Compiler, Config};
 use ccli::{clap, Parser};
 use std::{env, fs, path::PathBuf};
 
@@ -32,7 +32,7 @@ impl Compile {
             env::current_dir()?.join(self.input.with_extension(""))
         };
 
-        let mut compiler = Compiler::default().dispatcher(self.dispatcher);
+        let mut compiler = Compiler::new(Config::default().dispatcher(self.dispatcher));
         let bin = compiler.compile(&fs::read(&self.input)?)?;
 
         output.parent().map(fs::create_dir_all);

@@ -5,7 +5,7 @@ use anyhow::{anyhow, Result};
 use serde::Deserialize;
 use std::{fs, path::PathBuf};
 use zabi::Abi;
-use zinkc::Compiler;
+use zinkc::{Compiler, Config};
 
 /// Cargo Manifest for parsing package.
 #[derive(Deserialize)]
@@ -81,10 +81,11 @@ impl Contract {
 
     /// Compile WASM to EVM bytecode.
     pub fn compile(mut self) -> Result<Self> {
-        let mut compiler = Compiler::default()
+        let config = Config::default()
             .constructor(self.constructor)
             .dispatcher(self.dispatcher);
 
+        let mut compiler = Compiler::new(config);
         self.bytecode = compiler.compile(&self.wasm)?.to_vec();
         self.abi = compiler.abi();
 

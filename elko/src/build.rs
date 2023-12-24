@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use ccli::clap::{self, Parser};
 use etc::{Etc, FileSystem};
 use std::{env, fs, path::PathBuf};
-use zinkc::Compiler;
+use zinkc::{Compiler, Config};
 
 /// Build zink project to EVM bytecode.
 #[derive(Debug, Parser)]
@@ -12,15 +12,15 @@ use zinkc::Compiler;
 pub struct Build {
     /// The path of the cargo project.
     pub input: Option<PathBuf>,
-    /// Write output to \<filename\>
+    /// Write output to <filename>
     #[clap(short, long, value_name = "filename")]
     pub output: Option<PathBuf>,
-    /// Write output to compiler-chosen filename in \<dir\>
+    /// Write output to compiler-chosen filename in <dir>
     #[clap(long, value_name = "dir")]
     pub out_dir: Option<PathBuf>,
-    /// If enable dispatcher.
-    #[clap(short, long)]
-    pub dispatcher: bool,
+    /// Compiler configuration
+    #[clap(flatten)]
+    pub config: Config,
 }
 
 impl Build {
@@ -60,12 +60,11 @@ impl Build {
 
         // Compile the wasm to evm bytecode.
         let wasm = fs::read(builder.output()?)?;
-        let bin = Compiler::default()
-            .dispatcher(self.dispatcher)
-            .compile(&wasm)?;
+        let config = Config::default().dispatcher(self.config.dispatcher);
+        let bin = Compiler::new(config).compile(&wasm)?;
         let dst = builder.output()?.with_extension("bin");
-        fs::write(dst, bin)?;
 
+        fs::write(dst, bin)?;
         Ok(())
     }
 }
