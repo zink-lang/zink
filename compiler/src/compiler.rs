@@ -1,6 +1,7 @@
 //! Zink compiler
 
 use crate::{parser::Parser, Config, Error, Result};
+use wasmparser::FuncType;
 use zabi::Abi;
 use zingen::{
     wasm::{self, Data, Imports},
@@ -126,7 +127,7 @@ impl Compiler {
     }
 
     /// Returns bytecode.
-    fn bytecode(&self, constructor: Option<wasm::Function<'_>>) -> Result<Buffer> {
+    fn bytecode(&self, constructor: Option<FuncType>) -> Result<Buffer> {
         Constructor::new(constructor, self.buffer.clone())?
             .finish()
             .map_err(Into::into)

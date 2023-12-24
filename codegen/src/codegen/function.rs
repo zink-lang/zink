@@ -14,23 +14,23 @@ use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, Validat
 /// The code generation abstraction.
 pub struct Function {
     /// The backtrace.
-    pub(crate) backtrace: Backtrace,
+    pub backtrace: Backtrace,
     /// Control stack frames.
-    pub(crate) control: ControlStack,
+    pub control: ControlStack,
     /// Control stack frames.
-    pub(crate) dataset: Data,
+    pub dataset: Data,
     /// The function environment.
-    pub(crate) env: FuncType,
+    pub env: FuncType,
     /// The defined locals for a function.
-    pub(crate) locals: Locals,
+    pub locals: Locals,
     /// The macro assembler.
-    pub(crate) masm: MacroAssembler,
+    pub masm: MacroAssembler,
     /// The jump table.
-    pub(crate) table: JumpTable,
+    pub table: JumpTable,
     /// The imported functions.
-    pub(crate) imports: Imports,
+    pub imports: Imports,
     /// If this function is the main function.
-    pub(crate) is_main: bool,
+    pub is_main: bool,
 }
 
 impl Function {
