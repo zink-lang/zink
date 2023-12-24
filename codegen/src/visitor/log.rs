@@ -55,7 +55,7 @@ impl Function {
         for topic in (1..=count).rev() {
             let (offset, size) = self.log_data()?;
             let size = size as usize;
-            let data = self.dataset.load(offset, size)?;
+            let data = self.env.data.load(offset, size)?;
 
             tracing::debug!("log{count} topic{topic}: {:?}", data);
             topics.push(data);
@@ -64,7 +64,7 @@ impl Function {
         let name = {
             let (offset, size) = self.log_data()?;
             let size = size as usize;
-            let data = self.dataset.load(offset, size)?;
+            let data = self.env.data.load(offset, size)?;
 
             tracing::debug!("log1 name: {:?}", data);
             data

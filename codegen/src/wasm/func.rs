@@ -34,23 +34,9 @@ impl Function<'_> {
     }
 }
 
-/// Functions with indexes.
+/// WASM Functions by indexes.
 #[derive(Default)]
 pub struct Functions<'f>(BTreeMap<u32, Function<'f>>);
-
-impl<'f> Deref for Functions<'f> {
-    type Target = BTreeMap<u32, Function<'f>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl<'f> DerefMut for Functions<'f> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
 
 impl<'f> Functions<'f> {
     /// Add function to the list.
@@ -95,5 +81,19 @@ impl<'f> Functions<'f> {
     /// Get all functions
     pub fn into_funcs(self) -> Vec<Function<'f>> {
         self.0.into_values().collect()
+    }
+}
+
+impl<'f> Deref for Functions<'f> {
+    type Target = BTreeMap<u32, Function<'f>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<'f> DerefMut for Functions<'f> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }

@@ -4,7 +4,7 @@ use crate::{parser::Parser, Config, Error, Result};
 use wasmparser::FuncType;
 use zabi::Abi;
 use zingen::{
-    wasm::{self, Data, Imports},
+    wasm::{self, Env},
     Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
@@ -38,8 +38,9 @@ impl Compiler {
         let constructor = parser.remove_constructor();
 
         self.compile_dispatcher(&mut parser)?;
+        let env = parser.to_func_env();
         for func in parser.funcs.into_funcs() {
-            self.compile_func(parser.data.clone(), parser.imports.clone(), func)?;
+            self.compile_func(env.clone(), func)?;
         }
 
         self.table.code_offset(self.buffer.len() as u16);
@@ -80,12 +81,7 @@ impl Compiler {
     }
 
     /// Compile WASM function.
-    pub fn compile_func(
-        &mut self,
-        dataset: Data,
-        imports: Imports,
-        mut func: wasm::Function<'_>,
-    ) -> Result<()> {
+    pub fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<()> {
         let func_index = func.index();
         let sig = func.sig()?;
 
@@ -93,10 +89,10 @@ impl Compiler {
         let is_main = if self.config.dispatcher {
             false
         } else {
-            func_index - (imports.len() as u32) == 0
+            func_index - (env.imports.len() as u32) == 0
         };
 
-        let mut codegen = Function::new(sig, dataset, imports, is_main)?;
+        let mut codegen = Function::new(env, sig, is_main)?;
         let mut locals_reader = func.body.get_locals_reader()?;
         let mut ops_reader = func.body.get_operators_reader()?;
 

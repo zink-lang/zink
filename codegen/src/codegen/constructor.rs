@@ -28,9 +28,8 @@ impl Constructor {
         let mut init_code = Buffer::new();
         if let Some(constructor) = constructor {
             let codegen = Function::new(
+                Default::default(),
                 constructor,
-                Default::default(),
-                Default::default(),
                 // No `return` instruction in the generated code.
                 false,
             )?;

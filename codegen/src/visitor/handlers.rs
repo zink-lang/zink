@@ -5,7 +5,7 @@ use crate::{ControlStackFrame, ControlStackFrameType, Function, Result};
 impl Function {
     /// Handle the end of the function.
     pub(crate) fn handle_return(&mut self) -> Result<()> {
-        let results = self.env.results();
+        let results = self.ty.results();
         tracing::trace!("handle return, results: {results:?}");
 
         self.masm.main_return(results)
@@ -13,7 +13,7 @@ impl Function {
 
     /// Handle the return of a call.
     pub(crate) fn handle_call_return(&mut self) -> Result<()> {
-        let results = self.env.results();
+        let results = self.ty.results();
         tracing::trace!("handle call return: {:?}", results);
 
         self.masm.call_return(results)

@@ -6,7 +6,7 @@ use crate::{
     local::{LocalSlot, LocalSlotType, Locals},
     masm::MacroAssembler,
     validator::ValidateThenVisit,
-    wasm::{Data, Imports},
+    wasm::Env,
     Buffer, Error, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
@@ -17,39 +17,36 @@ pub struct Function {
     pub backtrace: Backtrace,
     /// Control stack frames.
     pub control: ControlStack,
-    /// Control stack frames.
-    pub dataset: Data,
-    /// The function environment.
-    pub env: FuncType,
+    /// WASM environment.
+    pub env: Env,
     /// The defined locals for a function.
     pub locals: Locals,
     /// The macro assembler.
     pub masm: MacroAssembler,
     /// The jump table.
     pub table: JumpTable,
-    /// The imported functions.
-    pub imports: Imports,
+    /// The function type.
+    pub ty: FuncType,
     /// If this function is the main function.
     pub is_main: bool,
 }
 
 impl Function {
     /// Create a new code generator.
-    pub fn new(env: FuncType, dataset: Data, imports: Imports, is_main: bool) -> Result<Self> {
+    pub fn new(env: Env, ty: FuncType, is_main: bool) -> Result<Self> {
         let mut params_count = 0;
         if !is_main {
-            params_count = env.params().len() as u8;
+            params_count = ty.params().len() as u8;
         }
 
         let mut codegen = Self {
             backtrace: Backtrace::default(),
             control: ControlStack::default(),
-            dataset,
             env,
+            ty,
             locals: Default::default(),
             masm: Default::default(),
             table: Default::default(),
-            imports,
             is_main,
         };
 
@@ -81,7 +78,7 @@ impl Function {
         let mut sp = if self.is_main { 0 } else { 1 };
 
         // Define locals in function parameters.
-        for param in self.env.params() {
+        for param in self.ty.params() {
             self.locals
                 .push(LocalSlot::new(*param, LocalSlotType::Parameter, sp));
             sp += 1;
@@ -128,7 +125,7 @@ impl Function {
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
         let sp = self.masm.sp();
-        if !self.is_main && self.masm.sp() != self.env.results().len() as u8 {
+        if !self.is_main && self.masm.sp() != self.ty.results().len() as u8 {
             return Err(Error::StackNotBalanced(sp));
         }
 
