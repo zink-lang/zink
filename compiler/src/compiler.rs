@@ -63,12 +63,7 @@ impl Compiler {
             return Ok(());
         }
 
-        let mut dispatcher = Dispatcher::new(&parser.funcs);
-        dispatcher
-            .data(parser.data.clone())
-            .exports(parser.exports.clone())
-            .imports(parser.imports.clone());
-
+        let mut dispatcher = Dispatcher::new(parser.to_env(), &parser.funcs);
         let buffer = dispatcher.finish(selectors, &mut self.table)?;
         self.buffer.extend_from_slice(&buffer);
 
