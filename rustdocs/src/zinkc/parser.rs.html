@@ -121,15 +121,33 @@
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink parser
 
 </span><span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>std::iter::IntoIterator;
 <span class="kw">use </span>wasmparser::{
-    Data, DataKind, Export, ExternalKind, Import, Operator, Payload, SectionLimited, TypeRef,
-    ValidPayload, Validator,
+    Data, DataKind, Export, ExternalKind, FuncType, Import, Operator, Payload, SectionLimited,
+    TypeRef, ValidPayload, Validator,
 };
-<span class="kw">use </span>zingen::wasm::{<span class="self">self</span>, Data <span class="kw">as </span>DataSet, Exports, Functions, HostFunc, Imports};
+<span class="kw">use </span>zingen::wasm::{Data <span class="kw">as </span>DataSet, Env, Exports, Functions, HostFunc, Imports};
 
 <span class="doccomment">/// WASM module parser
 </span><span class="attr">#[derive(Default)]
@@ -229,8 +247,26 @@
     }
 
     <span class="doccomment">/// Returns constructor if some.
-    </span><span class="kw">pub fn </span>remove_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;wasm::Function&lt;<span class="lifetime">'p</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>remove_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;FuncType&gt; {
         <span class="self">self</span>.funcs.remove_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>.exports)
+    }
+
+    <span class="doccomment">/// Returns full environment.
+    </span><span class="kw">pub fn </span>to_env(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Env {
+        Env {
+            imports: <span class="self">self</span>.imports.clone(),
+            data: <span class="self">self</span>.data.clone(),
+            exports: <span class="self">self</span>.exports.clone(),
+        }
+    }
+
+    <span class="doccomment">/// Returns function environment.
+    </span><span class="kw">pub fn </span>to_func_env(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Env {
+        Env {
+            imports: <span class="self">self</span>.imports.clone(),
+            data: <span class="self">self</span>.data.clone(),
+            exports: <span class="self">self</span>.exports.clone(),
+        }
     }
 }
 

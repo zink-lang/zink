@@ -134,9 +134,6 @@
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Code generation implementation.
 </span><span class="kw">use crate</span>::{
     backtrace::Backtrace,
@@ -145,7 +142,7 @@
     local::{LocalSlot, LocalSlotType, Locals},
     masm::MacroAssembler,
     validator::ValidateThenVisit,
-    wasm::{Data, Imports},
+    wasm::Env,
     Buffer, Error, <span class="prelude-ty">Result</span>,
 };
 <span class="kw">use </span>wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
@@ -153,42 +150,39 @@
 <span class="doccomment">/// The code generation abstraction.
 </span><span class="kw">pub struct </span>Function {
     <span class="doccomment">/// The backtrace.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) backtrace: Backtrace,
+    </span><span class="kw">pub </span>backtrace: Backtrace,
     <span class="doccomment">/// Control stack frames.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) control: ControlStack,
-    <span class="doccomment">/// Control stack frames.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) dataset: Data,
-    <span class="doccomment">/// The function environment.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) env: FuncType,
+    </span><span class="kw">pub </span>control: ControlStack,
+    <span class="doccomment">/// WASM environment.
+    </span><span class="kw">pub </span>env: Env,
     <span class="doccomment">/// The defined locals for a function.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) locals: Locals,
+    </span><span class="kw">pub </span>locals: Locals,
     <span class="doccomment">/// The macro assembler.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) masm: MacroAssembler,
+    </span><span class="kw">pub </span>masm: MacroAssembler,
     <span class="doccomment">/// The jump table.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) table: JumpTable,
-    <span class="doccomment">/// The imported functions.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) imports: Imports,
+    </span><span class="kw">pub </span>table: JumpTable,
+    <span class="doccomment">/// The function type.
+    </span><span class="kw">pub </span>ty: FuncType,
     <span class="doccomment">/// If this function is the main function.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_main: bool,
+    </span><span class="kw">pub </span>is_main: bool,
 }
 
 <span class="kw">impl </span>Function {
     <span class="doccomment">/// Create a new code generator.
-    </span><span class="kw">pub fn </span>new(env: FuncType, dataset: Data, imports: Imports, is_main: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>new(env: Env, ty: FuncType, is_main: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>params_count = <span class="number">0</span>;
         <span class="kw">if </span>!is_main {
-            params_count = env.params().len() <span class="kw">as </span>u8;
+            params_count = ty.params().len() <span class="kw">as </span>u8;
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>codegen = <span class="self">Self </span>{
             backtrace: Backtrace::default(),
             control: ControlStack::default(),
-            dataset,
             env,
+            ty,
             locals: Default::default(),
             masm: Default::default(),
             table: Default::default(),
-            imports,
             is_main,
         };
 
@@ -220,7 +214,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>sp = <span class="kw">if </span><span class="self">self</span>.is_main { <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>};
 
         <span class="comment">// Define locals in function parameters.
-        </span><span class="kw">for </span>param <span class="kw">in </span><span class="self">self</span>.env.params() {
+        </span><span class="kw">for </span>param <span class="kw">in </span><span class="self">self</span>.ty.params() {
             <span class="self">self</span>.locals
                 .push(LocalSlot::new(<span class="kw-2">*</span>param, LocalSlotType::Parameter, sp));
             sp += <span class="number">1</span>;
@@ -267,7 +261,7 @@
     <span class="doccomment">/// Finish code generation.
     </span><span class="kw">pub fn </span>finish(<span class="self">self</span>, jump_table: <span class="kw-2">&amp;mut </span>JumpTable, pc: u16) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
         <span class="kw">let </span>sp = <span class="self">self</span>.masm.sp();
-        <span class="kw">if </span>!<span class="self">self</span>.is_main &amp;&amp; <span class="self">self</span>.masm.sp() != <span class="self">self</span>.env.results().len() <span class="kw">as </span>u8 {
+        <span class="kw">if </span>!<span class="self">self</span>.is_main &amp;&amp; <span class="self">self</span>.masm.sp() != <span class="self">self</span>.ty.results().len() <span class="kw">as </span>u8 {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::StackNotBalanced(sp));
         }
 

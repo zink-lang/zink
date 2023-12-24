@@ -60,7 +60,7 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler command line interface.
 </span><span class="attr">#![cfg(feature = <span class="string">"cli"</span>)]
 
-</span><span class="kw">use </span><span class="kw">crate</span>::Compiler;
+</span><span class="kw">use crate</span>::{Compiler, Config};
 <span class="kw">use </span>ccli::{clap, Parser};
 <span class="kw">use </span>std::{env, fs, path::PathBuf};
 
@@ -91,7 +91,7 @@
             env::current_dir()<span class="question-mark">?</span>.join(<span class="self">self</span>.input.with_extension(<span class="string">""</span>))
         };
 
-        <span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::default().dispatcher(<span class="self">self</span>.dispatcher);
+        <span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::new(Config::default().dispatcher(<span class="self">self</span>.dispatcher));
         <span class="kw">let </span>bin = compiler.compile(<span class="kw-2">&amp;</span>fs::read(<span class="kw-2">&amp;</span><span class="self">self</span>.input)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 
         output.parent().map(fs::create_dir_all);

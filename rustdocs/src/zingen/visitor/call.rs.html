@@ -75,6 +75,7 @@
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! call instructions
 
 </span><span class="kw">use crate</span>::{wasm::HostFunc, Error, Function, <span class="prelude-ty">Result</span>};
@@ -93,7 +94,7 @@
 
     <span class="doccomment">/// The call instruction calls a function specified by its index.
     </span><span class="kw">pub fn </span>_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span><span class="self">self</span>.imports.len() <span class="kw">as </span>u32 &gt; index {
+        <span class="kw">if </span><span class="self">self</span>.env.imports.len() <span class="kw">as </span>u32 &gt; index {
             <span class="self">self</span>.call_imported(index)
         } <span class="kw">else </span>{
             <span class="self">self</span>.call_internal(index)
@@ -132,7 +133,8 @@
         //
         // register the imported function index to the jump table.
         </span><span class="kw">let </span>func = <span class="kw-2">*</span><span class="self">self
-            </span>.imports
+            </span>.env
+            .imports
             .get(<span class="kw-2">&amp;</span>index)
             .ok_or(Error::ImportedFuncNotFound(index))<span class="question-mark">?</span>;
 

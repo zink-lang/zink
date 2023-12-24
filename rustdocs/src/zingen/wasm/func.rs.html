@@ -134,23 +134,9 @@
     }
 }
 
-<span class="doccomment">/// Functions with indexes.
+<span class="doccomment">/// WASM Functions by indexes.
 </span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>Functions&lt;<span class="lifetime">'f</span>&gt;(BTreeMap&lt;u32, Function&lt;<span class="lifetime">'f</span>&gt;&gt;);
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'f</span>&gt; Deref <span class="kw">for </span>Functions&lt;<span class="lifetime">'f</span>&gt; {
-    <span class="kw">type </span>Target = BTreeMap&lt;u32, Function&lt;<span class="lifetime">'f</span>&gt;&gt;;
-
-    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
-    </span>}
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'f</span>&gt; DerefMut <span class="kw">for </span>Functions&lt;<span class="lifetime">'f</span>&gt; {
-    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
-    </span>}
-}
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'f</span>&gt; Functions&lt;<span class="lifetime">'f</span>&gt; {
     <span class="doccomment">/// Add function to the list.
@@ -169,10 +155,10 @@
     }
 
     <span class="doccomment">/// Remove constructor function
-    </span><span class="kw">pub fn </span>remove_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, exports: <span class="kw-2">&amp;</span>Exports) -&gt; <span class="prelude-ty">Option</span>&lt;Function&lt;<span class="lifetime">'f</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>remove_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, exports: <span class="kw-2">&amp;</span>Exports) -&gt; <span class="prelude-ty">Option</span>&lt;FuncType&gt; {
         <span class="kw">for </span>(index, export) <span class="kw">in </span>exports.iter() {
             <span class="kw">if </span>export.as_str() == <span class="string">"constructor" </span>{
-                <span class="kw">return </span><span class="self">self</span>.remove(index);
+                <span class="kw">return </span><span class="self">self</span>.remove(index)<span class="question-mark">?</span>.sig().ok();
             }
         }
 
@@ -196,5 +182,19 @@
     </span><span class="kw">pub fn </span>into_funcs(<span class="self">self</span>) -&gt; Vec&lt;Function&lt;<span class="lifetime">'f</span>&gt;&gt; {
         <span class="self">self</span>.<span class="number">0</span>.into_values().collect()
     }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'f</span>&gt; Deref <span class="kw">for </span>Functions&lt;<span class="lifetime">'f</span>&gt; {
+    <span class="kw">type </span>Target = BTreeMap&lt;u32, Function&lt;<span class="lifetime">'f</span>&gt;&gt;;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'f</span>&gt; DerefMut <span class="kw">for </span>Functions&lt;<span class="lifetime">'f</span>&gt; {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 </code></pre></div></section></main></body></html>

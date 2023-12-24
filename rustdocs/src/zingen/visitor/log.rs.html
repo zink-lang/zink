@@ -152,7 +152,7 @@
         <span class="kw">for </span>topic <span class="kw">in </span>(<span class="number">1</span>..=count).rev() {
             <span class="kw">let </span>(offset, size) = <span class="self">self</span>.log_data()<span class="question-mark">?</span>;
             <span class="kw">let </span>size = size <span class="kw">as </span>usize;
-            <span class="kw">let </span>data = <span class="self">self</span>.dataset.load(offset, size)<span class="question-mark">?</span>;
+            <span class="kw">let </span>data = <span class="self">self</span>.env.data.load(offset, size)<span class="question-mark">?</span>;
 
             <span class="macro">tracing::debug!</span>(<span class="string">"log{count} topic{topic}: {:?}"</span>, data);
             topics.push(data);
@@ -161,7 +161,7 @@
         <span class="kw">let </span>name = {
             <span class="kw">let </span>(offset, size) = <span class="self">self</span>.log_data()<span class="question-mark">?</span>;
             <span class="kw">let </span>size = size <span class="kw">as </span>usize;
-            <span class="kw">let </span>data = <span class="self">self</span>.dataset.load(offset, size)<span class="question-mark">?</span>;
+            <span class="kw">let </span>data = <span class="self">self</span>.env.data.load(offset, size)<span class="question-mark">?</span>;
 
             <span class="macro">tracing::debug!</span>(<span class="string">"log1 name: {:?}"</span>, data);
             data

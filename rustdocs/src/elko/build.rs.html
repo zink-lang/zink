@@ -69,14 +69,13 @@
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Command `Build`.
 </span><span class="kw">use </span><span class="kw">crate</span>::utils::WasmBuilder;
 <span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>ccli::clap::{<span class="self">self</span>, Parser};
 <span class="kw">use </span>etc::{Etc, FileSystem};
 <span class="kw">use </span>std::{env, fs, path::PathBuf};
-<span class="kw">use </span>zinkc::Compiler;
+<span class="kw">use </span>zinkc::{Compiler, Config};
 
 <span class="doccomment">/// Build zink project to EVM bytecode.
 </span><span class="attr">#[derive(Debug, Parser)]
@@ -84,15 +83,15 @@
 </span><span class="kw">pub struct </span>Build {
     <span class="doccomment">/// The path of the cargo project.
     </span><span class="kw">pub </span>input: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
-    <span class="doccomment">/// Write output to \&lt;filename\&gt;
+    <span class="doccomment">/// Write output to &lt;filename&gt;
     </span><span class="attr">#[clap(short, long, value_name = <span class="string">"filename"</span>)]
     </span><span class="kw">pub </span>output: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
-    <span class="doccomment">/// Write output to compiler-chosen filename in \&lt;dir\&gt;
+    <span class="doccomment">/// Write output to compiler-chosen filename in &lt;dir&gt;
     </span><span class="attr">#[clap(long, value_name = <span class="string">"dir"</span>)]
     </span><span class="kw">pub </span>out_dir: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
-    <span class="doccomment">/// If enable dispatcher.
-    </span><span class="attr">#[clap(short, long)]
-    </span><span class="kw">pub </span>dispatcher: bool,
+    <span class="doccomment">/// Compiler configuration
+    </span><span class="attr">#[clap(flatten)]
+    </span><span class="kw">pub </span>config: Config,
 }
 
 <span class="kw">impl </span>Build {
@@ -132,12 +131,11 @@
 
         <span class="comment">// Compile the wasm to evm bytecode.
         </span><span class="kw">let </span>wasm = fs::read(builder.output()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-        <span class="kw">let </span>bin = Compiler::default()
-            .dispatcher(<span class="self">self</span>.dispatcher)
-            .compile(<span class="kw-2">&amp;</span>wasm)<span class="question-mark">?</span>;
+        <span class="kw">let </span>config = Config::default().dispatcher(<span class="self">self</span>.config.dispatcher);
+        <span class="kw">let </span>bin = Compiler::new(config).compile(<span class="kw-2">&amp;</span>wasm)<span class="question-mark">?</span>;
         <span class="kw">let </span>dst = builder.output()<span class="question-mark">?</span>.with_extension(<span class="string">"bin"</span>);
-        fs::write(dst, bin)<span class="question-mark">?</span>;
 
+        fs::write(dst, bin)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }

@@ -117,17 +117,10 @@
 <a href="#116" id="116">116</a>
 <a href="#117" id="117">117</a>
 <a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Contract constructor.
 
-</span><span class="kw">use crate</span>::{
-    wasm::{<span class="self">self</span>, ToLSBytes},
-    Buffer, Function, JumpTable, MacroAssembler, <span class="prelude-ty">Result</span>,
-};
+</span><span class="kw">use crate</span>::{wasm::ToLSBytes, Buffer, Function, JumpTable, MacroAssembler, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>wasmparser::FuncType;
 
 <span class="doccomment">/// Contract constructor.
 ///
@@ -140,25 +133,22 @@
 ///
 /// TODO: introduce ABI for constructor
 </span><span class="kw">pub struct </span>Constructor {
-    <span class="doccomment">/// Code buffer.
-    </span><span class="kw">pub </span>masm: MacroAssembler,
-
     <span class="doccomment">/// Code generator.
+    </span><span class="kw">pub </span>masm: MacroAssembler,
+    <span class="doccomment">/// Code buffer.
     </span><span class="kw">pub </span>init_code: Buffer,
-
     <span class="doccomment">/// Runtime bytecode.
     </span><span class="kw">pub </span>runtime_bytecode: Buffer,
 }
 
 <span class="kw">impl </span>Constructor {
     <span class="doccomment">/// Create a new constructor.
-    </span><span class="kw">pub fn </span>new(constructor: <span class="prelude-ty">Option</span>&lt;wasm::Function&lt;<span class="lifetime">'_</span>&gt;&gt;, runtime_bytecode: Buffer) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>new(constructor: <span class="prelude-ty">Option</span>&lt;FuncType&gt;, runtime_bytecode: Buffer) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>init_code = Buffer::new();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(constructor) = constructor {
             <span class="kw">let </span>codegen = Function::new(
-                constructor.sig()<span class="question-mark">?</span>,
                 Default::default(),
-                Default::default(),
+                constructor,
                 <span class="comment">// No `return` instruction in the generated code.
                 </span><span class="bool-val">false</span>,
             )<span class="question-mark">?</span>;

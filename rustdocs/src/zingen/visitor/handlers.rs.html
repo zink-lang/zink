@@ -55,7 +55,7 @@
 <span class="kw">impl </span>Function {
     <span class="doccomment">/// Handle the end of the function.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>results = <span class="self">self</span>.env.results();
+        <span class="kw">let </span>results = <span class="self">self</span>.ty.results();
         <span class="macro">tracing::trace!</span>(<span class="string">"handle return, results: {results:?}"</span>);
 
         <span class="self">self</span>.masm.main_return(results)
@@ -63,7 +63,7 @@
 
     <span class="doccomment">/// Handle the return of a call.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle_call_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>results = <span class="self">self</span>.env.results();
+        <span class="kw">let </span>results = <span class="self">self</span>.ty.results();
         <span class="macro">tracing::trace!</span>(<span class="string">"handle call return: {:?}"</span>, results);
 
         <span class="self">self</span>.masm.call_return(results)

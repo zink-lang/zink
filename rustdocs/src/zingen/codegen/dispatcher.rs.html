@@ -243,35 +243,11 @@
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Code generator for EVM dispatcher.
 
 </span><span class="kw">use crate</span>::{
     codegen::code::ExtFunc,
-    wasm::{<span class="self">self</span>, Data, Exports, Functions, Imports, ToLSBytes},
+    wasm::{<span class="self">self</span>, Env, Functions, ToLSBytes},
     Error, JumpTable, MacroAssembler, <span class="prelude-ty">Result</span>,
 };
 <span class="kw">use </span>wasmparser::{FuncType, Operator};
@@ -281,14 +257,10 @@
 </span><span class="kw">pub struct </span>Dispatcher&lt;<span class="lifetime">'d</span>&gt; {
     <span class="doccomment">/// Code buffer
     </span><span class="kw">pub </span>asm: MacroAssembler,
-    <span class="doccomment">/// Module exports
-    </span><span class="kw">pub </span>exports: Exports,
+    <span class="doccomment">/// WASM environment
+    </span><span class="kw">pub </span>env: Env,
     <span class="doccomment">/// Module functions
     </span><span class="kw">pub </span>funcs: <span class="kw-2">&amp;</span><span class="lifetime">'d </span>Functions&lt;<span class="lifetime">'d</span>&gt;,
-    <span class="doccomment">/// Module imports
-    </span><span class="kw">pub </span>imports: Imports,
-    <span class="doccomment">/// Module data
-    </span><span class="kw">pub </span>data: Data,
     <span class="doccomment">/// Jump table
     </span><span class="kw">pub </span>table: JumpTable,
     <span class="doccomment">/// ABI for the current function
@@ -299,39 +271,19 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'d</span>&gt; Dispatcher&lt;<span class="lifetime">'d</span>&gt; {
     <span class="doccomment">/// Create dispatcher with functions.
-    </span><span class="kw">pub fn </span>new(funcs: <span class="kw-2">&amp;</span><span class="lifetime">'d </span>Functions&lt;<span class="lifetime">'d</span>&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(env: Env, funcs: <span class="kw-2">&amp;</span><span class="lifetime">'d </span>Functions&lt;<span class="lifetime">'d</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             asm: Default::default(),
-            exports: Default::default(),
+            env,
             funcs,
-            imports: Default::default(),
-            data: Default::default(),
             table: Default::default(),
             abi: Default::default(),
         }
     }
 
-    <span class="doccomment">/// Set exports for the dispatcher.
-    </span><span class="kw">pub fn </span>exports(<span class="kw-2">&amp;mut </span><span class="self">self</span>, exports: Exports) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="self">self</span>.exports = exports;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Set imports for the dispatcher.
-    </span><span class="kw">pub fn </span>imports(<span class="kw-2">&amp;mut </span><span class="self">self</span>, imports: Imports) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="self">self</span>.imports = imports;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Set data for the dispatcher.
-    </span><span class="kw">pub fn </span>data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Data) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="self">self</span>.data = data;
-        <span class="self">self
-    </span>}
-
     <span class="doccomment">/// Query exported function from selector.
     </span><span class="kw">fn </span>query_func(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
-        <span class="kw">for </span>(index, export) <span class="kw">in </span><span class="self">self</span>.exports.iter() {
+        <span class="kw">for </span>(index, export) <span class="kw">in </span><span class="self">self</span>.env.exports.iter() {
             <span class="kw">if </span>export == name {
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw-2">*</span>index);
             }
@@ -359,11 +311,11 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidSelector);
         };
 
-        <span class="kw">if </span>!<span class="self">self</span>.imports.is_emit_abi(index) {
+        <span class="kw">if </span>!<span class="self">self</span>.env.imports.is_emit_abi(index) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::FuncNotImported(<span class="string">"emit_abi"</span>.into()));
         }
 
-        <span class="kw">let </span>abi = <span class="self">self</span>.data.load(offset, length <span class="kw">as </span>usize)<span class="question-mark">?</span>;
+        <span class="kw">let </span>abi = <span class="self">self</span>.env.data.load(offset, length <span class="kw">as </span>usize)<span class="question-mark">?</span>;
         Abi::from_hex(String::from_utf8_lossy(<span class="kw-2">&amp;</span>abi)).map_err(Into::into)
     }
 

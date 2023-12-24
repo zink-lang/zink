@@ -125,44 +125,37 @@
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
 <a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
 
 </span><span class="kw">use crate</span>::{parser::Parser, Config, Error, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>wasmparser::FuncType;
 <span class="kw">use </span>zabi::Abi;
 <span class="kw">use </span>zingen::{
-    wasm::{<span class="self">self</span>, Data, Imports},
+    wasm::{<span class="self">self</span>, Env},
     Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
 <span class="doccomment">/// Zink Compiler
 </span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>Compiler {
-    abi: Vec&lt;Abi&gt;,
-    buffer: Buffer,
-    table: JumpTable,
-    config: Config,
+    <span class="doccomment">/// ABIs of the compiled contract.
+    </span>abi: Vec&lt;Abi&gt;,
+    <span class="doccomment">/// EVM bytecode buffer.
+    </span>buffer: Buffer,
+    <span class="doccomment">/// Global jump table.
+    </span>table: JumpTable,
+    <span class="doccomment">/// Compiler configuration.
+    </span><span class="kw">pub </span>config: Config,
 }
 
 <span class="kw">impl </span>Compiler {
-    <span class="doccomment">/// If embed constructor in bytecode.
-    </span><span class="kw">pub fn </span>constructor(<span class="kw-2">mut </span><span class="self">self</span>, constructor: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.config.constructor = constructor;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// If embed dispatcher in bytecode.
-    </span><span class="kw">pub fn </span>dispatcher(<span class="kw-2">mut </span><span class="self">self</span>, dispatcher: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.config.dispatcher = dispatcher;
-        <span class="self">self
-    </span>}
+    <span class="doccomment">/// Create a new compiler from config.
+    </span><span class="kw">pub fn </span>new(config: Config) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            config,
+            ..Default::default()
+        }
+    }
 
     <span class="doccomment">/// Compile wasm module to evm bytecode.
     ///
@@ -172,8 +165,9 @@
         <span class="kw">let </span>constructor = parser.remove_constructor();
 
         <span class="self">self</span>.compile_dispatcher(<span class="kw-2">&amp;mut </span>parser)<span class="question-mark">?</span>;
+        <span class="kw">let </span>env = parser.to_func_env();
         <span class="kw">for </span>func <span class="kw">in </span>parser.funcs.into_funcs() {
-            <span class="self">self</span>.compile_func(parser.data.clone(), parser.imports.clone(), func)<span class="question-mark">?</span>;
+            <span class="self">self</span>.compile_func(env.clone(), func)<span class="question-mark">?</span>;
         }
 
         <span class="self">self</span>.table.code_offset(<span class="self">self</span>.buffer.len() <span class="kw">as </span>u16);
@@ -196,12 +190,7 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>dispatcher = Dispatcher::new(<span class="kw-2">&amp;</span>parser.funcs);
-        dispatcher
-            .data(parser.data.clone())
-            .exports(parser.exports.clone())
-            .imports(parser.imports.clone());
-
+        <span class="kw">let </span><span class="kw-2">mut </span>dispatcher = Dispatcher::new(parser.to_env(), <span class="kw-2">&amp;</span>parser.funcs);
         <span class="kw">let </span>buffer = dispatcher.finish(selectors, <span class="kw-2">&amp;mut </span><span class="self">self</span>.table)<span class="question-mark">?</span>;
         <span class="self">self</span>.buffer.extend_from_slice(<span class="kw-2">&amp;</span>buffer);
 
@@ -214,12 +203,7 @@
     }
 
     <span class="doccomment">/// Compile WASM function.
-    </span><span class="kw">pub fn </span>compile_func(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        dataset: Data,
-        imports: Imports,
-        <span class="kw-2">mut </span>func: wasm::Function&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub fn </span>compile_func(<span class="kw-2">&amp;mut </span><span class="self">self</span>, env: Env, <span class="kw-2">mut </span>func: wasm::Function&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>func_index = func.index();
         <span class="kw">let </span>sig = func.sig()<span class="question-mark">?</span>;
 
@@ -227,10 +211,10 @@
         <span class="kw">let </span>is_main = <span class="kw">if </span><span class="self">self</span>.config.dispatcher {
             <span class="bool-val">false
         </span>} <span class="kw">else </span>{
-            func_index - (imports.len() <span class="kw">as </span>u32) == <span class="number">0
+            func_index - (env.imports.len() <span class="kw">as </span>u32) == <span class="number">0
         </span>};
 
-        <span class="kw">let </span><span class="kw-2">mut </span>codegen = Function::new(sig, dataset, imports, is_main)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>codegen = Function::new(env, sig, is_main)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>locals_reader = func.body.get_locals_reader()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ops_reader = func.body.get_operators_reader()<span class="question-mark">?</span>;
 
@@ -261,7 +245,7 @@
     }
 
     <span class="doccomment">/// Returns bytecode.
-    </span><span class="kw">fn </span>bytecode(<span class="kw-2">&amp;</span><span class="self">self</span>, constructor: <span class="prelude-ty">Option</span>&lt;wasm::Function&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
+    </span><span class="kw">fn </span>bytecode(<span class="kw-2">&amp;</span><span class="self">self</span>, constructor: <span class="prelude-ty">Option</span>&lt;FuncType&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
         Constructor::new(constructor, <span class="self">self</span>.buffer.clone())<span class="question-mark">?
             </span>.finish()
             .map_err(Into::into)

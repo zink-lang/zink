@@ -164,6 +164,7 @@
 <a href="#163" id="163">163</a>
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Contract Instance
 
 </span><span class="kw">use crate</span>::{Bytes32, Info, EVM};
@@ -171,7 +172,7 @@
 <span class="kw">use </span>serde::Deserialize;
 <span class="kw">use </span>std::{fs, path::PathBuf};
 <span class="kw">use </span>zabi::Abi;
-<span class="kw">use </span>zinkc::Compiler;
+<span class="kw">use </span>zinkc::{Compiler, Config};
 
 <span class="doccomment">/// Cargo Manifest for parsing package.
 </span><span class="attr">#[derive(Deserialize)]
@@ -247,10 +248,11 @@
 
     <span class="doccomment">/// Compile WASM to EVM bytecode.
     </span><span class="kw">pub fn </span>compile(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::default()
+        <span class="kw">let </span>config = Config::default()
             .constructor(<span class="self">self</span>.constructor)
             .dispatcher(<span class="self">self</span>.dispatcher);
 
+        <span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::new(config);
         <span class="self">self</span>.bytecode = compiler.compile(<span class="kw-2">&amp;</span><span class="self">self</span>.wasm)<span class="question-mark">?</span>.to_vec();
         <span class="self">self</span>.abi = compiler.abi();
 
