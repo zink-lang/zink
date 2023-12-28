@@ -17,7 +17,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.9"
+version = "0.1.10"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -56,14 +56,14 @@ opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", f
 sol-abi = { path = "evm/abi", version = "=0.0.1" }
 
 ## Zink packages
-elko = { path = "elko", version = "0.1.9" }
-filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.9" }
-zabi = { path = "abi", version = "0.1.9" }
-zingen =  { path = "codegen", version = "0.1.9" }
-zink = { path = ".", version = "0.1.9" }
-zink-codegen = { path = "zink/codegen", version = "0.1.9" }
-zinkc = { path = "compiler", version = "0.1.9" }
-zint = { path = "zint", version = "0.1.9" }
+elko = { path = "elko", version = "0.1.10" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.10" }
+zabi = { path = "abi", version = "0.1.10" }
+zingen =  { path = "codegen", version = "0.1.10" }
+zink = { path = ".", version = "0.1.10" }
+zink-codegen = { path = "zink/codegen", version = "0.1.10" }
+zinkc = { path = "compiler", version = "0.1.10" }
+zint = { path = "zint", version = "0.1.10" }
 
 [workspace.metadata.conta]
 packages = [
