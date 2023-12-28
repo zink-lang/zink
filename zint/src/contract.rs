@@ -1,24 +1,9 @@
 //! Contract Instance
 
-use crate::{Bytes32, Info, EVM};
+use crate::{lookup, Bytes32, Info, EVM};
 use anyhow::{anyhow, Result};
-use serde::Deserialize;
-use std::{fs, path::PathBuf};
+use std::fs;
 use zinkc::{Artifact, Compiler, Config};
-
-/// Cargo Manifest for parsing package.
-#[derive(Deserialize)]
-struct Manifest {
-    /// The package.
-    pub package: Package,
-}
-
-/// Cargo Package for parsing package name.
-#[derive(Deserialize)]
-struct Package {
-    /// Package name.
-    pub name: String,
-}
 
 /// Contract instance for testing.
 #[derive(Default)]
@@ -69,10 +54,7 @@ impl Contract {
     /// NOTE: This only works if the current contract
     /// is not an example.
     pub fn current() -> Result<Self> {
-        let manifest = fs::read_to_string(etc::find_up("Cargo.toml")?)?;
-        let name = toml::from_str::<Manifest>(&manifest)?.package.name;
-
-        Self::search(&name)
+        Self::search(&lookup::pkg_name()?)
     }
 
     /// Encode call data
@@ -117,44 +99,13 @@ impl Contract {
         self
     }
 
-    /// Search for zink contract in the target
-    /// directory.
+    /// Search for zink contract in the target directory.
     pub fn search(name: &str) -> Result<Self> {
         crate::setup_logger();
-
-        let target = Self::target_dir()?;
-        let search = |profile: &str| -> Result<PathBuf> {
-            let target = target.join(profile);
-            let mut wasm = target.join(name).with_extension("wasm");
-            if !wasm.exists() {
-                wasm = target.join("examples").join(name).with_extension("wasm");
-            }
-
-            if wasm.exists() {
-                Ok(wasm)
-            } else {
-                Err(anyhow::anyhow!("{} not found", wasm.to_string_lossy()))
-            }
-        };
-
-        let wasm = search("release").or_else(|_| search("debug"))?;
+        let wasm = lookup::wasm(name)?;
         zinkc::utils::wasm_opt(&wasm, &wasm)?;
 
         tracing::debug!("loading contract from {}", wasm.display());
         Ok(Self::from(fs::read(wasm)?))
-    }
-
-    /// Get the current target directory.
-    fn target_dir() -> Result<PathBuf> {
-        cargo_metadata::MetadataCommand::new()
-            .no_deps()
-            .exec()
-            .map_err(Into::into)
-            .map(|metadata| {
-                metadata
-                    .target_directory
-                    .join("wasm32-unknown-unknown")
-                    .into()
-            })
     }
 }

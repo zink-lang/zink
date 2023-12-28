@@ -4,7 +4,7 @@ use zint::{Bytes32, Contract};
 
 #[test]
 fn fibonacci() -> Result<()> {
-    let mut contract = Contract::new(Test::RECURSION_FIBONACCI).pure().compile()?;
+    let mut contract = Contract::from(Test::RECURSION_FIBONACCI).pure().compile()?;
 
     // x = 0
     let info = contract.execute([0])?;

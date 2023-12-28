@@ -6,7 +6,7 @@ use filetests::{impl_tests, Test};
 use zint::{Bytes32, Contract};
 
 fn params(module: &str) -> Result<()> {
-    let mut contract = Contract::new(Test::load(module, "params")?.wasm)
+    let mut contract = Contract::from(Test::load(module, "params")?.wasm)
         .pure()
         .compile()?;
 
@@ -17,7 +17,7 @@ fn params(module: &str) -> Result<()> {
 }
 
 fn locals(module: &str) -> Result<()> {
-    let mut contract = Contract::new(Test::load(module, "locals")?.wasm)
+    let mut contract = Contract::from(Test::load(module, "locals")?.wasm)
         .pure()
         .compile()?;
     let info = contract.execute::<()>([])?;
@@ -26,7 +26,7 @@ fn locals(module: &str) -> Result<()> {
 }
 
 fn tee(module: &str) -> Result<()> {
-    let mut contract = Contract::new(Test::load(module, "tee")?.wasm)
+    let mut contract = Contract::from(Test::load(module, "tee")?.wasm)
         .pure()
         .compile()?;
     let info = contract.execute::<()>([])?;

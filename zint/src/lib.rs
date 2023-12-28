@@ -4,6 +4,7 @@
 mod bytes;
 mod contract;
 mod evm;
+mod lookup;
 
 pub use self::{
     bytes::Bytes32,

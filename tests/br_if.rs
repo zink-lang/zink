@@ -5,7 +5,7 @@ use zint::{Contract, Halt, OutOfGasError};
 
 #[test]
 fn as_block_last() -> Result<()> {
-    let mut contract = Contract::new(Test::BR_IF_AS_BLOCK_LAST).pure().compile()?;
+    let mut contract = Contract::from(Test::BR_IF_AS_BLOCK_LAST).pure().compile()?;
 
     let info = contract.execute(&[0])?;
     assert!(info.ret.is_empty());

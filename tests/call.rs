@@ -7,7 +7,7 @@ use zint::{Bytes32, Contract};
 
 #[test]
 fn dummy() -> Result<()> {
-    let mut contract = Contract::new(Test::CALL_DUMMY).pure().compile()?;
+    let mut contract = Contract::from(Test::CALL_DUMMY).pure().compile()?;
     let info = contract.execute::<()>([])?;
 
     assert!(info.ret.is_empty());
@@ -16,7 +16,7 @@ fn dummy() -> Result<()> {
 
 #[test]
 fn params() -> Result<()> {
-    let mut contract = Contract::new(Test::CALL_PARAMS).pure().compile()?;
+    let mut contract = Contract::from(Test::CALL_PARAMS).pure().compile()?;
     let info = contract.execute([1, 2])?;
 
     assert_eq!(info.ret, 3.to_bytes32());
@@ -25,7 +25,7 @@ fn params() -> Result<()> {
 
 #[test]
 fn as_if() -> Result<()> {
-    let mut contract = Contract::new(Test::CALL_AS_IF).pure().compile()?;
+    let mut contract = Contract::from(Test::CALL_AS_IF).pure().compile()?;
 
     let info = contract.execute([0])?;
     assert_eq!(info.ret, 0.to_bytes32());

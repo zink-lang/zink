@@ -6,7 +6,7 @@ use zint::{Bytes32, Contract};
 
 #[test]
 fn params() -> Result<()> {
-    let mut contract = Contract::new(Test::SELECT_PARAMS).pure().compile()?;
+    let mut contract = Contract::from(Test::SELECT_PARAMS).pure().compile()?;
     let info = contract.execute([1, 2])?;
     assert_eq!(info.ret, [2.to_bytes32()].concat());
 
