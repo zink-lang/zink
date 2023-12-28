@@ -25,7 +25,7 @@ homepage = "https://github.com/clearloop/zink"
 repository = "https://github.com/clearloop/zink.git"
 
 [workspace.dependencies]
-anyhow = "1.0.76"
+anyhow = "1.0.77"
 cargo_metadata = "0.18.1"
 ccli = "0.0.1"
 colored = "2.1.0"
@@ -41,8 +41,8 @@ semver = "1.0.20"
 serde = { version = "1.0.193", default-features = false }
 serde_json = "1.0.108"
 smallvec = "1.11.2"
-syn =  { version = "2.0.42", features = [ "full" ] }
-thiserror = "1.0.51"
+syn =  { version = "2.0.43", features = [ "full" ] }
+thiserror = "1.0.52"
 tiny-keccak = "2.0.2"
 toml = "0.8.8"
 tracing = "0.1.40"
