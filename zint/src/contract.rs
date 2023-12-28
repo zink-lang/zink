@@ -30,8 +30,6 @@ pub struct Contract {
     pub runtime_bytecode: Vec<u8>,
     /// If enable dispatcher.
     pub dispatcher: bool,
-    /// If enable constructor.
-    pub constructor: bool,
     /// The ABI of the contract.
     pub abi: Vec<Abi>,
     /// The source WASM of the contract.
@@ -51,12 +49,6 @@ impl Contract {
     }
 
     /// Disable dispatcher.
-    pub fn constructor(mut self, constructor: bool) -> Self {
-        self.constructor = constructor;
-        self
-    }
-
-    /// Disable dispatcher.
     pub fn without_dispatcher(mut self) -> Self {
         self.dispatcher = false;
         self
@@ -69,15 +61,13 @@ impl Contract {
 
     /// Compile WASM to EVM bytecode.
     pub fn compile(mut self) -> Result<Self> {
-        let config = Config::default()
-            .constructor(self.constructor)
-            .dispatcher(self.dispatcher);
+        let config = Config::default().dispatcher(self.dispatcher);
 
         let compiler = Compiler::new(config);
         let artifact = compiler.compile(&self.wasm)?;
         self.bytecode = artifact.bytecode.clone();
         self.runtime_bytecode = artifact.runtime_bytecode.clone();
-        self.abi = artifact.abi.clone();
+        self.abi = artifact.abi;
 
         tracing::debug!("abi: {:#}", self.json_abi()?);
         tracing::debug!("bytecode: {:?}", hex::encode(&self.bytecode));

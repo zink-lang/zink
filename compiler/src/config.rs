@@ -10,20 +10,12 @@ use ccli::clap;
 pub struct Config {
     /// If enable dispatcher.
     pub dispatcher: bool,
-    /// If enable constructor.
-    pub constructor: bool,
 }
 
 impl Config {
     /// With dispatcher value.
     pub fn dispatcher(mut self, dispatcher: bool) -> Self {
         self.dispatcher = dispatcher;
-        self
-    }
-
-    /// With constructor value.
-    pub fn constructor(mut self, constructor: bool) -> Self {
-        self.constructor = constructor;
         self
     }
 }
