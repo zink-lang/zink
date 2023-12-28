@@ -7,7 +7,7 @@ use zint::{Bytes32, Contract};
 
 fn params(module: &str) -> Result<()> {
     let mut contract = Contract::new(Test::load(module, "params")?.wasm)
-        .without_dispatcher()
+        .pure()
         .compile()?;
     let info = contract.execute([2, 1])?;
 
@@ -17,7 +17,7 @@ fn params(module: &str) -> Result<()> {
 
 fn locals(module: &str) -> Result<()> {
     let mut contract = Contract::new(Test::load(module, "locals")?.wasm)
-        .without_dispatcher()
+        .pure()
         .compile()?;
     let info = contract.execute::<()>([])?;
 

@@ -7,9 +7,7 @@ use zint::{Bytes32, Contract, U256};
 
 #[test]
 fn store() -> Result<()> {
-    let mut contract = Contract::new(Test::STORAGE_STORE)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::new(Test::STORAGE_STORE).pure().compile()?;
 
     let key = 0u64;
     let value = 42u64;
@@ -22,9 +20,7 @@ fn store() -> Result<()> {
 
 #[test]
 fn load() -> Result<()> {
-    let mut contract = Contract::new(Test::STORAGE_LOAD)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::new(Test::STORAGE_LOAD).pure().compile()?;
 
     let value = 42;
     let info = contract.execute([value])?;
@@ -35,9 +31,7 @@ fn load() -> Result<()> {
 
 #[test]
 fn basic() -> Result<()> {
-    let mut contract = Contract::new(Test::STORAGE_BASIC)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::new(Test::STORAGE_BASIC).pure().compile()?;
 
     let value = 42;
     let info = contract.execute([value])?;

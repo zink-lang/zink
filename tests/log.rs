@@ -6,9 +6,7 @@ use zint::{Bytes32, Contract};
 
 #[test]
 fn log0() -> Result<()> {
-    let mut contract = Contract::new(Test::LOG_LOG0)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::new(Test::LOG_LOG0).pure().compile()?;
 
     // returns the bigger number.
     let info = contract.execute::<()>([])?;
@@ -18,9 +16,7 @@ fn log0() -> Result<()> {
 
 #[test]
 fn log1() -> Result<()> {
-    let mut contract = Contract::new(Test::LOG_LOG1)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::new(Test::LOG_LOG1).pure().compile()?;
 
     let info = contract.execute::<()>([])?;
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
@@ -33,9 +29,7 @@ fn log1() -> Result<()> {
 
 #[test]
 fn log2() -> Result<()> {
-    let mut contract = Contract::new(Test::LOG_LOG2)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::new(Test::LOG_LOG2).pure().compile()?;
     let info = contract.execute::<()>([])?;
 
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
@@ -52,9 +46,7 @@ fn log2() -> Result<()> {
 
 #[test]
 fn log3() -> Result<()> {
-    let mut contract = Contract::new(Test::LOG_LOG3)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::new(Test::LOG_LOG3).pure().compile()?;
     let info = contract.execute::<()>([])?;
 
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());
@@ -75,9 +67,7 @@ fn log3() -> Result<()> {
 
 #[test]
 fn log4() -> Result<()> {
-    let mut contract = Contract::new(Test::LOG_LOG4)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::new(Test::LOG_LOG4).pure().compile()?;
     let info = contract.execute::<()>([])?;
 
     assert_eq!(info.logs[0].data.to_vec(), b"Ping".to_vec().to_bytes32());

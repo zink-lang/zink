@@ -7,6 +7,7 @@ use zingen::Constructor;
 
 /// Zink compiler artifact
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Default, Debug)]
 pub struct Artifact {
     /// Contract ABIs
     pub abi: Vec<Abi>,
