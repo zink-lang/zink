@@ -46,18 +46,6 @@ impl Constructor {
         })
     }
 
-    /// Returns the length of instructions.
-    fn return_instr_length(init_code_length: usize, runtime_bytecode_length: usize) -> usize {
-        let mut expected_length =
-            runtime_bytecode_length.to_ls_bytes().len() + init_code_length.to_ls_bytes().len() + 3;
-
-        if init_code_length < 0xff && init_code_length + expected_length > 0xff {
-            expected_length += 1;
-        }
-
-        expected_length
-    }
-
     /// Concat the constructor code.
     ///
     /// Here we override the memory totally with
@@ -114,5 +102,17 @@ impl Constructor {
             .extend_from_slice(&self.runtime_bytecode);
 
         Ok(self.masm.buffer().into())
+    }
+
+    /// Returns the length of instructions.
+    fn return_instr_length(init_code_length: usize, runtime_bytecode_length: usize) -> usize {
+        let mut expected_length =
+            runtime_bytecode_length.to_ls_bytes().len() + init_code_length.to_ls_bytes().len() + 3;
+
+        if init_code_length < 0xff && init_code_length + expected_length > 0xff {
+            expected_length += 1;
+        }
+
+        expected_length
     }
 }

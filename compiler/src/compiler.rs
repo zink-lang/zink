@@ -14,10 +14,10 @@ pub struct Compiler {
     pub(crate) abi: Vec<Abi>,
     /// EVM bytecode buffer.
     pub(crate) buffer: Buffer,
-    /// Global jump table.
-    table: JumpTable,
     /// Compiler configuration.
     pub config: Config,
+    /// Global jump table.
+    table: JumpTable,
 }
 
 impl Compiler {
@@ -58,7 +58,7 @@ impl Compiler {
             return Ok(());
         }
 
-        let mut dispatcher = Dispatcher::new(parser.to_env(), &parser.funcs);
+        let mut dispatcher = Dispatcher::new(parser.to_env(), &parser.funcs)?;
         let buffer = dispatcher.finish(selectors, &mut self.table)?;
         self.buffer.extend_from_slice(&buffer);
 
