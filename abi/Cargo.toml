@@ -22,7 +22,6 @@ thiserror = { workspace = true, optional = true }
 
 # TODO: introduce feature alloc.
 [features]
-default = [ "hex", "selector", "syn" ]
 bytes = [ "postcard", "serde" ]
 hex = [ "dep:hex", "thiserror", "bytes" ]
 selector = [ "sha3" ]

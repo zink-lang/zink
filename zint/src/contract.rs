@@ -26,6 +26,8 @@ struct Package {
 pub struct Contract {
     /// The bytecode of the contract.
     pub bytecode: Vec<u8>,
+    /// The runtime bytecode of the contract.
+    pub runtime_bytecode: Vec<u8>,
     /// If enable dispatcher.
     pub dispatcher: bool,
     /// If enable constructor.
@@ -37,20 +39,6 @@ pub struct Contract {
 }
 
 impl Contract {
-    /// Get the current target directory.
-    fn target_dir() -> Result<PathBuf> {
-        cargo_metadata::MetadataCommand::new()
-            .no_deps()
-            .exec()
-            .map_err(Into::into)
-            .map(|metadata| {
-                metadata
-                    .target_directory
-                    .join("wasm32-unknown-unknown")
-                    .into()
-            })
-    }
-
     /// Create new contract
     pub fn new(wasm: impl AsRef<[u8]>) -> Self {
         crate::setup_logger();
@@ -85,9 +73,11 @@ impl Contract {
             .constructor(self.constructor)
             .dispatcher(self.dispatcher);
 
-        let mut compiler = Compiler::new(config);
-        self.bytecode = compiler.compile(&self.wasm)?.to_vec();
-        self.abi = compiler.abi();
+        let compiler = Compiler::new(config);
+        let artifact = compiler.compile(&self.wasm)?;
+        self.bytecode = artifact.bytecode.clone();
+        self.runtime_bytecode = artifact.runtime_bytecode.clone();
+        self.abi = artifact.abi.clone();
 
         tracing::debug!("abi: {:#}", self.json_abi()?);
         tracing::debug!("bytecode: {:?}", hex::encode(&self.bytecode));
@@ -161,6 +151,20 @@ impl Contract {
     where
         Param: Bytes32,
     {
-        EVM::interp(&self.bytecode, &self.encode(inputs)?)
+        EVM::interp(&self.runtime_bytecode, &self.encode(inputs)?)
+    }
+
+    /// Get the current target directory.
+    fn target_dir() -> Result<PathBuf> {
+        cargo_metadata::MetadataCommand::new()
+            .no_deps()
+            .exec()
+            .map_err(Into::into)
+            .map(|metadata| {
+                metadata
+                    .target_directory
+                    .join("wasm32-unknown-unknown")
+                    .into()
+            })
     }
 }

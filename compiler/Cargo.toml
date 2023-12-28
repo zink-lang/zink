@@ -23,19 +23,21 @@ zingen.workspace = true
 
 # Optional dependencies
 ccli = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
 wasm-opt = { workspace = true, optional = true }
 
 [dev-dependencies]
 hex.workspace = true
 wat.workspace = true
-tracing-subscriber = { workspace = true, features = ["env-filter"]}
+tracing-subscriber = { workspace = true, features = [ "env-filter" ] }
 paste.workspace = true
 zabi.workspace = true
 etc.workspace = true
 
 [features]
-cli = [ "ccli", "serde_json", "utils" ]
+cli = [ "ccli", "serde_json", "utils", "serde" ]
+serde = [ "dep:serde", "zabi/serde" ]
 utils = [ "wasm-opt" ]
 
 [package.metadata.docs.rs]

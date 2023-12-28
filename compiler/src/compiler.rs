@@ -1,20 +1,19 @@
 //! Zink compiler
 
-use crate::{parser::Parser, Config, Error, Result};
-use wasmparser::FuncType;
+use crate::{parser::Parser, Artifact, Config, Error, Result};
 use zabi::Abi;
 use zingen::{
     wasm::{self, Env},
-    Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
+    Buffer, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
 /// Zink Compiler
 #[derive(Default)]
 pub struct Compiler {
     /// ABIs of the compiled contract.
-    abi: Vec<Abi>,
+    pub(crate) abi: Vec<Abi>,
     /// EVM bytecode buffer.
-    buffer: Buffer,
+    pub(crate) buffer: Buffer,
     /// Global jump table.
     table: JumpTable,
     /// Compiler configuration.
@@ -33,7 +32,7 @@ impl Compiler {
     /// Compile wasm module to evm bytecode.
     ///
     /// Returns runtime bytecode.
-    pub fn compile(&mut self, wasm: &[u8]) -> Result<Buffer> {
+    pub fn compile(mut self, wasm: &[u8]) -> Result<Artifact> {
         let mut parser = Parser::try_from(wasm)?;
         let constructor = parser.remove_constructor();
 
@@ -46,18 +45,14 @@ impl Compiler {
         self.table.code_offset(self.buffer.len() as u16);
         self.table.relocate(&mut self.buffer)?;
 
-        if self.config.constructor {
-            self.bytecode(constructor)
-        } else {
-            Ok(self.buffer.clone())
-        }
+        Artifact::try_from((self, constructor)).map_err(Into::into)
     }
 
     /// Compile EVM dispatcher.
     ///
     /// Drain selectors anyway, if dispatcher is
     /// enabled, compile dispatcher.
-    pub fn compile_dispatcher(&mut self, parser: &mut Parser) -> Result<()> {
+    fn compile_dispatcher(&mut self, parser: &mut Parser) -> Result<()> {
         let selectors = parser.funcs.drain_selectors(&parser.exports);
         if !self.config.dispatcher {
             return Ok(());
@@ -76,7 +71,7 @@ impl Compiler {
     }
 
     /// Compile WASM function.
-    pub fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<()> {
+    fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<()> {
         let func_index = func.index();
         let sig = func.sig()?;
 
@@ -110,17 +105,5 @@ impl Compiler {
         }
 
         Ok(())
-    }
-
-    /// Get the abi of the compiled contract.
-    pub fn abi(&self) -> Vec<Abi> {
-        self.abi.clone()
-    }
-
-    /// Returns bytecode.
-    fn bytecode(&self, constructor: Option<FuncType>) -> Result<Buffer> {
-        Constructor::new(constructor, self.buffer.clone())?
-            .finish()
-            .map_err(Into::into)
     }
 }

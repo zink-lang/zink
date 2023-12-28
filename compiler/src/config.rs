@@ -6,6 +6,7 @@ use ccli::clap;
 /// Zink compiler configuration.
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "cli", derive(clap::Parser))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Config {
     /// If enable dispatcher.
     pub dispatcher: bool,

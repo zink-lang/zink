@@ -2307,6 +2307,7 @@ dependencies = [
  "etc",
  "hex",
  "paste",
+ "serde",
  "serde_json",
  "thiserror",
  "tracing",
