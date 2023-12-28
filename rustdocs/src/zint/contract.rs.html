@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zint/src/contract.rs`."><title>contract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-804b98a1284a310a.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (d6d7a9386 2023-12-22)" data-channel="nightly" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zint/src/contract.rs`."><title>contract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-452d19225583af2a.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (89e2160c4 2023-12-27)" data-channel="nightly" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-6902632119e002ca.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -110,116 +110,29 @@
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Contract Instance
 
-</span><span class="kw">use crate</span>::{Bytes32, Info, EVM};
+</span><span class="kw">use crate</span>::{lookup, Bytes32, Info, EVM};
 <span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>serde::Deserialize;
-<span class="kw">use </span>std::{fs, path::PathBuf};
-<span class="kw">use </span>zabi::Abi;
-<span class="kw">use </span>zinkc::{Compiler, Config};
-
-<span class="doccomment">/// Cargo Manifest for parsing package.
-</span><span class="attr">#[derive(Deserialize)]
-</span><span class="kw">struct </span>Manifest {
-    <span class="doccomment">/// The package.
-    </span><span class="kw">pub </span>package: Package,
-}
-
-<span class="doccomment">/// Cargo Package for parsing package name.
-</span><span class="attr">#[derive(Deserialize)]
-</span><span class="kw">struct </span>Package {
-    <span class="doccomment">/// Package name.
-    </span><span class="kw">pub </span>name: String,
-}
+<span class="kw">use </span>std::fs;
+<span class="kw">use </span>zinkc::{Artifact, Compiler, Config};
 
 <span class="doccomment">/// Contract instance for testing.
 </span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>Contract {
-    <span class="doccomment">/// The bytecode of the contract.
-    </span><span class="kw">pub </span>bytecode: Vec&lt;u8&gt;,
     <span class="doccomment">/// If enable dispatcher.
     </span><span class="kw">pub </span>dispatcher: bool,
-    <span class="doccomment">/// If enable constructor.
-    </span><span class="kw">pub </span>constructor: bool,
-    <span class="doccomment">/// The ABI of the contract.
-    </span><span class="kw">pub </span>abi: Vec&lt;Abi&gt;,
+    <span class="doccomment">/// The artifact of the contract.
+    </span><span class="kw">pub </span>artifact: Artifact,
     <span class="doccomment">/// The source WASM of the contract.
     </span><span class="kw">pub </span>wasm: Vec&lt;u8&gt;,
 }
 
-<span class="kw">impl </span>Contract {
-    <span class="doccomment">/// Get the current target directory.
-    </span><span class="kw">fn </span>target_dir() -&gt; <span class="prelude-ty">Result</span>&lt;PathBuf&gt; {
-        cargo_metadata::MetadataCommand::new()
-            .no_deps()
-            .exec()
-            .map_err(Into::into)
-            .map(|metadata| {
-                metadata
-                    .target_directory
-                    .join(<span class="string">"wasm32-unknown-unknown"</span>)
-                    .into()
-            })
-    }
-
-    <span class="doccomment">/// Create new contract
-    </span><span class="kw">pub fn </span>new(wasm: <span class="kw">impl </span>AsRef&lt;[u8]&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;T&gt; From&lt;T&gt; <span class="kw">for </span>Contract
+<span class="kw">where
+    </span>T: AsRef&lt;[u8]&gt;,
+{
+    <span class="kw">fn </span>from(wasm: T) -&gt; <span class="self">Self </span>{
         <span class="kw">crate</span>::setup_logger();
 
         <span class="self">Self </span>{
@@ -228,36 +141,22 @@
             ..Default::default()
         }
     }
+}
 
-    <span class="doccomment">/// Disable dispatcher.
-    </span><span class="kw">pub fn </span>constructor(<span class="kw-2">mut </span><span class="self">self</span>, constructor: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.constructor = constructor;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Disable dispatcher.
-    </span><span class="kw">pub fn </span>without_dispatcher(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.dispatcher = <span class="bool-val">false</span>;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Get the JSON ABI of the contract.
-    </span><span class="kw">pub fn </span>json_abi(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        serde_json::to_string_pretty(<span class="kw-2">&amp;</span><span class="self">self</span>.abi).map_err(Into::into)
+<span class="kw">impl </span>Contract {
+    <span class="doccomment">/// Get the bytecode of the contract.
+    </span><span class="kw">pub fn </span>bytecode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.artifact.bytecode
     }
 
     <span class="doccomment">/// Compile WASM to EVM bytecode.
     </span><span class="kw">pub fn </span>compile(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>config = Config::default()
-            .constructor(<span class="self">self</span>.constructor)
-            .dispatcher(<span class="self">self</span>.dispatcher);
-
-        <span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::new(config);
-        <span class="self">self</span>.bytecode = compiler.compile(<span class="kw-2">&amp;</span><span class="self">self</span>.wasm)<span class="question-mark">?</span>.to_vec();
-        <span class="self">self</span>.abi = compiler.abi();
+        <span class="kw">let </span>config = Config::default().dispatcher(<span class="self">self</span>.dispatcher);
+        <span class="kw">let </span>compiler = Compiler::new(config);
+        <span class="self">self</span>.artifact = compiler.compile(<span class="kw-2">&amp;</span><span class="self">self</span>.wasm)<span class="question-mark">?</span>;
 
         <span class="macro">tracing::debug!</span>(<span class="string">"abi: {:#}"</span>, <span class="self">self</span>.json_abi()<span class="question-mark">?</span>);
-        <span class="macro">tracing::debug!</span>(<span class="string">"bytecode: {:?}"</span>, hex::encode(<span class="kw-2">&amp;</span><span class="self">self</span>.bytecode));
+        <span class="macro">tracing::debug!</span>(<span class="string">"bytecode: {:?}"</span>, hex::encode(<span class="kw-2">&amp;</span><span class="self">self</span>.artifact.bytecode));
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
@@ -267,37 +166,7 @@
     /// NOTE: This only works if the current contract
     /// is not an example.
     </span><span class="kw">pub fn </span>current() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>manifest = fs::read_to_string(etc::find_up(<span class="string">"Cargo.toml"</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-        <span class="kw">let </span>name = toml::from_str::&lt;Manifest&gt;(<span class="kw-2">&amp;</span>manifest)<span class="question-mark">?</span>.package.name;
-
-        <span class="self">Self</span>::search(<span class="kw-2">&amp;</span>name)
-    }
-
-    <span class="doccomment">/// Search for zink contract in the target
-    /// directory.
-    </span><span class="kw">pub fn </span>search(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">crate</span>::setup_logger();
-
-        <span class="kw">let </span>target = <span class="self">Self</span>::target_dir()<span class="question-mark">?</span>;
-        <span class="kw">let </span>search = |profile: <span class="kw-2">&amp;</span>str| -&gt; <span class="prelude-ty">Result</span>&lt;PathBuf&gt; {
-            <span class="kw">let </span>target = target.join(profile);
-            <span class="kw">let </span><span class="kw-2">mut </span>wasm = target.join(name).with_extension(<span class="string">"wasm"</span>);
-            <span class="kw">if </span>!wasm.exists() {
-                wasm = target.join(<span class="string">"examples"</span>).join(name).with_extension(<span class="string">"wasm"</span>);
-            }
-
-            <span class="kw">if </span>wasm.exists() {
-                <span class="prelude-val">Ok</span>(wasm)
-            } <span class="kw">else </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">"{} not found"</span>, wasm.to_string_lossy()))
-            }
-        };
-
-        <span class="kw">let </span>wasm = search(<span class="string">"release"</span>).or_else(|<span class="kw">_</span>| search(<span class="string">"debug"</span>))<span class="question-mark">?</span>;
-        zinkc::utils::wasm_opt(<span class="kw-2">&amp;</span>wasm, <span class="kw-2">&amp;</span>wasm)<span class="question-mark">?</span>;
-
-        <span class="macro">tracing::debug!</span>(<span class="string">"loading contract from {}"</span>, wasm.display());
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(fs::read(wasm)<span class="question-mark">?</span>))
+        <span class="self">Self</span>::search(<span class="kw-2">&amp;</span>lookup::pkg_name()<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Encode call data
@@ -328,7 +197,28 @@
     <span class="kw">where
         </span>Param: Bytes32,
     {
-        EVM::interp(<span class="kw-2">&amp;</span><span class="self">self</span>.bytecode, <span class="kw-2">&amp;</span><span class="self">self</span>.encode(inputs)<span class="question-mark">?</span>)
+        EVM::interp(<span class="kw-2">&amp;</span><span class="self">self</span>.artifact.runtime_bytecode, <span class="kw-2">&amp;</span><span class="self">self</span>.encode(inputs)<span class="question-mark">?</span>)
+    }
+
+    <span class="doccomment">/// Get the JSON ABI of the contract.
+    </span><span class="kw">pub fn </span>json_abi(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        serde_json::to_string_pretty(<span class="kw-2">&amp;</span><span class="self">self</span>.artifact.abi).map_err(Into::into)
+    }
+
+    <span class="doccomment">/// Disable dispatcher.
+    </span><span class="kw">pub fn </span>pure(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.dispatcher = <span class="bool-val">false</span>;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Search for zink contract in the target directory.
+    </span><span class="kw">pub fn </span>search(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::setup_logger();
+        <span class="kw">let </span>wasm = lookup::wasm(name)<span class="question-mark">?</span>;
+        zinkc::utils::wasm_opt(<span class="kw-2">&amp;</span>wasm, <span class="kw-2">&amp;</span>wasm)<span class="question-mark">?</span>;
+
+        <span class="macro">tracing::debug!</span>(<span class="string">"loading contract from {}"</span>, wasm.display());
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from(fs::read(wasm)<span class="question-mark">?</span>))
     }
 }
 </code></pre></div></section></main></body></html>

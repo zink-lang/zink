@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/codegen/dispatcher.rs`."><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-804b98a1284a310a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (d6d7a9386 2023-12-22)" data-channel="nightly" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/codegen/dispatcher.rs`."><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-452d19225583af2a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (89e2160c4 2023-12-27)" data-channel="nightly" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-6902632119e002ca.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -243,9 +243,16 @@
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Code generator for EVM dispatcher.
 
-</span><span class="kw">use crate</span>::{
+</span><span class="kw">use </span>std::collections::BTreeMap;
+
+<span class="kw">use crate</span>::{
     codegen::code::ExtFunc,
     wasm::{<span class="self">self</span>, Env, Functions, ToLSBytes},
     Error, JumpTable, MacroAssembler, <span class="prelude-ty">Result</span>,
@@ -254,31 +261,55 @@
 <span class="kw">use </span>zabi::Abi;
 
 <span class="doccomment">/// Code generator for EVM dispatcher.
-</span><span class="kw">pub struct </span>Dispatcher&lt;<span class="lifetime">'d</span>&gt; {
+</span><span class="kw">pub struct </span>Dispatcher {
+    <span class="doccomment">/// ABI for the current function
+    </span><span class="kw">pub </span>abi: Vec&lt;Abi&gt;,
     <span class="doccomment">/// Code buffer
     </span><span class="kw">pub </span>asm: MacroAssembler,
     <span class="doccomment">/// WASM environment
     </span><span class="kw">pub </span>env: Env,
     <span class="doccomment">/// Module functions
-    </span><span class="kw">pub </span>funcs: <span class="kw-2">&amp;</span><span class="lifetime">'d </span>Functions&lt;<span class="lifetime">'d</span>&gt;,
+    </span><span class="kw">pub </span>funcs: BTreeMap&lt;u32, FuncType&gt;,
     <span class="doccomment">/// Jump table
     </span><span class="kw">pub </span>table: JumpTable,
-    <span class="doccomment">/// ABI for the current function
-    ///
-    /// TODO: refactor this. (#206)
-    </span><span class="kw">pub </span>abi: Vec&lt;Abi&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'d</span>&gt; Dispatcher&lt;<span class="lifetime">'d</span>&gt; {
+<span class="kw">impl </span>Dispatcher {
     <span class="doccomment">/// Create dispatcher with functions.
-    </span><span class="kw">pub fn </span>new(env: Env, funcs: <span class="kw-2">&amp;</span><span class="lifetime">'d </span>Functions&lt;<span class="lifetime">'d</span>&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(env: Env, funcs: <span class="kw-2">&amp;</span>Functions&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>funcs = funcs
+            .values()
+            .map(|func| <span class="prelude-val">Ok</span>((func.index(), func.sig()<span class="question-mark">?</span>)))
+            .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            abi: Default::default(),
             asm: Default::default(),
             env,
             funcs,
             table: Default::default(),
-            abi: Default::default(),
+        })
+    }
+
+    <span class="doccomment">/// Emit compiled code to the given buffer.
+    </span><span class="kw">pub fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>, selectors: Functions&lt;<span class="lifetime">'_</span>&gt;, table: <span class="kw-2">&amp;mut </span>JumpTable) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">if </span>selectors.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::SelectorNotFound);
         }
+
+        <span class="self">self</span>.asm._push0()<span class="question-mark">?</span>;
+        <span class="self">self</span>.asm._calldataload()<span class="question-mark">?</span>;
+        <span class="self">self</span>.asm.push(<span class="kw-2">&amp;</span>[<span class="number">0xe0</span>])<span class="question-mark">?</span>;
+        <span class="self">self</span>.asm._shr()<span class="question-mark">?</span>;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>len = selectors.len();
+        <span class="kw">for </span>(<span class="kw">_</span>, func) <span class="kw">in </span>selectors.iter() {
+            <span class="self">self</span>.emit_selector(func, len == <span class="number">1</span>)<span class="question-mark">?</span>;
+            len -= <span class="number">1</span>;
+        }
+
+        table.merge(<span class="self">self</span>.table.clone(), <span class="number">0</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.asm.buffer().into())
     }
 
     <span class="doccomment">/// Query exported function from selector.
@@ -423,7 +454,7 @@
             </span>.funcs
             .get(<span class="kw-2">&amp;</span>func)
             .ok_or(Error::FuncNotFound(func))<span class="question-mark">?
-            </span>.sig()<span class="question-mark">?</span>;
+            </span>.clone();
 
         <span class="comment">// TODO: optimize this on parameter length (#165)
         </span>{
@@ -464,27 +495,6 @@
         }
 
         <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Emit compiled code to the given buffer.
-    </span><span class="kw">pub fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>, selectors: Functions&lt;<span class="lifetime">'_</span>&gt;, table: <span class="kw-2">&amp;mut </span>JumpTable) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">if </span>selectors.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::SelectorNotFound);
-        }
-
-        <span class="self">self</span>.asm._push0()<span class="question-mark">?</span>;
-        <span class="self">self</span>.asm._calldataload()<span class="question-mark">?</span>;
-        <span class="self">self</span>.asm.push(<span class="kw-2">&amp;</span>[<span class="number">0xe0</span>])<span class="question-mark">?</span>;
-        <span class="self">self</span>.asm._shr()<span class="question-mark">?</span>;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>len = selectors.len();
-        <span class="kw">for </span>(<span class="kw">_</span>, func) <span class="kw">in </span>selectors.iter() {
-            <span class="self">self</span>.emit_selector(func, len == <span class="number">1</span>)<span class="question-mark">?</span>;
-            len -= <span class="number">1</span>;
-        }
-
-        table.merge(<span class="self">self</span>.table.clone(), <span class="number">0</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.asm.buffer().into())
     }
 }
 </code></pre></div></section></main></body></html>
