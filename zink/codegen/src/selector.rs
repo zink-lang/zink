@@ -16,8 +16,8 @@ pub fn external(mut item: ItemFn) -> TokenStream {
     let selector: ItemFn = {
         let func = item.sig.ident.clone().to_string();
         let ident = Ident::new(&(func.clone() + "_selector"), Span::call_site());
-        let selector = Abi::from(&item.sig).to_hex().expect("ABI is not supported");
-        let selector_len = selector.len() as u32;
+        let abi = Abi::from(&item.sig).to_hex().expect("ABI is not supported");
+        let abi_len = abi.len() as u32;
         let doc = " EVM selector for the function `".to_string() + &func + "`";
 
         parse_quote! {
@@ -26,7 +26,7 @@ pub fn external(mut item: ItemFn) -> TokenStream {
             #[doc = #doc]
             pub extern "C" fn #ident() {
                 unsafe {
-                    zink::ffi::emit_abi(#selector.as_ptr() as u32, #selector_len);
+                    zink::ffi::emit_abi(#abi.as_ptr() as u32, #abi_len);
                 }
             }
         }

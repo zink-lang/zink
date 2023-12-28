@@ -1,5 +1,7 @@
 //! Code generator for EVM dispatcher.
 
+use std::collections::BTreeMap;
+
 use crate::{
     codegen::code::ExtFunc,
     wasm::{self, Env, Functions, ToLSBytes},
@@ -9,31 +11,55 @@ use wasmparser::{FuncType, Operator};
 use zabi::Abi;
 
 /// Code generator for EVM dispatcher.
-pub struct Dispatcher<'d> {
+pub struct Dispatcher {
+    /// ABI for the current function
+    pub abi: Vec<Abi>,
     /// Code buffer
     pub asm: MacroAssembler,
     /// WASM environment
     pub env: Env,
     /// Module functions
-    pub funcs: &'d Functions<'d>,
+    pub funcs: BTreeMap<u32, FuncType>,
     /// Jump table
     pub table: JumpTable,
-    /// ABI for the current function
-    ///
-    /// TODO: refactor this. (#206)
-    pub abi: Vec<Abi>,
 }
 
-impl<'d> Dispatcher<'d> {
+impl Dispatcher {
     /// Create dispatcher with functions.
-    pub fn new(env: Env, funcs: &'d Functions<'d>) -> Self {
-        Self {
+    pub fn new(env: Env, funcs: &Functions<'_>) -> Result<Self> {
+        let funcs = funcs
+            .values()
+            .map(|func| Ok((func.index(), func.sig()?)))
+            .collect::<Result<_>>()?;
+
+        Ok(Self {
+            abi: Default::default(),
             asm: Default::default(),
             env,
             funcs,
             table: Default::default(),
-            abi: Default::default(),
+        })
+    }
+
+    /// Emit compiled code to the given buffer.
+    pub fn finish(&mut self, selectors: Functions<'_>, table: &mut JumpTable) -> Result<Vec<u8>> {
+        if selectors.is_empty() {
+            return Err(Error::SelectorNotFound);
         }
+
+        self.asm._push0()?;
+        self.asm._calldataload()?;
+        self.asm.push(&[0xe0])?;
+        self.asm._shr()?;
+
+        let mut len = selectors.len();
+        for (_, func) in selectors.iter() {
+            self.emit_selector(func, len == 1)?;
+            len -= 1;
+        }
+
+        table.merge(self.table.clone(), 0)?;
+        Ok(self.asm.buffer().into())
     }
 
     /// Query exported function from selector.
@@ -178,7 +204,7 @@ impl<'d> Dispatcher<'d> {
             .funcs
             .get(&func)
             .ok_or(Error::FuncNotFound(func))?
-            .sig()?;
+            .clone();
 
         // TODO: optimize this on parameter length (#165)
         {
@@ -219,26 +245,5 @@ impl<'d> Dispatcher<'d> {
         }
 
         Ok(())
-    }
-
-    /// Emit compiled code to the given buffer.
-    pub fn finish(&mut self, selectors: Functions<'_>, table: &mut JumpTable) -> Result<Vec<u8>> {
-        if selectors.is_empty() {
-            return Err(Error::SelectorNotFound);
-        }
-
-        self.asm._push0()?;
-        self.asm._calldataload()?;
-        self.asm.push(&[0xe0])?;
-        self.asm._shr()?;
-
-        let mut len = selectors.len();
-        for (_, func) in selectors.iter() {
-            self.emit_selector(func, len == 1)?;
-            len -= 1;
-        }
-
-        table.merge(self.table.clone(), 0)?;
-        Ok(self.asm.buffer().into())
     }
 }

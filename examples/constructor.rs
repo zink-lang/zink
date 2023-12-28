@@ -35,13 +35,10 @@ fn main() {}
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
 
-    let contract = Contract::search("constructor")?
-        .without_dispatcher()
-        .constructor(true)
-        .compile()?;
+    let contract = Contract::search("constructor")?.compile()?;
 
     let mut evm = EVM::default();
-    let mut info = evm.deploy(&contract.bytecode)?;
+    let mut info = evm.deploy(&contract.bytecode())?;
     info = evm
         .calldata(&contract.encode(&["get()"])?)
         .call(info.address)?;

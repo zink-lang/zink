@@ -5,9 +5,7 @@ use zint::{Bytes32, Contract};
 
 #[test]
 fn if_then() -> Result<()> {
-    let mut contract = Contract::new(Test::IF_BASIC)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::from(Test::IF_BASIC).pure().compile()?;
 
     // Skip the condition.
     let input = [0; 32];
@@ -24,9 +22,7 @@ fn if_then() -> Result<()> {
 
 #[test]
 fn singular() -> Result<()> {
-    let mut contract = Contract::new(Test::IF_SINGULAR)
-        .without_dispatcher()
-        .compile()?;
+    let mut contract = Contract::from(Test::IF_SINGULAR).pure().compile()?;
 
     // test if
     //

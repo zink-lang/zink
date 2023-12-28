@@ -16,15 +16,14 @@ sol-abi.workspace = true
 hex = { workspace = true, optional = true }
 postcard = { workspace = true, default-features = false, features = [ "use-std" ], optional = true }
 serde = { workspace = true, features = [ "derive" ], optional = true }
-sha3 = { workspace = true, optional = true }
 syn = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
+tiny-keccak = { workspace = true, optional = true, features = [ "sha3" ] }
 
 # TODO: introduce feature alloc.
 [features]
-default = [ "hex", "selector", "syn" ]
 bytes = [ "postcard", "serde" ]
 hex = [ "dep:hex", "thiserror", "bytes" ]
-selector = [ "sha3" ]
+selector = [ "tiny-keccak" ]
 serde = [ "dep:serde", "sol-abi/serde" ]
 syn = [ "dep:syn", "sol-abi/syn" ]
