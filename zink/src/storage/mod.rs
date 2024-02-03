@@ -1,5 +1,7 @@
 //! Zink storage implementation.
 
+mod mapping;
+
 /// Storage trait. Currently not for public use
 pub trait Storage<T> {
     const STORAGE_KEY: i32;
