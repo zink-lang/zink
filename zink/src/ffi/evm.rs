@@ -1,4 +1,4 @@
-//! EVM FFI
+//! EVM FFI.
 
 #[link(wasm_import_module = "evm")]
 #[allow(improper_ctypes)]

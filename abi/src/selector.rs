@@ -2,13 +2,15 @@
 #![cfg(feature = "selector")]
 
 use crate::Abi;
-use sha3::{Digest, Keccak256};
+use tiny_keccak::{Hasher, Keccak};
 
 /// Generate a keccak hash of the input (sha3)
 pub fn keccak256(input: &[u8]) -> [u8; 32] {
-    let mut hasher = Keccak256::new();
+    let mut output: [u8; 32] = [0; 32];
+    let mut hasher = Keccak::v256();
     hasher.update(input);
-    hasher.finalize().into()
+    hasher.finalize(&mut output);
+    output
 }
 
 /// Parse selector from bytes.
