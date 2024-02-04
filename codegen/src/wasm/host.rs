@@ -21,7 +21,6 @@ pub enum HostFunc {
     Log3,
     /// Run function log4.
     Log4,
-
     // Zinkc helper functions
     //
     /// Emit ABI to the compiler.

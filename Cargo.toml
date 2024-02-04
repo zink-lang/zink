@@ -96,10 +96,10 @@ readme = "zink/README.md"
 path = "zink/src/lib.rs"
 
 [dependencies]
+paste.workspace = true
 zink-codegen.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 anyhow.workspace = true
-paste.workspace = true
 filetests.workspace = true
 zint.workspace = true
