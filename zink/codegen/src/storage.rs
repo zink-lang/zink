@@ -7,6 +7,14 @@ use syn::ItemType;
 
 static IOTA: AtomicI32 = AtomicI32::new(0);
 
+/// Parse storage attribute.
+///
+/// Method `get` unwraps the ptr as the original type in WASM,
+/// mainly for passing the compilation checks at the moment,
+/// it works for WASM as well.
+///
+/// But for the cases in EVM, it doesn't matter what if it returns
+/// pointer since the value will be left on stack anyway.
 pub fn parse(input: ItemType) -> TokenStream {
     let name = input.ident;
     let ty = input.ty.to_token_stream();
@@ -27,13 +35,14 @@ pub fn parse(input: ItemType) -> TokenStream {
 
             fn get() -> #ty {
                 unsafe {
-                    zink::ffi::evm::sload(Self::STORAGE_KEY)
+                    *(zink::ffi::evm::sload(Self::STORAGE_KEY) as *const #ty)
                 }
             }
 
             fn set(value: #ty) {
                 unsafe {
-                    zink::ffi::evm::sstore(value, Self::STORAGE_KEY);
+                    zink::Asm::push(&value);
+                    zink::ffi::evm::sstore(Self::STORAGE_KEY);
                 }
             }
         }
