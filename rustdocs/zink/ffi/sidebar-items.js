@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["emit_abi"],"mod":["evm"]};
+window.SIDEBAR_ITEMS = {"fn":["emit_abi"],"mod":["asm","evm"]};

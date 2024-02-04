@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["push_i16","push_i32","push_i64","push_i8","push_u16","push_u32","push_u64","push_u8"]};

@@ -1,4 +1,4 @@
 (function() {var implementors = {
-"elko":[["impl Parser for <a class=\"struct\" href=\"elko/new/struct.New.html\" title=\"struct elko::new::New\">New</a>"],["impl Parser for <a class=\"struct\" href=\"elko/build/struct.Build.html\" title=\"struct elko::build::Build\">Build</a>"]],
-"zinkc":[["impl Parser for <a class=\"struct\" href=\"zinkc/config/struct.Config.html\" title=\"struct zinkc::config::Config\">Config</a>"],["impl Parser for <a class=\"struct\" href=\"zinkc/cli/struct.Compile.html\" title=\"struct zinkc::cli::Compile\">Compile</a>"]]
+"elko":[["impl Parser for <a class=\"struct\" href=\"elko/build/struct.Build.html\" title=\"struct elko::build::Build\">Build</a>"],["impl Parser for <a class=\"struct\" href=\"elko/new/struct.New.html\" title=\"struct elko::new::New\">New</a>"]],
+"zinkc":[["impl Parser for <a class=\"struct\" href=\"zinkc/cli/struct.Compile.html\" title=\"struct zinkc::cli::Compile\">Compile</a>"],["impl Parser for <a class=\"struct\" href=\"zinkc/config/struct.Config.html\" title=\"struct zinkc::config::Config\">Config</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
