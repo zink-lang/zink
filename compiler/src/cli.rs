@@ -32,11 +32,11 @@ impl Compile {
             env::current_dir()?.join(self.input.with_extension(""))
         };
 
-        let mut compiler = Compiler::new(Config::default().dispatcher(self.dispatcher));
-        let bin = compiler.compile(&fs::read(&self.input)?)?;
+        let compiler = Compiler::new(Config::default().dispatcher(self.dispatcher));
+        let artifact = compiler.compile(&fs::read(&self.input)?)?;
 
         output.parent().map(fs::create_dir_all);
-        fs::write(&output, bin)?;
+        fs::write(&output, artifact.bytecode)?;
 
         if !self.abi {
             return Ok(());
@@ -52,7 +52,7 @@ impl Compile {
             )
             .with_extension("abi.json");
 
-        fs::write(abi, serde_json::to_string_pretty(&compiler.abi())?)?;
+        fs::write(abi, serde_json::to_string_pretty(&artifact.abi)?)?;
         Ok(())
     }
 }

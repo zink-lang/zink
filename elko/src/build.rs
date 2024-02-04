@@ -61,10 +61,10 @@ impl Build {
         // Compile the wasm to evm bytecode.
         let wasm = fs::read(builder.output()?)?;
         let config = Config::default().dispatcher(self.config.dispatcher);
-        let bin = Compiler::new(config).compile(&wasm)?;
+        let artifact = Compiler::new(config).compile(&wasm)?;
         let dst = builder.output()?.with_extension("bin");
 
-        fs::write(dst, bin)?;
+        fs::write(dst, artifact.bytecode)?;
         Ok(())
     }
 }

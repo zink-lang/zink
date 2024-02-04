@@ -1,3 +1,13 @@
+## v0.1.10
+
+## Changes
+
+- gather wasm related logic to module wasm in `codegen`
+- introduce WASM environment for in `codegen`
+- Structured compiler output of `zinkc`
+- Renaming `without_dispatcher` to `pure` in `zint`
+- use `tiny-keccak` instead of `sha3` in `zabi`
+
 ## v0.1.9
 
 ### Changes

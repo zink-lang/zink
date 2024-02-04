@@ -2,12 +2,12 @@
 #![cfg(feature = "selector")]
 
 use crate::Abi;
-use tiny_keccak::{Hasher, Keccak};
+use tiny_keccak::{Hasher, Sha3};
 
 /// Generate a keccak hash of the input (sha3)
 pub fn keccak256(input: &[u8]) -> [u8; 32] {
-    let mut output: [u8; 32] = [0; 32];
-    let mut hasher = Keccak::v256();
+    let mut hasher = Sha3::v256();
+    let mut output = [0; 32];
     hasher.update(input);
     hasher.finalize(&mut output);
     output
