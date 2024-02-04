@@ -68,6 +68,7 @@ impl Function {
             HostFunc::Evm(OpCode::LOG3) => self.log(3),
             HostFunc::Evm(OpCode::LOG4) => self.log(4),
             HostFunc::Evm(op) => self.masm.emit_op(op),
+            HostFunc::NoOp => Ok(()),
             _ => {
                 tracing::error!("unsupported host function {func:?}");
                 Err(Error::UnsupportedHostFunc(func))

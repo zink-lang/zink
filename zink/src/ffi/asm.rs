@@ -1,6 +1,6 @@
 //! Assembly FFI.
 
-#[link(wasm_import_module = "zinkc")]
+#[link(wasm_import_module = "asm")]
 #[allow(improper_ctypes)]
 extern "C" {
     /// Push a 8-bit signed integer to the stack.

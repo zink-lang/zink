@@ -28,7 +28,7 @@ impl<'p> Parser<'p> {
             let valid_payload = validator.payload(&payload)?;
 
             match &payload {
-                Payload::ImportSection(reader) => self.imports = Self::imports(reader),
+                Payload::ImportSection(reader) => self.imports = Self::imports(reader)?,
                 Payload::DataSection(reader) => self.data = Self::data(reader)?,
                 Payload::ExportSection(reader) => self.exports = Self::exports(reader)?,
                 _ => {}
@@ -83,7 +83,7 @@ impl<'p> Parser<'p> {
     }
 
     /// Parse import section.
-    pub fn imports(reader: &SectionLimited<Import>) -> Imports {
+    pub fn imports(reader: &SectionLimited<Import>) -> Result<Imports> {
         // TODO: use real index from WASM. (#122)
         let mut index = 0;
 
@@ -95,14 +95,13 @@ impl<'p> Parser<'p> {
             ty: TypeRef::Func(_),
         })) = iter.next()
         {
-            if let Ok(func) = HostFunc::try_from((module, name)) {
-                tracing::trace!("imported function: {}::{} at {index}", module, name);
-                imports.insert(index, func);
-                index += 1;
-            }
+            let func = HostFunc::try_from((module, name))?;
+            tracing::trace!("imported function: {}::{} at {index}", module, name);
+            imports.insert(index, func);
+            index += 1;
         }
 
-        imports
+        Ok(imports)
     }
 
     /// Returns constructor if some.

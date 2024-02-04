@@ -103,10 +103,10 @@ extern "C" {
     pub fn push32(val: i32);
 
     /// Store a value in the storage
-    pub fn sstore(key: i32);
+    pub fn sstore();
 
     /// Load a value from the storage
-    pub fn sload(key: i32) -> *const i32;
+    pub fn sload() -> *const i32;
 
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);
