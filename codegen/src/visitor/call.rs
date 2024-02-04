@@ -1,6 +1,7 @@
 //! call instructions
 
 use crate::{wasm::HostFunc, Error, Function, Result};
+use opcodes::ShangHai as OpCode;
 
 impl Function {
     /// The call indirect instruction calls a function indirectly
@@ -61,13 +62,12 @@ impl Function {
             .ok_or(Error::ImportedFuncNotFound(index))?;
 
         match func {
-            HostFunc::Sstore => self.masm._sstore(),
-            HostFunc::Sload => self.masm._sload(),
-            HostFunc::Log0 => self.log(0),
-            HostFunc::Log1 => self.log(1),
-            HostFunc::Log2 => self.log(2),
-            HostFunc::Log3 => self.log(3),
-            HostFunc::Log4 => self.log(4),
+            HostFunc::Evm(OpCode::LOG0) => self.log(0),
+            HostFunc::Evm(OpCode::LOG1) => self.log(1),
+            HostFunc::Evm(OpCode::LOG2) => self.log(2),
+            HostFunc::Evm(OpCode::LOG3) => self.log(3),
+            HostFunc::Evm(OpCode::LOG4) => self.log(4),
+            HostFunc::Evm(op) => self.masm.emit_op(op),
             _ => {
                 tracing::error!("unsupported host function {func:?}");
                 Err(Error::UnsupportedHostFunc(func))
