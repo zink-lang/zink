@@ -25,31 +25,31 @@ homepage = "https://github.com/clearloop/zink"
 repository = "https://github.com/clearloop/zink.git"
 
 [workspace.dependencies]
-anyhow = "1.0.77"
+anyhow = "1.0.79"
 cargo_metadata = "0.18.1"
 ccli = "0.0.1"
 colored = "2.1.0"
-etc = "0.1.16"
+etc = "0.1.19"
 hex = "0.4.3"
-indexmap = "2.1.0"
+indexmap = "2.2.2"
 paste = "1.0.14"
 postcard = { version = "1.0.8", default-features = false }
-proc-macro2 = "1.0.71"
-quote = "1.0.33"
+proc-macro2 = "1.0.78"
+quote = "1.0.35"
 revm = { version = "3.5.0", default-features = false }
-semver = "1.0.20"
-serde = { version = "1.0.193", default-features = false }
-serde_json = "1.0.108"
-smallvec = "1.11.2"
-syn =  { version = "2.0.43", features = [ "full" ] }
-thiserror = "1.0.52"
+semver = "1.0.21"
+serde = { version = "1.0.196", default-features = false }
+serde_json = "1.0.113"
+smallvec = "1.13.1"
+syn =  { version = "2.0.48", features = [ "full" ] }
+thiserror = "1.0.56"
 tiny-keccak = "2.0.2"
-toml = "0.8.8"
+toml = "0.8.9"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 wasm-opt = "0.116.0"
-wasmparser = "0.118.1"
-wat = "1.0.82"
+wasmparser = "0.121.0"
+wat = "1.0.85"
 
 ## EVM packages
 opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = [ "data" ] }
@@ -96,10 +96,10 @@ readme = "zink/README.md"
 path = "zink/src/lib.rs"
 
 [dependencies]
+paste.workspace = true
 zink-codegen.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 anyhow.workspace = true
-paste.workspace = true
 filetests.workspace = true
 zint.workspace = true

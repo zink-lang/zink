@@ -1,0 +1,1 @@
+//! Zink storage mapping implementation.

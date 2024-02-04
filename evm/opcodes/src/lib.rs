@@ -26,7 +26,7 @@ macro_rules! opcodes {
         )),+
     } => {
         /// Ethereum virtual machine opcode.
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq)]
         pub enum $version {
             #[cfg(feature = "data")]
             /// No operation but provides a byte for serializing.
@@ -112,6 +112,21 @@ macro_rules! opcodes {
             }
         }
 
+        impl core::str::FromStr for $version {
+            type Err = ();
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                paste::paste! {
+                    match s {
+                        $(
+                            stringify!([< $name:lower >]) => Ok(Self::$name),
+                        )*
+                            _ => Err(()),
+                    }
+                }
+            }
+        }
+
         paste::paste! {
             #[doc = concat!(" For each ", stringify!($version), " operator.")]
             #[macro_export]
@@ -127,6 +142,7 @@ macro_rules! opcodes {
 }
 
 /// EVM opcode groups
+#[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq)]
 pub enum Group {
     /// Stop and Arithmetic Operations
     StopArithmetic,
@@ -153,6 +169,7 @@ pub enum Group {
 }
 
 /// Ethereum upgrades.
+#[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq)]
 pub enum Upgrade {
     /// Frontier
     Frontier,
