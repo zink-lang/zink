@@ -7,7 +7,7 @@ mod event;
 pub mod ffi;
 mod storage;
 
-pub use self::{event::Event, storage::Storage};
+pub use self::{asm::Asm, event::Event, storage::Storage};
 pub use zink_codegen::{constructor, external, storage, Event};
 
 // Panic hook implementation

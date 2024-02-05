@@ -128,7 +128,7 @@ impl Assembler {
 macro_rules! impl_opcodes {
     ($($name:ident => $opcode:ident),+) => {
         $(
-            #[doc = concat!(" Emit", stringify!($opcode))]
+            #[doc = concat!(" Emit ", stringify!($opcode))]
             pub fn $name(&mut self) -> Result<()> {
                 self.emit_op(OpCode::$opcode)?;
                 Ok(())

@@ -6,22 +6,22 @@ use paste::paste;
 /// Types implemented this trait are able to be pushed on stack.
 pub trait Asm {
     /// Push self on the stack.
-    fn push(&self);
+    fn push(self);
 }
 
 macro_rules! impl_asm {
     ($ty:ident) => {
         impl Asm for $ty {
-            fn push(&self) {
+            fn push(self) {
                 unsafe {
-                    paste! { ffi::asm::[<push_ $ty>](*self); }
+                    paste! { ffi::asm::[<push_ $ty>](self); }
                 }
             }
         }
     };
     ($len:expr) => {
         impl Asm for [u8; $len] {
-            fn push(&self) {
+            fn push(self) {
                 unsafe {
                     paste! { ffi::evm::[<push $len>](self.as_ptr() as i32); }
                 }

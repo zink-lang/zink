@@ -5,62 +5,47 @@ use quote::{quote, ToTokens};
 use std::sync::atomic::{AtomicI32, Ordering::Relaxed};
 use syn::ItemType;
 
+static IOTA: AtomicI32 = AtomicI32::new(0);
+
+/// Parse storage attribute.
+///
+/// Method `get` unwraps the ptr as the original type, mainly
+/// mainly for passing the compilation checks at the moment,
+/// and it works for WASM in real cases as well.
+///
+/// For the cases in EVM, it doesn't matter it returns pointer
+/// since the value will be left on stack anyway.
 pub fn parse(input: ItemType) -> TokenStream {
-    let variable_name = input.ident;
-    let variable_type = input.ty.to_token_stream();
+    let name = input.ident;
+    let ty = input.ty.to_token_stream();
 
-    match variable_type.to_string().as_str() {
-        "i32" => (),
-        _ => unimplemented!("Only support i32 as storage key for now."),
-    };
-
-    // hash-based storage key derivation (we decided that order-based is better)
-
-    // let mut h = Keccak256::new();
-    // h.update(variable_name.to_string().as_bytes());
-    // let storage_key = h.finalize();
-    //
-    // // lmfao i'm sure there's a better way to do this but i don't know how
-    // let mut storage_key_string = storage_key.as_slice().into_iter().map(|i| i.to_string()).collect::<Vec<String>>().join(", ");
-    // storage_key_string.insert(0, '[');
-    // storage_key_string.push(']');
-    // let storage_key_literal = syn::parse_str::<ExprArray>(&storage_key_string).unwrap();
-
-    static IOTA: AtomicI32 = AtomicI32::new(0);
-    // temporary solution, we'll switch to 32 byte storage keys later
-    let storage_key = IOTA.fetch_add(1, Relaxed);
-
+    // Temporary solution, we'll switch to 32 byte storage keys later
+    let key = IOTA.fetch_add(1, Relaxed);
     let expanded = quote! {
-        // TODO: derive documents (#137)
-        struct #variable_name;
+        #[doc = concat!(" Storage ", stringify!($variable_name))]
+        struct #name;
 
-        impl zink::Storage<#variable_type> for #variable_name {
-            const STORAGE_KEY: i32 = #storage_key;
+        impl zink::Storage<#ty> for #name {
+            const STORAGE_KEY: i32 = #key;
 
-            fn get() -> #variable_type {
+            fn get() -> #ty {
+                zink::Asm::push(Self::STORAGE_KEY);
                 unsafe {
-                    zink::ffi::evm::sload(Self::STORAGE_KEY)
+                    paste::paste! {
+                        zink::ffi::asm::[< sload_ #ty >]()
+                    }
                 }
             }
 
-            fn set(value: #variable_type) {
+            fn set(value: #ty) {
+                zink::Asm::push(value);
+                zink::Asm::push(Self::STORAGE_KEY);
                 unsafe {
-                    zink::ffi::evm::sstore(value, Self::STORAGE_KEY);
+                    zink::ffi::evm::sstore();
                 }
             }
         }
     };
 
     expanded
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn parse_test() {
-        let expr: ItemType = syn::parse_str("pub type Counter = i32;").unwrap();
-        assert_eq!(parse(expr).to_string().as_str(), "struct Counter ; impl zink :: Storage < i32 > for Counter { const STORAGE_KEY : i32 = 0i32 ; fn get () -> i32 { unsafe { zink :: ffi :: evm :: sload (Self :: STORAGE_KEY) } } fn set (value : i32) { unsafe { zink :: ffi :: evm :: sstore (value , Self :: STORAGE_KEY) ; } } }");
-    }
 }
