@@ -51,7 +51,6 @@ impl Function {
 
     /// Call imported functions
     fn call_imported(&mut self, index: u32) -> Result<()> {
-        tracing::trace!("call imported function: index={index}");
         // call an imported function.
         //
         // register the imported function index to the jump table.
@@ -60,6 +59,8 @@ impl Function {
             .imports
             .get(&index)
             .ok_or(Error::ImportedFuncNotFound(index))?;
+
+        tracing::trace!("call imported function, index={index}, func={func:?}");
 
         match func {
             HostFunc::Evm(OpCode::LOG0) => self.log(0),

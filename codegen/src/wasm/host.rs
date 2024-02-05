@@ -41,7 +41,13 @@ impl TryFrom<(&str, &str)> for HostFunc {
     fn try_from(import: (&str, &str)) -> Result<Self> {
         let (module, name) = import;
         match import {
-            ("asm", _) => Ok(Self::NoOp),
+            ("asm", name) => {
+                if name.starts_with("sload") {
+                    Ok(Self::Evm(OpCode::SLOAD))
+                } else {
+                    Ok(Self::NoOp)
+                }
+            }
             ("evm", name) => {
                 Ok(Self::Evm(OpCode::from_str(name).map_err(|_| {
                     Error::HostFuncNotFound(module.into(), name.into())

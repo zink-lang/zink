@@ -26,4 +26,28 @@ extern "C" {
 
     /// Push a 64-bit unsigned integer to the stack.
     pub fn push_u64(val: u64);
+
+    /// Load a 8-bit signed integer from the storage.
+    pub fn sload_i8() -> i8;
+
+    /// Load a 8-bit unsigned integer from the storage.
+    pub fn sload_u8() -> u8;
+
+    /// Load a 16-bit signed integer from the storage.
+    pub fn sload_i16() -> i16;
+
+    /// Load a 16-bit unsigned integer from the storage.
+    pub fn sload_u16() -> u16;
+
+    /// Load a 32-bit signed integer from the storage.
+    pub fn sload_i32() -> i32;
+
+    /// Load a 32-bit unsigned integer from the storage.
+    pub fn sload_u32() -> u32;
+
+    /// Load a 64-bit signed integer from the storage.
+    pub fn sload_i64() -> i64;
+
+    /// Load a 64-bit unsigned integer from the storage.
+    pub fn sload_u64() -> u64;
 }

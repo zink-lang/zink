@@ -106,7 +106,7 @@ extern "C" {
     pub fn sstore();
 
     /// Load a value from the storage
-    pub fn sload() -> *const i32;
+    pub fn sload();
 
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);

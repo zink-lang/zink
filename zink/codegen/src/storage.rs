@@ -28,11 +28,12 @@ pub fn parse(input: ItemType) -> TokenStream {
         impl zink::Storage<#ty> for #name {
             const STORAGE_KEY: i32 = #key;
 
-
             fn get() -> #ty {
                 zink::Asm::push(Self::STORAGE_KEY);
                 unsafe {
-                    *(zink::ffi::evm::sload() as *const #ty)
+                    paste::paste! {
+                        zink::ffi::asm::[< sload_ #ty >]()
+                    }
                 }
             }
 
