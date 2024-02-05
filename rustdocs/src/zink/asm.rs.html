@@ -47,22 +47,22 @@
 <span class="doccomment">/// Types implemented this trait are able to be pushed on stack.
 </span><span class="kw">pub trait </span>Asm {
     <span class="doccomment">/// Push self on the stack.
-    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;</span><span class="self">self</span>);
+    </span><span class="kw">fn </span>push(<span class="self">self</span>);
 }
 
 <span class="macro">macro_rules! </span>impl_asm {
     (<span class="macro-nonterminal">$ty</span>:ident) =&gt; {
         <span class="kw">impl </span>Asm <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
-            <span class="kw">fn </span>push(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+            <span class="kw">fn </span>push(<span class="self">self</span>) {
                 <span class="kw">unsafe </span>{
-                    <span class="macro">paste! </span>{ ffi::asm::[&lt;push_ <span class="macro-nonterminal">$ty</span>&gt;](<span class="kw-2">*</span><span class="self">self</span>); }
+                    <span class="macro">paste! </span>{ ffi::asm::[&lt;push_ <span class="macro-nonterminal">$ty</span>&gt;](<span class="self">self</span>); }
                 }
             }
         }
     };
     (<span class="macro-nonterminal">$len</span>:expr) =&gt; {
         <span class="kw">impl </span>Asm <span class="kw">for </span>[u8; <span class="macro-nonterminal">$len</span>] {
-            <span class="kw">fn </span>push(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+            <span class="kw">fn </span>push(<span class="self">self</span>) {
                 <span class="kw">unsafe </span>{
                     <span class="macro">paste! </span>{ ffi::evm::[&lt;push <span class="macro-nonterminal">$len</span>&gt;](<span class="self">self</span>.as_ptr() <span class="kw">as </span>i32); }
                 }

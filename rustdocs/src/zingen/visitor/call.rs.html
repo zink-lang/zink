@@ -77,6 +77,8 @@
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! call instructions
 
 </span><span class="kw">use crate</span>::{wasm::HostFunc, Error, Function, <span class="prelude-ty">Result</span>};
@@ -130,7 +132,6 @@
 
     <span class="doccomment">/// Call imported functions
     </span><span class="kw">fn </span>call_imported(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">tracing::trace!</span>(<span class="string">"call imported function: index={index}"</span>);
         <span class="comment">// call an imported function.
         //
         // register the imported function index to the jump table.
@@ -140,6 +141,8 @@
             .get(<span class="kw-2">&amp;</span>index)
             .ok_or(Error::ImportedFuncNotFound(index))<span class="question-mark">?</span>;
 
+        <span class="macro">tracing::trace!</span>(<span class="string">"call imported function, index={index}, func={func:?}"</span>);
+
         <span class="kw">match </span>func {
             HostFunc::Evm(OpCode::LOG0) =&gt; <span class="self">self</span>.log(<span class="number">0</span>),
             HostFunc::Evm(OpCode::LOG1) =&gt; <span class="self">self</span>.log(<span class="number">1</span>),
@@ -147,6 +150,7 @@
             HostFunc::Evm(OpCode::LOG3) =&gt; <span class="self">self</span>.log(<span class="number">3</span>),
             HostFunc::Evm(OpCode::LOG4) =&gt; <span class="self">self</span>.log(<span class="number">4</span>),
             HostFunc::Evm(op) =&gt; <span class="self">self</span>.masm.emit_op(op),
+            HostFunc::NoOp =&gt; <span class="prelude-val">Ok</span>(()),
             <span class="kw">_ </span>=&gt; {
                 <span class="macro">tracing::error!</span>(<span class="string">"unsupported host function {func:?}"</span>);
                 <span class="prelude-val">Err</span>(Error::UnsupportedHostFunc(func))

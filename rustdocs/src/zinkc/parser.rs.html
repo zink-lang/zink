@@ -139,7 +139,6 @@
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Zink parser
 
 </span><span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
@@ -170,7 +169,7 @@
             <span class="kw">let </span>valid_payload = validator.payload(<span class="kw-2">&amp;</span>payload)<span class="question-mark">?</span>;
 
             <span class="kw">match </span><span class="kw-2">&amp;</span>payload {
-                Payload::ImportSection(reader) =&gt; <span class="self">self</span>.imports = <span class="self">Self</span>::imports(reader),
+                Payload::ImportSection(reader) =&gt; <span class="self">self</span>.imports = <span class="self">Self</span>::imports(reader)<span class="question-mark">?</span>,
                 Payload::DataSection(reader) =&gt; <span class="self">self</span>.data = <span class="self">Self</span>::data(reader)<span class="question-mark">?</span>,
                 Payload::ExportSection(reader) =&gt; <span class="self">self</span>.exports = <span class="self">Self</span>::exports(reader)<span class="question-mark">?</span>,
                 <span class="kw">_ </span>=&gt; {}
@@ -225,7 +224,7 @@
     }
 
     <span class="doccomment">/// Parse import section.
-    </span><span class="kw">pub fn </span>imports(reader: <span class="kw-2">&amp;</span>SectionLimited&lt;Import&gt;) -&gt; Imports {
+    </span><span class="kw">pub fn </span>imports(reader: <span class="kw-2">&amp;</span>SectionLimited&lt;Import&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Imports&gt; {
         <span class="comment">// TODO: use real index from WASM. (#122)
         </span><span class="kw">let </span><span class="kw-2">mut </span>index = <span class="number">0</span>;
 
@@ -237,14 +236,13 @@
             ty: TypeRef::Func(<span class="kw">_</span>),
         })) = iter.next()
         {
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(func) = HostFunc::try_from((module, name)) {
-                <span class="macro">tracing::trace!</span>(<span class="string">"imported function: {}::{} at {index}"</span>, module, name);
-                imports.insert(index, func);
-                index += <span class="number">1</span>;
-            }
+            <span class="kw">let </span>func = HostFunc::try_from((module, name))<span class="question-mark">?</span>;
+            <span class="macro">tracing::trace!</span>(<span class="string">"imported function: {}::{} at {index}"</span>, module, name);
+            imports.insert(index, func);
+            index += <span class="number">1</span>;
         }
 
-        imports
+        <span class="prelude-val">Ok</span>(imports)
     }
 
     <span class="doccomment">/// Returns constructor if some.

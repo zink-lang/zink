@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["constructor","external","storage"],"derive":["Event"],"mod":["asm","event","ffi","storage"],"trait":["Event","Storage"]};
+window.SIDEBAR_ITEMS = {"attr":["constructor","external","storage"],"derive":["Event"],"mod":["asm","event","ffi","storage"],"trait":["Asm","Event","Storage"]};

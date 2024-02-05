@@ -54,6 +54,15 @@
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Host functions
 
 </span><span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
@@ -65,6 +74,8 @@
 </span><span class="kw">pub enum </span>HostFunc {
     <span class="doccomment">/// EVM assemble operations.
     </span>Evm(OpCode),
+    <span class="doccomment">/// No operations, this only covers `push_$ty` at the moment.
+    </span>NoOp,
     <span class="comment">// Zinkc helper functions
     //
     </span><span class="doccomment">/// Emit ABI to the compiler.
@@ -95,6 +106,13 @@
     <span class="kw">fn </span>try_from(import: (<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>(module, name) = import;
         <span class="kw">match </span>import {
+            (<span class="string">"asm"</span>, name) =&gt; {
+                <span class="kw">if </span>name.starts_with(<span class="string">"sload"</span>) {
+                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::SLOAD))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::NoOp)
+                }
+            }
             (<span class="string">"evm"</span>, name) =&gt; {
                 <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::from_str(name).map_err(|<span class="kw">_</span>| {
                     Error::HostFuncNotFound(module.into(), name.into())

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["parse"]};
+window.SIDEBAR_ITEMS = {"fn":["parse"],"static":["IOTA"]};

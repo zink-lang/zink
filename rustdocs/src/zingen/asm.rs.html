@@ -273,7 +273,7 @@
 <span class="macro">macro_rules! </span>impl_opcodes {
     ($(<span class="macro-nonterminal">$name</span>:ident =&gt; <span class="macro-nonterminal">$opcode</span>:ident),+) =&gt; {
         $(
-            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">" Emit"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$opcode</span>))]
+            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">" Emit "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$opcode</span>))]
             </span><span class="kw">pub fn </span><span class="macro-nonterminal">$name</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
                 <span class="self">self</span>.emit_op(OpCode::<span class="macro-nonterminal">$opcode</span>)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(())

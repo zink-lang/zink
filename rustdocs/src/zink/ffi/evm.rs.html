@@ -241,10 +241,10 @@
     </span><span class="kw">pub fn </span>push32(val: i32);
 
     <span class="doccomment">/// Store a value in the storage
-    </span><span class="kw">pub fn </span>sstore(value: i32, key: i32);
+    </span><span class="kw">pub fn </span>sstore();
 
     <span class="doccomment">/// Load a value from the storage
-    </span><span class="kw">pub fn </span>sload(key: i32) -&gt; i32;
+    </span><span class="kw">pub fn </span>sload();
 
     <span class="doccomment">/// Append log record with no topics
     </span><span class="kw">pub fn </span>log0(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8]);
