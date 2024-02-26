@@ -10,6 +10,9 @@ mod storage;
 pub use self::{asm::Asm, event::Event, storage::Storage};
 pub use zink_codegen::{constructor, external, storage, Event};
 
+/// EVM address in rust.
+pub type Address = [u8; 20];
+
 // Panic hook implementation
 #[cfg(target_arch = "wasm32")]
 #[panic_handler]

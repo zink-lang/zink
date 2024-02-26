@@ -7,8 +7,10 @@ impl Function {
     pub fn _local_get(&mut self, local_index: u32) -> Result<()> {
         let local_index = local_index as usize;
         if self.is_main && local_index < self.ty.params().len() {
+            // Parsing data from selector.
             self._local_get_calldata(local_index)
         } else {
+            // Passing data between local functions.
             self._local_get_var(local_index)
         }
     }

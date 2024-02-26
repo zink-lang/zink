@@ -29,9 +29,17 @@ pub enum Param {
     UInt32,
     /// A 64-bit unsigned integer.
     UInt64,
-    /// An unknown type.
+    /// An EVM address.
+    Address,
+    /// A boolean type.
+    Bool,
+    /// A byte array.
     #[default]
-    Unknown,
+    Bytes,
+    /// A string type.
+    String,
+    /// An unknown type.
+    Unknown(String),
 }
 
 impl From<&str> for Param {
@@ -41,7 +49,10 @@ impl From<&str> for Param {
             "i64" | "int64" => Param::Int64,
             "u32" | "uint32" => Param::UInt32,
             "usize" | "u64" | "uint64" => Param::UInt64,
-            _ => Param::Unknown,
+            "Address" => Param::Address,
+            "Bytes" | "Vec<u8>" => Param::Bytes,
+            "String" => Param::String,
+            _ => Param::Unknown(s.to_string()),
         }
     }
 }
@@ -61,7 +72,11 @@ impl AsRef<str> for Param {
             Param::Int64 => "int64",
             Param::UInt32 => "uint32",
             Param::UInt64 => "uint64",
-            Param::Unknown => "unknown",
+            Param::Address => "address",
+            Param::Bool => "bool",
+            Param::Bytes => "bytes",
+            Param::String => "string",
+            Param::Unknown(ty) => ty.as_ref(),
         }
     }
 }
