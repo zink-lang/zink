@@ -21,18 +21,26 @@ pub struct Arg {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
 pub enum Param {
+    /// A 8-bit integer.
+    Int8,
+    /// A 16-bit integer.
+    Int16,
     /// A 32-bit integer.
     Int32,
     /// A 64-bit integer.
     Int64,
+    /// A 8-bit unsigned integer.
+    UInt8,
+    /// A 16-bit unsigned integer.
+    UInt16,
     /// A 32-bit unsigned integer.
     UInt32,
     /// A 64-bit unsigned integer.
     UInt64,
-    /// An EVM address.
-    Address,
     /// A boolean type.
     Bool,
+    /// An EVM address.
+    Address,
     /// A byte array.
     #[default]
     Bytes,
@@ -45,10 +53,13 @@ pub enum Param {
 impl From<&str> for Param {
     fn from(s: &str) -> Self {
         match s {
+            "i8" | "int8" => Param::Int8,
+            "u8" | "uint8" => Param::UInt8,
             "i32" | "int32" => Param::Int32,
             "i64" | "int64" => Param::Int64,
+            "u16" | "uint16" => Param::UInt16,
             "u32" | "uint32" => Param::UInt32,
-            "usize" | "u64" | "uint64" => Param::UInt64,
+            "u64" | "uint64" => Param::UInt64,
             "Address" => Param::Address,
             "Bytes" | "Vec<u8>" => Param::Bytes,
             "String" => Param::String,
@@ -68,8 +79,12 @@ impl FromStr for Param {
 impl AsRef<str> for Param {
     fn as_ref(&self) -> &str {
         match self {
+            Param::Int8 => "int8",
+            Param::Int16 => "int16",
             Param::Int32 => "int32",
             Param::Int64 => "int64",
+            Param::UInt8 => "uint8",
+            Param::UInt16 => "uint16",
             Param::UInt32 => "uint32",
             Param::UInt64 => "uint64",
             Param::Address => "address",
