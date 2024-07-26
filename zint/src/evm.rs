@@ -43,15 +43,22 @@ impl EVM {
         Self::default()
             .contract(runtime_bytecode)
             .calldata(input)
-            .call(CONTRACT)
+            .refcall(CONTRACT)
+    }
+
+    /// Reference call
+    pub fn refcall(&mut self, to: [u8; 20]) -> Result<Info> {
+        let to = TransactTo::Call(to.into());
+        self.inner.env.tx.transact_to = to.clone();
+        let result = self.inner.transact_ref().map_err(|e| anyhow!(e))?;
+        (result, to).try_into()
     }
 
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
         self.inner.env.tx.transact_to = to.clone();
-        let result = self.inner.transact_ref().map_err(|e| anyhow!(e))?;
-        (result, to).try_into()
+        self.inner.transact_commit()?.try_into()
     }
 
     /// Interpret runtime bytecode with provided arguments
