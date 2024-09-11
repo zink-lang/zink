@@ -51,57 +51,76 @@ impl Constructor {
     /// Here we override the memory totally with
     /// the runtime bytecode.
     pub fn finish(&mut self) -> Result<Buffer> {
-        let init_code_length = self.init_code.len();
+        // let init_code_length = self.init_code.len();
         let runtime_bytecode_length = self.runtime_bytecode.len();
-        let return_instr_length =
-            Self::return_instr_length(init_code_length, runtime_bytecode_length);
+        // let return_instr_length =
+        //     Self::return_instr_length(init_code_length, runtime_bytecode_length);
 
-        // Copy init code and runtime bytecode to memory from offset 0.
-        //
-        // 1. code size ( init_code + instr_return + runtime_bytecode )
-        // 2. byte offset of code which is fixed to N.
-        // 3. destination offset which is fixed to 0.
-        {
-            self.masm.push(
-                &(init_code_length + return_instr_length + runtime_bytecode_length).to_ls_bytes(),
-            )?;
-            // # SAFETY
-            //
-            // The length of the most significiant bytes of
-            // the bytecode offset is fixed to 1.
-            self.masm
-                .push(&((self.masm.pc_offset() as usize + 9).to_ls_bytes()))?;
-            self.masm._push0()?;
-            self.masm._codecopy()?;
-        }
-
-        // Process instruction `CREATE`
-        {
-            self.masm._push0()?;
-            self.masm._push0()?;
-            self.masm._push0()?;
-            self.masm._calldataload()?;
-            self.masm._create()?;
-        }
-
-        self.masm.buffer_mut().extend_from_slice(&self.init_code);
-
-        // Process `RETURN`.
-        //
-        // 1. size of the runtime bytecode
-        // 2. offset of the runtime bytecode in memory
-        {
-            self.masm.push(&runtime_bytecode_length.to_ls_bytes())?;
-            self.masm
-                .push(&(init_code_length + return_instr_length).to_ls_bytes())?;
-            self.masm.asm._return()?;
-        }
-
+        self.masm.push(&runtime_bytecode_length.to_ls_bytes())?; // code size
+        self.masm.push(&[10])?; // code offset
+        self.masm._push0()?; // dest offset in memory
+        self.masm._codecopy()?;
+        self.masm.push(&runtime_bytecode_length.to_ls_bytes())?; // code size
+        self.masm._push0()?; // memory offset
+        self.masm.asm._return()?;
         self.masm
             .buffer_mut()
             .extend_from_slice(&self.runtime_bytecode);
 
         Ok(self.masm.buffer().into())
+        // tracing::trace!("copy init code");
+        // // Copy init code and runtime bytecode to memory from offset 0.
+        // //
+        // // 1. code size ( init_code + instr_return + runtime_bytecode )
+        // // 2. byte offset of code which is fixed to N.
+        // // 3. destination offset which is fixed to 0.
+        // {
+        //     self.masm.push(
+        //         &(init_code_length + return_instr_length + runtime_bytecode_length).to_ls_bytes(),
+        //     )?;
+        //     // # SAFETY
+        //     //
+        //     // The length of the most significiant bytes of
+        //     // the bytecode offset is fixed to 1.
+        //     self.masm
+        //         .push(&((self.masm.pc_offset() as usize + 9).to_ls_bytes()))?;
+        //     self.masm._push0()?;
+        //     self.masm._codecopy()?;
+        // }
+        //
+        // tracing::trace!("process instruction CREATE for constructor");
+        // // Process instruction `CREATE`
+        // //
+        // // Stack in:
+        // // [ value, offset, size ]
+        // {
+        //     self.masm._push0()?;
+        //     self.masm._push0()?;
+        //     self.masm._push0()?;
+        //     self.masm._calldataload()?;
+        //     self.masm._create()?;
+        // }
+        //
+        // self.masm.buffer_mut().extend_from_slice(&self.init_code);
+        //
+        // tracing::trace!("process return instruction for constructor");
+        // // Process `RETURN`.
+        // //
+        // // 1. size of the runtime bytecode
+        // // 2. offset of the runtime bytecode in memory
+        // {
+        //     self.masm.push(&runtime_bytecode_length.to_ls_bytes())?;
+        //     self.masm
+        //         .push(&(init_code_length + return_instr_length).to_ls_bytes())?;
+        //     self.masm.asm._return()?;
+        // }
+        //
+        // tracing::trace!("concat runtime bytecode");
+        // self.masm
+        //     .buffer_mut()
+        //     .extend_from_slice(&self.runtime_bytecode);
+        //
+        // Ok(self.masm.buffer().into())
     }
 
     /// Returns the length of instructions.

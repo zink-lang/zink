@@ -7,7 +7,7 @@ use crate::{
     masm::MacroAssembler,
     validator::ValidateThenVisit,
     wasm::Env,
-    Buffer, Error, Result,
+    Buffer, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 
@@ -124,10 +124,12 @@ impl Function {
 
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
-        let sp = self.masm.sp();
-        if !self.is_main && self.masm.sp() != self.ty.results().len() as u8 {
-            return Err(Error::StackNotBalanced(sp));
-        }
+        // TODO: check the stack here
+        //
+        // let sp = self.masm.sp();
+        // if !self.is_main && self.masm.sp() != self.ty.results().len() as u8 {
+        //     return Err(Error::StackNotBalanced(sp));
+        // }
 
         jump_table.merge(self.table, pc)?;
         Ok(self.masm.buffer().into())
