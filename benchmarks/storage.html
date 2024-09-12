@@ -212,7 +212,7 @@ impl Counter {
 
 /// Set value to the storage and get it.
 #[no_mangle]
-pub unsafe extern &quot;C&quot; fn set_and_get(value: i64) -&gt; i64 {
+pub unsafe extern "C" fn set_and_get(value: i64) -&gt; i64 {
     Counter::set(value);
     Counter::get()
 }</code></pre>

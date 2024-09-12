@@ -186,7 +186,7 @@ extern crate zink;
 
 /// Adds two numbers together.
 #[no_mangle]
-pub extern &quot;C&quot; fn addition(x: u64, y: u64) -&gt; u64 {
+pub extern "C" fn addition(x: u64, y: u64) -&gt; u64 {
     x + y
 }</code></pre>
 <p>A basic addition program in zink</p>
@@ -198,7 +198,7 @@ pub extern &quot;C&quot; fn addition(x: u64, y: u64) -&gt; u64 {
     )
 )
 </code></pre>
-<p>Requires: </p>
+<p>Requires:</p>
 <ul>
 <li>Get params from locals</li>
 <li>Process basic operand</li>

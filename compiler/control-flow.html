@@ -236,7 +236,7 @@ return
 one of its first two operands based on whether its third operand is
 zero or not.</p>
 <p>Simple rust conditions in rust will be compiled to <code>select</code>.</p>
-<pre><code class="language-rust">pub extern &quot;C&quot; fn if_else(x: u64, y: u64) -&gt; u64 {
+<pre><code class="language-rust">pub extern "C" fn if_else(x: u64, y: u64) -&gt; u64 {
     if x &gt; y {
         x
     } else {

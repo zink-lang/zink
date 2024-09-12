@@ -1,6 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0-nightly (b11fbfbf3 2024-02-03)" data-channel="nightly" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
-            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../zingen/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (8d6b88b16 2024-09-11)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -295,8 +294,7 @@
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
 <a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! This module is the central place for machine code emission.
+<a href="#296" id="296">296</a></pre></div><pre class="rust"><code><span class="doccomment">//! This module is the central place for machine code emission.
 //!
 //! It defines an implementation of wasmparser's Visitor trait for
 //! `Function`; which defines a visitor per op-code, which validates
@@ -319,7 +317,7 @@
 /// 1. It no-ops when matching a supported operator.
 /// 2. Defines the visitor function and panics when
 /// matching an unsupported operator.
-</span><span class="macro">macro_rules! </span>impl_visit_operator {
+</span><span class="macro">macro_rules!</span> impl_visit_operator {
     ( @mvp <span class="macro-nonterminal">$op</span>:ident $({ $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),* })<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$visit</span>:ident $(<span class="macro-nonterminal">$rest</span>:tt)* ) =&gt; {
         <span class="macro">impl_visit_operator!</span>($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     };
@@ -335,9 +333,9 @@
 }
 
 <span class="doccomment">/// Implement arithmetic operators for types.
-</span><span class="macro">macro_rules! </span>map_wasm_operators {
+</span><span class="macro">macro_rules!</span> map_wasm_operators {
     (@basic <span class="macro-nonterminal">$ty</span>:tt, <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">paste! </span>{
+        <span class="macro">paste!</span> {
             <span class="kw">fn </span>[&lt; visit_ <span class="macro-nonterminal">$ty </span><span class="kw">_ </span><span class="macro-nonterminal">$wasm </span>&gt;](<span class="kw-2">&amp;mut </span><span class="self">self </span>$(,<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),<span class="kw-2">*</span>) -&gt; <span class="self">Self</span>::Output {
                 <span class="macro">trace!</span>(<span class="string">"{}.{}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$ty</span>), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$evm</span>));
 
@@ -382,7 +380,7 @@
         <span class="macro">map_wasm_operators!</span>(@float <span class="macro-nonterminal">$op</span>, <span class="macro-nonterminal">$op</span>);
     };
     (@field ($(<span class="macro-nonterminal">$field</span>:ident).<span class="kw-2">*</span>) (<span class="macro-nonterminal">$op</span>:tt -&gt; <span class="macro-nonterminal">$evm</span>:tt) $(<span class="macro-nonterminal">$arg</span>:tt: <span class="macro-nonterminal">$argty</span>:ty),* ) =&gt; {
-        <span class="macro">paste! </span>{
+        <span class="macro">paste!</span> {
             <span class="kw">fn </span>[&lt; visit_ <span class="macro-nonterminal">$op </span>&gt;](<span class="kw-2">&amp;mut </span><span class="self">self</span>, $(<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$argty</span>),<span class="kw-2">*</span>) -&gt; <span class="self">Self</span>::Output {
                 <span class="kw">let </span><span class="kw-2">mut </span>log = <span class="macro">stringify!</span>(<span class="macro-nonterminal">$op</span>).to_string();
                 log = log.replace(<span class="string">'_'</span>, <span class="string">"."</span>);
@@ -429,7 +427,7 @@
             $( <span class="macro-nonterminal">$global</span>:tt $(: { $(<span class="macro-nonterminal">$garg</span>:ident: <span class="macro-nonterminal">$gargty</span>:ty),+ })<span class="question-mark">? </span>),+
         }
     ) =&gt; {
-        <span class="macro">paste! </span>{
+        <span class="macro">paste!</span> {
             $(<span class="macro">map_wasm_operators!</span>(@integer_and_float <span class="macro-nonterminal">$op</span>);)+
 
             $(
@@ -492,7 +490,7 @@
 
     <span class="macro">for_each_operator!</span>(impl_visit_operator);
 
-    <span class="macro">map_wasm_operators! </span>{
+    <span class="macro">map_wasm_operators!</span> {
         all: [div, lt, gt, ge, le],
         xdr: [shr, trunc_f32, trunc_f64],
         integer: [and, clz, ctz, eqz, or, popcnt, rotl, rotr, shl, xor],

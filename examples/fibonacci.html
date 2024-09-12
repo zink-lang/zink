@@ -186,13 +186,13 @@ extern crate zink;
 
 /// Calculates the nth fibonacci number.
 #[no_mangle]
-pub extern &quot;C&quot; fn fibonacci(n: usize) -&gt; usize {
+pub extern "C" fn fibonacci(n: usize) -&gt; usize {
     recursion(n)
 }
 
 /// Calculates the nth fibonacci number using recursion.
 #[no_mangle]
-pub extern &quot;C&quot; fn recursion(n: usize) -&gt; usize {
+pub extern "C" fn recursion(n: usize) -&gt; usize {
     if n &lt; 2 {
         n
     } else {

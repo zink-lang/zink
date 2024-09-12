@@ -217,7 +217,7 @@ for solving this, <code>zinkc</code> registers the original <code>PC</code> to t
 meeting jumps and relocates them after compiling all functions.</p>
 <h3 id="example-addition"><a class="header" href="#example-addition">Example Addition</a></h3>
 <pre><code class="language-wasm">(module
-  (func (export &quot;main&quot;) (param i32) (param i32) (result i32)
+  (func (export "main") (param i32) (param i32) (result i32)
     (call $add (local.get 0) (local.get 1))
   )
 

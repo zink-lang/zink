@@ -195,7 +195,7 @@ pub type Counter = i32;
 
 /// Set value to storage and get it
 #[no_mangle]
-pub unsafe extern &quot;C&quot; fn set_and_get(value: i64) -&gt; i64 {
+pub unsafe extern "C" fn set_and_get(value: i64) -&gt; i64 {
     Counter::set(value);
     Counter::get()
 }</code></pre>
@@ -203,8 +203,8 @@ pub unsafe extern &quot;C&quot; fn set_and_get(value: i64) -&gt; i64 {
 <pre><code class="language-wasm">(module
   (type (;0;) (func (param i64) (result i64)))
   (type (;1;) (func (param i64 i64)))
-  (import &quot;zink&quot; &quot;sload&quot; (func (;0;) (type 0)))
-  (import &quot;zink&quot; &quot;sstore&quot; (func (;1;) (type 1)))
+  (import "zink" "sload" (func (;0;) (type 0)))
+  (import "zink" "sstore" (func (;1;) (type 1)))
   (func (type 0) (param i64) (result i64)
         i64.const 0
         local.get 0

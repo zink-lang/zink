@@ -198,7 +198,7 @@
 <pre><code class="language-rust">//! Zink fibonacci recursion
 
 #[no_mangle]
-pub extern &quot;C&quot; fn fib(n: usize) -&gt; usize {
+pub extern "C" fn fib(n: usize) -&gt; usize {
     if n &lt; 2 {
         n
     } else {

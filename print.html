@@ -225,10 +225,10 @@ dependencies you need with <code>cargo</code>, the basic <code>Cargo.toml</code>
 <pre><code class="language-toml"># ...
 
 [lib]
-crate-type = [ &quot;cdylib&quot; ]
+crate-type = [ "cdylib" ]
 
 [dependencies]
-zink = &quot;0.1.0&quot;
+zink = "0.1.0"
 
 # ...
 </code></pre>
@@ -242,7 +242,7 @@ extern crate zink;
 
 /// Adds two numbers together.
 #[no_mangle]
-pub extern &quot;C&quot; fn addition(x: u64, y: u64) -&gt; u64 {
+pub extern "C" fn addition(x: u64, y: u64) -&gt; u64 {
     x + y
 }</code></pre>
 <p>you’ll see a standard <code>WASM</code> library in rust:</p>
@@ -307,7 +307,7 @@ extern crate zink;
 
 /// Adds two numbers together.
 #[no_mangle]
-pub extern &quot;C&quot; fn addition(x: u64, y: u64) -&gt; u64 {
+pub extern "C" fn addition(x: u64, y: u64) -&gt; u64 {
     x + y
 }</code></pre>
 <p>A basic addition program in zink</p>
@@ -319,7 +319,7 @@ pub extern &quot;C&quot; fn addition(x: u64, y: u64) -&gt; u64 {
     )
 )
 </code></pre>
-<p>Requires: </p>
+<p>Requires:</p>
 <ul>
 <li>Get params from locals</li>
 <li>Process basic operand</li>
@@ -337,13 +337,13 @@ extern crate zink;
 
 /// Calculates the nth fibonacci number.
 #[no_mangle]
-pub extern &quot;C&quot; fn fibonacci(n: usize) -&gt; usize {
+pub extern "C" fn fibonacci(n: usize) -&gt; usize {
     recursion(n)
 }
 
 /// Calculates the nth fibonacci number using recursion.
 #[no_mangle]
-pub extern &quot;C&quot; fn recursion(n: usize) -&gt; usize {
+pub extern "C" fn recursion(n: usize) -&gt; usize {
     if n &lt; 2 {
         n
     } else {
@@ -402,8 +402,8 @@ use zink::Event;
 struct Ping;
 
 #[no_mangle]
-pub extern &quot;C&quot; fn log1() {
-    Ping.log1(b&quot;pong&quot;);
+pub extern "C" fn log1() {
+    Ping.log1(b"pong");
 }</code></pre>
 <p>The log API of zink is derived by the trait <code>Event</code> which provides methods
 <code>log0</code>, <code>log1</code>, <code>log2</code>, <code>log3</code>, <code>log4</code>. We current only supports static
@@ -411,16 +411,16 @@ bytes in this API.</p>
 <pre><code class="language-wasm">(module
   (type (;0;) (func))
   (type (;1;) (func (param i32 i32 i32 i32)))
-  (import &quot;evm&quot; &quot;log1&quot; (func (;1;) (type 1)))
-  (import &quot;env&quot; &quot;memory&quot; (memory (;0;) 17))
+  (import "evm" "log1" (func (;1;) (type 1)))
+  (import "env" "memory" (memory (;0;) 17))
   (func (;1;) (type 0)
     i32.const 1048576
     i32.const 4
     i32.const 1048580
     i32.const 4
     call 0)
-  (export &quot;log1&quot; (func 1))
-  (data (;0;) (i32.const 1048576) &quot;Pingpong&quot;))
+  (export "log1" (func 1))
+  (data (;0;) (i32.const 1048576) "Pingpong"))
 </code></pre>
 <p>The static byte array will be compiled to the data section of wasm, <code>zinkc</code>
 gets it from the data section then process it to the logging interfaces.</p>
@@ -436,7 +436,7 @@ extern crate zink;
 
 /// Simple if-else condition
 #[no_mangle]
-pub extern &quot;C&quot; fn if_else(x: u64, y: u64) -&gt; u64 {
+pub extern "C" fn if_else(x: u64, y: u64) -&gt; u64 {
     if x &gt; y {
         x
     } else {
@@ -479,7 +479,7 @@ pub type Counter = i32;
 
 /// Set value to storage and get it
 #[no_mangle]
-pub unsafe extern &quot;C&quot; fn set_and_get(value: i64) -&gt; i64 {
+pub unsafe extern "C" fn set_and_get(value: i64) -&gt; i64 {
     Counter::set(value);
     Counter::get()
 }</code></pre>
@@ -487,8 +487,8 @@ pub unsafe extern &quot;C&quot; fn set_and_get(value: i64) -&gt; i64 {
 <pre><code class="language-wasm">(module
   (type (;0;) (func (param i64) (result i64)))
   (type (;1;) (func (param i64 i64)))
-  (import &quot;zink&quot; &quot;sload&quot; (func (;0;) (type 0)))
-  (import &quot;zink&quot; &quot;sstore&quot; (func (;1;) (type 1)))
+  (import "zink" "sload" (func (;0;) (type 0)))
+  (import "zink" "sstore" (func (;1;) (type 1)))
   (func (type 0) (param i64) (result i64)
         i64.const 0
         local.get 0
@@ -627,7 +627,7 @@ for solving this, <code>zinkc</code> registers the original <code>PC</code> to t
 meeting jumps and relocates them after compiling all functions.</p>
 <h3 id="example-addition"><a class="header" href="#example-addition">Example Addition</a></h3>
 <pre><code class="language-wasm">(module
-  (func (export &quot;main&quot;) (param i32) (param i32) (result i32)
+  (func (export "main") (param i32) (param i32) (result i32)
     (call $add (local.get 0) (local.get 1))
   )
 
@@ -735,7 +735,7 @@ return
 one of its first two operands based on whether its third operand is
 zero or not.</p>
 <p>Simple rust conditions in rust will be compiled to <code>select</code>.</p>
-<pre><code class="language-rust">pub extern &quot;C&quot; fn if_else(x: u64, y: u64) -&gt; u64 {
+<pre><code class="language-rust">pub extern "C" fn if_else(x: u64, y: u64) -&gt; u64 {
     if x &gt; y {
         x
     } else {
@@ -1001,7 +1001,7 @@ are more complex, we will get a more actual answer of these after the release of
 <pre><code class="language-rust">//! Zink fibonacci recursion
 
 #[no_mangle]
-pub extern &quot;C&quot; fn fib(n: usize) -&gt; usize {
+pub extern "C" fn fib(n: usize) -&gt; usize {
     if n &lt; 2 {
         n
     } else {
@@ -1050,12 +1050,12 @@ struct Ping;
 
 /// TODO: generate this with proc-macro.
 impl Event for Ping {
-    const NAME: &amp;'static [u8] = b&quot;Ping&quot;;
+    const NAME: &amp;'static [u8] = b"Ping";
 }
 
 #[no_mangle]
-pub extern &quot;C&quot; fn log1() {
-    Ping.log1(b&quot;pong&quot;);
+pub extern "C" fn log1() {
+    Ping.log1(b"pong");
 }</code></pre>
 <pre><code>63706f6e676350696e6760005260206000a15f5ff3
 </code></pre>
@@ -1066,7 +1066,7 @@ pub extern &quot;C&quot; fn log1() {
 
 @external
 def l():
-  log Ping(&quot;Ping&quot;, &quot;pong&quot;)
+  log Ping("Ping", "pong")
 </code></pre>
 <pre><code>6003361161000c57610127565b5f3560e01c3461012b5763ece866b98118610125577fcf8d08d4ab9d61004e3c20715af5b44c3badc3d3f41ddccbedbef447355ebff460408060c05260046040527f50696e670000000000000000000000000000000000000000000000000000000060605260408160c00181516020830160208301815181525050808252508051806020830101601f825f03163682375050601f19601f8251602001011690509050810190508060e05260046080527f706f6e670000000000000000000000000000000000000000000000000000000060a05260808160c00181516020830160208301815181525050808252508051806020830101601f825f03163682375050601f19601f82516020010116905090508101905060c0a1005b505b5f5ffd5b5f80fda165767970657283000309000b
 </code></pre>
@@ -1078,7 +1078,7 @@ contract Test {
   event Ping(string name, string topic);
 
   function l() public {
-    emit Ping(&quot;Ping&quot;, &quot;pong&quot;);
+    emit Ping("Ping", "pong");
   }
 }
 </code></pre>
@@ -1120,7 +1120,7 @@ impl Counter {
 
 /// Set value to the storage and get it.
 #[no_mangle]
-pub unsafe extern &quot;C&quot; fn set_and_get(value: i64) -&gt; i64 {
+pub unsafe extern "C" fn set_and_get(value: i64) -&gt; i64 {
     Counter::set(value);
     Counter::get()
 }</code></pre>
@@ -1224,7 +1224,7 @@ a wasm program for it first, for example, the wasm program of the
 <p>In <code>compiler/tests/add.rs</code>:</p>
 <pre><code class="language-rust">#[test]
 fn params() -&gt; Result&lt;()&gt; {
-    let bytecode = common::load(&quot;i32add&quot;, &quot;params&quot;)?;
+    let bytecode = common::load("i32add", "params")?;
 
     // add(1, 2)
     let input = [1.to_bytes32(), 2.to_bytes32()].concat();
@@ -1233,7 +1233,7 @@ fn params() -&gt; Result&lt;()&gt; {
     assert_eq!(info.ret, [3.to_bytes32()].concat());
     Ok(())
 }</code></pre>
-<p>We use <code>common::load(&quot;i32add&quot;, &quot;params&quot;)</code> to load wat file to EVM bytecode
+<p>We use <code>common::load("i32add", "params")</code> to load wat file to EVM bytecode
 from <code>compiler/tests/wat/i32add/params.wat</code>, execute with the <code>EVM</code> provided
 by <code>zint</code>, compare if the result is as expected, that’s it!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>

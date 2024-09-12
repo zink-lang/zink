@@ -1,3 +1,9 @@
-(function() {var implementors = {
-"zingen":[]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {
+    var implementors = Object.fromEntries([["zingen",[]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[13]}

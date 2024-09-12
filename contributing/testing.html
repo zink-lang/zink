@@ -203,7 +203,7 @@ a wasm program for it first, for example, the wasm program of the
 <p>In <code>compiler/tests/add.rs</code>:</p>
 <pre><code class="language-rust">#[test]
 fn params() -&gt; Result&lt;()&gt; {
-    let bytecode = common::load(&quot;i32add&quot;, &quot;params&quot;)?;
+    let bytecode = common::load("i32add", "params")?;
 
     // add(1, 2)
     let input = [1.to_bytes32(), 2.to_bytes32()].concat();
@@ -212,7 +212,7 @@ fn params() -&gt; Result&lt;()&gt; {
     assert_eq!(info.ret, [3.to_bytes32()].concat());
     Ok(())
 }</code></pre>
-<p>We use <code>common::load(&quot;i32add&quot;, &quot;params&quot;)</code> to load wat file to EVM bytecode
+<p>We use <code>common::load("i32add", "params")</code> to load wat file to EVM bytecode
 from <code>compiler/tests/wat/i32add/params.wat</code>, execute with the <code>EVM</code> provided
 by <code>zint</code>, compare if the result is as expected, that’s it!</p>
 

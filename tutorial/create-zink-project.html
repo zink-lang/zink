@@ -192,10 +192,10 @@ dependencies you need with <code>cargo</code>, the basic <code>Cargo.toml</code>
 <pre><code class="language-toml"># ...
 
 [lib]
-crate-type = [ &quot;cdylib&quot; ]
+crate-type = [ "cdylib" ]
 
 [dependencies]
-zink = &quot;0.1.0&quot;
+zink = "0.1.0"
 
 # ...
 </code></pre>
@@ -209,7 +209,7 @@ extern crate zink;
 
 /// Adds two numbers together.
 #[no_mangle]
-pub extern &quot;C&quot; fn addition(x: u64, y: u64) -&gt; u64 {
+pub extern "C" fn addition(x: u64, y: u64) -&gt; u64 {
     x + y
 }</code></pre>
 <p>you’ll see a standard <code>WASM</code> library in rust:</p>
