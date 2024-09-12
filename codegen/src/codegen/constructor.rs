@@ -12,19 +12,13 @@ use crate::{wasm::ToLSBytes, Buffer, MacroAssembler, Result};
 /// - `RUNTIME_BYTECODE`
 ///
 /// TODO: introduce ABI for constructor
+#[derive(Default)]
 pub struct Constructor {
     /// Code generator.
     pub masm: MacroAssembler,
 }
 
 impl Constructor {
-    /// Create a new constructor.
-    pub fn new() -> Self {
-        Self {
-            masm: MacroAssembler::default(),
-        }
-    }
-
     /// Concat the constructor code.
     ///
     /// Here we override the memory totally with

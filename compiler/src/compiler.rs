@@ -51,7 +51,7 @@ impl Compiler {
     /// Generate artifact
     ///
     /// yields runtime bytecode and construct bytecode
-    fn artifact<'f>(self, mb_cst: Option<wasm::Function<'f>>) -> Result<Artifact> {
+    fn artifact(self, mb_cst: Option<wasm::Function<'_>>) -> Result<Artifact> {
         let Compiler {
             abi,
             buffer,
@@ -72,11 +72,11 @@ impl Compiler {
     }
 
     /// Compile constructor
-    fn compile_constructor<'f>(
-        mb_cst: Option<wasm::Function<'f>>,
+    fn compile_constructor(
+        mb_cst: Option<wasm::Function<'_>>,
         runtime_bytecode: &[u8],
     ) -> Result<Buffer> {
-        let mut constructor = Constructor::new();
+        let mut constructor = Constructor::default();
         let Some(mut cst) = mb_cst else {
             return constructor
                 .finish(Default::default(), runtime_bytecode.into())
@@ -92,9 +92,9 @@ impl Compiler {
 
         let _init_code = codegen.masm.buffer().to_vec();
 
-        return constructor
+        constructor
             .finish(Default::default(), runtime_bytecode.into())
-            .map_err(Into::into);
+            .map_err(Into::into)
     }
 
     /// Compile EVM dispatcher.

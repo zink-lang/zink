@@ -1,6 +1,6 @@
 //! Arg of solidity ABI.
 
-use core::{convert::Infallible, str::FromStr};
+use core::{convert::Infallible, fmt, str::FromStr};
 
 #[cfg(not(feature = "std"))]
 use crate::std::{String, ToString};
@@ -66,9 +66,10 @@ impl AsRef<str> for Param {
     }
 }
 
-impl ToString for Param {
-    fn to_string(&self) -> String {
-        self.as_ref().to_string()
+impl fmt::Display for Param {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let s: &str = self.as_ref();
+        write!(f, "{s}")
     }
 }
 

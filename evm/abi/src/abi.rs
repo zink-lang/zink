@@ -1,7 +1,7 @@
 //! Solidity ABI abstraction.
 
 use crate::Arg;
-use core::{convert::Infallible, str::FromStr};
+use core::{convert::Infallible, fmt, str::FromStr};
 
 #[cfg(not(feature = "std"))]
 use crate::std::{String, ToString, Vec};
@@ -96,8 +96,9 @@ impl AsRef<str> for Type {
     }
 }
 
-impl ToString for Type {
-    fn to_string(&self) -> String {
-        self.as_ref().to_string()
+impl fmt::Display for Type {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let s: &str = self.as_ref();
+        write!(f, "{s}")
     }
 }
