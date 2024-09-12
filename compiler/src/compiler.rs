@@ -49,7 +49,9 @@ impl Compiler {
     }
 
     /// Generate artifact
-    fn artifact<'f>(self, constructor: Option<wasm::Function<'f>>) -> Result<Artifact> {
+    ///
+    /// yields runtime bytecode and construct bytecode
+    fn artifact<'f>(self, mb_cst: Option<wasm::Function<'f>>) -> Result<Artifact> {
         let Compiler {
             abi,
             buffer,
@@ -59,18 +61,40 @@ impl Compiler {
 
         // NOTE: constructor function could not perform internal calls
         let runtime_bytecode = buffer.to_vec();
+        let bytecode = Self::compile_constructor(mb_cst, &runtime_bytecode)?.to_vec();
 
         Ok(Artifact {
             abi,
-            bytecode: Default::default(),
+            bytecode,
             config,
             runtime_bytecode,
         })
     }
 
     /// Compile constructor
-    fn compile_constructor() -> Result<()> {
-        Ok(())
+    fn compile_constructor<'f>(
+        mb_cst: Option<wasm::Function<'f>>,
+        runtime_bytecode: &[u8],
+    ) -> Result<Buffer> {
+        let mut constructor = Constructor::new();
+        let Some(mut cst) = mb_cst else {
+            return constructor
+                .finish(Default::default(), runtime_bytecode.into())
+                .map_err(Into::into);
+        };
+
+        let mut locals_reader = cst.body.get_locals_reader()?;
+        let mut ops_reader = cst.body.get_operators_reader()?;
+
+        let mut codegen = Function::new(Default::default(), cst.sig()?, true)?;
+        codegen.emit_locals(&mut locals_reader, &mut cst.validator)?;
+        codegen.emit_operators(&mut ops_reader, &mut cst.validator)?;
+
+        let _init_code = codegen.masm.buffer().to_vec();
+
+        return constructor
+            .finish(Default::default(), runtime_bytecode.into())
+            .map_err(Into::into);
     }
 
     /// Compile EVM dispatcher.
