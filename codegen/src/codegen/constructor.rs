@@ -1,7 +1,6 @@
 //! Contract constructor.
 
-use crate::{wasm::ToLSBytes, Buffer, Function, JumpTable, MacroAssembler, Result};
-use wasmparser::FuncType;
+use crate::{wasm::ToLSBytes, Buffer, MacroAssembler, Result};
 
 /// Contract constructor.
 ///
@@ -16,33 +15,13 @@ use wasmparser::FuncType;
 pub struct Constructor {
     /// Code generator.
     pub masm: MacroAssembler,
-    /// Code buffer.
-    pub init_code: Buffer,
-    /// Runtime bytecode.
-    pub runtime_bytecode: Buffer,
 }
 
 impl Constructor {
     /// Create a new constructor.
-    pub fn new(constructor: Option<FuncType>, runtime_bytecode: Buffer) -> Result<Self> {
-        let mut init_code = Buffer::new();
-        if let Some(constructor) = constructor {
-            let codegen = Function::new(
-                Default::default(),
-                constructor,
-                // No `return` instruction in the generated code.
-                false,
-            )?;
-
-            let mut jump_table = JumpTable::default();
-            init_code = codegen.finish(&mut jump_table, 0)?;
-            jump_table.relocate(&mut init_code)?;
-        };
-
+    pub fn new() -> Result<Self> {
         Ok(Self {
             masm: MacroAssembler::default(),
-            init_code,
-            runtime_bytecode,
         })
     }
 
@@ -51,21 +30,32 @@ impl Constructor {
     /// Here we override the memory totally with
     /// the runtime bytecode.
     pub fn finish(&mut self) -> Result<Buffer> {
-        // let init_code_length = self.init_code.len();
-        let runtime_bytecode_length = self.runtime_bytecode.len();
-        // let return_instr_length =
-        //     Self::return_instr_length(init_code_length, runtime_bytecode_length);
-
-        self.masm.push(&runtime_bytecode_length.to_ls_bytes())?; // code size
-        self.masm.push(&[10])?; // code offset
-        self.masm._push0()?; // dest offset in memory
-        self.masm._codecopy()?;
-        self.masm.push(&runtime_bytecode_length.to_ls_bytes())?; // code size
-        self.masm._push0()?; // memory offset
-        self.masm.asm._return()?;
-        self.masm
-            .buffer_mut()
-            .extend_from_slice(&self.runtime_bytecode);
+        // let init_code_len = self.init_code.len();
+        // let runtime_bytecode_len = self.runtime_bytecode.len();
+        // let runtime_bytecode_size = runtime_bytecode_len.to_ls_bytes();
+        // let runtime_bytecode_offset =
+        //     Self::runtime_bytcode_offset(init_code_len, runtime_bytecode_size.len());
+        //
+        // tracing::trace!(
+        //     "init_code: {init_code_len}, runtime bytecode offset: {runtime_bytecode_offset}"
+        // );
+        //
+        // // 1. set up init code
+        // *self.masm.buffer_mut() = self.init_code.clone();
+        //
+        // // 2. copy runtime bytecode to memory
+        // self.masm.push(&runtime_bytecode_size)?; // code size
+        // self.masm.push(&[10])?; // code offset
+        // self.masm._push0()?; // dest offset in memory
+        // self.masm._codecopy()?;
+        //
+        // // 3. return runtime bytecode
+        // self.masm.push(&runtime_bytecode_size)?; // code size
+        // self.masm._push0()?; // memory offset
+        // self.masm.asm._return()?;
+        // self.masm
+        //     .buffer_mut()
+        //     .extend_from_slice(&self.runtime_bytecode);
 
         Ok(self.masm.buffer().into())
         // tracing::trace!("copy init code");
@@ -123,15 +113,20 @@ impl Constructor {
         // Ok(self.masm.buffer().into())
     }
 
-    /// Returns the length of instructions.
-    fn return_instr_length(init_code_length: usize, runtime_bytecode_length: usize) -> usize {
-        let mut expected_length =
-            runtime_bytecode_length.to_ls_bytes().len() + init_code_length.to_ls_bytes().len() + 3;
-
-        if init_code_length < 0xff && init_code_length + expected_length > 0xff {
-            expected_length += 1;
+    /// Returns the offset of runtime bytecode.
+    ///
+    /// [
+    ///   init_code,
+    ///   pushn, runtime_bytecode_size, pushn + <offset>, push0, code_copy
+    ///   pushn, runtime_bytecode_size, push0, return,
+    ///   <OFFSET>
+    /// ]
+    fn runtime_bytcode_offset(init_code_len: usize, runtime_bytecode_size_len: usize) -> usize {
+        let mut offset = init_code_len + runtime_bytecode_size_len * 2 + 8;
+        if (offset <= 0xff) && (offset + offset.to_ls_bytes().len() > 0xff) {
+            offset += 1;
         }
 
-        expected_length
+        offset
     }
 }

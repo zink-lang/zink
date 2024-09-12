@@ -4,7 +4,7 @@ use crate::{parser::Parser, Artifact, Config, Error, Result};
 use zabi::Abi;
 use zingen::{
     wasm::{self, Env},
-    Buffer, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
+    Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
 /// Zink Compiler
@@ -34,10 +34,10 @@ impl Compiler {
     /// Returns runtime bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Artifact> {
         let mut parser = Parser::try_from(wasm)?;
-        let constructor = parser.remove_constructor();
 
-        self.compile_dispatcher(&mut parser)?;
         let env = parser.to_func_env();
+        let cst = parser.remove_constructor();
+        self.compile_dispatcher(&mut parser)?;
         for func in parser.funcs.into_funcs() {
             self.compile_func(env.clone(), func)?;
         }
@@ -45,7 +45,32 @@ impl Compiler {
         self.table.code_offset(self.buffer.len() as u16);
         self.table.relocate(&mut self.buffer)?;
 
-        Artifact::try_from((self, constructor)).map_err(Into::into)
+        self.artifact(cst)
+    }
+
+    /// Generate artifact
+    fn artifact<'f>(self, constructor: Option<wasm::Function<'f>>) -> Result<Artifact> {
+        let Compiler {
+            abi,
+            buffer,
+            config,
+            ..
+        } = self;
+
+        // NOTE: constructor function could not perform internal calls
+        let runtime_bytecode = buffer.to_vec();
+
+        Ok(Artifact {
+            abi,
+            bytecode: Default::default(),
+            config,
+            runtime_bytecode,
+        })
+    }
+
+    /// Compile constructor
+    fn compile_constructor() -> Result<()> {
+        Ok(())
     }
 
     /// Compile EVM dispatcher.

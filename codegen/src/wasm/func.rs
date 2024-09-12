@@ -55,10 +55,10 @@ impl<'f> Functions<'f> {
     }
 
     /// Remove constructor function
-    pub fn remove_constructor(&mut self, exports: &Exports) -> Option<FuncType> {
+    pub fn remove_constructor(&mut self, exports: &Exports) -> Option<Function<'f>> {
         for (index, export) in exports.iter() {
             if export.as_str() == "constructor" {
-                return self.remove(index)?.sig().ok();
+                return self.remove(index);
             }
         }
 
