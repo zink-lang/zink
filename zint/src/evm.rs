@@ -55,8 +55,11 @@ impl EVM {
     }
 
     /// Interpret runtime bytecode with provided arguments
-    pub fn deploy(&mut self, bytecode: &[u8]) -> Result<Info> {
-        self.calldata(bytecode);
+    pub fn deploy(&mut self, bytecode: &[u8], calldata: Vec<u8>) -> Result<Info> {
+        let mut bytecode = bytecode.to_vec();
+        bytecode.extend_from_slice(&calldata);
+
+        self.calldata(&bytecode);
         self.inner.env.tx.transact_to = TransactTo::Create(CreateScheme::Create);
         self.inner.transact_commit()?.try_into()
     }

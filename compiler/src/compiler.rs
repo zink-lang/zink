@@ -90,10 +90,8 @@ impl Compiler {
         codegen.emit_locals(&mut locals_reader, &mut cst.validator)?;
         codegen.emit_operators(&mut ops_reader, &mut cst.validator)?;
 
-        let _init_code = codegen.masm.buffer().to_vec();
-
         constructor
-            .finish(Default::default(), runtime_bytecode.into())
+            .finish(codegen.masm.buffer().into(), runtime_bytecode.into())
             .map_err(Into::into)
     }
 
