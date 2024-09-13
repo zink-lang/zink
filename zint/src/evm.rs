@@ -48,8 +48,8 @@ impl<'e> EVM<'e> {
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
-        self.inner.tx_mut().gas_limit = GAS_LIMIT.into();
-        self.inner.tx_mut().transact_to = to.clone();
+        self.inner.tx_mut().gas_limit = GAS_LIMIT;
+        self.inner.tx_mut().transact_to = to;
         let result = self.inner.transact().map_err(|e| anyhow!(e))?;
         (result, to).try_into()
     }
