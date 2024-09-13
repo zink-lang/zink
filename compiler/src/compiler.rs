@@ -59,7 +59,7 @@ impl Compiler {
             ..
         } = self;
 
-        // NOTE: constructor function could not perform internal calls
+        // NOTE: constructor function could not perform internal calls atm
         let runtime_bytecode = buffer.to_vec();
         let bytecode = Self::compile_constructor(mb_cst, &runtime_bytecode)?.to_vec();
 
@@ -78,6 +78,7 @@ impl Compiler {
     ) -> Result<Buffer> {
         let mut constructor = Constructor::default();
         let Some(mut cst) = mb_cst else {
+            tracing::debug!("No constructor detected");
             return constructor
                 .finish(Default::default(), runtime_bytecode.into())
                 .map_err(Into::into);

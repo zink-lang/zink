@@ -22,6 +22,7 @@ pub fn get() -> i32 {
     Counter::get() + 1
 }
 
+/// Constructor for the deployment
 #[zink::constructor]
 pub fn constructor(num: i32) {
     Counter::set(num);
@@ -30,7 +31,6 @@ pub fn constructor(num: i32) {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-#[ignore]
 #[test]
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};

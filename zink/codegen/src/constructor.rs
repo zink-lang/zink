@@ -8,13 +8,15 @@ use syn::{parse_quote, ItemFn};
 pub fn parse(input: ItemFn) -> TokenStream {
     let block = input.block;
     let inputs = input.sig.inputs;
-    let mut constructor: ItemFn = parse_quote! {
+    let mut item: ItemFn = parse_quote! {
         #[no_mangle]
         pub extern "C" fn constructor( #inputs ) {
             #block
         }
     };
 
-    constructor.attrs = input.attrs;
-    constructor.into_token_stream()
+    item.attrs.push(parse_quote! { #[no_mangle] });
+    item.attrs
+        .push(parse_quote! { #[allow(improper_ctypes_definitions)] });
+    item.into_token_stream()
 }
