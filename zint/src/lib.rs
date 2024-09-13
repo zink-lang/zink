@@ -12,7 +12,7 @@ pub use self::{
     evm::{Info, EVM},
 };
 pub use hex;
-pub use revm::primitives::{Halt, OutOfGasError, U256};
+pub use revm::primitives::{HaltReason, OutOfGasError, U256};
 pub use tracing as log;
 pub use zabi::selector::keccak256;
 
