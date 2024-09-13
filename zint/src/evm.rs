@@ -4,8 +4,8 @@ use anyhow::{anyhow, Result};
 use revm::{
     db::EmptyDB,
     primitives::{
-        AccountInfo, Bytecode, Bytes, CreateScheme, ExecutionResult, HaltReason, Log, Output,
-        ResultAndState, SuccessReason, TransactTo, TxKind, U256,
+        AccountInfo, Bytecode, Bytes, ExecutionResult, HaltReason, Log, Output, ResultAndState,
+        SuccessReason, TransactTo, TxKind, U256,
     },
     Evm as Revm, InMemoryDB,
 };
@@ -48,6 +48,7 @@ impl<'e> EVM<'e> {
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
+        self.inner.tx_mut().gas_limit = GAS_LIMIT.into();
         self.inner.tx_mut().transact_to = to.clone();
         let result = self.inner.transact().map_err(|e| anyhow!(e))?;
         (result, to).try_into()
