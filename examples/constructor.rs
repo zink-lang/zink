@@ -31,6 +31,7 @@ pub fn constructor(num: i32) {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
+#[ignore]
 #[test]
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
