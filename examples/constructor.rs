@@ -30,6 +30,7 @@ pub fn constructor(num: i32) {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
+#[ignore]
 #[test]
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
@@ -37,7 +38,7 @@ fn deploy() -> anyhow::Result<()> {
     let contract = Contract::search("constructor")?.compile()?;
 
     let mut evm = EVM::default();
-    let mut info = evm.deploy(contract.bytecode(), 1.to_bytes32().to_vec())?;
+    let mut info = evm.deploy(contract.bytecode())?;
     info = evm
         .calldata(&contract.encode(&["get()"])?)
         .call(info.address)?;

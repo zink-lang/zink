@@ -98,7 +98,7 @@ impl AsRef<str> for Type {
 
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s: &str = self.as_ref();
-        write!(f, "{s}")
+        let ty: &str = self.as_ref();
+        write!(f, "{ty}")
     }
 }
