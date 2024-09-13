@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zint/src/evm.rs`."><title>evm.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (8d6b88b16 2024-09-11)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zint/src/evm.rs`."><title>evm.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (adaff5368 2024-09-12)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -171,17 +171,16 @@
 <a href="#170" id="170">170</a>
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a></pre></div><pre class="rust"><code><span class="doccomment">//! Wrapper of revm
+<a href="#173" id="173">173</a></pre></div><pre class="rust"><code><span class="doccomment">//! Wrapper of revm
 
 </span><span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>revm::{
+    db::EmptyDB,
     primitives::{
-        AccountInfo, Bytecode, Bytes, CreateScheme, Eval, ExecutionResult, Halt, Log, Output,
-        ResultAndState, TransactTo, U256,
+        AccountInfo, Bytecode, Bytes, ExecutionResult, HaltReason, Log, Output, ResultAndState,
+        SuccessReason, TransactTo, TxKind, U256,
     },
-    InMemoryDB, EVM <span class="kw">as </span>REVM,
+    Evm <span class="kw">as </span>Revm, InMemoryDB,
 };
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -195,24 +194,22 @@
 </span><span class="kw">pub const </span>CONTRACT: [u8; <span class="number">20</span>] = [<span class="number">1</span>; <span class="number">20</span>];
 
 <span class="doccomment">/// Wrapper of full REVM
-</span><span class="kw">pub struct </span>EVM {
-    inner: REVM&lt;InMemoryDB&gt;,
+</span><span class="kw">pub struct </span>EVM&lt;<span class="lifetime">'e</span>&gt; {
+    inner: Revm&lt;<span class="lifetime">'e</span>, (), InMemoryDB&gt;,
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>EVM {
+<span class="kw">impl</span>&lt;<span class="lifetime">'e</span>&gt; Default <span class="kw">for </span>EVM&lt;<span class="lifetime">'e</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>db = InMemoryDB::default();
         db.insert_account_info(ALICE.into(), AccountInfo::from_balance(U256::MAX));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>evm = REVM::new();
-        evm.database(db);
-        evm.env.tx.gas_limit = GAS_LIMIT;
+        <span class="kw">let </span>evm = Revm::&lt;<span class="lifetime">'e</span>, (), EmptyDB&gt;::builder().with_db(db).build();
 
         <span class="self">Self </span>{ inner: evm }
     }
 }
 
-<span class="kw">impl </span>EVM {
+<span class="kw">impl</span>&lt;<span class="lifetime">'e</span>&gt; EVM&lt;<span class="lifetime">'e</span>&gt; {
     <span class="doccomment">/// Interpret runtime bytecode with provided arguments
     </span><span class="kw">pub fn </span>interp(runtime_bytecode: <span class="kw-2">&amp;</span>[u8], input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Info&gt; {
         <span class="self">Self</span>::default()
@@ -224,21 +221,22 @@
     <span class="doccomment">/// Send transaction to the provided address.
     </span><span class="kw">pub fn </span>call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, to: [u8; <span class="number">20</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;Info&gt; {
         <span class="kw">let </span>to = TransactTo::Call(to.into());
-        <span class="self">self</span>.inner.env.tx.transact_to = to.clone();
-        <span class="kw">let </span>result = <span class="self">self</span>.inner.transact_ref().map_err(|e| <span class="macro">anyhow!</span>(e))<span class="question-mark">?</span>;
+        <span class="self">self</span>.inner.tx_mut().gas_limit = GAS_LIMIT;
+        <span class="self">self</span>.inner.tx_mut().transact_to = to;
+        <span class="kw">let </span>result = <span class="self">self</span>.inner.transact().map_err(|e| <span class="macro">anyhow!</span>(e))<span class="question-mark">?</span>;
         (result, to).try_into()
     }
 
     <span class="doccomment">/// Interpret runtime bytecode with provided arguments
     </span><span class="kw">pub fn </span>deploy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytecode: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Info&gt; {
         <span class="self">self</span>.calldata(bytecode);
-        <span class="self">self</span>.inner.env.tx.transact_to = TransactTo::Create(CreateScheme::Create);
+        <span class="self">self</span>.inner.tx_mut().transact_to = TxKind::Create;
         <span class="self">self</span>.inner.transact_commit()<span class="question-mark">?</span>.try_into()
     }
 
     <span class="doccomment">/// Fill the calldata of the present transaction.
     </span><span class="kw">pub fn </span>calldata(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="self">self</span>.inner.env.tx.data = Bytes::copy_from_slice(input);
+        <span class="self">self</span>.inner.tx_mut().data = Bytes::copy_from_slice(input);
         <span class="self">self
     </span>}
 
@@ -258,9 +256,7 @@
     </span>}
 
     <span class="kw">fn </span>db(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>InMemoryDB {
-        <span class="self">self</span>.inner
-            .db()
-            .unwrap_or_else(|| <span class="macro">unreachable!</span>(<span class="string">"provided on initialization"</span>))
+        <span class="self">self</span>.inner.db_mut()
     }
 }
 
@@ -278,7 +274,7 @@
     <span class="doccomment">/// Execution logs.
     </span><span class="kw">pub </span>logs: Vec&lt;Log&gt;,
     <span class="doccomment">/// Transaction halt reason.
-    </span><span class="kw">pub </span>halt: <span class="prelude-ty">Option</span>&lt;Halt&gt;,
+    </span><span class="kw">pub </span>halt: <span class="prelude-ty">Option</span>&lt;HaltReason&gt;,
 }
 
 <span class="kw">impl </span>TryFrom&lt;ExecutionResult&gt; <span class="kw">for </span>Info {
@@ -297,7 +293,7 @@
                 output,
                 ..
             } =&gt; {
-                <span class="kw">if </span>reason != Eval::Return {
+                <span class="kw">if </span>reason != SuccessReason::Return {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"Transaction is not returned: {reason:?}"</span>));
                 }
                 info.logs = logs;
