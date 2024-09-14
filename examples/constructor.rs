@@ -19,31 +19,51 @@ pub type Counter = i32;
 /// Get value from the storage.
 #[zink::external]
 pub fn get() -> i32 {
-    Counter::get() + 1
-}
-
-/// Set value to the storage.
-#[zink::constructor]
-pub fn constructor(value: i32) {
-    Counter::set(value);
+    Counter::get()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-#[ignore]
 #[test]
-fn deploy() -> anyhow::Result<()> {
+fn noop() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
 
     let contract = Contract::search("constructor")?.compile()?;
 
+    // empty constructor
     let mut evm = EVM::default();
-    let mut info = evm.deploy(&contract.bytecode())?;
+    let mut info = evm.deploy(&contract.bytecode()?)?;
     info = evm
         .calldata(&contract.encode(&["get()"])?)
         .call(info.address)?;
 
-    assert_eq!(info.ret, 1.to_bytes32());
+    assert_eq!(info.ret, 0.to_bytes32());
+    Ok(())
+}
+
+#[test]
+fn init_storage() -> anyhow::Result<()> {
+    use zint::{Bytes32, Contract, EVM};
+
+    let mut contract = Contract::search("constructor")?.compile()?;
+    let value = 0x42;
+
+    // empty constructor
+    let mut evm = EVM::default();
+    let mut info = evm.deploy(
+        &contract
+            .construct(
+                [(vec![0].try_into()?, vec![value].try_into()?)]
+                    .into_iter()
+                    .collect(),
+            )?
+            .bytecode()?,
+    )?;
+    info = evm
+        .calldata(&contract.encode(&["get()"])?)
+        .call(info.address)?;
+
+    assert_eq!(info.ret, value.to_bytes32());
     Ok(())
 }

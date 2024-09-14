@@ -115,7 +115,7 @@ impl Dispatcher {
             [jumpdest, ret].concat()
         };
 
-        *self.asm = asm;
+        self.asm = asm;
         let ret = ExtFunc {
             bytecode,
             stack_in: 0,
@@ -174,7 +174,7 @@ impl Dispatcher {
             let ret = self.asm.buffer()[asm.buffer().len()..].to_vec();
             [jumpdest, ret].concat()
         };
-        *self.asm = asm;
+        self.asm = asm;
         let ret = ExtFunc {
             bytecode,
             stack_in: len,

@@ -3,7 +3,6 @@
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput, ItemFn, ItemType};
 
-mod constructor;
 mod event;
 mod selector;
 mod storage;
@@ -77,11 +76,4 @@ pub fn storage(_args: TokenStream, input: TokenStream) -> TokenStream {
 pub fn external(_args: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemFn);
     selector::external(input)
-}
-
-/// Mark the function as constructor
-#[proc_macro_attribute]
-pub fn constructor(_args: TokenStream, input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemFn);
-    constructor::parse(input).into()
 }

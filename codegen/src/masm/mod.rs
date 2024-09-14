@@ -17,7 +17,7 @@ mod ret;
 mod stack;
 
 /// EVM MacroAssembler.
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct MacroAssembler {
     /// Low level assembler.
     pub(crate) asm: Assembler,
