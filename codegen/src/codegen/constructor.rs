@@ -23,7 +23,8 @@ impl Constructor {
     ///
     /// Here we override the memory totally with
     /// the runtime bytecode.
-    pub fn finish(&mut self, init_code: Buffer, runtime_bytecode: Buffer) -> Result<Buffer> {
+    pub fn finish(&mut self, runtime_bytecode: Buffer) -> Result<Buffer> {
+        let init_code: Buffer = Default::default();
         let init_code_len = init_code.len();
         let runtime_bytecode_len = runtime_bytecode.len();
         let runtime_bytecode_size = runtime_bytecode_len.to_ls_bytes();

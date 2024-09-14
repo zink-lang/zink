@@ -64,7 +64,7 @@ impl Build {
         let artifact = Compiler::new(config).compile(&wasm)?;
         let dst = builder.output()?.with_extension("bin");
 
-        fs::write(dst, artifact.bytecode)?;
+        fs::write(dst, artifact.runtime_bytecode)?;
         Ok(())
     }
 }

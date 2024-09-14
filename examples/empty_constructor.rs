@@ -32,7 +32,7 @@ fn deploy() -> anyhow::Result<()> {
     let contract = Contract::search("empty_constructor")?.compile()?;
 
     let mut evm = EVM::default();
-    let mut info = evm.deploy(&contract.bytecode())?;
+    let mut info = evm.deploy(&contract.bytecode()?)?;
     info = evm
         .calldata(&contract.encode(&["get()"])?)
         .call(info.address)?;

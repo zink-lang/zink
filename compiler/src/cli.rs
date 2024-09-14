@@ -36,7 +36,7 @@ impl Compile {
         let artifact = compiler.compile(&fs::read(&self.input)?)?;
 
         output.parent().map(fs::create_dir_all);
-        fs::write(&output, artifact.bytecode)?;
+        fs::write(&output, artifact.runtime_bytecode)?;
 
         if !self.abi {
             return Ok(());

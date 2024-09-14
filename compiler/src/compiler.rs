@@ -4,7 +4,7 @@ use crate::{parser::Parser, Artifact, Config, Error, Result};
 use zabi::Abi;
 use zingen::{
     wasm::{self, Env},
-    Buffer, Constructor, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
+    Buffer, Dispatcher, Function, JumpTable, BUFFER_LIMIT,
 };
 
 /// Zink Compiler
@@ -36,7 +36,6 @@ impl Compiler {
         let mut parser = Parser::try_from(wasm)?;
 
         let env = parser.to_func_env();
-        let cst = parser.remove_constructor();
         self.compile_dispatcher(&mut parser)?;
         for func in parser.funcs.into_funcs() {
             self.compile_func(env.clone(), func)?;
@@ -45,13 +44,13 @@ impl Compiler {
         self.table.code_offset(self.buffer.len() as u16);
         self.table.relocate(&mut self.buffer)?;
 
-        self.artifact(cst)
+        self.artifact()
     }
 
     /// Generate artifact
     ///
     /// yields runtime bytecode and construct bytecode
-    fn artifact(self, mb_cst: Option<wasm::Function<'_>>) -> Result<Artifact> {
+    fn artifact(self) -> Result<Artifact> {
         let Compiler {
             abi,
             buffer,
@@ -59,41 +58,11 @@ impl Compiler {
             ..
         } = self;
 
-        // NOTE: constructor function could not perform internal calls atm
-        let runtime_bytecode = buffer.to_vec();
-        let bytecode = Self::compile_constructor(mb_cst, &runtime_bytecode)?.to_vec();
-
         Ok(Artifact {
             abi,
-            bytecode,
             config,
-            runtime_bytecode,
+            runtime_bytecode: buffer.to_vec(),
         })
-    }
-
-    /// Compile constructor
-    fn compile_constructor(
-        mb_cst: Option<wasm::Function<'_>>,
-        runtime_bytecode: &[u8],
-    ) -> Result<Buffer> {
-        let mut constructor = Constructor::default();
-        let Some(mut cst) = mb_cst else {
-            tracing::debug!("No constructor detected");
-            return constructor
-                .finish(Default::default(), runtime_bytecode.into())
-                .map_err(Into::into);
-        };
-
-        let mut locals_reader = cst.body.get_locals_reader()?;
-        let mut ops_reader = cst.body.get_operators_reader()?;
-
-        let mut codegen = Function::new(Default::default(), cst.sig()?, true)?;
-        codegen.emit_locals(&mut locals_reader, &mut cst.validator)?;
-        codegen.emit_operators(&mut ops_reader, &mut cst.validator)?;
-
-        constructor
-            .finish(codegen.masm.buffer().into(), runtime_bytecode.into())
-            .map_err(Into::into)
     }
 
     /// Compile EVM dispatcher.
