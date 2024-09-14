@@ -68,7 +68,18 @@ pub extern "C" fn recursion(n: usize) -> usize {
 As an example for the benchmark, calculating fibonacci sequence with recursion, missed
 vyper because it doesn't support recursion...Zink is 5x fast on this, but it is mainly
 caused by our current implementation is not completed yet ( missing logic to adapt to more
-situations ), let's keep tuned for `v0.3.0`.
+situations ), let's stay tuned for `v0.3.0`.
+
+## Donation
+
+After completing the ERC20 implementaion, Zink will focus on MEV logic since everything could
+be even more compact and realistic from this dark forest. 
+
+Zink is now moving forward without any grants or backups, if you like this dreaming project, 
+would be appreciated for any opportunities ^ ^
+
+ETH: `0xf0306047Fa598fe95502f466aeb49b68dd94365B`
+SOL: `AZGXAerErfwVzJkiSR8moVPZxe1nEhvjdkvxQ7qR6Yst`
 
 ## LICENSE
 
