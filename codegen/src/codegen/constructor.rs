@@ -32,7 +32,6 @@ impl Constructor {
     /// the runtime bytecode.
     pub fn finish(&self, runtime_bytecode: Buffer) -> Result<Buffer> {
         let init_code = self.masm.buffer();
-        tracing::trace!("init code: {}", hex::encode(init_code));
         let init_code_len = init_code.len();
         let runtime_bytecode_len = runtime_bytecode.len();
         let runtime_bytecode_size = runtime_bytecode_len.to_ls_bytes();
@@ -41,13 +40,13 @@ impl Constructor {
 
         let mut masm = self.masm.clone();
 
-        // 2. copy runtime bytecode to memory
+        // 1. copy runtime bytecode to memory
         masm.push(&runtime_bytecode_size)?; // code size
         masm.push(&runtime_bytecode_offset.to_ls_bytes())?; // code offset
         masm._push0()?; // dest offset in memory
         masm._codecopy()?;
 
-        // 3. return runtime bytecode
+        // 2. return runtime bytecode
         masm.push(&runtime_bytecode_size)?; // code size
         masm._push0()?; // memory offset
         masm.asm._return()?;

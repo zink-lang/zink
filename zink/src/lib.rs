@@ -8,7 +8,7 @@ pub mod ffi;
 mod storage;
 
 pub use self::{asm::Asm, event::Event, storage::Storage};
-pub use zink_codegen::{constructor, external, storage, Event};
+pub use zink_codegen::{external, storage, Event};
 
 // Panic hook implementation
 #[cfg(target_arch = "wasm32")]

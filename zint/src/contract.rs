@@ -3,7 +3,7 @@
 use crate::{lookup, Bytes32, Info, EVM};
 use anyhow::{anyhow, Result};
 use std::fs;
-use zinkc::{Artifact, Compiler, Config, InitStorage};
+use zinkc::{Artifact, Compiler, Config, Constructor, InitStorage};
 
 /// Contract instance for testing.
 #[derive(Default)]
@@ -14,6 +14,8 @@ pub struct Contract {
     pub artifact: Artifact,
     /// The source WASM of the contract.
     pub wasm: Vec<u8>,
+    /// Bytecode constructor
+    pub constructor: Constructor,
 }
 
 impl<T> From<T> for Contract
@@ -34,16 +36,19 @@ where
 impl Contract {
     /// Get the bytecode of the contract.
     pub fn bytecode(&self) -> Result<Vec<u8>> {
-        let bytecode = self.artifact.bytecode().map(|v| v.to_vec())?;
-        tracing::debug!("bytecode: {}", hex::encode(&bytecode));
+        let bytecode = self
+            .constructor
+            .finish(self.artifact.runtime_bytecode.clone().into())
+            .map(|v| v.to_vec())?;
 
+        tracing::debug!("bytecode: {}", hex::encode(&bytecode));
         Ok(bytecode)
     }
 
     /// Preset the storage of the contract, similar with the concept `constructor`
     /// in solidity, but just in time.
     pub fn construct(&mut self, storage: InitStorage) -> Result<&mut Self> {
-        self.artifact.constructor.storage(storage)?;
+        self.constructor.storage(storage)?;
         Ok(self)
     }
 

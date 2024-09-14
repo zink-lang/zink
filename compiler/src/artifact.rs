@@ -1,9 +1,7 @@
 //! Zink compiler artifact
 
 use crate::Config;
-use anyhow::Result;
 use zabi::Abi;
-use zingen::{Buffer, Constructor};
 
 /// Zink compiler artifact
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -15,16 +13,4 @@ pub struct Artifact {
     pub config: Config,
     /// Runtime bytecode of the contract.
     pub runtime_bytecode: Vec<u8>,
-    /// Creation bytecode constructor
-    #[cfg_attr(feature = "serde", serde(skip))]
-    pub constructor: Constructor,
-}
-
-impl Artifact {
-    /// Generate the creation bytecode just in time
-    pub fn bytecode(&self) -> Result<Buffer> {
-        self.constructor
-            .finish(self.runtime_bytecode.clone().into())
-            .map_err(Into::into)
-    }
 }
