@@ -1,4 +1,4 @@
-<img align="right" width="150" height="150" top="100" src = "https://github.com/clearloop/zink/assets/26088946/2b13f312-ca96-44ae-aa04-b0db9471aadb"/>
+<img align="right" width="150" height="150" top="100" src = "https://avatars.githubusercontent.com/u/138247979?s=400&u=cbf4b9e9da048899a947f08d92e030806d5bd50b&v=4"/>
 
 # The Zink Project
 
