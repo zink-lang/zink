@@ -1,6 +1,6 @@
 <img align="right" width="150" height="150" top="100" src = "https://avatars.githubusercontent.com/u/138247979?s=400&u=cbf4b9e9da048899a947f08d92e030806d5bd50b&v=4"/>
 
-## The Zink Project
+### The Zink Project
 
 > [!CAUTION]
 >
@@ -42,7 +42,7 @@ which will unlock all of the following features:
 
 Run `cargo install zinkup` to install the toolchain!
 
-### Fibonacci Example
+## Fibonacci Example
 
 | fib(n) | Zink | Solidity@0.8.21 |
 | ------ | ---- | --------------- |
@@ -70,7 +70,7 @@ vyper because it doesn't support recursion...Zink is 5x fast on this, but it is 
 caused by our current implementation is not completed yet ( missing logic to adapt to more
 situations ), let's stay tuned for `v0.3.0`.
 
-### Donation
+## Donation
 
 After completing the ERC20 implementaion, Zink will focus on MEV logic since everything could
 be even more compact and realistic from this dark forest. 
@@ -81,7 +81,7 @@ please feel free to reach out, would be appreciated for any opportunities ^ ^
 - ETH: `0xf0306047Fa598fe95502f466aeb49b68dd94365B`
 - SOL: `AZGXAerErfwVzJkiSR8moVPZxe1nEhvjdkvxQ7qR6Yst`
 
-### LICENSE
+## LICENSE
 
 GPL-3.0-only
 
