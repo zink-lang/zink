@@ -8,15 +8,6 @@ use std::collections::HashMap;
 pub type InitStorage = HashMap<SmallVec<[u8; 32]>, SmallVec<[u8; 32]>>;
 
 /// Contract constructor.
-///
-/// # Bytecode
-/// - `CREATE` instruction
-/// - `INIT_CODE`
-///   - `INIT_LOGIC`
-///   - `RETURN RUNTIME_BYTECODE`
-/// - `RUNTIME_BYTECODE`
-///
-/// TODO: introduce ABI for constructor
 #[derive(Default, Debug, Clone)]
 pub struct Constructor {
     /// Code generator.
@@ -41,7 +32,7 @@ impl Constructor {
     /// the runtime bytecode.
     pub fn finish(&self, runtime_bytecode: Buffer) -> Result<Buffer> {
         let init_code = self.masm.buffer();
-        tracing::trace!("init code: {}", hex::encode(&init_code));
+        tracing::trace!("init code: {}", hex::encode(init_code));
         let init_code_len = init_code.len();
         let runtime_bytecode_len = runtime_bytecode.len();
         let runtime_bytecode_size = runtime_bytecode_len.to_ls_bytes();
