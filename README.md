@@ -72,7 +72,7 @@ situations ), let's stay tuned for `v0.3.0`.
 
 ## Donation
 
-After completing the ERC20 implementaion, Zink will focus on MEV logic since everything could
+After completing the ERC20 implementation, Zink will focus on MEV logic since everything could
 be even more compact and realistic from this dark forest. 
 
 Zink is now moving forward without any grants or backups, if you like this dreaming project, 
