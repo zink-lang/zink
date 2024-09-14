@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/compiler.rs`."><title>compiler.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (adaff5368 2024-09-12)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/compiler.rs`."><title>compiler.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (0609062a9 2024-09-13)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -107,7 +107,24 @@
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
 
 </span><span class="kw">use crate</span>::{parser::Parser, Artifact, Config, Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>zabi::Abi;
@@ -143,10 +160,9 @@
     /// Returns runtime bytecode.
     </span><span class="kw">pub fn </span>compile(<span class="kw-2">mut </span><span class="self">self</span>, wasm: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Artifact&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>parser = Parser::try_from(wasm)<span class="question-mark">?</span>;
-        <span class="kw">let </span>constructor = parser.remove_constructor();
 
-        <span class="self">self</span>.compile_dispatcher(<span class="kw-2">&amp;mut </span>parser)<span class="question-mark">?</span>;
         <span class="kw">let </span>env = parser.to_func_env();
+        <span class="self">self</span>.compile_dispatcher(<span class="kw-2">&amp;mut </span>parser)<span class="question-mark">?</span>;
         <span class="kw">for </span>func <span class="kw">in </span>parser.funcs.into_funcs() {
             <span class="self">self</span>.compile_func(env.clone(), func)<span class="question-mark">?</span>;
         }
@@ -154,7 +170,25 @@
         <span class="self">self</span>.table.code_offset(<span class="self">self</span>.buffer.len() <span class="kw">as </span>u16);
         <span class="self">self</span>.table.relocate(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer)<span class="question-mark">?</span>;
 
-        Artifact::try_from((<span class="self">self</span>, constructor)).map_err(Into::into)
+        <span class="self">self</span>.artifact()
+    }
+
+    <span class="doccomment">/// Generate artifact
+    ///
+    /// yields runtime bytecode and construct bytecode
+    </span><span class="kw">fn </span>artifact(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Artifact&gt; {
+        <span class="kw">let </span>Compiler {
+            abi,
+            buffer,
+            config,
+            ..
+        } = <span class="self">self</span>;
+
+        <span class="prelude-val">Ok</span>(Artifact {
+            abi,
+            config,
+            runtime_bytecode: buffer.to_vec(),
+        })
     }
 
     <span class="doccomment">/// Compile EVM dispatcher.

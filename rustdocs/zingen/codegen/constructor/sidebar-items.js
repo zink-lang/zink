@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Constructor"]};
+window.SIDEBAR_ITEMS = {"struct":["Constructor"],"type":["InitStorage"]};

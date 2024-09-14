@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Error"],"mod":["artifact","cli","compiler","config","parser","result","utils"],"struct":["Artifact","Compiler","Config"],"type":["Result"]};
+window.SIDEBAR_ITEMS = {"enum":["Error"],"mod":["artifact","cli","compiler","config","parser","result","utils"],"struct":["Artifact","Compiler","Config","Constructor"],"type":["InitStorage","Result"]};

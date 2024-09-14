@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/codegen/constructor.rs`."><title>constructor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (adaff5368 2024-09-12)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/codegen/constructor.rs`."><title>constructor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (0609062a9 2024-09-13)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -72,166 +72,78 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a></pre></div><pre class="rust"><code><span class="doccomment">//! Contract constructor.
+<a href="#74" id="74">74</a></pre></div><pre class="rust"><code><span class="doccomment">//! Contract constructor.
 
-</span><span class="kw">use crate</span>::{wasm::ToLSBytes, Buffer, Function, JumpTable, MacroAssembler, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>wasmparser::FuncType;
+</span><span class="kw">use crate</span>::{wasm::ToLSBytes, Buffer, MacroAssembler, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>smallvec::SmallVec;
+<span class="kw">use </span>std::collections::HashMap;
+
+<span class="doccomment">/// Initial storage of contracts
+</span><span class="kw">pub type </span>InitStorage = HashMap&lt;SmallVec&lt;[u8; <span class="number">32</span>]&gt;, SmallVec&lt;[u8; <span class="number">32</span>]&gt;&gt;;
 
 <span class="doccomment">/// Contract constructor.
-///
-/// # Bytecode
-/// - `CREATE` instruction
-/// - `INIT_CODE`
-///   - `INIT_LOGIC`
-///   - `RETURN RUNTIME_BYTECODE`
-/// - `RUNTIME_BYTECODE`
-///
-/// TODO: introduce ABI for constructor
+</span><span class="attr">#[derive(Default, Debug, Clone)]
 </span><span class="kw">pub struct </span>Constructor {
     <span class="doccomment">/// Code generator.
-    </span><span class="kw">pub </span>masm: MacroAssembler,
-    <span class="doccomment">/// Code buffer.
-    </span><span class="kw">pub </span>init_code: Buffer,
-    <span class="doccomment">/// Runtime bytecode.
-    </span><span class="kw">pub </span>runtime_bytecode: Buffer,
+    </span>masm: MacroAssembler,
 }
 
 <span class="kw">impl </span>Constructor {
-    <span class="doccomment">/// Create a new constructor.
-    </span><span class="kw">pub fn </span>new(constructor: <span class="prelude-ty">Option</span>&lt;FuncType&gt;, runtime_bytecode: Buffer) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>init_code = Buffer::new();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(constructor) = constructor {
-            <span class="kw">let </span>codegen = Function::new(
-                Default::default(),
-                constructor,
-                <span class="comment">// No `return` instruction in the generated code.
-                </span><span class="bool-val">false</span>,
-            )<span class="question-mark">?</span>;
+    <span class="doccomment">/// preset storage for the contract
+    </span><span class="kw">pub fn </span>storage(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mapping: InitStorage) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">for </span>(key, value) <span class="kw">in </span>mapping.into_iter() {
+            <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>value)<span class="question-mark">?</span>;
+            <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>key)<span class="question-mark">?</span>;
+            <span class="self">self</span>.masm._sstore()<span class="question-mark">?</span>;
+        }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>jump_table = JumpTable::default();
-            init_code = codegen.finish(<span class="kw-2">&amp;mut </span>jump_table, <span class="number">0</span>)<span class="question-mark">?</span>;
-            jump_table.relocate(<span class="kw-2">&amp;mut </span>init_code)<span class="question-mark">?</span>;
-        };
-
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            masm: MacroAssembler::default(),
-            init_code,
-            runtime_bytecode,
-        })
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Concat the constructor code.
     ///
     /// Here we override the memory totally with
     /// the runtime bytecode.
-    </span><span class="kw">pub fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
-        <span class="kw">let </span>init_code_length = <span class="self">self</span>.init_code.len();
-        <span class="kw">let </span>runtime_bytecode_length = <span class="self">self</span>.runtime_bytecode.len();
-        <span class="kw">let </span>return_instr_length =
-            <span class="self">Self</span>::return_instr_length(init_code_length, runtime_bytecode_length);
+    </span><span class="kw">pub fn </span>finish(<span class="kw-2">&amp;</span><span class="self">self</span>, runtime_bytecode: Buffer) -&gt; <span class="prelude-ty">Result</span>&lt;Buffer&gt; {
+        <span class="kw">let </span>init_code = <span class="self">self</span>.masm.buffer();
+        <span class="kw">let </span>init_code_len = init_code.len();
+        <span class="kw">let </span>runtime_bytecode_len = runtime_bytecode.len();
+        <span class="kw">let </span>runtime_bytecode_size = runtime_bytecode_len.to_ls_bytes();
+        <span class="kw">let </span>runtime_bytecode_offset =
+            <span class="self">Self</span>::runtime_bytcode_offset(init_code_len, runtime_bytecode_size.len());
 
-        <span class="comment">// Copy init code and runtime bytecode to memory from offset 0.
-        //
-        // 1. code size ( init_code + instr_return + runtime_bytecode )
-        // 2. byte offset of code which is fixed to N.
-        // 3. destination offset which is fixed to 0.
-        </span>{
-            <span class="self">self</span>.masm.push(
-                <span class="kw-2">&amp;</span>(init_code_length + return_instr_length + runtime_bytecode_length).to_ls_bytes(),
-            )<span class="question-mark">?</span>;
-            <span class="comment">// # SAFETY
-            //
-            // The length of the most significiant bytes of
-            // the bytecode offset is fixed to 1.
-            </span><span class="self">self</span>.masm
-                .push(<span class="kw-2">&amp;</span>((<span class="self">self</span>.masm.pc_offset() <span class="kw">as </span>usize + <span class="number">9</span>).to_ls_bytes()))<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm._push0()<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm._codecopy()<span class="question-mark">?</span>;
-        }
+        <span class="kw">let </span><span class="kw-2">mut </span>masm = <span class="self">self</span>.masm.clone();
 
-        <span class="comment">// Process instruction `CREATE`
-        </span>{
-            <span class="self">self</span>.masm._push0()<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm._push0()<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm._push0()<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm._calldataload()<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm._create()<span class="question-mark">?</span>;
-        }
+        <span class="comment">// 1. copy runtime bytecode to memory
+        </span>masm.push(<span class="kw-2">&amp;</span>runtime_bytecode_size)<span class="question-mark">?</span>; <span class="comment">// code size
+        </span>masm.push(<span class="kw-2">&amp;</span>runtime_bytecode_offset.to_ls_bytes())<span class="question-mark">?</span>; <span class="comment">// code offset
+        </span>masm._push0()<span class="question-mark">?</span>; <span class="comment">// dest offset in memory
+        </span>masm._codecopy()<span class="question-mark">?</span>;
 
-        <span class="self">self</span>.masm.buffer_mut().extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.init_code);
+        <span class="comment">// 2. return runtime bytecode
+        </span>masm.push(<span class="kw-2">&amp;</span>runtime_bytecode_size)<span class="question-mark">?</span>; <span class="comment">// code size
+        </span>masm._push0()<span class="question-mark">?</span>; <span class="comment">// memory offset
+        </span>masm.asm._return()<span class="question-mark">?</span>;
+        masm.buffer_mut().extend_from_slice(<span class="kw-2">&amp;</span>runtime_bytecode);
 
-        <span class="comment">// Process `RETURN`.
-        //
-        // 1. size of the runtime bytecode
-        // 2. offset of the runtime bytecode in memory
-        </span>{
-            <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>runtime_bytecode_length.to_ls_bytes())<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm
-                .push(<span class="kw-2">&amp;</span>(init_code_length + return_instr_length).to_ls_bytes())<span class="question-mark">?</span>;
-            <span class="self">self</span>.masm.asm._return()<span class="question-mark">?</span>;
-        }
-
-        <span class="self">self</span>.masm
-            .buffer_mut()
-            .extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.runtime_bytecode);
-
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.masm.buffer().into())
+        <span class="prelude-val">Ok</span>(masm.buffer().into())
     }
 
-    <span class="doccomment">/// Returns the length of instructions.
-    </span><span class="kw">fn </span>return_instr_length(init_code_length: usize, runtime_bytecode_length: usize) -&gt; usize {
-        <span class="kw">let </span><span class="kw-2">mut </span>expected_length =
-            runtime_bytecode_length.to_ls_bytes().len() + init_code_length.to_ls_bytes().len() + <span class="number">3</span>;
-
-        <span class="kw">if </span>init_code_length &lt; <span class="number">0xff </span>&amp;&amp; init_code_length + expected_length &gt; <span class="number">0xff </span>{
-            expected_length += <span class="number">1</span>;
+    <span class="doccomment">/// Returns the offset of runtime bytecode.
+    ///
+    /// [
+    ///   init_code,
+    ///   pushn, runtime_bytecode_size, pushn + &lt;offset&gt;, push0, code_copy
+    ///   pushn, runtime_bytecode_size, push0, return,
+    ///   &lt;OFFSET&gt;
+    /// ]
+    </span><span class="kw">fn </span>runtime_bytcode_offset(init_code_len: usize, runtime_bytecode_size_len: usize) -&gt; usize {
+        <span class="kw">let </span><span class="kw-2">mut </span>offset = init_code_len + runtime_bytecode_size_len * <span class="number">2 </span>+ <span class="number">8</span>;
+        <span class="kw">if </span>(offset &lt;= <span class="number">0xff</span>) &amp;&amp; (offset + offset.to_ls_bytes().len() &gt; <span class="number">0xff</span>) {
+            offset += <span class="number">1</span>;
         }
 
-        expected_length
+        offset
     }
 }
 </code></pre></div></section></main></body></html>

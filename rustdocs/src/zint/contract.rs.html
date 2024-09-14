@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zint/src/contract.rs`."><title>contract.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (adaff5368 2024-09-12)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zint/src/contract.rs`."><title>contract.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-405f8b29f52305f8.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (0609062a9 2024-09-13)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-14659ec02b58af51.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -109,12 +109,26 @@
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a></pre></div><pre class="rust"><code><span class="doccomment">//! Contract Instance
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a></pre></div><pre class="rust"><code><span class="doccomment">//! Contract Instance
 
 </span><span class="kw">use crate</span>::{lookup, Bytes32, Info, EVM};
 <span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>std::fs;
-<span class="kw">use </span>zinkc::{Artifact, Compiler, Config};
+<span class="kw">use </span>zinkc::{Artifact, Compiler, Config, Constructor, InitStorage};
 
 <span class="doccomment">/// Contract instance for testing.
 </span><span class="attr">#[derive(Default)]
@@ -125,6 +139,8 @@
     </span><span class="kw">pub </span>artifact: Artifact,
     <span class="doccomment">/// The source WASM of the contract.
     </span><span class="kw">pub </span>wasm: Vec&lt;u8&gt;,
+    <span class="doccomment">/// Bytecode constructor
+    </span><span class="kw">pub </span>constructor: Constructor,
 }
 
 <span class="kw">impl</span>&lt;T&gt; From&lt;T&gt; <span class="kw">for </span>Contract
@@ -144,8 +160,21 @@
 
 <span class="kw">impl </span>Contract {
     <span class="doccomment">/// Get the bytecode of the contract.
-    </span><span class="kw">pub fn </span>bytecode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.artifact.bytecode
+    </span><span class="kw">pub fn </span>bytecode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span>bytecode = <span class="self">self
+            </span>.constructor
+            .finish(<span class="self">self</span>.artifact.runtime_bytecode.clone().into())
+            .map(|v| v.to_vec())<span class="question-mark">?</span>;
+
+        <span class="macro">tracing::debug!</span>(<span class="string">"bytecode: {}"</span>, hex::encode(<span class="kw-2">&amp;</span>bytecode));
+        <span class="prelude-val">Ok</span>(bytecode)
+    }
+
+    <span class="doccomment">/// Preset the storage of the contract, similar with the concept `constructor`
+    /// in solidity, but just in time.
+    </span><span class="kw">pub fn </span>construct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, storage: InitStorage) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
+        <span class="self">self</span>.constructor.storage(storage)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Compile WASM to EVM bytecode.
@@ -155,7 +184,6 @@
         <span class="self">self</span>.artifact = compiler.compile(<span class="kw-2">&amp;</span><span class="self">self</span>.wasm)<span class="question-mark">?</span>;
 
         <span class="macro">tracing::debug!</span>(<span class="string">"abi: {:#}"</span>, <span class="self">self</span>.json_abi()<span class="question-mark">?</span>);
-        <span class="macro">tracing::debug!</span>(<span class="string">"bytecode: {:?}"</span>, hex::encode(<span class="kw-2">&amp;</span><span class="self">self</span>.artifact.bytecode));
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
