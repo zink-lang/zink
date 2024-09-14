@@ -62,6 +62,7 @@ impl Compiler {
             abi,
             config,
             runtime_bytecode: buffer.to_vec(),
+            ..Default::default()
         })
     }
 

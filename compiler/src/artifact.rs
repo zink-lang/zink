@@ -15,13 +15,16 @@ pub struct Artifact {
     pub config: Config,
     /// Runtime bytecode of the contract.
     pub runtime_bytecode: Vec<u8>,
+    /// Creation bytecode constructor
+    #[cfg_attr(feature = "serde", serde(skip))]
+    pub constructor: Constructor,
 }
 
 impl Artifact {
     /// Generate the creation bytecode just in time
     pub fn bytecode(&self) -> Result<Buffer> {
-        Constructor::default()
-            .finish(self.runtime_bytecode.clone().into())
+        let mut cst = self.constructor.clone();
+        cst.finish(self.runtime_bytecode.clone().into())
             .map_err(Into::into)
     }
 }
