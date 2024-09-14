@@ -23,8 +23,8 @@ pub struct Artifact {
 impl Artifact {
     /// Generate the creation bytecode just in time
     pub fn bytecode(&self) -> Result<Buffer> {
-        let mut cst = self.constructor.clone();
-        cst.finish(self.runtime_bytecode.clone().into())
+        self.constructor
+            .finish(self.runtime_bytecode.clone().into())
             .map_err(Into::into)
     }
 }

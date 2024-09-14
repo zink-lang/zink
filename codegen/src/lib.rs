@@ -4,7 +4,7 @@
 
 pub use crate::{
     asm::Assembler,
-    codegen::{Code, Constructor, Dispatcher, Function},
+    codegen::{Code, Constructor, Dispatcher, Function, InitStorage},
     control::{ControlStack, ControlStackFrame, ControlStackFrameType},
     jump::JumpTable,
     local::{LocalSlot, Locals},

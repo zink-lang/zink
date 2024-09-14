@@ -7,6 +7,7 @@ pub use crate::{
     config::Config,
     result::{Error, Result},
 };
+pub use zingen::InitStorage;
 
 mod artifact;
 pub mod cli;
