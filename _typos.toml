@@ -1,2 +1,7 @@
+[default]
+extend-ignore-re = [
+    "\\w{44,52}",
+]
+
 [default.extend-words]
 zink = "zink"
