@@ -3,13 +3,16 @@
 #![no_std]
 
 mod asm;
-pub mod collections;
 mod event;
 pub mod ffi;
 pub mod primitives;
 mod storage;
 
-pub use self::{asm::Asm, event::Event, storage::Storage};
+pub use self::{
+    asm::Asm,
+    event::Event,
+    storage::{Storage, StorageArray, StorageMapping},
+};
 pub use zink_codegen::{external, storage, Event};
 
 // Panic hook implementation

@@ -28,12 +28,12 @@ storage key, for example, the storage index of array `A` is `0x00`.
 0x00
 
 // i32 as indexing
-0x0000   // element 0x00
-0x0001   // element 0x01
-0x00ff   // element 0xff
+0x0000     // size of this array
+0x0001     // element 0x01
+0x00ff     // element 0xff
 
 // i64 as indexing
-0x00ffff // element 0xffff
+0x00ffff   // element 0xffff
 ```
 
 Indexing greater than `max(i64)` is currently not supported due to the limitaion of current 
@@ -48,12 +48,14 @@ Mappings is similar to arrays, but keys and values will be distributed in differ
 0x42
 
 // i32 as indexing
-0x420000      // key of element 0
-0x4200ff      // value of element 0
+0x420000        // size of this mapping
+0x420001        // key of element 0x01
+0x4200[..key]   // value of element 0x01
 
 // i64 as indexing
-0x42000000    // key of element 0
-0x420000ff    // value of element 0
+0x42000000      // size of this mapping
+0x4200ffff      // key of element 0xffff
+0x4200[..key]   // value of element 0xffff
 ```
 
 The max size of `Mapping` is `max(i64)` as well at the moment for the same reason.
