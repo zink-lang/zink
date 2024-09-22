@@ -2,10 +2,12 @@ extern crate proc_macro;
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use std::sync::atomic::{AtomicI32, Ordering::Relaxed};
+use std::{cell::RefCell, collections::HashSet};
 use syn::ItemType;
 
-static IOTA: AtomicI32 = AtomicI32::new(0);
+thread_local! {
+   static STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
+}
 
 /// Parse storage attribute.
 ///
@@ -20,7 +22,7 @@ pub fn parse(input: ItemType) -> TokenStream {
     let ty = input.ty.to_token_stream();
 
     // Temporary solution, we'll switch to 32 byte storage keys later
-    let key = IOTA.fetch_add(1, Relaxed);
+    let key = parse_key(name.to_string());
     let expanded = quote! {
         #[doc = concat!(" Storage ", stringify!($variable_name))]
         struct #name;
@@ -48,4 +50,15 @@ pub fn parse(input: ItemType) -> TokenStream {
     };
 
     expanded
+}
+
+fn parse_key(name: String) -> i32 {
+    STORAGE_REGISTRY.with_borrow_mut(|r| {
+        let key = r.len();
+        if !r.insert(name.clone()) {
+            panic!("Storage {name} has already been declared");
+        }
+
+        key
+    }) as i32
 }
