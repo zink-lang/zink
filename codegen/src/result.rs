@@ -61,7 +61,7 @@ pub enum Error {
     #[error("Invalid data size {0}")]
     InvalidDataSize(usize),
     /// Failed to get frame info of the given depth.
-    #[error("Invalid contract stack fram depth {0}")]
+    #[error("Invalid contract stack frame depth {0}")]
     InvalidDepth(usize),
     /// Failed to parse function selector.
     #[error("Invalid function selector")]

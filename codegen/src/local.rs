@@ -79,9 +79,9 @@ impl Locals {
     /// Get the lower significant bytes of the byte offset of a local.
     ///
     /// - **Parameter**: If the local is a parameter, the offset is relative to the offset
-    /// of the calldata.
+    ///   of the calldata.
     /// - **Variable**: If the local is a variable, the offset is relative to the offset
-    /// of the memory.
+    ///   of the memory.
     pub fn offset_of(&self, index: usize) -> Result<SmallVec<[u8; 32]>> {
         let local = self.get(index)?;
         let offset = if local.ty() == &LocalSlotType::Parameter {

@@ -12,7 +12,7 @@ mod function;
 
 pub use self::{
     code::{Code, ExtFunc},
-    constructor::Constructor,
+    constructor::{Constructor, InitStorage},
     dispatcher::Dispatcher,
     function::Function,
 };

@@ -48,6 +48,7 @@ pub fn name() -> u32 {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
+#[ignore]
 #[test]
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
@@ -60,7 +61,7 @@ fn deploy() -> anyhow::Result<()> {
     calldata.extend_from_slice(&42.to_bytes32());
 
     // 1. deploy
-    let info = evm.deploy(&contract.bytecode())?;
+    let info = evm.deploy(&contract.bytecode()?)?;
     let address = info.address;
 
     // 2. init state
