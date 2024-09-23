@@ -1,5 +1,5 @@
 //! Key-Value storage
-use crate::{ffi, Asm};
+use crate::{ffi, storage::StorageValue, Asm};
 
 /// Storage trait. Currently not for public use
 pub trait Storage {
@@ -19,17 +19,5 @@ pub trait Storage {
         unsafe {
             ffi::evm::sstore();
         }
-    }
-}
-
-/// Interface for the value of kv based storage
-pub trait StorageValue {
-    /// Load from storage
-    fn sload() -> Self;
-}
-
-impl StorageValue for i32 {
-    fn sload() -> Self {
-        unsafe { ffi::asm::sload_i32() }
     }
 }

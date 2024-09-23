@@ -33,7 +33,6 @@ fn storage_mapping(name: Ident, _ty: TokenStream) -> TokenStream {
         #[doc = concat!(" Storage ", stringify!($variable_name))]
         struct #name;
 
-
         // impl zink::Storage for #name {
         //     const STORAGE_KEY: i32 = #key;
         // }
@@ -49,7 +48,7 @@ fn storage_kv(name: Ident, ty: TokenStream) -> TokenStream {
         #[doc = concat!(" Storage ", stringify!($variable_name))]
         struct #name;
 
-        impl zink::Storage for #name {
+        impl zink::storage::Storage for #name {
             type Value = #ty;
             const STORAGE_KEY: i32 = #key;
         }
