@@ -17,3 +17,8 @@ pub trait StorageMapping<Key, Value> {
     /// If key exists
     fn exists(key: Key) -> bool;
 }
+
+/// Interface for the key of mappings
+pub trait MappingKey {
+    // fn storage_key() ->
+}

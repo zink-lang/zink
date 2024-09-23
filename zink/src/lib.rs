@@ -11,7 +11,7 @@ mod storage;
 pub use self::{
     asm::Asm,
     event::Event,
-    storage::{Storage, StorageArray, StorageMapping},
+    storage::{MappingKey, Storage, StorageArray, StorageMapping, StorageValue},
 };
 pub use zink_codegen::{external, storage, Event};
 

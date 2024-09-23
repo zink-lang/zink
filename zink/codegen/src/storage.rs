@@ -27,24 +27,16 @@ pub fn parse(input: ItemType) -> TokenStream {
     }
 }
 
-fn storage_mapping(name: Ident, ty: TokenStream) -> TokenStream {
-    let key = storage_index(name.to_string());
+fn storage_mapping(name: Ident, _ty: TokenStream) -> TokenStream {
+    let _key = storage_index(name.to_string());
     let expanded = quote! {
         #[doc = concat!(" Storage ", stringify!($variable_name))]
         struct #name;
 
-        impl zink::Storage<#ty> for #name {
-            const STORAGE_KEY: i32 = #key;
 
-            fn get() -> #ty {
-                zink::Asm::push(Self::STORAGE_KEY);
-                unsafe {
-                    paste::paste! {
-                        zink::ffi::asm::[< sload_ #ty >]()
-                    }
-                }
-            }
-        }
+        // impl zink::Storage for #name {
+        //     const STORAGE_KEY: i32 = #key;
+        // }
     };
 
     expanded
@@ -57,17 +49,9 @@ fn storage_kv(name: Ident, ty: TokenStream) -> TokenStream {
         #[doc = concat!(" Storage ", stringify!($variable_name))]
         struct #name;
 
-        impl zink::Storage<#ty> for #name {
+        impl zink::Storage for #name {
+            type Value = #ty;
             const STORAGE_KEY: i32 = #key;
-
-            fn get() -> #ty {
-                zink::Asm::push(Self::STORAGE_KEY);
-                unsafe {
-                    paste::paste! {
-                        zink::ffi::asm::[< sload_ #ty >]()
-                    }
-                }
-            }
         }
     };
 
