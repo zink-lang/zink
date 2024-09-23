@@ -3,7 +3,7 @@ extern crate proc_macro;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use std::{cell::RefCell, collections::HashSet};
-use syn::ItemType;
+use syn::{Ident, ItemType};
 
 thread_local! {
    static STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
@@ -21,8 +21,14 @@ pub fn parse(input: ItemType) -> TokenStream {
     let name = input.ident;
     let ty = input.ty.to_token_stream();
 
-    // Temporary solution, we'll switch to 32 byte storage keys later
-    let key = parse_key(name.to_string());
+    match ty.to_string() {
+        m if m.starts_with("Mapping") => storage_mapping(name, ty),
+        _ => storage_kv(name, ty),
+    }
+}
+
+fn storage_mapping(name: Ident, ty: TokenStream) -> TokenStream {
+    let key = storage_index(name.to_string());
     let expanded = quote! {
         #[doc = concat!(" Storage ", stringify!($variable_name))]
         struct #name;
@@ -38,12 +44,28 @@ pub fn parse(input: ItemType) -> TokenStream {
                     }
                 }
             }
+        }
+    };
 
-            fn set(value: #ty) {
-                zink::Asm::push(value);
+    expanded
+}
+
+fn storage_kv(name: Ident, ty: TokenStream) -> TokenStream {
+    // Temporary solution, we'll switch to 32 byte storage keys later
+    let key = storage_index(name.to_string());
+    let expanded = quote! {
+        #[doc = concat!(" Storage ", stringify!($variable_name))]
+        struct #name;
+
+        impl zink::Storage<#ty> for #name {
+            const STORAGE_KEY: i32 = #key;
+
+            fn get() -> #ty {
                 zink::Asm::push(Self::STORAGE_KEY);
                 unsafe {
-                    zink::ffi::evm::sstore();
+                    paste::paste! {
+                        zink::ffi::asm::[< sload_ #ty >]()
+                    }
                 }
             }
         }
@@ -52,7 +74,7 @@ pub fn parse(input: ItemType) -> TokenStream {
     expanded
 }
 
-fn parse_key(name: String) -> i32 {
+fn storage_index(name: String) -> i32 {
     STORAGE_REGISTRY.with_borrow_mut(|r| {
         let key = r.len();
         if !r.insert(name.clone()) {
