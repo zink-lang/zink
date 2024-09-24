@@ -1,16 +1,39 @@
 //! Zink storage implementation.
 
-use crate::Asm;
+use crate::{ffi, Asm};
+pub use {
+    array::StorageArray,
+    kv::Storage,
+    mapping::{Mapping, MappingKey},
+};
 
+mod array;
+mod kv;
 mod mapping;
 
-/// Storage trait. Currently not for public use
-pub trait Storage<T: Asm> {
-    const STORAGE_KEY: i32;
+/// Interface for the value of kv based storage
+pub trait StorageValue: Asm {
+    /// Load from storage
+    fn sload() -> Self;
+}
 
-    /// Get value from storage.
-    fn get() -> T;
+impl StorageValue for i32 {
+    fn sload() -> Self {
+        unsafe { ffi::asm::sload_i32() }
+    }
+}
 
-    /// Set value to storage.
-    fn set(value: T);
+impl StorageValue for u32 {
+    fn sload() -> Self {
+        unsafe { ffi::asm::sload_u32() }
+    }
+}
+
+/// Sub index of storage
+pub trait StorageIndex {
+    /// Increment the index
+    fn increment();
+
+    /// Load index to stack
+    fn load();
 }

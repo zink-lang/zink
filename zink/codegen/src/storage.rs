@@ -1,11 +1,13 @@
 extern crate proc_macro;
 
-use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
-use std::sync::atomic::{AtomicI32, Ordering::Relaxed};
-use syn::ItemType;
+use proc_macro2::{TokenStream, TokenTree};
+use quote::quote;
+use std::{cell::RefCell, collections::HashSet};
+use syn::ItemStruct;
 
-static IOTA: AtomicI32 = AtomicI32::new(0);
+thread_local! {
+   static STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
+}
 
 /// Parse storage attribute.
 ///
@@ -15,37 +17,65 @@ static IOTA: AtomicI32 = AtomicI32::new(0);
 ///
 /// For the cases in EVM, it doesn't matter it returns pointer
 /// since the value will be left on stack anyway.
-pub fn parse(input: ItemType) -> TokenStream {
-    let name = input.ident;
-    let ty = input.ty.to_token_stream();
+pub fn parse(attr: TokenStream, input: ItemStruct) -> proc_macro::TokenStream {
+    let tree: Vec<_> = attr.into_iter().collect();
+    match tree.len() {
+        1 => storage_value(input, tree[0].clone()),
+        4 => storage_mapping(input, tree),
+        _ => panic!("Invalid storage attributes"),
+    }
+    .into()
+}
 
-    // Temporary solution, we'll switch to 32 byte storage keys later
-    let key = IOTA.fetch_add(1, Relaxed);
+fn storage_value(is: ItemStruct, ty: TokenTree) -> TokenStream {
+    let name = is.ident.clone();
+    let slot = storage_slot(name.to_string());
     let expanded = quote! {
-        #[doc = concat!(" Storage ", stringify!($variable_name))]
-        struct #name;
+        #is
 
-        impl zink::Storage<#ty> for #name {
-            const STORAGE_KEY: i32 = #key;
-
-            fn get() -> #ty {
-                zink::Asm::push(Self::STORAGE_KEY);
-                unsafe {
-                    paste::paste! {
-                        zink::ffi::asm::[< sload_ #ty >]()
-                    }
-                }
-            }
-
-            fn set(value: #ty) {
-                zink::Asm::push(value);
-                zink::Asm::push(Self::STORAGE_KEY);
-                unsafe {
-                    zink::ffi::evm::sstore();
-                }
-            }
+        impl zink::storage::Storage for #name {
+            type Value = #ty;
+            const STORAGE_SLOT: i32 = #slot;
         }
     };
 
     expanded
+}
+
+fn storage_mapping(is: ItemStruct, ty: Vec<TokenTree>) -> TokenStream {
+    // TODO: better message for this panicking
+    {
+        let conv = ty[1].to_string() + &ty[2].to_string();
+        if &conv != "=>" {
+            panic!("Invalid mapping storage symbol");
+        }
+    }
+
+    let key = &ty[0];
+    let value = &ty[3];
+    let name = is.ident.clone();
+    let slot = storage_slot(name.to_string());
+    let expanded = quote! {
+        #is
+
+        impl zink::storage::Mapping for #name {
+            const STORAGE_SLOT: i32 = #slot;
+
+            type Key = #key;
+            type Value = #value;
+        }
+    };
+
+    expanded
+}
+
+fn storage_slot(name: String) -> i32 {
+    STORAGE_REGISTRY.with_borrow_mut(|r| {
+        let key = r.len();
+        if !r.insert(name.clone()) {
+            panic!("Storage {name} has already been declared");
+        }
+
+        key
+    }) as i32
 }

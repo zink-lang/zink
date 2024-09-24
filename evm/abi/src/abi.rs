@@ -3,6 +3,9 @@
 use crate::Arg;
 use core::{convert::Infallible, fmt, str::FromStr};
 
+#[cfg(feature = "syn")]
+use quote::ToTokens;
+
 #[cfg(not(feature = "std"))]
 use crate::std::{String, ToString, Vec};
 
@@ -28,9 +31,9 @@ impl From<&syn::Signature> for Abi {
             .inputs
             .iter()
             .filter_map(|arg| {
-                if let syn::FnArg::Typed(syn::PatType { ty, .. }) = arg {
+                if let syn::FnArg::Typed(syn::PatType { pat, ty, .. }) = arg {
                     Some(Arg {
-                        name: sig.ident.to_string(),
+                        name: pat.to_token_stream().to_string(),
                         ty: crate::Param::from(ty),
                     })
                 } else {
@@ -41,7 +44,8 @@ impl From<&syn::Signature> for Abi {
 
         let outputs = if let syn::ReturnType::Type(_, ty) = &sig.output {
             vec![Arg {
-                name: sig.ident.to_string(),
+                // TODO: how to name the output?
+                name: "output".into(),
                 ty: crate::Param::from(ty),
             }]
         } else {

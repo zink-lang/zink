@@ -6,14 +6,14 @@ extern crate zink;
 
 use zink::Storage;
 
-#[zink::storage]
-pub type Name = u32;
+#[zink::storage(u32)]
+pub struct Name;
 
-#[zink::storage]
-pub type Symbol = u32;
+#[zink::storage(u32)]
+pub struct Symbol;
 
-#[zink::storage]
-pub type TotalSupply = u32;
+#[zink::storage(u32)]
+pub struct TotalSupply;
 
 // /// Set value to the storage.
 // #[zink::constructor]
