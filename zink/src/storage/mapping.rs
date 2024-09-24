@@ -27,8 +27,6 @@ pub trait Mapping {
 
 /// Interface for the key of mappings
 pub trait MappingKey: Asm {
-    const SIZE: i32;
-
     /// Load storage key to stack
     fn load(self, index: i32) {
         unsafe {
@@ -43,7 +41,7 @@ pub trait MappingKey: Asm {
             ffi::evm::mstore();
 
             // hash key
-            Self::SIZE.push();
+            ffi::evm::push1(0x20);
             ffi::evm::push0();
             ffi::evm::keccak256();
         }
@@ -52,14 +50,10 @@ pub trait MappingKey: Asm {
 
 macro_rules! impl_mapping_key {
     (($ty:ident, $size:expr)) => {
-        impl MappingKey for $ty {
-            const SIZE: i32 = $size;
-        }
+        impl MappingKey for $ty {}
     };
     ($len:expr) => {
-        impl MappingKey for [u8; $len] {
-            const SIZE: i32 = $len;
-        }
+        impl MappingKey for [u8; $len] {}
     };
     ($($ty:tt),+) => {
         $(impl_mapping_key!($ty);)+

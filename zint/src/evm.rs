@@ -31,7 +31,6 @@ impl<'e> Default for EVM<'e> {
         db.insert_account_info(ALICE.into(), AccountInfo::from_balance(U256::MAX));
 
         let evm = Revm::<'e, (), EmptyDB>::builder().with_db(db).build();
-
         Self { inner: evm }
     }
 }

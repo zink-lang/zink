@@ -2625,7 +2625,10 @@ name = "zink"
 version = "0.1.10"
 dependencies = [
  "anyhow",
+ "evm-opcodes",
+ "hex",
  "paste",
+ "tracing",
  "zink-codegen",
  "zinkc-filetests",
  "zint",
