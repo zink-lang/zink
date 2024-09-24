@@ -1,11 +1,10 @@
 //! Zink storage implementation.
 
 use crate::{ffi, Asm};
-pub use zink_codegen::storage_value as value;
 pub use {
     array::StorageArray,
     kv::Storage,
-    mapping::{MappingKey, StorageMapping},
+    mapping::{Mapping, MappingKey},
 };
 
 mod array;

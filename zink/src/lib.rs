@@ -10,7 +10,7 @@ pub mod storage;
 
 pub use self::{asm::Asm, event::Event};
 pub use storage::Storage;
-pub use zink_codegen::{external, Event};
+pub use zink_codegen::{external, storage, Event};
 
 // Panic hook implementation
 #[cfg(target_arch = "wasm32")]

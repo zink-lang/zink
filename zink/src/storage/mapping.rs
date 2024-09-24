@@ -1,29 +1,24 @@
 //! Storage Mapping
 
-use crate::{
-    ffi,
-    storage::{StorageIndex, StorageValue},
-    Asm,
-};
+use crate::{ffi, storage::StorageValue, Asm};
 
 /// Storage mapping interface
-pub trait StorageMapping {
-    const STORAGE_INDEX: i32;
+pub trait Mapping {
+    const STORAGE_SLOT: i32;
 
-    type Index: StorageIndex;
     type Key: MappingKey;
     type Value: StorageValue;
 
     /// Get value from storage key.
     fn get(key: &Self::Key) -> Self::Value {
-        key.load(Self::STORAGE_INDEX);
+        key.load(Self::STORAGE_SLOT);
         Self::Value::sload()
     }
 
     /// Set key and value
     fn set(key: Self::Key, value: Self::Value) {
         value.push();
-        key.load(Self::STORAGE_INDEX);
+        key.load(Self::STORAGE_SLOT);
         unsafe {
             ffi::evm::sstore();
         }

@@ -1,9 +1,9 @@
 extern crate proc_macro;
 
-use proc_macro2::TokenStream;
+use proc_macro2::{TokenStream, TokenTree};
 use quote::quote;
 use std::{cell::RefCell, collections::HashSet};
-use syn::{Ident, ItemStruct};
+use syn::ItemStruct;
 
 thread_local! {
    static STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
@@ -17,50 +17,59 @@ thread_local! {
 ///
 /// For the cases in EVM, it doesn't matter it returns pointer
 /// since the value will be left on stack anyway.
-pub fn parse(attr: TokenStream, input: ItemStruct) -> TokenStream {
-    let name = input.ident;
-    // let ty = input.ty.to_token_stream();
-
-    storage_kv(name, attr)
-    // match ty.to_string() {
-    //     // m if m.starts_with("Mapping") => storage_mapping(name, ty),
-    //     _ => storage_kv(name, attr),
-    // }
+pub fn parse(attr: TokenStream, input: ItemStruct) -> proc_macro::TokenStream {
+    let tree: Vec<_> = attr.into_iter().collect();
+    match tree.len() {
+        1 => storage_value(input, tree[0].clone()),
+        4 => storage_mapping(input, tree),
+        _ => panic!("Invalid attributes"),
+    }
+    .into()
 }
 
-#[allow(unused)]
-/// Expand storage mapping
-pub fn storage_mapping(name: Ident, _ty: TokenStream) -> TokenStream {
-    let _key = storage_index(name.to_string());
+fn storage_value(is: ItemStruct, ty: TokenTree) -> TokenStream {
+    let name = is.ident.clone();
+    let slot = storage_slot(name.to_string());
     let expanded = quote! {
-        #[doc = concat!(" Storage ", stringify!($variable_name))]
-        struct #name;
-
-        // impl zink::Storage for #name {
-        //     const STORAGE_KEY: i32 = #key;
-        // }
-    };
-
-    expanded
-}
-
-fn storage_kv(name: Ident, ty: TokenStream) -> TokenStream {
-    // Temporary solution, we'll switch to 32 byte storage keys later
-    let key = storage_index(name.to_string());
-    let expanded = quote! {
-        #[doc = concat!(" Storage ", stringify!($variable_name))]
-        struct #name;
+        #is
 
         impl zink::storage::Storage for #name {
             type Value = #ty;
-            const STORAGE_KEY: i32 = #key;
+            const STORAGE_SLOT: i32 = #slot;
         }
     };
 
     expanded
 }
 
-fn storage_index(name: String) -> i32 {
+fn storage_mapping(is: ItemStruct, ty: Vec<TokenTree>) -> TokenStream {
+    // TODO: better message for this panicking
+    {
+        let conv = ty[1].to_string() + &ty[2].to_string();
+        if &conv != "=>" {
+            panic!("Invalid mapping storage symbol");
+        }
+    }
+
+    let key = &ty[0];
+    let value = &ty[3];
+    let name = is.ident.clone();
+    let slot = storage_slot(name.to_string());
+    let expanded = quote! {
+        #is
+
+        impl zink::storage::Mapping for #name {
+            const STORAGE_SLOT: i32 = #slot;
+
+            type Key = #key;
+            type Value = #value;
+        }
+    };
+
+    expanded
+}
+
+fn storage_slot(name: String) -> i32 {
     STORAGE_REGISTRY.with_borrow_mut(|r| {
         let key = r.len();
         if !r.insert(name.clone()) {

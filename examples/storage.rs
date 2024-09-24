@@ -4,11 +4,15 @@
 
 extern crate zink;
 
-use zink::{storage, Storage};
+use zink::Storage;
 
-// 2. expose the `struct` keyword in the original code, declare types in attribute.
-#[storage::value(i32)]
+/// Counter with value type `i32`
+#[zink::storage(i32)]
 pub struct Counter;
+
+/// Counter with value type `i32`
+#[zink::storage(i32 => i32)]
+pub struct Mapping;
 
 /// Set value to the storage and get it.
 #[zink::external]

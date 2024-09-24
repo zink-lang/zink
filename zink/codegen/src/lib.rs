@@ -37,11 +37,21 @@ pub fn event(input: TokenStream) -> TokenStream {
     event::parse(input)
 }
 
-/// Declare a storage value
+/// Declare on-chain storage
+///
+/// ```ignore
+/// /// storage value
+/// #[zink::storage(i32)]
+/// pub struct Counter;
+///
+/// /// storage mapping
+/// #[zink::storage(i32 => i32)]
+/// pub struct Mapping;
+/// ```
 #[proc_macro_attribute]
-pub fn storage_value(attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn storage(attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemStruct);
-    storage::parse(attr.into(), input).into()
+    storage::parse(attr.into(), input)
 }
 
 /// Mark the function as an external entry point.
