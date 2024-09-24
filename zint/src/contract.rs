@@ -16,6 +16,8 @@ pub struct Contract {
     pub wasm: Vec<u8>,
     /// Bytecode constructor
     pub constructor: Constructor,
+    /// Address in evm
+    pub address: [u8; 20],
 }
 
 impl<T> From<T> for Contract
@@ -41,7 +43,6 @@ impl Contract {
             .finish(self.artifact.runtime_bytecode.clone().into())
             .map(|v| v.to_vec())?;
 
-        tracing::debug!("bytecode: {}", hex::encode(&bytecode));
         Ok(bytecode)
     }
 
@@ -59,7 +60,17 @@ impl Contract {
         self.artifact = compiler.compile(&self.wasm)?;
 
         tracing::debug!("abi: {:#}", self.json_abi()?);
+        tracing::debug!("bytecode: {}", hex::encode(&self.artifact.runtime_bytecode));
         Ok(self)
+    }
+
+    /// Deploy self to evm
+    pub fn deploy<'e>(&mut self) -> Result<EVM<'e>> {
+        let mut evm = EVM::default();
+        let info = evm.deploy(&self.bytecode()?)?;
+
+        self.address.copy_from_slice(&info.address);
+        Ok(evm)
     }
 
     /// Load zink contract defined in the current
@@ -91,6 +102,7 @@ impl Contract {
             calldata.extend_from_slice(&input.to_bytes32());
         }
 
+        tracing::debug!("calldata: {}", hex::encode(&calldata));
         Ok(calldata)
     }
 

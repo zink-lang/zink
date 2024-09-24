@@ -17,7 +17,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.10"
+version = "0.1.11"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -43,7 +43,7 @@ serde_json = "1.0.113"
 smallvec = "1.13.1"
 syn =  { version = "2.0.48", features = [ "full" ] }
 thiserror = "1.0.56"
-tiny-keccak = "2.0.2"
+tiny-keccak = { version = "2.0.2", features = ["keccak"], default-features = false }
 toml = "0.8.9"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
@@ -52,18 +52,18 @@ wasmparser = "0.121.0"
 wat = "1.0.85"
 
 ## EVM packages
-opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.3", features = [ "data" ] }
+opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.4", features = [ "data" ] }
 sol-abi = { path = "evm/abi", version = "=0.0.1" }
 
 ## Zink packages
-elko = { path = "elko", version = "0.1.10" }
-filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.10" }
-zabi = { path = "abi", version = "0.1.10" }
-zingen =  { path = "codegen", version = "0.1.10" }
-zink = { path = ".", version = "0.1.10" }
-zink-codegen = { path = "zink/codegen", version = "0.1.10" }
-zinkc = { path = "compiler", version = "0.1.10" }
-zint = { path = "zint", version = "0.1.10" }
+elko = { path = "elko", version = "0.1.11" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.11" }
+zabi = { path = "abi", version = "0.1.11" }
+zingen =  { path = "codegen", version = "0.1.11" }
+zink = { path = ".", version = "0.1.11" }
+zink-codegen = { path = "zink/codegen", version = "0.1.11" }
+zinkc = { path = "compiler", version = "0.1.11" }
+zint = { path = "zint", version = "0.1.11" }
 
 [workspace.metadata.conta]
 packages = [
@@ -102,4 +102,7 @@ zink-codegen.workspace = true
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 anyhow.workspace = true
 filetests.workspace = true
+opcodes = { workspace = true, features = ["data"] }
+tracing.workspace = true
 zint.workspace = true
+hex.workspace = true

@@ -13,8 +13,8 @@ use zink::Storage;
 /// Storage key is taken based on macro order
 /// (e.g this macro is first and only in this project,
 /// so it will take 0x0 contract storage key)
-#[zink::storage]
-pub type Counter = i32;
+#[zink::storage(i32)]
+pub struct Counter;
 
 /// Get value from the storage.
 #[zink::external]

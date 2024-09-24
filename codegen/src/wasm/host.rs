@@ -48,11 +48,10 @@ impl TryFrom<(&str, &str)> for HostFunc {
                     Ok(Self::NoOp)
                 }
             }
-            ("evm", name) => {
-                Ok(Self::Evm(OpCode::from_str(name).map_err(|_| {
-                    Error::HostFuncNotFound(module.into(), name.into())
-                })?))
-            }
+            ("evm", name) => Ok(Self::Evm(OpCode::from_str(name).map_err(|_| {
+                tracing::error!("Failed to load host function: {:?}", import);
+                Error::HostFuncNotFound(module.into(), name.into())
+            })?)),
             ("zinkc", "emit_abi") => Ok(Self::EmitABI),
             _ => {
                 tracing::warn!("Failed to load host function: {:?}", import);
