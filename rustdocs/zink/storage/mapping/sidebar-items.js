@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {};
+window.SIDEBAR_ITEMS = {"macro":["impl_mapping_key"],"trait":["Mapping","MappingKey"]};

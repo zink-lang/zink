@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"type":["Address","Bytes32","Hash"]};

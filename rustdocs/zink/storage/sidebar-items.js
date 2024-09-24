@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["mapping"],"trait":["Storage"]};
+window.SIDEBAR_ITEMS = {"mod":["array","kv","mapping"],"trait":["Mapping","MappingKey","Storage","StorageArray","StorageIndex","StorageValue"]};
