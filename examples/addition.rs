@@ -22,7 +22,7 @@ fn test() -> anyhow::Result<()> {
         &1u64.to_bytes32(),
         &2u64.to_bytes32(),
     ])?;
-    assert_eq!(info.ret, 3u64.to_bytes32());
 
+    assert_eq!(info.ret, 3u64.to_bytes32());
     Ok(())
 }

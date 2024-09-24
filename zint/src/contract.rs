@@ -41,7 +41,6 @@ impl Contract {
             .finish(self.artifact.runtime_bytecode.clone().into())
             .map(|v| v.to_vec())?;
 
-        tracing::debug!("bytecode: {}", hex::encode(&bytecode));
         Ok(bytecode)
     }
 
@@ -59,6 +58,7 @@ impl Contract {
         self.artifact = compiler.compile(&self.wasm)?;
 
         tracing::debug!("abi: {:#}", self.json_abi()?);
+        tracing::debug!("bytecode: {}", hex::encode(&self.artifact.runtime_bytecode));
         Ok(self)
     }
 
@@ -91,6 +91,7 @@ impl Contract {
             calldata.extend_from_slice(&input.to_bytes32());
         }
 
+        tracing::debug!("calldata: {}", hex::encode(&calldata));
         Ok(calldata)
     }
 

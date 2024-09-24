@@ -10,7 +10,7 @@ pub trait Mapping {
     type Value: StorageValue;
 
     /// Get value from storage key.
-    fn get(key: &Self::Key) -> Self::Value {
+    fn get(key: Self::Key) -> Self::Value {
         key.load(Self::STORAGE_SLOT);
         Self::Value::sload()
     }

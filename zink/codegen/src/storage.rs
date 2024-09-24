@@ -22,7 +22,7 @@ pub fn parse(attr: TokenStream, input: ItemStruct) -> proc_macro::TokenStream {
     match tree.len() {
         1 => storage_value(input, tree[0].clone()),
         4 => storage_mapping(input, tree),
-        _ => panic!("Invalid attributes"),
+        _ => panic!("Invalid storage attributes"),
     }
     .into()
 }

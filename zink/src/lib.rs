@@ -9,7 +9,7 @@ pub mod primitives;
 pub mod storage;
 
 pub use self::{asm::Asm, event::Event};
-pub use storage::Storage;
+pub use storage::{Mapping, Storage};
 pub use zink_codegen::{external, storage, Event};
 
 // Panic hook implementation
