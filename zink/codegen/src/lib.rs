@@ -1,7 +1,7 @@
 //! Code generation library for the zink API
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput, ItemFn, ItemType};
+use syn::{parse_macro_input, DeriveInput, ItemFn, ItemStruct};
 
 mod event;
 mod selector;
@@ -37,38 +37,11 @@ pub fn event(input: TokenStream) -> TokenStream {
     event::parse(input)
 }
 
-/// Order-based storage macro.
-/// Currently only i32 is supported
-///
-/// ```ignore
-/// use zink::storage;
-///
-/// #[storage]
-/// pub type Counter = i32;
-/// ```
-///
-/// will generate:
-///
-/// ```ignore
-/// struct Counter;
-///
-/// impl zink::Storage<i32> for Counter {
-///     // if this macro were the second one in the project, this key would be 1i32
-///     const STORAGE_KEY: i32 = 0i32;
-///
-///     fn get() -> i32 {
-///         zink::ffi::evm::sload(Self::STORAGE_KEY)
-///     }
-///
-///     fn set(value: i32) {
-///         zink::ffi::evm::sstore(Self::STORAGE_KEY, value);
-///     }
-/// }
-/// ```
+/// Declare a storage value
 #[proc_macro_attribute]
-pub fn storage(_args: TokenStream, input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemType);
-    storage::parse(input).into()
+pub fn storage_value(attr: TokenStream, input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as ItemStruct);
+    storage::parse(attr.into(), input).into()
 }
 
 /// Mark the function as an external entry point.

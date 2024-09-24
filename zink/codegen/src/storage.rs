@@ -1,9 +1,9 @@
 extern crate proc_macro;
 
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::quote;
 use std::{cell::RefCell, collections::HashSet};
-use syn::{Ident, ItemType};
+use syn::{Ident, ItemStruct};
 
 thread_local! {
    static STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
@@ -17,17 +17,20 @@ thread_local! {
 ///
 /// For the cases in EVM, it doesn't matter it returns pointer
 /// since the value will be left on stack anyway.
-pub fn parse(input: ItemType) -> TokenStream {
+pub fn parse(attr: TokenStream, input: ItemStruct) -> TokenStream {
     let name = input.ident;
-    let ty = input.ty.to_token_stream();
+    // let ty = input.ty.to_token_stream();
 
-    match ty.to_string() {
-        m if m.starts_with("Mapping") => storage_mapping(name, ty),
-        _ => storage_kv(name, ty),
-    }
+    storage_kv(name, attr)
+    // match ty.to_string() {
+    //     // m if m.starts_with("Mapping") => storage_mapping(name, ty),
+    //     _ => storage_kv(name, attr),
+    // }
 }
 
-fn storage_mapping(name: Ident, _ty: TokenStream) -> TokenStream {
+#[allow(unused)]
+/// Expand storage mapping
+pub fn storage_mapping(name: Ident, _ty: TokenStream) -> TokenStream {
     let _key = storage_index(name.to_string());
     let expanded = quote! {
         #[doc = concat!(" Storage ", stringify!($variable_name))]

@@ -4,7 +4,7 @@
 
 extern crate zink;
 
-use zink::Storage;
+use zink::{storage, Storage};
 
 /// It gets expanded to 'Counter' struct
 /// that implements zink::Storage trait
@@ -13,8 +13,8 @@ use zink::Storage;
 /// Storage key is taken based on macro order
 /// (e.g this macro is first and only in this project,
 /// so it will take 0x0 contract storage key)
-#[zink::storage]
-pub type Counter = i32;
+#[storage::value(i32)]
+pub struct Counter;
 
 /// Get value from the storage.
 #[zink::external]
