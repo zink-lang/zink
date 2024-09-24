@@ -25,30 +25,36 @@ pub fn mget(key: i32) -> i32 {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-#[ignore]
 #[test]
 fn mapping() -> anyhow::Result<()> {
-    use zint::{Bytes32, Contract, U256};
+    use zint::{Bytes32, Contract};
 
-    let mut contract = Contract::search("storage")?.compile()?;
+    let mut contract = Contract::search("mapping")?.compile()?;
+    let mut evm = contract.deploy()?.commit(true);
 
-    {
-        let key = 0;
-        let value: i32 = 42;
-        let info = contract.execute(&[
-            b"mset(int32,int32)".to_vec(),
-            key.to_bytes32().to_vec(),
-            value.to_bytes32().to_vec(),
-        ])?;
-        assert!(info.ret.is_empty());
-        assert_eq!(info.storage.get(&U256::from(0)), Some(&U256::from(value)));
-    }
+    let key = 0x00;
+    let value: i32 = 0x42;
 
-    {
-        let key = 0;
-        let info = contract.execute(&[b"mget(int32)".to_vec(), key.to_bytes32().to_vec()])?;
-        assert_eq!(info.ret, 0.to_bytes32());
-    }
+    // set value to storage
+    let calldata = contract.encode(&[
+        b"mset(int32,int32)".to_vec(),
+        value.to_bytes32().to_vec(),
+        key.to_bytes32().to_vec(),
+    ])?;
+    let info = evm.calldata(&calldata).call(contract.address)?;
+    assert!(info.ret.is_empty());
 
+    tracing::debug!("{info:?}");
+    // verify result with database
+    let storage_key = zint::keccak256(&[0; 0x40]);
+    assert_eq!(
+        evm.storage(contract.address, storage_key)?,
+        value.to_bytes32(),
+    );
+
+    // get value from storage
+    let calldata = contract.encode(&[b"mget(int32)".to_vec(), key.to_bytes32().to_vec()])?;
+    let info = evm.calldata(&calldata).call(contract.address)?;
+    assert_eq!(info.ret, value.to_bytes32(), "{info:#?}",);
     Ok(())
 }

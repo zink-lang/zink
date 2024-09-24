@@ -7,7 +7,7 @@ use revm::{
         AccountInfo, Bytecode, Bytes, ExecutionResult, HaltReason, Log, Output, ResultAndState,
         SuccessReason, TransactTo, TxKind, U256,
     },
-    Evm as Revm, InMemoryDB,
+    Database, Evm as Revm, InMemoryDB,
 };
 use std::collections::HashMap;
 
@@ -23,6 +23,8 @@ pub const CONTRACT: [u8; 20] = [1; 20];
 /// Wrapper of full REVM
 pub struct EVM<'e> {
     inner: Revm<'e, (), InMemoryDB>,
+    /// If commit changes
+    commit: bool,
 }
 
 impl<'e> Default for EVM<'e> {
@@ -31,7 +33,10 @@ impl<'e> Default for EVM<'e> {
         db.insert_account_info(ALICE.into(), AccountInfo::from_balance(U256::MAX));
 
         let evm = Revm::<'e, (), EmptyDB>::builder().with_db(db).build();
-        Self { inner: evm }
+        Self {
+            inner: evm,
+            commit: false,
+        }
     }
 }
 
@@ -44,13 +49,31 @@ impl<'e> EVM<'e> {
             .call(CONTRACT)
     }
 
+    /// Get storage from address and storage index
+    pub fn storage(&mut self, address: [u8; 20], key: [u8; 32]) -> Result<[u8; 32]> {
+        let db = self.inner.db_mut();
+        Ok(db
+            .storage(address.into(), U256::from_be_bytes(key))?
+            .to_be_bytes())
+    }
+
+    /// If commit changes
+    pub fn commit(mut self, flag: bool) -> Self {
+        self.commit = flag;
+        self
+    }
+
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
         self.inner.tx_mut().gas_limit = GAS_LIMIT;
         self.inner.tx_mut().transact_to = to;
-        let result = self.inner.transact().map_err(|e| anyhow!(e))?;
-        (result, to).try_into()
+        if self.commit {
+            self.inner.transact_commit()?.try_into()
+        } else {
+            let result = self.inner.transact().map_err(|e| anyhow!(e))?;
+            (result, to).try_into()
+        }
     }
 
     /// Interpret runtime bytecode with provided arguments

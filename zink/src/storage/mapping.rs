@@ -37,11 +37,11 @@ pub trait MappingKey: Asm {
 
             // write key to memory
             self.push();
-            ffi::evm::push1(0x01);
+            ffi::asm::push_u8(0x01);
             ffi::evm::mstore();
 
             // hash key
-            ffi::evm::push1(0x20);
+            ffi::asm::push_u8(0x40);
             ffi::evm::push0();
             ffi::evm::keccak256();
         }
