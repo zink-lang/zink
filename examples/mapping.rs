@@ -7,7 +7,7 @@ extern crate zink;
 use zink::Mapping as _;
 
 /// Counter with value type `i32`
-#[zink::storage(i32 => i32)]
+#[zink::storage(i32, i32)]
 pub struct Mapping;
 
 /// Set the mapping

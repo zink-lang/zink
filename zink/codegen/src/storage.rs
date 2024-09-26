@@ -100,7 +100,21 @@ impl Storage {
     }
 
     fn expand_mapping(&self, key: Ident, value: Ident) -> TokenStream {
-        todo!()
+        let is = &self.target;
+        let name = &self.target.ident;
+        let slot = storage_slot(name.to_string());
+        let expanded = quote! {
+            #is
+
+            impl zink::storage::Mapping for #name {
+                const STORAGE_SLOT: i32 = #slot;
+
+                type Key = #key;
+                type Value = #value;
+            }
+        };
+
+        expanded.into()
     }
 
     fn expand_dk_mapping(&self, key1: Ident, key2: Ident, value: Ident) -> TokenStream {
@@ -162,10 +176,10 @@ impl From<TokenStream> for StorageType {
         let tokens = input.to_string();
         let types: Vec<_> = tokens.split(',').collect();
         match types.len() {
-            1 => StorageType::Value(Ident::new(types[0], Span::call_site())),
+            1 => StorageType::Value(Ident::new(types[0].trim(), Span::call_site())),
             2 => StorageType::Mapping {
-                key: Ident::new(types[0], Span::call_site()),
-                value: Ident::new(types[1], Span::call_site()),
+                key: Ident::new(types[0].trim(), Span::call_site()),
+                value: Ident::new(types[1].trim(), Span::call_site()),
             },
             3 => StorageType::Mapping {
                 key: Ident::new(types[0], Span::call_site()),

@@ -46,17 +46,11 @@ pub fn event(input: TokenStream) -> TokenStream {
 /// pub struct Counter;
 ///
 /// /// storage mapping
-/// #[zink::storage(i32 => i32)]
+/// #[zink::storage(i32, i32)]
 /// pub struct Mapping;
 /// ```
 #[proc_macro_attribute]
 pub fn storage(attr: TokenStream, input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemStruct);
-    storage::parse(attr.into(), input)
-}
-
-#[proc_macro_attribute]
-pub fn storage2(attr: TokenStream, input: TokenStream) -> TokenStream {
     let ty = storage::StorageType::from(attr);
     let input = parse_macro_input!(input as ItemStruct);
     storage::Storage::parse(ty, input)

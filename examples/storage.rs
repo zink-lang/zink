@@ -7,7 +7,7 @@ extern crate zink;
 use zink::Storage;
 
 /// Counter with value type `i32`
-#[zink_codegen::storage2(i32)]
+#[zink::storage(i32)]
 pub struct Counter;
 
 /// set value to the storage.
