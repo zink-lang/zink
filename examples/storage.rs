@@ -7,19 +7,13 @@ extern crate zink;
 use zink::Storage;
 
 /// Counter with value type `i32`
-#[zink::storage(i32)]
+#[zink_codegen::storage2(i32)]
 pub struct Counter;
 
 /// set value to the storage.
 #[zink::external]
 pub fn set(value: i32) {
     Counter::set(value);
-}
-
-/// Get value from the storage.
-#[zink::external]
-pub fn get() -> i32 {
-    Counter::get()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -40,7 +34,7 @@ fn value() -> anyhow::Result<()> {
     }
 
     {
-        let info = contract.execute(&["get()"])?;
+        let info = contract.execute(&["counter()"])?;
         assert_eq!(info.ret, 0.to_bytes32());
     }
 

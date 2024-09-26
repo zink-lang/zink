@@ -1,7 +1,8 @@
 //! Code generation library for the zink API
 
+#![allow(unused)]
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput, ItemFn, ItemStruct};
+use syn::{parse_macro_input, Attribute, DeriveInput, ItemFn, ItemStruct};
 
 mod event;
 mod selector;
@@ -52,6 +53,13 @@ pub fn event(input: TokenStream) -> TokenStream {
 pub fn storage(attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemStruct);
     storage::parse(attr.into(), input)
+}
+
+#[proc_macro_attribute]
+pub fn storage2(attr: TokenStream, input: TokenStream) -> TokenStream {
+    let ty = storage::StorageType::from(attr);
+    let input = parse_macro_input!(input as ItemStruct);
+    storage::Storage::parse(ty, input)
 }
 
 /// Mark the function as an external entry point.
