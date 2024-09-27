@@ -54,17 +54,6 @@ impl<'f> Functions<'f> {
         );
     }
 
-    /// Remove constructor function
-    pub fn remove_constructor(&mut self, exports: &Exports) -> Option<FuncType> {
-        for (index, export) in exports.iter() {
-            if export.as_str() == "constructor" {
-                return self.remove(index)?.sig().ok();
-            }
-        }
-
-        None
-    }
-
     /// Remove all selector functions
     pub fn drain_selectors(&mut self, exports: &Exports) -> Self {
         let mut functions = Self::default();

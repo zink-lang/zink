@@ -5,10 +5,12 @@
 mod asm;
 mod event;
 pub mod ffi;
-mod storage;
+pub mod primitives;
+pub mod storage;
 
-pub use self::{asm::Asm, event::Event, storage::Storage};
-pub use zink_codegen::{constructor, external, storage, Event};
+pub use self::{asm::Asm, event::Event};
+pub use storage::{DoubleKeyMapping, Mapping, Storage};
+pub use zink_codegen::{external, storage, Event};
 
 /// EVM address in rust.
 pub type Address = [u8; 20];

@@ -1,9 +1,9 @@
 //! Code generation library for the zink API
 
+#![allow(unused)]
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput, ItemFn, ItemType};
+use syn::{parse_macro_input, Attribute, DeriveInput, ItemFn, ItemStruct};
 
-mod constructor;
 mod event;
 mod selector;
 mod storage;
@@ -38,38 +38,22 @@ pub fn event(input: TokenStream) -> TokenStream {
     event::parse(input)
 }
 
-/// Order-based storage macro.
-/// Currently only i32 is supported
+/// Declare on-chain storage
 ///
 /// ```ignore
-/// use zink::storage;
+/// /// storage value
+/// #[zink::storage(i32)]
+/// pub struct Counter;
 ///
-/// #[storage]
-/// pub type Counter = i32;
-/// ```
-///
-/// will generate:
-///
-/// ```ignore
-/// struct Counter;
-///
-/// impl zink::Storage<i32> for Counter {
-///     // if this macro were the second one in the project, this key would be 1i32
-///     const STORAGE_KEY: i32 = 0i32;
-///
-///     fn get() -> i32 {
-///         zink::ffi::evm::sload(Self::STORAGE_KEY)
-///     }
-///
-///     fn set(value: i32) {
-///         zink::ffi::evm::sstore(Self::STORAGE_KEY, value);
-///     }
-/// }
+/// /// storage mapping
+/// #[zink::storage(i32, i32)]
+/// pub struct Mapping;
 /// ```
 #[proc_macro_attribute]
-pub fn storage(_args: TokenStream, input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemType);
-    storage::parse(input).into()
+pub fn storage(attr: TokenStream, input: TokenStream) -> TokenStream {
+    let ty = storage::StorageType::from(attr);
+    let input = parse_macro_input!(input as ItemStruct);
+    storage::Storage::parse(ty, input)
 }
 
 /// Mark the function as an external entry point.
@@ -77,11 +61,4 @@ pub fn storage(_args: TokenStream, input: TokenStream) -> TokenStream {
 pub fn external(_args: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemFn);
     selector::external(input)
-}
-
-/// Mark the function as constructor
-#[proc_macro_attribute]
-pub fn constructor(_args: TokenStream, input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemFn);
-    constructor::parse(input).into()
 }

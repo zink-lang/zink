@@ -6,7 +6,7 @@ use crate::{Buffer, Error, Result};
 use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
 
 /// Low level assembler implementation for EVM.
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Assembler {
     /// Buffer of the assembler.
     buffer: Buffer,
@@ -46,11 +46,11 @@ impl Assembler {
             return Ok(());
         }
 
-        tracing::trace!(
-            "increment stack pointer {}({items}) -> {}",
-            self.sp,
-            self.sp + items
-        );
+        // tracing::trace!(
+        //     "increment stack pointer {}({items}) -> {}",
+        //     self.sp,
+        //     self.sp + items
+        // );
         self.sp += items;
 
         // TODO: fix this limitation: should be 1024. (#127)

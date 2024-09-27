@@ -20,6 +20,7 @@ tracing.workspace = true
 wasmparser.workspace = true
 zabi.workspace = true
 zingen.workspace = true
+hex.workspace = true
 
 # Optional dependencies
 ccli = { workspace = true, optional = true }

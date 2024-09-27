@@ -4,7 +4,7 @@ use crate::ffi;
 use paste::paste;
 
 /// Types implemented this trait are able to be pushed on stack.
-pub trait Asm {
+pub trait Asm: Copy {
     /// Push self on the stack.
     fn push(self);
 }

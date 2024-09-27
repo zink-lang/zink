@@ -42,6 +42,7 @@ impl Abi {
 #[cfg(feature = "hex")]
 mod hex_impl {
     use crate::{result::Result, Abi};
+    use core::fmt;
 
     impl Abi {
         /// Convert [`Abi`] to hex string.
@@ -56,9 +57,9 @@ mod hex_impl {
         }
     }
 
-    impl ToString for Abi {
-        fn to_string(&self) -> String {
-            self.to_hex().unwrap_or_default()
+    impl fmt::Display for Abi {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "{}", self.to_hex().unwrap_or_default())
         }
     }
 
