@@ -16,17 +16,11 @@ pub fn mset(key: i32, value: i32) {
     Mapping::set(key, value);
 }
 
-/// Get from ampping
-#[zink::external]
-pub fn mget(key: i32) -> i32 {
-    Mapping::get(key)
-}
-
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
 #[test]
-fn mapping() -> anyhow::Result<()> {
+fn storage_mapping() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract};
 
     let mut contract = Contract::search("mapping")?.compile()?;
@@ -53,7 +47,7 @@ fn mapping() -> anyhow::Result<()> {
     );
 
     // get value from storage
-    let calldata = contract.encode(&[b"mget(int32)".to_vec(), key.to_bytes32().to_vec()])?;
+    let calldata = contract.encode(&[b"mapping(int32)".to_vec(), key.to_bytes32().to_vec()])?;
     let info = evm.calldata(&calldata).call(contract.address)?;
     assert_eq!(info.ret, value.to_bytes32(), "{info:#?}",);
     Ok(())

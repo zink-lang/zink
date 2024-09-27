@@ -45,7 +45,7 @@ impl Storage {
 
     fn expand_value(&mut self, value: Ident) -> TokenStream {
         let is = &self.target;
-        let name = &self.target.ident;
+        let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
         let mut expanded = quote! {
             #is
@@ -56,17 +56,7 @@ impl Storage {
             }
         };
 
-        let mut getter = if matches!(self.target.vis, Visibility::Public(_)) {
-            let fname = Ident::new(
-                &AsSnakeCase(name.to_string()).to_string(),
-                Span::call_site(),
-            );
-            Some(fname)
-        } else {
-            None
-        };
-
-        if let Some(getter) = self.getter.take().or(getter) {
+        if let Some(getter) = self.getter() {
             // TODO: generate docs from the stroage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
@@ -81,11 +71,11 @@ impl Storage {
         expanded.into()
     }
 
-    fn expand_mapping(&self, key: Ident, value: Ident) -> TokenStream {
+    fn expand_mapping(&mut self, key: Ident, value: Ident) -> TokenStream {
         let is = &self.target;
-        let name = &self.target.ident;
+        let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
-        let expanded = quote! {
+        let mut expanded = quote! {
             #is
 
             impl zink::storage::Mapping for #name {
@@ -96,11 +86,53 @@ impl Storage {
             }
         };
 
+        if let Some(getter) = self.getter() {
+            // TODO: generate docs from the stroage doc
+            let gs: proc_macro2::TokenStream = parse_quote! {
+                #[allow(missing_docs)]
+                #[zink::external]
+                pub fn #getter(key: #key) -> #value {
+                    #name::get(key)
+                }
+            };
+            expanded.extend(gs);
+        }
+
         expanded.into()
     }
 
     fn expand_dk_mapping(&self, key1: Ident, key2: Ident, value: Ident) -> TokenStream {
-        todo!()
+        let is = &self.target;
+        let name = &self.target.ident;
+        let slot = storage_slot(name.to_string());
+        let expanded = quote! {
+            #is
+
+            impl zink::DoubleKeyMapping for #name {
+                const STORAGE_SLOT: i32 = #slot;
+
+                type Key1 = #key1;
+                type Key2 = #key2;
+                type Value = #value;
+            }
+        };
+
+        expanded.into()
+    }
+
+    /// Get the getter of this storage
+    fn getter(&mut self) -> Option<Ident> {
+        let mut getter = if matches!(self.target.vis, Visibility::Public(_)) {
+            let fname = Ident::new(
+                &AsSnakeCase(self.target.ident.to_string()).to_string(),
+                Span::call_site(),
+            );
+            Some(fname)
+        } else {
+            None
+        };
+
+        self.getter.take().or(getter)
     }
 }
 
@@ -136,7 +168,7 @@ impl From<(StorageType, ItemStruct)> for Storage {
 }
 
 /// Zink storage type parser
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub enum StorageType {
     /// Single value storage
     Value(Ident),
@@ -163,9 +195,10 @@ impl From<TokenStream> for StorageType {
                 key: Ident::new(types[0].trim(), Span::call_site()),
                 value: Ident::new(types[1].trim(), Span::call_site()),
             },
-            3 => StorageType::Mapping {
-                key: Ident::new(types[0], Span::call_site()),
-                value: Ident::new(types[1], Span::call_site()),
+            3 => StorageType::DoubleKeyMapping {
+                key1: Ident::new(types[0].trim(), Span::call_site()),
+                key2: Ident::new(types[1].trim(), Span::call_site()),
+                value: Ident::new(types[2].trim(), Span::call_site()),
             },
             _ => panic!("Invalid storage attributes"),
         }
