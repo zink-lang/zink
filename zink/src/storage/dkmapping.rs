@@ -36,12 +36,12 @@ fn load_double_key(key1: impl Asm, key2: impl Asm, index: i32) {
 
         // write key to memory
         key1.push();
-        ffi::asm::push_u8(0x01);
+        ffi::asm::push_u8(0x20);
         ffi::evm::mstore();
 
         // write key to memory
         key2.push();
-        ffi::asm::push_u8(0x02);
+        ffi::asm::push_u8(0x40);
         ffi::evm::mstore();
 
         // hash key

@@ -101,11 +101,11 @@ impl Storage {
         expanded.into()
     }
 
-    fn expand_dk_mapping(&self, key1: Ident, key2: Ident, value: Ident) -> TokenStream {
+    fn expand_dk_mapping(&mut self, key1: Ident, key2: Ident, value: Ident) -> TokenStream {
         let is = &self.target;
-        let name = &self.target.ident;
+        let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
-        let expanded = quote! {
+        let mut expanded = quote! {
             #is
 
             impl zink::DoubleKeyMapping for #name {
@@ -116,6 +116,18 @@ impl Storage {
                 type Value = #value;
             }
         };
+
+        if let Some(getter) = self.getter() {
+            // TODO: generate docs from the stroage doc
+            let gs: proc_macro2::TokenStream = parse_quote! {
+                #[allow(missing_docs)]
+                #[zink::external]
+                pub fn #getter(key1: #key1, key2: #key2) -> #value {
+                    #name::get(key1, key2)
+                }
+            };
+            expanded.extend(gs);
+        }
 
         expanded.into()
     }

@@ -19,7 +19,6 @@ pub fn mset(key1: i32, key2: i32, value: i32) {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-#[ignore]
 #[test]
 fn storage_double_key_mapping() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract};
@@ -41,19 +40,18 @@ fn storage_double_key_mapping() -> anyhow::Result<()> {
     let info = evm.calldata(&calldata).call(contract.address)?;
     assert!(info.ret.is_empty());
 
-    tracing::debug!("{info:?}");
-    // // verify result with database
-    // let storage_key = zint::keccak256(&[0; 0x40]);
-    // assert_eq!(
-    //     evm.storage(contract.address, storage_key)?,
-    //     value.to_bytes32(),
-    // );
+    // verify result with database
+    let storage_key = zint::keccak256(&[[0; 32], [0; 32], 1.to_bytes32()].concat());
+    assert_eq!(
+        evm.storage(contract.address, storage_key)?,
+        value.to_bytes32(),
+    );
 
     // get value from storage
     let calldata = contract.encode(&[
         b"double_key_mapping(int32,int32)".to_vec(),
-        key1.to_bytes32().to_vec(),
         key2.to_bytes32().to_vec(),
+        key1.to_bytes32().to_vec(),
     ])?;
     let info = evm.calldata(&calldata).call(contract.address)?;
     assert_eq!(info.ret, value.to_bytes32(), "{info:#?}",);

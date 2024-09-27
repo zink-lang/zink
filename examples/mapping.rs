@@ -38,7 +38,6 @@ fn storage_mapping() -> anyhow::Result<()> {
     let info = evm.calldata(&calldata).call(contract.address)?;
     assert!(info.ret.is_empty());
 
-    tracing::debug!("{info:?}");
     // verify result with database
     let storage_key = zint::keccak256(&[0; 0x40]);
     assert_eq!(
