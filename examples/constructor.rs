@@ -16,12 +16,6 @@ use zink::Storage;
 #[zink::storage(i32)]
 pub struct Counter;
 
-/// Get value from the storage.
-#[zink::external]
-pub fn get() -> i32 {
-    Counter::get()
-}
-
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
@@ -61,7 +55,7 @@ fn init_storage() -> anyhow::Result<()> {
             .bytecode()?,
     )?;
     info = evm
-        .calldata(&contract.encode(&["get()"])?)
+        .calldata(&contract.encode(&["counter()"])?)
         .call(info.address)?;
 
     assert_eq!(info.ret, value.to_bytes32());

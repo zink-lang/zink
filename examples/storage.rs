@@ -16,12 +16,6 @@ pub fn set(value: i32) {
     Counter::set(value);
 }
 
-/// Get value from the storage.
-#[zink::external]
-pub fn get() -> i32 {
-    Counter::get()
-}
-
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
@@ -40,7 +34,7 @@ fn value() -> anyhow::Result<()> {
     }
 
     {
-        let info = contract.execute(&["get()"])?;
+        let info = contract.execute(&["counter()"])?;
         assert_eq!(info.ret, 0.to_bytes32());
     }
 
