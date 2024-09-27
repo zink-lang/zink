@@ -57,7 +57,7 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the stroage doc
+            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
@@ -87,7 +87,7 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the stroage doc
+            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
@@ -118,7 +118,7 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the stroage doc
+            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
