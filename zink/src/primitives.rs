@@ -1,5 +1,7 @@
 //! Zink primitive types
 
+use crate::param::ParamBytes;
+
 /// Fixed-sized 32 bytes array
 pub type Bytes32 = [u8; 32];
 
@@ -7,7 +9,7 @@ pub type Bytes32 = [u8; 32];
 pub type Bytes20 = [u8; 20];
 
 /// Account address
-pub type Address = Bytes20;
+pub type Address = ParamBytes<20>;
 
 /// Fixed-sized 32 bytes array
 pub type Hash = Bytes32;

@@ -9,11 +9,7 @@ mod param;
 pub mod primitives;
 pub mod storage;
 
-pub use self::{
-    asm::Asm,
-    event::Event,
-    param::{Load, Param},
-};
+pub use self::{asm::Asm, event::Event, param::ParamBytes};
 pub use storage::{DoubleKeyMapping, Mapping, Storage};
 pub use zink_codegen::{external, storage, Event};
 

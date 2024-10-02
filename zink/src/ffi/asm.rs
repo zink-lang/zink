@@ -1,5 +1,7 @@
 //! Assembly FFI.
 
+use crate::param::ParamBytes;
+
 #[link(wasm_import_module = "asm")]
 #[allow(improper_ctypes)]
 extern "C" {
@@ -50,4 +52,7 @@ extern "C" {
 
     /// Load a 64-bit unsigned integer from the storage.
     pub fn sload_u64() -> u64;
+
+    /// Load address from storage
+    pub fn sload_pbytes20() -> ParamBytes<20>;
 }
