@@ -3,7 +3,7 @@
 use crate::{ffi, storage::StorageValue, Asm};
 
 /// Param for non-primitive types
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct ParamBytes<const S: u64> {
     ptr: u32,
 }
