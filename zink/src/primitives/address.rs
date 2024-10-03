@@ -1,17 +1,16 @@
-use crate::{ffi, primitives::Bytes24, storage::StorageValue, Asm};
+use crate::{ffi, storage::StorageValue, Asm};
 
 /// Account address
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Address(Bytes24);
+pub struct Address(i32);
 
-impl PartialEq for Address {
-    fn eq(&self, other: &Self) -> bool {
-        unsafe { ffi::address_eq(*self, *other) }
+impl Address {
+    /// if self equal to another
+    pub fn eq(self, other: Self) -> bool {
+        unsafe { ffi::address_eq(self, other) }
     }
 }
-
-impl Eq for Address {}
 
 impl Asm for Address {
     fn push(self) {

@@ -13,7 +13,7 @@ pub struct Owner;
 /// set owner
 #[zink::external]
 pub fn is_owner(owner: Address) -> bool {
-    Owner::get() == owner
+    Owner::get().eq(owner)
 }
 
 #[cfg(not(target_arch = "wasm32"))]
