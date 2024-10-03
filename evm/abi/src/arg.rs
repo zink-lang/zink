@@ -60,7 +60,7 @@ impl From<&str> for Param {
             "u16" | "uint16" => Param::UInt16,
             "u32" | "uint32" => Param::UInt32,
             "u64" | "uint64" => Param::UInt64,
-            "bool" | "boolean" => Param::Bool,
+            "bool" => Param::Bool,
             "address" | "Address" => Param::Address,
             "Bytes" | "Vec<u8>" => Param::Bytes,
             "String" => Param::String,

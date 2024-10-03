@@ -6,7 +6,9 @@ pub trait Bytes32: Sized {
     fn to_bytes32(&self) -> [u8; 32];
 
     /// Convert type to vec of bytes.
-    fn to_vec(&self) -> Vec<u8>;
+    fn to_vec(&self) -> Vec<u8> {
+        self.to_bytes32().to_vec()
+    }
 }
 
 /// Implement Bytes32 for types.
@@ -92,6 +94,17 @@ impl Bytes32 for &str {
 
     fn to_vec(&self) -> Vec<u8> {
         self.as_bytes().into()
+    }
+}
+
+impl Bytes32 for bool {
+    fn to_bytes32(&self) -> [u8; 32] {
+        let mut output = [0; 32];
+        if *self {
+            output[31] = 1;
+        }
+
+        output
     }
 }
 

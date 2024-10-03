@@ -1,6 +1,6 @@
 //! Assembly FFI.
 
-use crate::param::ParamBytes;
+use crate::primitives::Address;
 
 #[link(wasm_import_module = "asm")]
 #[allow(improper_ctypes)]
@@ -29,6 +29,9 @@ extern "C" {
     /// Push a 64-bit unsigned integer to the stack.
     pub fn push_u64(val: u64);
 
+    /// Push address to stack
+    pub fn push_address(address: Address);
+
     /// Load a 8-bit signed integer from the storage.
     pub fn sload_i8() -> i8;
 
@@ -54,5 +57,5 @@ extern "C" {
     pub fn sload_u64() -> u64;
 
     /// Load address from storage
-    pub fn sload_pbytes20() -> ParamBytes<20>;
+    pub fn sload_address() -> Address;
 }
