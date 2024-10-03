@@ -7,6 +7,9 @@ pub struct Address(i32);
 
 impl Address {
     /// if self equal to another
+    ///
+    /// NOTE: not using core::cmp because it uses registers in wasm
+    #[allow(clippy::should_implement_trait)]
     pub fn eq(self, other: Self) -> bool {
         unsafe { ffi::address_eq(self, other) }
     }

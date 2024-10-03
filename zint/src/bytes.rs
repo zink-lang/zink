@@ -53,6 +53,14 @@ impl Bytes32 for Vec<u8> {
     }
 }
 
+impl Bytes32 for [u8; 20] {
+    fn to_bytes32(&self) -> [u8; 32] {
+        let mut bytes = [0u8; 32];
+        bytes[12..].copy_from_slice(self);
+        bytes
+    }
+}
+
 impl Bytes32 for [u8; 32] {
     fn to_bytes32(&self) -> [u8; 32] {
         *self

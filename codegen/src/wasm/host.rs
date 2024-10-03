@@ -55,7 +55,7 @@ impl TryFrom<(&str, &str)> for HostFunc {
                 Error::HostFuncNotFound(module.into(), name.into())
             })?)),
             ("zinkc", "emit_abi") => Ok(Self::EmitABI),
-            ("zinkc", "address_eq") => Ok(Self::AddressEq),
+            ("zinkc", "address_eq") => Ok(Self::Evm(OpCode::EQ)),
             _ => {
                 tracing::warn!("Failed to load host function: {:?}", import);
                 Err(Error::HostFuncNotFound(module.into(), name.into()))
