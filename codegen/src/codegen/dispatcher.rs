@@ -90,6 +90,8 @@ impl Dispatcher {
     // 1. drop selector.
     // 2. load calldata to stack.
     // 3. jump to the callee function.
+    //
+    // TODO: Parse bytes from the selector.
     fn process(&mut self, len: usize, last: bool) -> Result<bool> {
         let len = len as u8;
         if last && len == 0 {
@@ -111,6 +113,20 @@ impl Dispatcher {
             }
 
             if len > 0 {
+                // FIXME: Using the length of parameters here
+                // is incorrect once we have params have length
+                // over than 4 bytes.
+                //
+                // 1. decode the abi from signature, if contains
+                // bytes type, use `calldatacopy` to load the data
+                // on stack.
+                //
+                // 2. if the present param is a 4 bytes value, use
+                // `calldataload[n]` directly.
+                //
+                // Actually 1. is more closed to the common cases,
+                // what 4 bytes for in EVM?
+
                 // [ ret, callee ] -> [ param * len, ret, callee ]
                 for p in (0..len).rev() {
                     let offset = 4 + p * 32;

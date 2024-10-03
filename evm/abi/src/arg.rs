@@ -21,27 +21,50 @@ pub struct Arg {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
 pub enum Param {
+    /// A 8-bit integer.
+    Int8,
+    /// A 16-bit integer.
+    Int16,
     /// A 32-bit integer.
     Int32,
     /// A 64-bit integer.
     Int64,
+    /// A 8-bit unsigned integer.
+    UInt8,
+    /// A 16-bit unsigned integer.
+    UInt16,
     /// A 32-bit unsigned integer.
     UInt32,
     /// A 64-bit unsigned integer.
     UInt64,
-    /// An unknown type.
+    /// A boolean type.
+    Bool,
+    /// An EVM address.
+    Address,
+    /// A byte array.
     #[default]
-    Unknown,
+    Bytes,
+    /// A string type.
+    String,
+    /// An unknown type.
+    Unknown(String),
 }
 
 impl From<&str> for Param {
     fn from(s: &str) -> Self {
         match s {
+            "i8" | "int8" => Param::Int8,
+            "u8" | "uint8" => Param::UInt8,
             "i32" | "int32" => Param::Int32,
             "i64" | "int64" => Param::Int64,
+            "u16" | "uint16" => Param::UInt16,
             "u32" | "uint32" => Param::UInt32,
-            "usize" | "u64" | "uint64" => Param::UInt64,
-            _ => Param::Unknown,
+            "u64" | "uint64" => Param::UInt64,
+            "bool" => Param::Bool,
+            "address" | "Address" => Param::Address,
+            "Bytes" | "Vec<u8>" => Param::Bytes,
+            "String" => Param::String,
+            _ => Param::Unknown(s.to_string()),
         }
     }
 }
@@ -57,11 +80,19 @@ impl FromStr for Param {
 impl AsRef<str> for Param {
     fn as_ref(&self) -> &str {
         match self {
+            Param::Int8 => "int8",
+            Param::Int16 => "int16",
             Param::Int32 => "int32",
             Param::Int64 => "int64",
+            Param::UInt8 => "uint8",
+            Param::UInt16 => "uint16",
             Param::UInt32 => "uint32",
             Param::UInt64 => "uint64",
-            Param::Unknown => "unknown",
+            Param::Address => "address",
+            Param::Bool => "boolean",
+            Param::Bytes => "bytes",
+            Param::String => "string",
+            Param::Unknown(ty) => ty.as_ref(),
         }
     }
 }
