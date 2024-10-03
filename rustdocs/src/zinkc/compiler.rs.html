@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/compiler.rs`."><title>compiler.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-42fa08075bb476ff.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (2bd1e894e 2024-09-26)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-54bc299d2a5e4e43.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zinkc/</div>compiler.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/compiler.rs`."><title>compiler.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d5c83a227aeda803.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (18b1161ec 2024-10-02)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zinkc/</div>compiler.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -124,7 +124,11 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
 
 </span><span class="kw">use crate</span>::{parser::Parser, Artifact, Config, Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>zabi::Abi;
@@ -193,18 +197,19 @@
 
     <span class="doccomment">/// Compile EVM dispatcher.
     ///
-    /// Drain selectors anyway, if dispatcher is
-    /// enabled, compile dispatcher.
+    /// Drain selectors anyway, compile dispatcher if it is enabled.
     </span><span class="kw">fn </span>compile_dispatcher(<span class="kw-2">&amp;mut </span><span class="self">self</span>, parser: <span class="kw-2">&amp;mut </span>Parser) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>selectors = parser.funcs.drain_selectors(<span class="kw-2">&amp;</span>parser.exports);
+        <span class="kw">let </span>env = parser.to_env();
+
         <span class="kw">if </span>!<span class="self">self</span>.config.dispatcher {
+            <span class="self">self</span>.abi.append(<span class="kw-2">&amp;mut </span>env.load_abis(<span class="kw-2">&amp;</span>selectors)<span class="question-mark">?</span>);
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>dispatcher = Dispatcher::new(parser.to_env(), <span class="kw-2">&amp;</span>parser.funcs)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>dispatcher = Dispatcher::new(env, <span class="kw-2">&amp;</span>parser.funcs)<span class="question-mark">?</span>;
         <span class="kw">let </span>buffer = dispatcher.finish(selectors, <span class="kw-2">&amp;mut </span><span class="self">self</span>.table)<span class="question-mark">?</span>;
         <span class="self">self</span>.buffer.extend_from_slice(<span class="kw-2">&amp;</span>buffer);
-
         <span class="kw">if </span><span class="self">self</span>.buffer.len() &gt; BUFFER_LIMIT {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::BufferOverflow(<span class="self">self</span>.buffer.len()));
         }
@@ -217,15 +222,12 @@
     </span><span class="kw">fn </span>compile_func(<span class="kw-2">&amp;mut </span><span class="self">self</span>, env: Env, <span class="kw-2">mut </span>func: wasm::Function&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>func_index = func.index();
         <span class="kw">let </span>sig = func.sig()<span class="question-mark">?</span>;
+        <span class="kw">let </span>abi = <span class="self">self</span>.abi(<span class="kw-2">&amp;</span>env, func_index);
 
-        <span class="macro">tracing::trace!</span>(<span class="string">"compile function {}: {:?}"</span>, func_index, sig);
-        <span class="kw">let </span>is_main = <span class="kw">if </span><span class="self">self</span>.config.dispatcher {
-            <span class="bool-val">false
-        </span>} <span class="kw">else </span>{
-            func_index - (env.imports.len() <span class="kw">as </span>u32) == <span class="number">0
-        </span>};
+        <span class="macro">tracing::debug!</span>(<span class="string">"compile function {func_index} {:?}, abi: {abi:#?}"</span>, sig);
+        <span class="kw">let </span>is_main = !<span class="self">self</span>.config.dispatcher &amp;&amp; env.is_main(func_index);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>codegen = Function::new(env, sig, is_main)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>codegen = Function::new(env, sig, abi, is_main)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>locals_reader = func.body.get_locals_reader()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ops_reader = func.body.get_operators_reader()<span class="question-mark">?</span>;
 
@@ -248,6 +250,12 @@
         }
 
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Get abi from env and function index
+    </span><span class="kw">fn </span>abi(<span class="kw-2">&amp;</span><span class="self">self</span>, env: <span class="kw-2">&amp;</span>Env, index: u32) -&gt; <span class="prelude-ty">Option</span>&lt;Abi&gt; {
+        <span class="kw">let </span>name = env.exports.get(<span class="kw-2">&amp;</span>index)<span class="question-mark">?</span>;
+        <span class="self">self</span>.abi.iter().find(|a| name == <span class="kw-2">&amp;</span>a.name).cloned()
     }
 }
 </code></pre></div></section></main></body></html>
