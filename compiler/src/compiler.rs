@@ -67,18 +67,19 @@ impl Compiler {
 
     /// Compile EVM dispatcher.
     ///
-    /// Drain selectors anyway, if dispatcher is
-    /// enabled, compile dispatcher.
+    /// Drain selectors anyway, compile dispatcher if it is enabled.
     fn compile_dispatcher(&mut self, parser: &mut Parser) -> Result<()> {
         let selectors = parser.funcs.drain_selectors(&parser.exports);
+        let env = parser.to_env();
+
         if !self.config.dispatcher {
+            // self.abi.append(&mut env.load_abis(&selectors)?);
             return Ok(());
         }
 
-        let mut dispatcher = Dispatcher::new(parser.to_env(), &parser.funcs)?;
+        let mut dispatcher = Dispatcher::new(env, &parser.funcs)?;
         let buffer = dispatcher.finish(selectors, &mut self.table)?;
         self.buffer.extend_from_slice(&buffer);
-
         if self.buffer.len() > BUFFER_LIMIT {
             return Err(Error::BufferOverflow(self.buffer.len()));
         }

@@ -11,7 +11,10 @@ pub use self::{
     func::{Function, Functions},
     host::HostFunc,
 };
+use crate::{Error, Result};
 use std::collections::BTreeMap;
+use wasmparser::Operator;
+use zabi::Abi;
 
 macro_rules! impl_deref {
     ($doc:literal, $name:ident, $target:ty) => {
@@ -52,6 +55,45 @@ pub struct Env {
     pub exports: Exports,
     /// WASM data slots
     pub data: Data,
+}
+
+impl Env {
+    /// Load abis from functions
+    pub fn load_abis(&self, funs: &Functions<'_>) -> Result<Vec<Abi>> {
+        let mut abis: Vec<_> = Default::default();
+        for (_, fun) in funs.iter() {
+            abis.push(self.load_abi(fun)?);
+        }
+
+        Ok(abis)
+    }
+
+    /// Load abi from function
+    pub fn load_abi(&self, fun: &Function<'_>) -> Result<Abi> {
+        let mut reader = fun.body.get_operators_reader()?;
+
+        let Operator::I32Const { value: offset } = reader.read()? else {
+            return Err(Error::InvalidSelector);
+        };
+        let Operator::I32Const { value: length } = reader.read()? else {
+            return Err(Error::InvalidSelector);
+        };
+
+        // Validate zinkc helper `emit_abi`
+        let Operator::Call {
+            function_index: index,
+        } = reader.read()?
+        else {
+            return Err(Error::InvalidSelector);
+        };
+
+        if !self.imports.is_emit_abi(index) {
+            return Err(Error::FuncNotImported("emit_abi".into()));
+        }
+
+        let abi = self.data.load(offset, length as usize)?;
+        Abi::from_hex(String::from_utf8_lossy(&abi)).map_err(Into::into)
+    }
 }
 
 impl Imports {
