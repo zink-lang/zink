@@ -95,11 +95,7 @@ impl Compiler {
         let abi = self.abi(&env, func_index);
 
         tracing::debug!("compile function {func_index} {:?}, abi: {abi:#?}", sig);
-        let is_main = if self.config.dispatcher {
-            false
-        } else {
-            func_index - (env.imports.len() as u32) == 0
-        };
+        let is_main = !self.config.dispatcher && env.is_main(func_index);
 
         let mut codegen = Function::new(env, sig, abi, is_main)?;
         let mut locals_reader = func.body.get_locals_reader()?;

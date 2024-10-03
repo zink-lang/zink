@@ -105,6 +105,11 @@ impl Env {
 
         Err(Error::FuncNotImported(name.into()))
     }
+
+    /// If the present function index is the main function
+    pub fn is_main(&self, index: u32) -> bool {
+        self.imports.len() as u32 == index
+    }
 }
 
 impl Imports {
