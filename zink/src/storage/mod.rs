@@ -1,15 +1,11 @@
 //! Zink storage implementation.
 
 use crate::{ffi, Asm};
-pub use {
-    array::StorageArray,
-    kv::Storage,
-    mapping::{Mapping, MappingKey},
-};
+pub use {dkmapping::DoubleKeyMapping, mapping::Mapping, value::Storage};
 
-mod array;
-mod kv;
+mod dkmapping;
 mod mapping;
+mod value;
 
 /// Interface for the value of kv based storage
 pub trait StorageValue: Asm {
@@ -27,13 +23,4 @@ impl StorageValue for u32 {
     fn sload() -> Self {
         unsafe { ffi::asm::sload_u32() }
     }
-}
-
-/// Sub index of storage
-pub trait StorageIndex {
-    /// Increment the index
-    fn increment();
-
-    /// Load index to stack
-    fn load();
 }

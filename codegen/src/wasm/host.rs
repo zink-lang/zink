@@ -15,6 +15,8 @@ pub enum HostFunc {
     //
     /// Emit ABI to the compiler.
     EmitABI,
+    /// check equal of two addresses
+    AddressEq,
 }
 
 impl HostFunc {
@@ -53,6 +55,7 @@ impl TryFrom<(&str, &str)> for HostFunc {
                 Error::HostFuncNotFound(module.into(), name.into())
             })?)),
             ("zinkc", "emit_abi") => Ok(Self::EmitABI),
+            ("zinkc", "address_eq") => Ok(Self::Evm(OpCode::EQ)),
             _ => {
                 tracing::warn!("Failed to load host function: {:?}", import);
                 Err(Error::HostFuncNotFound(module.into(), name.into()))

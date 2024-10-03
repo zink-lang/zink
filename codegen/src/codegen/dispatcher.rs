@@ -1,13 +1,12 @@
 //! Code generator for EVM dispatcher.
 
-use std::collections::BTreeMap;
-
 use crate::{
     codegen::code::ExtFunc,
     wasm::{self, Env, Functions, ToLSBytes},
     Error, JumpTable, MacroAssembler, Result,
 };
-use wasmparser::{FuncType, Operator};
+use std::collections::BTreeMap;
+use wasmparser::FuncType;
 use zabi::Abi;
 
 /// Code generator for EVM dispatcher.
@@ -44,14 +43,13 @@ impl Dispatcher {
     /// Emit compiled code to the given buffer.
     pub fn finish(&mut self, selectors: Functions<'_>, table: &mut JumpTable) -> Result<Vec<u8>> {
         if selectors.is_empty() {
-            return Err(Error::SelectorNotFound);
+            return Ok(Default::default());
         }
 
         self.asm._push0()?;
         self.asm._calldataload()?;
         self.asm.push(&[0xe0])?;
         self.asm._shr()?;
-
         let mut len = selectors.len();
         for (_, func) in selectors.iter() {
             self.emit_selector(func, len == 1)?;
@@ -60,44 +58,6 @@ impl Dispatcher {
 
         table.merge(self.table.clone(), 0)?;
         Ok(self.asm.buffer().into())
-    }
-
-    /// Query exported function from selector.
-    fn query_func(&self, name: &str) -> Result<u32> {
-        for (index, export) in self.env.exports.iter() {
-            if export == name {
-                return Ok(*index);
-            }
-        }
-
-        Err(Error::FuncNotImported(name.into()))
-    }
-
-    /// Load function ABI.
-    fn load_abi(&mut self, selector: &wasm::Function<'_>) -> Result<Abi> {
-        let mut reader = selector.body.get_operators_reader()?;
-
-        let Operator::I32Const { value: offset } = reader.read()? else {
-            return Err(Error::InvalidSelector);
-        };
-        let Operator::I32Const { value: length } = reader.read()? else {
-            return Err(Error::InvalidSelector);
-        };
-
-        // Validate zinkc helper `emit_abi`
-        let Operator::Call {
-            function_index: index,
-        } = reader.read()?
-        else {
-            return Err(Error::InvalidSelector);
-        };
-
-        if !self.env.imports.is_emit_abi(index) {
-            return Err(Error::FuncNotImported("emit_abi".into()));
-        }
-
-        let abi = self.env.data.load(offset, length as usize)?;
-        Abi::from_hex(String::from_utf8_lossy(&abi)).map_err(Into::into)
     }
 
     /// Emit return of ext function.
@@ -130,6 +90,8 @@ impl Dispatcher {
     // 1. drop selector.
     // 2. load calldata to stack.
     // 3. jump to the callee function.
+    //
+    // TODO: Parse bytes from the selector.
     fn process(&mut self, len: usize, last: bool) -> Result<bool> {
         let len = len as u8;
         if last && len == 0 {
@@ -151,6 +113,20 @@ impl Dispatcher {
             }
 
             if len > 0 {
+                // FIXME: Using the length of parameters here
+                // is incorrect once we have params have length
+                // over than 4 bytes.
+                //
+                // 1. decode the abi from signature, if contains
+                // bytes type, use `calldatacopy` to load the data
+                // on stack.
+                //
+                // 2. if the present param is a 4 bytes value, use
+                // `calldataload[n]` directly.
+                //
+                // Actually 1. is more closed to the common cases,
+                // what 4 bytes for in EVM?
+
                 // [ ret, callee ] -> [ param * len, ret, callee ]
                 for p in (0..len).rev() {
                     let offset = 4 + p * 32;
@@ -186,7 +162,7 @@ impl Dispatcher {
 
     /// Emit selector to buffer.
     fn emit_selector(&mut self, selector: &wasm::Function<'_>, last: bool) -> Result<()> {
-        let abi = self.load_abi(selector)?;
+        let abi = self.env.load_abi(selector)?;
 
         // TODO: refactor this. (#206)
         self.abi.push(abi.clone());
@@ -199,7 +175,7 @@ impl Dispatcher {
             abi.signature(),
         );
 
-        let func = self.query_func(&abi.name)?;
+        let func = self.env.query_func(&abi.name)?;
         let sig = self
             .funcs
             .get(&func)
