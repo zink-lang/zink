@@ -10,9 +10,12 @@ use crate::{
     Buffer, Error, Result,
 };
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
+use zabi::Abi;
 
 /// The code generation abstraction.
 pub struct Function {
+    /// Abi of this function,
+    pub abi: Option<Abi>,
     /// The backtrace.
     pub backtrace: Backtrace,
     /// Control stack frames.
@@ -33,13 +36,14 @@ pub struct Function {
 
 impl Function {
     /// Create a new code generator.
-    pub fn new(env: Env, ty: FuncType, is_main: bool) -> Result<Self> {
+    pub fn new(env: Env, ty: FuncType, abi: Option<Abi>, is_main: bool) -> Result<Self> {
         let mut params_count = 0;
         if !is_main {
             params_count = ty.params().len() as u8;
         }
 
         let mut codegen = Self {
+            abi,
             backtrace: Backtrace::default(),
             control: ControlStack::default(),
             env,

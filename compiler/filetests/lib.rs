@@ -26,7 +26,7 @@ impl Test {
             .ok();
 
         let Test { module, name, wasm } = self;
-        tracing::info!("Compiling {}/{}", module, name);
+        tracing::info!("Compiling {module}::{name}");
 
         zinkc::Compiler::default().compile(&wasm)?;
         Ok(())
