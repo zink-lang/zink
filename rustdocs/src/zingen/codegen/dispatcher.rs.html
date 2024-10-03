@@ -207,7 +207,23 @@
 <a href="#206" id="206">206</a>
 <a href="#207" id="207">207</a>
 <a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a></pre></div><pre class="rust"><code><span class="doccomment">//! Code generator for EVM dispatcher.
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a></pre></div><pre class="rust"><code><span class="doccomment">//! Code generator for EVM dispatcher.
 
 </span><span class="kw">use crate</span>::{
     codegen::code::ExtFunc,
@@ -299,6 +315,8 @@
     // 1. drop selector.
     // 2. load calldata to stack.
     // 3. jump to the callee function.
+    //
+    // TODO: Parse bytes from the selector.
     </span><span class="kw">fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize, last: bool) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="kw">let </span>len = len <span class="kw">as </span>u8;
         <span class="kw">if </span>last &amp;&amp; len == <span class="number">0 </span>{
@@ -320,7 +338,21 @@
             }
 
             <span class="kw">if </span>len &gt; <span class="number">0 </span>{
-                <span class="comment">// [ ret, callee ] -&gt; [ param * len, ret, callee ]
+                <span class="comment">// FIXME: Using the length of parameters here
+                // is incorrect once we have params have length
+                // over than 4 bytes.
+                //
+                // 1. decode the abi from signature, if contains
+                // bytes type, use `calldatacopy` to load the data
+                // on stack.
+                //
+                // 2. if the present param is a 4 bytes value, use
+                // `calldataload[n]` directly.
+                //
+                // Actually 1. is more closed to the common cases,
+                // what 4 bytes for in EVM?
+
+                // [ ret, callee ] -&gt; [ param * len, ret, callee ]
                 </span><span class="kw">for </span>p <span class="kw">in </span>(<span class="number">0</span>..len).rev() {
                     <span class="kw">let </span>offset = <span class="number">4 </span>+ p * <span class="number">32</span>;
                     <span class="self">self</span>.asm.push(<span class="kw-2">&amp;</span>offset.to_ls_bytes())<span class="question-mark">?</span>;

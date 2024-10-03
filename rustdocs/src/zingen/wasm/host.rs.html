@@ -60,7 +60,10 @@
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a></pre></div><pre class="rust"><code><span class="doccomment">//! Host functions
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a></pre></div><pre class="rust"><code><span class="doccomment">//! Host functions
 
 </span><span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>core::str::FromStr;
@@ -77,6 +80,8 @@
     //
     </span><span class="doccomment">/// Emit ABI to the compiler.
     </span>EmitABI,
+    <span class="doccomment">/// check equal of two addresses
+    </span>AddressEq,
 }
 
 <span class="kw">impl </span>HostFunc {
@@ -115,6 +120,7 @@
                 Error::HostFuncNotFound(module.into(), name.into())
             })<span class="question-mark">?</span>)),
             (<span class="string">"zinkc"</span>, <span class="string">"emit_abi"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::EmitABI),
+            (<span class="string">"zinkc"</span>, <span class="string">"address_eq"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::EQ)),
             <span class="kw">_ </span>=&gt; {
                 <span class="macro">tracing::warn!</span>(<span class="string">"Failed to load host function: {:?}"</span>, import);
                 <span class="prelude-val">Err</span>(Error::HostFuncNotFound(module.into(), name.into()))

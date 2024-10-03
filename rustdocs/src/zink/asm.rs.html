@@ -25,19 +25,7 @@
 <a href="#24" id="24">24</a>
 <a href="#25" id="25">25</a>
 <a href="#26" id="26">26</a>
-<a href="#27" id="27">27</a>
-<a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
-<a href="#31" id="31">31</a>
-<a href="#32" id="32">32</a>
-<a href="#33" id="33">33</a>
-<a href="#34" id="34">34</a>
-<a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
-<a href="#38" id="38">38</a>
-<a href="#39" id="39">39</a></pre></div><pre class="rust"><code><span class="doccomment">//! Assembly trait implementation.
+<a href="#27" id="27">27</a></pre></div><pre class="rust"><code><span class="doccomment">//! Assembly trait implementation.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::ffi;
 <span class="kw">use </span>paste::paste;
@@ -58,22 +46,10 @@
             }
         }
     };
-    (<span class="macro-nonterminal">$len</span>:expr) =&gt; {
-        <span class="kw">impl </span>Asm <span class="kw">for </span>[u8; <span class="macro-nonterminal">$len</span>] {
-            <span class="kw">fn </span>push(<span class="self">self</span>) {
-                <span class="kw">unsafe </span>{
-                    <span class="macro">paste!</span> { ffi::evm::[&lt;push <span class="macro-nonterminal">$len</span>&gt;](<span class="self">self</span>.as_ptr() <span class="kw">as </span>i32); }
-                }
-            }
-        }
-    };
     ($(<span class="macro-nonterminal">$ty</span>:tt),+) =&gt; {
         $(<span class="macro">impl_asm!</span>(<span class="macro-nonterminal">$ty</span>);)+
     };
 }
 
-<span class="macro">impl_asm!</span>(
-    i8, u8, i16, u16, i32, u32, i64, u64, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>,
-    <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">32
-</span>);
+<span class="macro">impl_asm!</span>(i8, u8, i16, u16, i32, u32, i64, u64);
 </code></pre></div></section></main></body></html>

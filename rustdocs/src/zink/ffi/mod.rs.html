@@ -10,9 +10,15 @@
 <a href="#9" id="9">9</a>
 <a href="#10" id="10">10</a>
 <a href="#11" id="11">11</a>
-<a href="#12" id="12">12</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink FFI.
+<a href="#12" id="12">12</a>
+<a href="#13" id="13">13</a>
+<a href="#14" id="14">14</a>
+<a href="#15" id="15">15</a>
+<a href="#16" id="16">16</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink FFI.
 
-</span><span class="kw">pub mod </span>asm;
+</span><span class="kw">use </span><span class="kw">crate</span>::primitives::Address;
+
+<span class="kw">pub mod </span>asm;
 <span class="kw">pub mod </span>evm;
 
 <span class="attr">#[link(wasm_import_module = <span class="string">"zinkc"</span>)]
@@ -21,5 +27,7 @@
     <span class="doccomment">/// Emit ABI to host state.
     </span><span class="kw">pub fn </span>emit_abi(ptr: u32, len: u32);
 
+    <span class="doccomment">/// Equal operation for addresses
+    </span><span class="kw">pub fn </span>address_eq(this: Address, other: Address) -&gt; bool;
 }
 </code></pre></div></section></main></body></html>

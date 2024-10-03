@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"type":["Address","Bytes32","Hash"]};
+window.SIDEBAR_ITEMS = {"mod":["address"],"struct":["Address"]};

@@ -82,7 +82,38 @@
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a></pre></div><pre class="rust"><code><span class="doccomment">//! Arg of solidity ABI.
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a></pre></div><pre class="rust"><code><span class="doccomment">//! Arg of solidity ABI.
 
 </span><span class="kw">use </span>core::{convert::Infallible, fmt, str::FromStr};
 
@@ -105,27 +136,50 @@
 #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = <span class="string">"serde"</span>, serde(rename_all = <span class="string">"lowercase"</span>))]
 </span><span class="kw">pub enum </span>Param {
+    <span class="doccomment">/// A 8-bit integer.
+    </span>Int8,
+    <span class="doccomment">/// A 16-bit integer.
+    </span>Int16,
     <span class="doccomment">/// A 32-bit integer.
     </span>Int32,
     <span class="doccomment">/// A 64-bit integer.
     </span>Int64,
+    <span class="doccomment">/// A 8-bit unsigned integer.
+    </span>UInt8,
+    <span class="doccomment">/// A 16-bit unsigned integer.
+    </span>UInt16,
     <span class="doccomment">/// A 32-bit unsigned integer.
     </span>UInt32,
     <span class="doccomment">/// A 64-bit unsigned integer.
     </span>UInt64,
-    <span class="doccomment">/// An unknown type.
+    <span class="doccomment">/// A boolean type.
+    </span>Bool,
+    <span class="doccomment">/// An EVM address.
+    </span>Address,
+    <span class="doccomment">/// A byte array.
     </span><span class="attr">#[default]
-    </span>Unknown,
+    </span>Bytes,
+    <span class="doccomment">/// A string type.
+    </span>String,
+    <span class="doccomment">/// An unknown type.
+    </span>Unknown(String),
 }
 
 <span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>Param {
     <span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>s {
+            <span class="string">"i8" </span>| <span class="string">"int8" </span>=&gt; Param::Int8,
+            <span class="string">"u8" </span>| <span class="string">"uint8" </span>=&gt; Param::UInt8,
             <span class="string">"i32" </span>| <span class="string">"int32" </span>=&gt; Param::Int32,
             <span class="string">"i64" </span>| <span class="string">"int64" </span>=&gt; Param::Int64,
+            <span class="string">"u16" </span>| <span class="string">"uint16" </span>=&gt; Param::UInt16,
             <span class="string">"u32" </span>| <span class="string">"uint32" </span>=&gt; Param::UInt32,
-            <span class="string">"usize" </span>| <span class="string">"u64" </span>| <span class="string">"uint64" </span>=&gt; Param::UInt64,
-            <span class="kw">_ </span>=&gt; Param::Unknown,
+            <span class="string">"u64" </span>| <span class="string">"uint64" </span>=&gt; Param::UInt64,
+            <span class="string">"bool" </span>=&gt; Param::Bool,
+            <span class="string">"address" </span>| <span class="string">"Address" </span>=&gt; Param::Address,
+            <span class="string">"Bytes" </span>| <span class="string">"Vec&lt;u8&gt;" </span>=&gt; Param::Bytes,
+            <span class="string">"String" </span>=&gt; Param::String,
+            <span class="kw">_ </span>=&gt; Param::Unknown(s.to_string()),
         }
     }
 }
@@ -141,11 +195,19 @@
 <span class="kw">impl </span>AsRef&lt;str&gt; <span class="kw">for </span>Param {
     <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self </span>{
+            Param::Int8 =&gt; <span class="string">"int8"</span>,
+            Param::Int16 =&gt; <span class="string">"int16"</span>,
             Param::Int32 =&gt; <span class="string">"int32"</span>,
             Param::Int64 =&gt; <span class="string">"int64"</span>,
+            Param::UInt8 =&gt; <span class="string">"uint8"</span>,
+            Param::UInt16 =&gt; <span class="string">"uint16"</span>,
             Param::UInt32 =&gt; <span class="string">"uint32"</span>,
             Param::UInt64 =&gt; <span class="string">"uint64"</span>,
-            Param::Unknown =&gt; <span class="string">"unknown"</span>,
+            Param::Address =&gt; <span class="string">"address"</span>,
+            Param::Bool =&gt; <span class="string">"boolean"</span>,
+            Param::Bytes =&gt; <span class="string">"bytes"</span>,
+            Param::String =&gt; <span class="string">"string"</span>,
+            Param::Unknown(ty) =&gt; ty.as_ref(),
         }
     }
 }

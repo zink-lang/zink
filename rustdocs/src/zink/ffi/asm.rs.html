@@ -51,9 +51,19 @@
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a></pre></div><pre class="rust"><code><span class="doccomment">//! Assembly FFI.
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a></pre></div><pre class="rust"><code><span class="doccomment">//! Assembly FFI.
 
-</span><span class="attr">#[link(wasm_import_module = <span class="string">"asm"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::primitives::Address;
+
+<span class="attr">#[link(wasm_import_module = <span class="string">"asm"</span>)]
 #[allow(improper_ctypes)]
 </span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="doccomment">/// Push a 8-bit signed integer to the stack.
@@ -80,6 +90,9 @@
     <span class="doccomment">/// Push a 64-bit unsigned integer to the stack.
     </span><span class="kw">pub fn </span>push_u64(val: u64);
 
+    <span class="doccomment">/// Push address to stack
+    </span><span class="kw">pub fn </span>push_address(address: Address);
+
     <span class="doccomment">/// Load a 8-bit signed integer from the storage.
     </span><span class="kw">pub fn </span>sload_i8() -&gt; i8;
 
@@ -103,5 +116,8 @@
 
     <span class="doccomment">/// Load a 64-bit unsigned integer from the storage.
     </span><span class="kw">pub fn </span>sload_u64() -&gt; u64;
+
+    <span class="doccomment">/// Load address from storage
+    </span><span class="kw">pub fn </span>sload_address() -&gt; Address;
 }
 </code></pre></div></section></main></body></html>
