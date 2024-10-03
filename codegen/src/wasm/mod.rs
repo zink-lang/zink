@@ -94,6 +94,17 @@ impl Env {
         let abi = self.data.load(offset, length as usize)?;
         Abi::from_hex(String::from_utf8_lossy(&abi)).map_err(Into::into)
     }
+
+    /// Query exported function from selector.
+    pub fn query_func(&self, name: &str) -> Result<u32> {
+        for (index, export) in self.exports.iter() {
+            if export == name {
+                return Ok(*index);
+            }
+        }
+
+        Err(Error::FuncNotImported(name.into()))
+    }
 }
 
 impl Imports {

@@ -60,17 +60,6 @@ impl Dispatcher {
         Ok(self.asm.buffer().into())
     }
 
-    /// Query exported function from selector.
-    fn query_func(&self, name: &str) -> Result<u32> {
-        for (index, export) in self.env.exports.iter() {
-            if export == name {
-                return Ok(*index);
-            }
-        }
-
-        Err(Error::FuncNotImported(name.into()))
-    }
-
     /// Emit return of ext function.
     fn ext_return(&mut self, sig: &FuncType) -> Result<()> {
         self.asm.increment_sp(1)?;
@@ -170,7 +159,7 @@ impl Dispatcher {
             abi.signature(),
         );
 
-        let func = self.query_func(&abi.name)?;
+        let func = self.env.query_func(&abi.name)?;
         let sig = self
             .funcs
             .get(&func)
