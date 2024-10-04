@@ -28,7 +28,7 @@ pub fn init(name: u32, symbol: u32) {
 /// Get value from the storage.
 #[zink::external]
 pub fn decimals() -> u32 {
-    2
+    8
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -78,6 +78,12 @@ fn deploy() -> anyhow::Result<()> {
         .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
         .call(address)?;
     assert_eq!(info.ret, 42u64.to_bytes32());
+
+    // 4. check decimals
+    let info = evm
+        .calldata(&contract.encode(&[b"decimals()".to_vec()])?)
+        .call(address)?;
+    assert_eq!(info.ret, 8u64.to_bytes32());
 
     Ok(())
 }
