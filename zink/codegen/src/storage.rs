@@ -2,7 +2,7 @@ extern crate proc_macro;
 
 use heck::AsSnakeCase;
 use proc_macro::TokenStream;
-use proc_macro2::{Span, TokenTree};
+use proc_macro2::{Literal, Span, TokenTree};
 use quote::quote;
 use std::{cell::RefCell, collections::HashSet};
 use syn::{
@@ -47,12 +47,19 @@ impl Storage {
         let is = &self.target;
         let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
+        let mut key = [0; 32];
+        key[28..].copy_from_slice(&slot.to_le_bytes());
+
+        let keyl = Literal::byte_string(&key);
         let mut expanded = quote! {
             #is
 
             impl zink::storage::Storage for #name {
-                type Value = #value;
+                #[cfg(not(target_family = "wasm"))]
+                const KEY: [u8; 32] = *#keyl;
                 const STORAGE_SLOT: i32 = #slot;
+
+                type Value = #value;
             }
         };
 
