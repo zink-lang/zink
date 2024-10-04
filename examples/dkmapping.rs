@@ -41,7 +41,8 @@ fn storage_double_key_mapping() -> anyhow::Result<()> {
     assert!(info.ret.is_empty());
 
     // verify result with database
-    let storage_key = zint::keccak256(&[[0; 32], [0; 32], 1.to_bytes32()].concat());
+    let _sk = zint::keccak256(&[[0; 32], [0; 32], 1.to_bytes32()].concat());
+    let storage_key = DoubleKeyMapping::storage_key(key1, key2);
     assert_eq!(
         evm.storage(contract.address, storage_key)?,
         value.to_bytes32(),

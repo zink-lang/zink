@@ -2,7 +2,7 @@ extern crate proc_macro;
 
 use heck::AsSnakeCase;
 use proc_macro::TokenStream;
-use proc_macro2::{Span, TokenTree};
+use proc_macro2::{Literal, Span, TokenTree};
 use quote::quote;
 use std::{cell::RefCell, collections::HashSet};
 use syn::{
@@ -47,12 +47,19 @@ impl Storage {
         let is = &self.target;
         let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
+        let mut key = [0; 32];
+        key[28..].copy_from_slice(&slot.to_le_bytes());
+
+        let keyl = Literal::byte_string(&key);
         let mut expanded = quote! {
             #is
 
             impl zink::storage::Storage for #name {
-                type Value = #value;
+                #[cfg(not(target_family = "wasm"))]
+                const STORAGE_KEY: [u8; 32] = *#keyl;
                 const STORAGE_SLOT: i32 = #slot;
+
+                type Value = #value;
             }
         };
 
@@ -75,6 +82,10 @@ impl Storage {
         let is = &self.target;
         let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
+        let mut seed = [0; 64];
+        seed[29..=32].copy_from_slice(&slot.to_le_bytes());
+
+        let seedl = Literal::byte_string(&seed);
         let mut expanded = quote! {
             #is
 
@@ -83,6 +94,15 @@ impl Storage {
 
                 type Key = #key;
                 type Value = #value;
+
+                #[cfg(not(target_family = "wasm"))]
+                fn storage_key(key: Self::Key) -> [u8; 32] {
+                    use zink::Asm;
+
+                    let mut seed = *#seedl;
+                    seed[32..].copy_from_slice(&key.bytes32());
+                    zink::keccak256(&seed)
+                }
             }
         };
 
@@ -105,6 +125,10 @@ impl Storage {
         let is = &self.target;
         let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
+        let mut seed = [0; 96];
+        seed[29..=32].copy_from_slice(&slot.to_le_bytes());
+
+        let seedl = Literal::byte_string(&seed);
         let mut expanded = quote! {
             #is
 
@@ -114,6 +138,16 @@ impl Storage {
                 type Key1 = #key1;
                 type Key2 = #key2;
                 type Value = #value;
+
+                #[cfg(not(target_family = "wasm"))]
+                fn storage_key(key1: Self::Key1, key2: Self::Key2) -> [u8; 32] {
+                    use zink::Asm;
+
+                    let mut seed = *#seedl;
+                    seed[33..=64].copy_from_slice(&key1.bytes32());
+                    seed[64..].copy_from_slice(&key2.bytes32());
+                    zink::keccak256(&seed)
+                }
             }
         };
 
