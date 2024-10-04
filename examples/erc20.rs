@@ -4,19 +4,19 @@
 
 extern crate zink;
 
-use zink::Storage;
+use zink::{Mapping, Storage};
 
 #[zink::storage(u32)]
-struct Name;
+pub struct Name;
 
 #[zink::storage(u32)]
-struct Symbol;
+pub struct Symbol;
 
 #[zink::storage(u32)]
-struct TotalSupply;
+pub struct TotalSupply;
 
-// #[zink::storage(i32 => i32)]
-// struct Balances;
+#[zink::storage(i32, i32)]
+pub struct Balances;
 
 /// Get value from the storage.
 #[zink::external]
@@ -29,21 +29,6 @@ pub fn init(name: u32, symbol: u32) {
 #[zink::external]
 pub fn decimals() -> u32 {
     2
-}
-
-#[zink::external]
-pub fn name() -> u32 {
-    Name::get()
-}
-
-#[zink::external]
-pub fn symbol() -> u32 {
-    Symbol::get()
-}
-
-#[zink::external]
-pub fn total_supply() -> u32 {
-    TotalSupply::get()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -88,7 +73,7 @@ fn deploy() -> anyhow::Result<()> {
         .call(address)?;
     assert_eq!(info.ret, 42u64.to_bytes32());
 
-    // 3. get symbol
+    // 3. get total supply
     let info = evm
         .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
         .call(address)?;
