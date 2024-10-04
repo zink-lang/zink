@@ -23,10 +23,7 @@ macro_rules! impl_asm {
 
             #[cfg(not(target_family = "wasm"))]
             fn bytes32(&self) -> [u8; 32] {
-                let mut output = [0; 32];
-                let bytes = self.to_le_bytes();
-                output[(32 - bytes.len())..].copy_from_slice(&bytes);
-                output
+                crate::to_bytes32(&self.to_le_bytes())
             }
         }
     };

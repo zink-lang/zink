@@ -2,6 +2,9 @@
 
 #![no_std]
 
+#[cfg(not(target_family = "wasm"))]
+extern crate alloc;
+
 mod asm;
 mod event;
 pub mod ffi;
@@ -21,6 +24,26 @@ pub fn keccak256(input: &[u8]) -> [u8; 32] {
     hasher.update(input);
     hasher.finalize(&mut output);
     output
+}
+
+/// Convert bytes to ls bytes
+#[cfg(not(target_family = "wasm"))]
+pub fn to_bytes32(src: &[u8]) -> [u8; 32] {
+    use alloc::vec::Vec;
+    let mut bytes = [0u8; 32];
+    let ls_bytes = {
+        src.iter()
+            .cloned()
+            .rev()
+            .skip_while(|b| *b == 0)
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev()
+            .collect::<Vec<_>>()
+    };
+
+    bytes[(32 - ls_bytes.len())..].copy_from_slice(&ls_bytes);
+    bytes
 }
 
 // Panic hook implementation
