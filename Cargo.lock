@@ -2628,6 +2628,7 @@ dependencies = [
  "evm-opcodes",
  "hex",
  "paste",
+ "tiny-keccak",
  "tracing",
  "zink-codegen",
  "zinkc-filetests",
@@ -2643,7 +2644,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.77",
- "tiny-keccak",
  "zabi",
 ]
 
