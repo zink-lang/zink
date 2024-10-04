@@ -7,6 +7,9 @@ use paste::paste;
 pub trait Asm: Copy {
     /// Push self on the stack.
     fn push(self);
+
+    #[cfg(not(target_family = "wasm"))]
+    fn bytes32(&self) -> [u8; 32];
 }
 
 macro_rules! impl_asm {
@@ -16,6 +19,14 @@ macro_rules! impl_asm {
                 unsafe {
                     paste! { ffi::asm::[<push_ $ty>](self); }
                 }
+            }
+
+            #[cfg(not(target_family = "wasm"))]
+            fn bytes32(&self) -> [u8; 32] {
+                let mut output = [0; 32];
+                let bytes = self.to_le_bytes();
+                output[(32 - bytes.len())..].copy_from_slice(&bytes);
+                output
             }
         }
     };

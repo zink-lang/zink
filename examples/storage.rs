@@ -30,7 +30,7 @@ fn value() -> anyhow::Result<()> {
         let info = contract.execute(&[b"set(int32)".to_vec(), value.to_bytes32().to_vec()])?;
         assert!(info.ret.is_empty());
         assert_eq!(
-            info.storage.get(&U256::from_le_bytes(Counter::KEY)),
+            info.storage.get(&U256::from_le_bytes(Counter::STORAGE_KEY)),
             Some(&U256::from(value))
         );
     }
