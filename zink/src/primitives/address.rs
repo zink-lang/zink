@@ -3,7 +3,10 @@ use crate::{ffi, storage::StorageValue, Asm};
 /// Account address
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Address(i32);
+pub struct Address(
+    #[cfg(target_family = "wasm")] i32,
+    #[cfg(not(target_family = "wasm"))] [u8; 20],
+);
 
 impl Address {
     /// if self equal to another
@@ -18,6 +21,13 @@ impl Address {
 impl Asm for Address {
     fn push(self) {
         unsafe { ffi::asm::push_address(self) }
+    }
+
+    #[cfg(not(target_family = "wasm"))]
+    fn bytes32(&self) -> [u8; 32] {
+        let mut output = [0; 32];
+        output[12..].copy_from_slice(&self.0);
+        output
     }
 }
 

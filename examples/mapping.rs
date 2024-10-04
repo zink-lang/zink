@@ -39,7 +39,7 @@ fn storage_mapping() -> anyhow::Result<()> {
     assert!(info.ret.is_empty());
 
     // verify result with database
-    let storage_key = zint::keccak256(&[0; 0x40]);
+    let storage_key = Mapping::storage_key(key);
     assert_eq!(
         evm.storage(contract.address, storage_key)?,
         value.to_bytes32(),

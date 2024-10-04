@@ -9,6 +9,9 @@ pub trait Mapping {
     type Key: Asm;
     type Value: StorageValue;
 
+    #[cfg(not(target_family = "wasm"))]
+    fn storage_key(key: Self::Key) -> [u8; 32];
+
     /// Get value from storage key.
     fn get(key: Self::Key) -> Self::Value {
         load_key(key, Self::STORAGE_SLOT);

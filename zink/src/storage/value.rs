@@ -3,7 +3,10 @@ use crate::{ffi, storage::StorageValue, Asm};
 
 /// Storage trait. Currently not for public use
 pub trait Storage {
+    #[cfg(not(target_family = "wasm"))]
+    const STORAGE_KEY: [u8; 32];
     const STORAGE_SLOT: i32;
+
     type Value: StorageValue + Asm;
 
     /// Get value from storage.
