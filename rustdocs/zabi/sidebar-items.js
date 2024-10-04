@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["hex_impl","result","selector"],"struct":["Abi"]};
+window.SIDEBAR_ITEMS = {"mod":["abi","result","selector"],"struct":["Abi"]};
