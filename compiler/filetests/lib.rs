@@ -28,7 +28,12 @@ impl Test {
         let Test { module, name, wasm } = self;
         tracing::info!("Compiling {module}::{name}");
 
-        zinkc::Compiler::default().compile(&wasm)?;
+        let mut compiler = zinkc::Compiler::default();
+        // TODO: after #166
+        if name == "fibonacci" {
+            compiler.config = compiler.config.dispatcher(true);
+        }
+        compiler.compile(&wasm)?;
         Ok(())
     }
 }
