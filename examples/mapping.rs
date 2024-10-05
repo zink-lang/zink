@@ -32,8 +32,8 @@ fn storage_mapping() -> anyhow::Result<()> {
     // set value to storage
     let calldata = contract.encode(&[
         b"mset(int32,int32)".to_vec(),
-        value.to_bytes32().to_vec(),
         key.to_bytes32().to_vec(),
+        value.to_bytes32().to_vec(),
     ])?;
     let info = evm.calldata(&calldata).call(contract.address)?;
     assert!(info.ret.is_empty());
