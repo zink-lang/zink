@@ -76,7 +76,9 @@ impl Function {
         tracing::trace!("local_get: {local_index} {local_sp} {sp}");
 
         // TODO: Arthmetic checks
-        self.masm.dup(sp - local_sp)?;
+        if sp > local_sp + 1 {
+            self.masm.dup(sp - local_sp)?;
+        }
         Ok(())
     }
 }
