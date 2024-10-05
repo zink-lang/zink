@@ -35,12 +35,17 @@ fn load_double_key(key1: impl Asm, key2: impl Asm, index: i32) {
         // write index to memory
         index.push();
         ffi::evm::push0();
-        ffi::evm::mstore8();
+        ffi::evm::mstore();
 
         // write key to memory
         key1.push();
         ffi::asm::push_u8(0x20);
         ffi::evm::mstore();
+
+        // TODO:
+        //
+        // a. do the hashing first time
+        // b. store the result on stack
 
         // write key to memory
         key2.push();
