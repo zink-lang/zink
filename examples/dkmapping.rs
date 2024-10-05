@@ -33,16 +33,16 @@ fn storage_double_key_mapping() -> anyhow::Result<()> {
     // set value to storage
     let calldata = contract.encode(&[
         b"mset(int32,int32,int32)".to_vec(),
-        value.to_bytes32().to_vec(),
-        key2.to_bytes32().to_vec(),
         key1.to_bytes32().to_vec(),
+        key2.to_bytes32().to_vec(),
+        value.to_bytes32().to_vec(),
     ])?;
     let info = evm.calldata(&calldata).call(contract.address)?;
     assert!(info.ret.is_empty());
 
     // verify result with database
-    let _sk = zint::keccak256(&[[0; 32], [0; 32], 1.to_bytes32()].concat());
     let storage_key = DoubleKeyMapping::storage_key(key1, key2);
+    tracing::info!("Storag key: {}", hex::encode(storage_key));
     assert_eq!(
         evm.storage(contract.address, storage_key)?,
         value.to_bytes32(),
@@ -51,8 +51,8 @@ fn storage_double_key_mapping() -> anyhow::Result<()> {
     // get value from storage
     let calldata = contract.encode(&[
         b"double_key_mapping(int32,int32)".to_vec(),
-        key2.to_bytes32().to_vec(),
         key1.to_bytes32().to_vec(),
+        key2.to_bytes32().to_vec(),
     ])?;
     let info = evm.calldata(&calldata).call(contract.address)?;
     assert_eq!(info.ret, value.to_bytes32(), "{info:#?}",);

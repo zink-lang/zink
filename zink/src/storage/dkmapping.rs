@@ -30,30 +30,35 @@ pub trait DoubleKeyMapping {
 }
 
 /// Load storage key to stack
+#[inline(always)]
 fn load_double_key(key1: impl Asm, key2: impl Asm, index: i32) {
     unsafe {
-        // write index to memory
-        index.push();
+        // write key1 to memory
+        key1.push();
         ffi::evm::push0();
         ffi::evm::mstore();
 
-        // write key to memory
-        key1.push();
+        // write index to memory
+        index.push();
         ffi::asm::push_u8(0x20);
         ffi::evm::mstore();
 
-        // TODO:
-        //
-        // a. do the hashing first time
-        // b. store the result on stack
-
-        // write key to memory
-        key2.push();
+        // hash key
         ffi::asm::push_u8(0x40);
+        ffi::evm::push0();
+        ffi::evm::keccak256();
+
+        // stores the hash
+        ffi::evm::push0();
+        ffi::evm::mstore();
+
+        // write index to memory
+        key2.push();
+        ffi::asm::push_u8(0x20);
         ffi::evm::mstore();
 
         // hash key
-        ffi::asm::push_u8(0x60);
+        ffi::asm::push_u8(0x40);
         ffi::evm::push0();
         ffi::evm::keccak256();
     }
