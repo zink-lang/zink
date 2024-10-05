@@ -42,7 +42,7 @@ fn storage_double_key_mapping() -> anyhow::Result<()> {
 
     // verify result with database
     let storage_key = DoubleKeyMapping::storage_key(key1, key2);
-    tracing::info!("Storag key: {}", hex::encode(storage_key));
+    tracing::info!("Storage key: {}", hex::encode(storage_key));
     assert_eq!(
         evm.storage(contract.address, storage_key)?,
         value.to_bytes32(),
