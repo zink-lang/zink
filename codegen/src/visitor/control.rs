@@ -138,12 +138,12 @@ impl Function {
     pub fn _end(&mut self) -> Result<()> {
         if let Ok(frame) = self.control.pop() {
             self.handle_frame_popping(frame)
-        } else if !self.is_main {
-            tracing::trace!("end of call");
-            self.handle_call_return()
-        } else {
+        } else if self.is_main || self.abi.is_some() {
             tracing::trace!("end of main function");
             self.handle_return()
+        } else {
+            tracing::trace!("end of call");
+            self.handle_call_return()
         }
     }
 

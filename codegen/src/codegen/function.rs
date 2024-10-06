@@ -42,6 +42,7 @@ impl Function {
             params_count = ty.params().len() as u8;
         }
 
+        let is_external = abi.is_some();
         let mut codegen = Self {
             abi,
             backtrace: Backtrace::default(),
@@ -54,8 +55,15 @@ impl Function {
             is_main,
         };
 
+        if is_main {
+            return Ok(codegen);
+        }
+
         // post process program counter and stack pointer.
-        if !is_main {
+        if is_external {
+            codegen.masm.increment_sp(1)?;
+            codegen.masm._jumpdest()?;
+        } else {
             // Mock the stack frame for the callee function
             //
             // STACK: PC + params
@@ -129,7 +137,7 @@ impl Function {
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
         let sp = self.masm.sp();
-        if !self.is_main && self.masm.sp() != self.ty.results().len() as u8 {
+        if !self.is_main && self.abi.is_none() && self.masm.sp() != self.ty.results().len() as u8 {
             return Err(Error::StackNotBalanced(sp));
         }
 

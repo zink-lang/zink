@@ -1,9 +1,8 @@
 //! Code generator for EVM dispatcher.
 
 use crate::{
-    codegen::code::ExtFunc,
-    wasm::{self, Env, Functions, ToLSBytes},
-    Error, JumpTable, MacroAssembler, Result,
+    wasm::{self, Env, Functions},
+    JumpTable, MacroAssembler, Result,
 };
 use std::collections::BTreeMap;
 use wasmparser::FuncType;
@@ -60,115 +59,12 @@ impl Dispatcher {
         Ok(self.asm.buffer().into())
     }
 
-    /// Emit return of ext function.
-    fn ext_return(&mut self, sig: &FuncType) -> Result<()> {
-        self.asm.increment_sp(1)?;
-        let asm = self.asm.clone();
-
-        {
-            self.asm.main_return(sig.results())?;
-        }
-
-        let bytecode = {
-            let jumpdest = vec![0x5b];
-            let ret = self.asm.buffer()[asm.buffer().len()..].to_vec();
-            [jumpdest, ret].concat()
-        };
-
-        self.asm = asm;
-        let ret = ExtFunc {
-            bytecode,
-            stack_in: 0,
-            stack_out: 0,
-        };
-        self.table.ext(self.asm.pc_offset(), ret);
-        Ok(())
-    }
-
-    // Process to the selected function.
-    //
-    // 1. drop selector.
-    // 2. load calldata to stack.
-    // 3. jump to the callee function.
-    //
-    // TODO: Parse bytes from the selector.
-    fn process(&mut self, len: usize, last: bool) -> Result<bool> {
-        let len = len as u8;
-        if last && len == 0 {
-            return Ok(false);
-        }
-
-        self.asm.increment_sp(1)?;
-        let asm = self.asm.clone();
-        {
-            if !last {
-                // TODO: check the safety of this.
-                //
-                // [ ret, callee, selector ] -> [ selector, ret, callee ]
-                self.asm.shift_stack(2, false)?;
-                // [ selector, ret, callee ] -> [ ret, callee ]
-                self.asm._drop()?;
-            } else {
-                self.asm._swap1()?;
-            }
-
-            if len > 0 {
-                // FIXME: Using the length of parameters here
-                // is incorrect once we have params have length
-                // over than 4 bytes.
-                //
-                // 1. decode the abi from signature, if contains
-                // bytes type, use `calldatacopy` to load the data
-                // on stack.
-                //
-                // 2. if the present param is a 4 bytes value, use
-                // `calldataload[n]` directly.
-                //
-                // Actually 1. is more closed to the common cases,
-                // what 4 bytes for in EVM?
-
-                // [ ret, callee ] -> [ param * len, ret, callee ]
-                for p in (0..len).rev() {
-                    let offset = 4 + p * 32;
-                    self.asm.push(&offset.to_ls_bytes())?;
-                    self.asm._calldataload()?;
-                }
-
-                // [ param * len, ret, callee ] -> [ ret, param * len, callee ]
-                self.asm.shift_stack(len, false)?;
-                // [ ret, param * len, callee ] -> [ callee, ret, param * len ]
-                self.asm.shift_stack(len + 1, false)?;
-            } else {
-                self.asm._swap1()?;
-            }
-
-            self.asm._jump()?;
-        }
-
-        let bytecode = {
-            let jumpdest = vec![0x5b];
-            let ret = self.asm.buffer()[asm.buffer().len()..].to_vec();
-            [jumpdest, ret].concat()
-        };
-        self.asm = asm;
-        let ret = ExtFunc {
-            bytecode,
-            stack_in: len,
-            stack_out: 1,
-        };
-        self.table.ext(self.asm.pc_offset(), ret);
-        Ok(true)
-    }
-
     /// Emit selector to buffer.
     fn emit_selector(&mut self, selector: &wasm::Function<'_>, last: bool) -> Result<()> {
         let abi = self.env.load_abi(selector)?;
-
-        // TODO: refactor this. (#206)
         self.abi.push(abi.clone());
 
         let selector_bytes = abi.selector();
-
         tracing::trace!(
             "Emitting selector {:?} for function: {}",
             selector_bytes,
@@ -176,49 +72,21 @@ impl Dispatcher {
         );
 
         let func = self.env.query_func(&abi.name)?;
-        let sig = self
-            .funcs
-            .get(&func)
-            .ok_or(Error::FuncNotFound(func))?
-            .clone();
+        self.asm.increment_sp(1)?;
 
-        // TODO: optimize this on parameter length (#165)
-        {
-            // Prepare the `PC` of the callee function.
-            //
-            // TODO: remove this (#160)
-            {
-                self.asm.increment_sp(1)?;
-                self.table.call(self.asm.pc_offset(), func);
-                self.asm._jumpdest()?;
-            }
-
-            // Jump to the end of the current function.
-            //
-            // TODO: detect the bytes of the position. (#157)
-            self.ext_return(&sig)?;
-        }
+        // Prepare the `PC` of the callee function.
+        self.table.call(self.asm.pc_offset(), func);
 
         if last {
-            self.asm._swap2()?;
+            self.asm._swap1()?;
         } else {
-            self.asm._dup3()?;
+            self.asm._dup2()?;
         }
 
         self.asm.push(&selector_bytes)?;
         self.asm._eq()?;
-        let processed = self.process(sig.params().len(), last)?;
-        if last && !processed {
-            self.asm._swap1()?;
-        }
+        self.asm._swap1()?;
         self.asm._jumpi()?;
-
-        if !last {
-            // drop the PC of the previous callee function.
-            self.asm._drop()?;
-            // drop the PC of the previous callee function preprocessor.
-            self.asm._drop()?;
-        }
 
         Ok(())
     }
