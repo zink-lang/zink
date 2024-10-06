@@ -106,6 +106,16 @@ impl Env {
         Err(Error::FuncNotImported(name.into()))
     }
 
+    /// Check if the input function is external function
+    pub fn is_external(&self, index: u32) -> bool {
+        let Some(name) = self.exports.get(&index) else {
+            return false;
+        };
+
+        let selector = name.to_owned() + "_selector";
+        self.exports.iter().any(|(_, n)| **n == selector)
+    }
+
     /// If the present function index is the main function
     pub fn is_main(&self, index: u32) -> bool {
         self.imports.len() as u32 == index
