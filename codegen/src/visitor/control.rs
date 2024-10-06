@@ -130,16 +130,12 @@ impl Function {
 
     /// Handle the end of instructions for different situations.
     ///
-    /// TODO: (#28)
-    ///
     /// - End of control flow operators.
     /// - End of function.
     /// - End of program.
     pub fn _end(&mut self) -> Result<()> {
         if let Ok(frame) = self.control.pop() {
-            if !matches!(frame.ty, ControlStackFrameType::If(true)) {
-                return self.handle_frame_popping(frame);
-            }
+            return self.handle_frame_popping(frame);
         }
 
         let results = self.ty.results();

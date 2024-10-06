@@ -9,6 +9,7 @@ use crate::{
     wasm::Env,
     Buffer, Error, Result,
 };
+use opcodes::ShangHai as OpCode;
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 use zabi::Abi;
 
@@ -129,6 +130,12 @@ impl Function {
             let offset = ops.original_position();
             let mut validate_then_visit = ValidateThenVisit(validator.visitor(offset), self);
             ops.visit_operator(&mut validate_then_visit)???;
+        }
+
+        if (self.abi.is_some() || self.is_main)
+            && self.masm.buffer().last() != Some(&OpCode::RETURN.into())
+        {
+            self._end()?;
         }
 
         Ok(())

@@ -23,6 +23,11 @@ impl Backtrace {
         self.instrs.pop_last().unwrap_or_default().1
     }
 
+    /// Get the last byte
+    pub fn last(&self) -> Option<Vec<u8>> {
+        self.instrs.last_key_value().map(|(_, op)| op.clone())
+    }
+
     /// Pop the last `n` operands from the backtrace.
     pub fn popn(&mut self, n: usize) -> Vec<Vec<u8>> {
         let mut r: Vec<Vec<u8>> = Default::default();
