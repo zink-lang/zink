@@ -82,10 +82,7 @@ impl Storage {
         let is = &self.target;
         let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
-        let mut seed = [0; 64];
-        seed[29..=32].copy_from_slice(&slot.to_le_bytes());
 
-        let seedl = Literal::byte_string(&seed);
         let mut expanded = quote! {
             #is
 
@@ -99,8 +96,9 @@ impl Storage {
                 fn storage_key(key: Self::Key) -> [u8; 32] {
                     use zink::Asm;
 
-                    let mut seed = *#seedl;
-                    seed[32..].copy_from_slice(&key.bytes32());
+                    let mut seed = [0; 64];
+                    seed[..32].copy_from_slice(&key.bytes32());
+                    seed[60..].copy_from_slice(&Self::STORAGE_SLOT.to_le_bytes());
                     zink::keccak256(&seed)
                 }
             }
@@ -125,10 +123,7 @@ impl Storage {
         let is = &self.target;
         let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
-        let mut seed = [0; 96];
-        seed[29..=32].copy_from_slice(&slot.to_le_bytes());
 
-        let seedl = Literal::byte_string(&seed);
         let mut expanded = quote! {
             #is
 
@@ -143,9 +138,12 @@ impl Storage {
                 fn storage_key(key1: Self::Key1, key2: Self::Key2) -> [u8; 32] {
                     use zink::Asm;
 
-                    let mut seed = *#seedl;
-                    seed[33..=64].copy_from_slice(&key1.bytes32());
-                    seed[64..].copy_from_slice(&key2.bytes32());
+                    let mut seed = [0; 64];
+                    seed[..32].copy_from_slice(&key1.bytes32());
+                    seed[60..].copy_from_slice(&Self::STORAGE_SLOT.to_le_bytes());
+                    let skey1 = zink::keccak256(&seed);
+                    seed[..32].copy_from_slice(&skey1);
+                    seed[32..].copy_from_slice(&key2.bytes32());
                     zink::keccak256(&seed)
                 }
             }

@@ -17,6 +17,11 @@ impl Function {
 
     /// The call instruction calls a function specified by its index.
     pub fn _call(&mut self, index: u32) -> Result<()> {
+        if self.env.is_external(index) {
+            // TODO: throw with error
+            panic!("External functions could not be called internally");
+        }
+
         if self.env.imports.len() as u32 > index {
             self.call_imported(index)
         } else {

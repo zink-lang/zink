@@ -1,12 +1,12 @@
 //! Local instructions
 
-use crate::{Error, Function, Result};
+use crate::{wasm::ToLSBytes, Error, Function, Result};
 
 impl Function {
     /// This instruction gets the value of a variable.
     pub fn _local_get(&mut self, local_index: u32) -> Result<()> {
         let local_index = local_index as usize;
-        if self.is_main && local_index < self.ty.params().len() {
+        if (self.is_main && local_index < self.ty.params().len()) || self.abi.is_some() {
             // Parsing data from selector.
             self._local_get_calldata(local_index)
         } else {
@@ -49,7 +49,11 @@ impl Function {
 
     /// Local get from calldata.
     fn _local_get_calldata(&mut self, local_index: usize) -> Result<()> {
-        let offset = self.locals.offset_of(local_index)?;
+        let mut offset = self.locals.offset_of(local_index)?;
+        if self.abi.is_some() {
+            offset = (4 + local_index * 32).to_ls_bytes().to_vec().into();
+        }
+
         self.masm.push(&offset)?;
         self.masm._calldataload()?;
 
@@ -76,7 +80,9 @@ impl Function {
         tracing::trace!("local_get: {local_index} {local_sp} {sp}");
 
         // TODO: Arthmetic checks
-        self.masm.dup(sp - local_sp)?;
+        if sp > local_sp + 1 {
+            self.masm.dup(sp - local_sp)?;
+        }
         Ok(())
     }
 }

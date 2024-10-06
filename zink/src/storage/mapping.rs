@@ -31,13 +31,13 @@ pub trait Mapping {
 /// Load storage key to stack
 fn load_key(key: impl Asm, index: i32) {
     unsafe {
-        // write index to memory
-        index.push();
-        ffi::evm::push0();
-        ffi::evm::mstore8();
-
         // write key to memory
         key.push();
+        ffi::evm::push0();
+        ffi::evm::mstore();
+
+        // write index to memory
+        index.push();
         ffi::asm::push_u8(0x20);
         ffi::evm::mstore();
 
