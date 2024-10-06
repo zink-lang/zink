@@ -8,6 +8,11 @@ extern crate zink;
 /// Calculates the nth fibonacci number.
 #[zink::external]
 pub fn fib(n: u64) -> u64 {
+    internal_rec(n)
+}
+
+#[inline(never)]
+fn internal_rec(n: u64) -> u64 {
     if n < 2 {
         n
     } else {

@@ -31,6 +31,7 @@ impl Test {
         let mut compiler = zinkc::Compiler::default();
         // TODO: after #166
         if name == "fibonacci" {
+            // return Ok(());
             compiler.config = compiler.config.dispatcher(true);
         }
         compiler.compile(&wasm)?;
