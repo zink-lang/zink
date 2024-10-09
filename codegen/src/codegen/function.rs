@@ -38,11 +38,6 @@ pub struct Function {
 impl Function {
     /// Create a new code generator.
     pub fn new(env: Env, ty: FuncType, abi: Option<Abi>, is_main: bool) -> Result<Self> {
-        // let mut params_count = 0;
-        // if !is_main {
-        //     params_count = ty.params().len() as u8;
-        // }
-
         let is_external = abi.is_some();
         let mut codegen = Self {
             abi,
@@ -81,7 +76,7 @@ impl Function {
     /// 1. the function parameters.
     /// 2. function body locals.
     ///
-    /// NOTE: we don't care about the origin offset of the locals.
+    /// NOTE: we don't care about the original offset of the locals.
     /// bcz we will serialize the locals to an index map anyway.
     pub fn emit_locals(
         &mut self,

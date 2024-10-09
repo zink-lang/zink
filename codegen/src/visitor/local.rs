@@ -17,7 +17,7 @@ impl Function {
 
     /// This instruction sets the value of a variable.
     pub fn _local_set(&mut self, local_index: u32) -> Result<()> {
-        self.masm.push(&self.env.alloc(local_index as usize))?;
+        self.masm.push(&self.env.alloc(local_index))?;
         self.masm._mstore()?;
 
         Ok(())
@@ -61,7 +61,7 @@ impl Function {
             return Err(Error::InvalidLocalIndex(local_index));
         }
 
-        self.masm.push(&self.env.alloc(local_index))?;
+        self.masm.push(&self.env.alloc(local_index as u32))?;
         self.masm._mload()?;
         // // If local is already on stack.
         // if self.masm.buffer().len() == self.locals.len() + 1 {

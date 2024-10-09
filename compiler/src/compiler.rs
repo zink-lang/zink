@@ -34,11 +34,11 @@ impl Compiler {
     /// Returns runtime bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Artifact> {
         let mut parser = Parser::try_from(wasm)?;
-        let mut env = parser.to_func_env();
+        let env = parser.env.clone();
 
         self.compile_dispatcher(&mut parser)?;
         for func in parser.funcs.into_funcs() {
-            env.reserved += self.compile_func(env.clone(), func)?;
+            self.compile_func(env.clone(), func)?;
         }
 
         self.table.code_offset(self.buffer.len() as u16);
@@ -68,8 +68,8 @@ impl Compiler {
     ///
     /// Drain selectors anyway, compile dispatcher if it is enabled.
     fn compile_dispatcher(&mut self, parser: &mut Parser) -> Result<()> {
-        let selectors = parser.funcs.drain_selectors(&parser.exports);
-        let env = parser.to_func_env();
+        let selectors = parser.drain_selectors();
+        let env = parser.env.clone();
 
         if !self.config.dispatcher {
             self.abi.append(&mut env.load_abis(&selectors)?);
@@ -88,7 +88,7 @@ impl Compiler {
     }
 
     /// Compile WASM function.
-    fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<usize> {
+    fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<()> {
         let func_index = func.index();
         let sig = func.sig()?;
         let abi = self.abi(&env, func_index);
@@ -103,9 +103,8 @@ impl Compiler {
         codegen.emit_locals(&mut locals_reader, &mut func.validator)?;
         codegen.emit_operators(&mut ops_reader, &mut func.validator)?;
 
-        let slots = codegen.locals.len();
         self.emit_buffer(func_index, codegen)?;
-        Ok(slots)
+        Ok(())
     }
 
     /// Emit buffer to the inner buffer.

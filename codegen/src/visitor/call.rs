@@ -43,6 +43,7 @@ impl Function {
         // register the call index to the jump table.
         //
         // TODO: support same pc different jumps. (#160)
+        // TODO: store the params in memory
         self.table.call(self.masm.pc_offset(), index);
 
         // jump to the callee function

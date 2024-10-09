@@ -45,7 +45,8 @@ macro_rules! impl_deref {
 
 impl_deref! {
     ("WASM import section", Imports, BTreeMap<u32, HostFunc>),
-    ("WASM export section", Exports, BTreeMap<u32, String>)
+    ("WASM export section", Exports, BTreeMap<u32, String>),
+    ("WASM slot registry", Slots, BTreeMap<u32, u32>)
 }
 
 /// A struct that holds the environment wasm module.
@@ -55,10 +56,12 @@ pub struct Env {
     pub imports: Imports,
     /// WASM exports
     pub exports: Exports,
+    /// Function memory slots
+    pub slots: Slots,
     /// WASM data slots
     pub data: Data,
-    /// Reserved memory slots
-    pub reserved: usize,
+    /// Current function index
+    pub index: Option<u32>,
 }
 
 impl Env {
@@ -125,9 +128,25 @@ impl Env {
         self.imports.len() as u32 == index
     }
 
+    /// Clone a new environment with function index provided
+    pub fn with_index(&self, index: u32) -> Self {
+        let mut this = self.clone();
+        this.index = Some(index);
+        this
+    }
+
+    /// Get reserved slots
+    pub fn reserved(&self) -> u32 {
+        let Some(index) = self.index else {
+            return 0;
+        };
+
+        *self.slots.get(&index).unwrap_or(&0)
+    }
+
     /// Allocate memory slots from local index
-    pub fn alloc(&self, index: usize) -> SmallVec<[u8; 4]> {
-        let slots = (index + self.reserved) as u32;
+    pub fn alloc(&self, index: u32) -> SmallVec<[u8; 4]> {
+        let slots = index + self.reserved();
         (slots * 0x20).to_ls_bytes()
     }
 }
@@ -139,7 +158,7 @@ impl Imports {
     }
 
     /// Get reserved slots in memory for storage calculations
-    pub fn reserved(&self) -> usize {
+    pub fn reserved(&self) -> u32 {
         let mut reserved = 0;
         for host_fn in self.0.values() {
             match *host_fn {

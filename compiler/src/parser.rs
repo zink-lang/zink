@@ -11,10 +11,10 @@ use zingen::wasm::{Data as DataSet, Env, Exports, Functions, HostFunc, Imports};
 /// WASM module parser
 #[derive(Default)]
 pub struct Parser<'p> {
-    pub imports: Imports,
-    pub data: DataSet,
+    /// Function environment
+    pub env: Env,
+    /// All functions
     pub funcs: Functions<'p>,
-    pub exports: Exports,
 }
 
 impl<'p> Parser<'p> {
@@ -28,9 +28,9 @@ impl<'p> Parser<'p> {
             let valid_payload = validator.payload(&payload)?;
 
             match &payload {
-                Payload::ImportSection(reader) => self.imports = Self::imports(reader)?,
-                Payload::DataSection(reader) => self.data = Self::data(reader)?,
-                Payload::ExportSection(reader) => self.exports = Self::exports(reader)?,
+                Payload::ImportSection(reader) => self.env.imports = Self::imports(reader)?,
+                Payload::DataSection(reader) => self.env.data = Self::data(reader)?,
+                Payload::ExportSection(reader) => self.env.exports = Self::exports(reader)?,
                 _ => {}
             }
 
@@ -40,11 +40,29 @@ impl<'p> Parser<'p> {
             }
         }
 
+        // compute slots from functions
+        let mut slots = self.env.imports.reserved();
+        for (idx, fun) in self.funcs.iter() {
+            let locals = fun.body.get_locals_reader()?.get_count();
+            slots += locals;
+            if self.env.is_external(fun.index()) {
+                // TODO: use checked sub
+                slots -= fun.sig()?.params().len() as u32;
+            }
+
+            self.env.slots.insert(*idx, slots);
+        }
+
         Ok(())
     }
 
+    /// Drain selectors from parsed functions
+    pub fn drain_selectors(&mut self) -> Functions<'p> {
+        self.funcs.drain_selectors(&self.env.exports)
+    }
+
     /// Parse data section.
-    pub fn data(reader: &SectionLimited<Data>) -> Result<DataSet> {
+    fn data(reader: &SectionLimited<Data>) -> Result<DataSet> {
         let mut dataset = DataSet::default();
         let mut iter = reader.clone().into_iter();
         while let Some(Ok(data)) = iter.next() {
@@ -102,16 +120,6 @@ impl<'p> Parser<'p> {
         }
 
         Ok(imports)
-    }
-
-    /// Returns function environment.
-    pub fn to_func_env(&self) -> Env {
-        Env {
-            imports: self.imports.clone(),
-            data: self.data.clone(),
-            exports: self.exports.clone(),
-            reserved: self.imports.reserved(),
-        }
     }
 }
 
