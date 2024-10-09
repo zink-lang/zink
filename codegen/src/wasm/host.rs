@@ -17,6 +17,8 @@ pub enum HostFunc {
     EmitABI,
     /// check equal of two addresses
     AddressEq,
+    /// Compiler labels
+    Label(CompilerLabel),
 }
 
 impl HostFunc {
@@ -56,10 +58,19 @@ impl TryFrom<(&str, &str)> for HostFunc {
             })?)),
             ("zinkc", "emit_abi") => Ok(Self::EmitABI),
             ("zinkc", "address_eq") => Ok(Self::Evm(OpCode::EQ)),
+            ("zinkc", "label_reserve_mem_32") => Ok(Self::Label(CompilerLabel::ReserveMemory32)),
+            ("zinkc", "label_reserve_mem_64") => Ok(Self::Label(CompilerLabel::ReserveMemory64)),
             _ => {
                 tracing::warn!("Failed to load host function: {:?}", import);
                 Err(Error::HostFuncNotFound(module.into(), name.into()))
             }
         }
     }
+}
+
+/// Labels in host functions
+#[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq)]
+pub enum CompilerLabel {
+    ReserveMemory32,
+    ReserveMemory64,
 }

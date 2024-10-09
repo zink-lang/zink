@@ -1,6 +1,10 @@
 //! call instructions
 
-use crate::{wasm::HostFunc, Error, Function, Result};
+use crate::{
+    wasm::{HostFunc, ToLSBytes},
+    Error, Function, Result,
+};
+use anyhow::anyhow;
 use opcodes::ShangHai as OpCode;
 
 impl Function {
@@ -31,26 +35,60 @@ impl Function {
 
     /// Call internal functions
     fn call_internal(&mut self, index: u32) -> Result<()> {
+        if self.env.index == Some(index) {
+            return Err(anyhow!(
+                "Recursion is no more supported in this version, see https://github.com/zink-lang/zink/issues/248"
+            )
+            .into());
+        }
+
         tracing::trace!("call internal function: index={index}");
-        // record the current program counter and
-        // pass it to the callee function.
-        self.table.offset(self.masm.pc_offset(), 6);
+        let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
+
+        // TODO: adapat the case that the params is larger than 0xff (#247)
+        //
+        // 1. record the program counter of the end of this expression
+        // call and pass it to the callee function.
+        //
+        // [ ..,
+        //   <PC>,
+        //   params[SWAP], params[PUSH, SLOT, MSTORE],
+        //   PUSH, PC, JUMP, <JUMPDEST>
+        // ]
+        // <- selfparams[PUSH, OFFSET, CALLDATALOAD]
+        //
+        // 2. move PC before the params in stack
+        self.table
+            .offset(self.masm.pc_offset(), 5 + 4 * (*params as u16));
         self.masm.increment_sp(1)?;
-        self.masm._jumpdest()?;
+
+        // Stack
+        // =====
+        //
+        // from  [ <PARAMS>, PC ]
+        // to    [ PC, <PARAMS> ]
+        self.masm.shift_stack(*params as u8, true)?;
 
         // Call an internal function.
         //
-        // register the call index to the jump table.
-        //
+        // 1. store params in memory
+        // 2. register the call index to the jump table.
+        let reserved = self.env.slots.get(&index).unwrap_or(&0);
+        for i in (0..*params).rev() {
+            tracing::trace!("storing local at {} for function {index}", i + reserved);
+            self.masm.push(&((i + reserved) * 0x20).to_ls_bytes())?;
+            self.masm._mstore()?;
+        }
+
         // TODO: support same pc different jumps. (#160)
         self.table.call(self.masm.pc_offset(), index);
 
         // jump to the callee function
-        //
-        // TODO: check the stack output.
         self.masm._jump()?;
         self.masm._jumpdest()?;
 
+        // Stack: [ , ..results ]
+        self.masm.increment_sp(*results as u8)?;
         Ok(())
     }
 
@@ -74,7 +112,7 @@ impl Function {
             HostFunc::Evm(OpCode::LOG3) => self.log(3),
             HostFunc::Evm(OpCode::LOG4) => self.log(4),
             HostFunc::Evm(op) => self.masm.emit_op(op),
-            HostFunc::NoOp => Ok(()),
+            HostFunc::NoOp | HostFunc::Label(_) => Ok(()),
             _ => {
                 tracing::error!("unsupported host function {func:?}");
                 Err(Error::UnsupportedHostFunc(func))

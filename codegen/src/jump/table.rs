@@ -47,7 +47,7 @@ impl JumpTable {
         self.jump.insert(pc, Jump::Label(label));
     }
 
-    /// Register a label.
+    /// Register a label at the specific PC offset
     pub fn offset(&mut self, pc: u16, offset: u16) {
         self.jump.insert(pc, Jump::Offset(offset));
     }
