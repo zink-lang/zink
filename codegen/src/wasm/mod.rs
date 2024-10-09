@@ -46,7 +46,8 @@ macro_rules! impl_deref {
 impl_deref! {
     ("WASM import section", Imports, BTreeMap<u32, HostFunc>),
     ("WASM export section", Exports, BTreeMap<u32, String>),
-    ("WASM slot registry", Slots, BTreeMap<u32, u32>)
+    ("WASM slot registry", Slots, BTreeMap<u32, u32>),
+    ("WASM function registry", Funcs, BTreeMap<u32, (u32, u32)>)
 }
 
 /// A struct that holds the environment wasm module.
@@ -58,6 +59,8 @@ pub struct Env {
     pub exports: Exports,
     /// Function memory slots
     pub slots: Slots,
+    /// Function params count
+    pub funcs: Funcs,
     /// WASM data slots
     pub data: Data,
     /// Current function index

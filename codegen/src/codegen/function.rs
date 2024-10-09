@@ -57,15 +57,14 @@ impl Function {
 
         // post process program counter and stack pointer.
         if is_external {
-            codegen.masm.increment_sp(1)?;
+            // codegen.masm.increment_sp(1)?;
             codegen.masm._jumpdest()?;
         } else {
             // Mock the stack frame for the callee function
             //
-            // STACK: PC + params
+            // STACK: [ PC ]
             codegen.masm.increment_sp(1)?;
             codegen.masm._jumpdest()?;
-            // codegen.masm.shift_stack(params_count, true)?;
         }
 
         Ok(codegen)

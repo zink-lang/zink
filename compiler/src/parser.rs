@@ -45,12 +45,18 @@ impl<'p> Parser<'p> {
         for (idx, fun) in self.funcs.iter() {
             let locals = fun.body.get_locals_reader()?.get_count();
             slots += locals;
+
+            let sig = fun.sig()?;
+            let params = sig.params().len();
             if self.env.is_external(fun.index()) {
                 // TODO: use checked sub
-                slots -= fun.sig()?.params().len() as u32;
+                slots -= params as u32;
             }
 
             self.env.slots.insert(*idx, slots);
+            self.env
+                .funcs
+                .insert(*idx, (params as u32, sig.results().len() as u32));
         }
 
         Ok(())

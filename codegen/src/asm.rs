@@ -46,11 +46,11 @@ impl Assembler {
             return Ok(());
         }
 
-        // tracing::trace!(
-        //     "increment stack pointer {}({items}) -> {}",
-        //     self.sp,
-        //     self.sp + items
-        // );
+        tracing::debug!(
+            "increment stack pointer {}.add({items}) -> {}",
+            self.sp,
+            self.sp + items
+        );
         self.sp += items;
 
         // TODO: fix this limitation: should be 1024. (#127)
@@ -67,8 +67,8 @@ impl Assembler {
             return Ok(());
         }
 
-        tracing::trace!(
-            "decrement stack pointer {}({items}) -> {}",
+        tracing::debug!(
+            "decrement stack pointer {}.sub({items}) -> {}",
             self.sp,
             self.sp - items
         );
