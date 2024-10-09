@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/local.rs`."><title>local.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6d8951b3ccd3cbca.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (9096f4faf 2024-10-05)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zingen/visitor/</div>local.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/local.rs`."><title>local.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6d8951b3ccd3cbca.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (6f4ae0f34 2024-10-08)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zingen/visitor/</div>local.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -67,26 +67,7 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a></pre></div><pre class="rust"><code><span class="doccomment">//! Local instructions
+<a href="#69" id="69">69</a></pre></div><pre class="rust"><code><span class="doccomment">//! Local instructions
 
 </span><span class="kw">use crate</span>::{wasm::ToLSBytes, Error, Function, <span class="prelude-ty">Result</span>};
 
@@ -105,14 +86,8 @@
 
     <span class="doccomment">/// This instruction sets the value of a variable.
     </span><span class="kw">pub fn </span>_local_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, local_index: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>index = local_index <span class="kw">as </span>usize;
-        <span class="kw">let </span>sp = <span class="self">self</span>.masm.sp();
-        <span class="kw">let </span>local = <span class="self">self</span>.locals.get(index)<span class="question-mark">?</span>;
-        <span class="kw">let </span>local_sp = local.sp <span class="kw">as </span>u8;
-
-        <span class="macro">tracing::trace!</span>(<span class="string">"local_set: {index} {local_sp} {sp}"</span>);
-        <span class="self">self</span>.masm.swap(sp - local_sp - <span class="number">1</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm._drop()<span class="question-mark">?</span>;
+        <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span><span class="self">self</span>.env.alloc(local_index))<span class="question-mark">?</span>;
+        <span class="self">self</span>.masm._mstore()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -150,27 +125,14 @@
 
     <span class="doccomment">/// Local get for variables.
     </span><span class="kw">fn </span>_local_get_var(<span class="kw-2">&amp;mut </span><span class="self">self</span>, local_index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">tracing::trace!</span>(<span class="string">"Local get variable: {local_index}"</span>);
         <span class="kw">if </span>local_index + <span class="number">1 </span>&gt; <span class="self">self</span>.locals.len() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidLocalIndex(local_index));
+            <span class="comment">// The local we want is not from function arguments
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidLocalIndex(local_index));
         }
 
-        <span class="comment">// If local is already on stack.
-        </span><span class="kw">if </span><span class="self">self</span>.masm.buffer().len() == <span class="self">self</span>.locals.len() + <span class="number">1 </span>{
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-        }
-
-        <span class="macro">tracing::debug!</span>(<span class="string">"buffer: {:?}"</span>, <span class="self">self</span>.masm.buffer());
-
-        <span class="kw">let </span>local = <span class="self">self</span>.locals.get(local_index)<span class="question-mark">?</span>;
-        <span class="kw">let </span>local_sp = local.sp <span class="kw">as </span>u8;
-        <span class="kw">let </span>sp = <span class="self">self</span>.masm.sp();
-
-        <span class="macro">tracing::trace!</span>(<span class="string">"local_get: {local_index} {local_sp} {sp}"</span>);
-
-        <span class="comment">// TODO: Arthmetic checks
-        </span><span class="kw">if </span>sp &gt; local_sp + <span class="number">1 </span>{
-            <span class="self">self</span>.masm.dup(sp - local_sp)<span class="question-mark">?</span>;
-        }
+        <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span><span class="self">self</span>.env.alloc(local_index <span class="kw">as </span>u32))<span class="question-mark">?</span>;
+        <span class="self">self</span>.masm._mload()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }

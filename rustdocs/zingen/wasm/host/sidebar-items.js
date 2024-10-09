@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["HostFunc"]};
+window.SIDEBAR_ITEMS = {"enum":["CompilerLabel","HostFunc"]};

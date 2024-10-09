@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["HostFunc"],"macro":["impl_deref"],"mod":["abi","data","func","host"],"struct":["Data","Env","Exports","Function","Functions","Imports"],"trait":["ToLSBytes","Type"]};
+window.SIDEBAR_ITEMS = {"enum":["HostFunc"],"macro":["impl_deref"],"mod":["abi","data","func","host"],"struct":["Data","Env","Exports","Funcs","Function","Functions","Imports","Slots"],"trait":["ToLSBytes","Type"]};

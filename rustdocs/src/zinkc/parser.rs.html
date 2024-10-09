@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/parser.rs`."><title>parser.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6d8951b3ccd3cbca.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (9096f4faf 2024-10-05)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zinkc/</div>parser.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/src/parser.rs`."><title>parser.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6d8951b3ccd3cbca.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zinkc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (6f4ae0f34 2024-10-08)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zinkc/</div>parser.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -132,7 +132,15 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink parser
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink parser
 
 </span><span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>std::iter::IntoIterator;
@@ -145,10 +153,10 @@
 <span class="doccomment">/// WASM module parser
 </span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>Parser&lt;<span class="lifetime">'p</span>&gt; {
-    <span class="kw">pub </span>imports: Imports,
-    <span class="kw">pub </span>data: DataSet,
-    <span class="kw">pub </span>funcs: Functions&lt;<span class="lifetime">'p</span>&gt;,
-    <span class="kw">pub </span>exports: Exports,
+    <span class="doccomment">/// Function environment
+    </span><span class="kw">pub </span>env: Env,
+    <span class="doccomment">/// All functions
+    </span><span class="kw">pub </span>funcs: Functions&lt;<span class="lifetime">'p</span>&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'p</span>&gt; Parser&lt;<span class="lifetime">'p</span>&gt; {
@@ -162,9 +170,9 @@
             <span class="kw">let </span>valid_payload = validator.payload(<span class="kw-2">&amp;</span>payload)<span class="question-mark">?</span>;
 
             <span class="kw">match </span><span class="kw-2">&amp;</span>payload {
-                Payload::ImportSection(reader) =&gt; <span class="self">self</span>.imports = <span class="self">Self</span>::imports(reader)<span class="question-mark">?</span>,
-                Payload::DataSection(reader) =&gt; <span class="self">self</span>.data = <span class="self">Self</span>::data(reader)<span class="question-mark">?</span>,
-                Payload::ExportSection(reader) =&gt; <span class="self">self</span>.exports = <span class="self">Self</span>::exports(reader)<span class="question-mark">?</span>,
+                Payload::ImportSection(reader) =&gt; <span class="self">self</span>.env.imports = <span class="self">Self</span>::imports(reader)<span class="question-mark">?</span>,
+                Payload::DataSection(reader) =&gt; <span class="self">self</span>.env.data = <span class="self">Self</span>::data(reader)<span class="question-mark">?</span>,
+                Payload::ExportSection(reader) =&gt; <span class="self">self</span>.env.exports = <span class="self">Self</span>::exports(reader)<span class="question-mark">?</span>,
                 <span class="kw">_ </span>=&gt; {}
             }
 
@@ -174,11 +182,37 @@
             }
         }
 
+        <span class="comment">// compute slots from functions
+        </span><span class="kw">let </span><span class="kw-2">mut </span>slots = <span class="self">self</span>.env.imports.reserved();
+        <span class="kw">for </span>(idx, fun) <span class="kw">in </span><span class="self">self</span>.funcs.iter() {
+            <span class="kw">let </span>sig = fun.sig()<span class="question-mark">?</span>;
+            <span class="kw">let </span>locals = fun.body.get_locals_reader()<span class="question-mark">?</span>.get_count();
+            <span class="kw">let </span>params = sig.params().len();
+            <span class="macro">tracing::trace!</span>(
+                <span class="string">"computing slots for function {idx}, locals: {locals}, params: {params}, reserved: {slots}"
+            </span>);
+
+            <span class="self">self</span>.env.slots.insert(fun.index(), slots);
+            <span class="self">self</span>.env
+                .funcs
+                .insert(fun.index(), (params <span class="kw">as </span>u32, sig.results().len() <span class="kw">as </span>u32));
+
+            slots += locals;
+            <span class="kw">if </span>!<span class="self">self</span>.env.is_external(fun.index()) &amp;&amp; !<span class="self">self</span>.env.is_main(fun.index()) {
+                slots += params <span class="kw">as </span>u32;
+            }
+        }
+
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="doccomment">/// Drain selectors from parsed functions
+    </span><span class="kw">pub fn </span>drain_selectors(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Functions&lt;<span class="lifetime">'p</span>&gt; {
+        <span class="self">self</span>.funcs.drain_selectors(<span class="kw-2">&amp;</span><span class="self">self</span>.env.exports)
+    }
+
     <span class="doccomment">/// Parse data section.
-    </span><span class="kw">pub fn </span>data(reader: <span class="kw-2">&amp;</span>SectionLimited&lt;Data&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;DataSet&gt; {
+    </span><span class="kw">fn </span>data(reader: <span class="kw-2">&amp;</span>SectionLimited&lt;Data&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;DataSet&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>dataset = DataSet::default();
         <span class="kw">let </span><span class="kw-2">mut </span>iter = reader.clone().into_iter();
         <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(data)) = iter.next() {
@@ -236,24 +270,6 @@
         }
 
         <span class="prelude-val">Ok</span>(imports)
-    }
-
-    <span class="doccomment">/// Returns full environment.
-    </span><span class="kw">pub fn </span>to_env(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Env {
-        Env {
-            imports: <span class="self">self</span>.imports.clone(),
-            data: <span class="self">self</span>.data.clone(),
-            exports: <span class="self">self</span>.exports.clone(),
-        }
-    }
-
-    <span class="doccomment">/// Returns function environment.
-    </span><span class="kw">pub fn </span>to_func_env(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Env {
-        Env {
-            imports: <span class="self">self</span>.imports.clone(),
-            data: <span class="self">self</span>.data.clone(),
-            exports: <span class="self">self</span>.exports.clone(),
-        }
     }
 }
 

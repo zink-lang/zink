@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/call.rs`."><title>call.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6d8951b3ccd3cbca.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (9096f4faf 2024-10-05)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zingen/visitor/</div>call.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `codegen/src/visitor/call.rs`."><title>call.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6d8951b3ccd3cbca.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (6f4ae0f34 2024-10-08)" data-channel="nightly" data-search-js="search-e056c65ede92db13.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zingen/visitor/</div>call.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -82,9 +82,51 @@
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a></pre></div><pre class="rust"><code><span class="doccomment">//! call instructions
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a></pre></div><pre class="rust"><code><span class="doccomment">//! call instructions
 
-</span><span class="kw">use crate</span>::{wasm::HostFunc, Error, Function, <span class="prelude-ty">Result</span>};
+</span><span class="kw">use crate</span>::{
+    wasm::{HostFunc, ToLSBytes},
+    Error, Function, <span class="prelude-ty">Result</span>,
+};
+<span class="kw">use </span>anyhow::anyhow;
 <span class="kw">use </span>opcodes::ShangHai <span class="kw">as </span>OpCode;
 
 <span class="kw">impl </span>Function {
@@ -115,26 +157,60 @@
 
     <span class="doccomment">/// Call internal functions
     </span><span class="kw">fn </span>call_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.env.index == <span class="prelude-val">Some</span>(index) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(
+                <span class="string">"Recursion is no more supported in this version, see https://github.com/zink-lang/zink/issues/248"
+            </span>)
+            .into());
+        }
+
         <span class="macro">tracing::trace!</span>(<span class="string">"call internal function: index={index}"</span>);
-        <span class="comment">// record the current program counter and
-        // pass it to the callee function.
-        </span><span class="self">self</span>.table.offset(<span class="self">self</span>.masm.pc_offset(), <span class="number">6</span>);
+        <span class="kw">let </span>(params, results) = <span class="self">self</span>.env.funcs.get(<span class="kw-2">&amp;</span>index).unwrap_or(<span class="kw-2">&amp;</span>(<span class="number">0</span>, <span class="number">0</span>));
+
+        <span class="comment">// TODO: adapat the case that the params is larger than 0xff (#247)
+        //
+        // 1. record the program counter of the end of this expression
+        // call and pass it to the callee function.
+        //
+        // [ ..,
+        //   &lt;PC&gt;,
+        //   params[SWAP], params[PUSH, SLOT, MSTORE],
+        //   PUSH, PC, JUMP, &lt;JUMPDEST&gt;
+        // ]
+        // &lt;- selfparams[PUSH, OFFSET, CALLDATALOAD]
+        //
+        // 2. move PC before the params in stack
+        </span><span class="self">self</span>.table
+            .offset(<span class="self">self</span>.masm.pc_offset(), <span class="number">5 </span>+ <span class="number">4 </span>* (<span class="kw-2">*</span>params <span class="kw">as </span>u16));
         <span class="self">self</span>.masm.increment_sp(<span class="number">1</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
+
+        <span class="comment">// Stack
+        // =====
+        //
+        // from  [ &lt;PARAMS&gt;, PC ]
+        // to    [ PC, &lt;PARAMS&gt; ]
+        </span><span class="self">self</span>.masm.shift_stack(<span class="kw-2">*</span>params <span class="kw">as </span>u8, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Call an internal function.
         //
-        // register the call index to the jump table.
-        //
-        // TODO: support same pc different jumps. (#160)
+        // 1. store params in memory
+        // 2. register the call index to the jump table.
+        </span><span class="kw">let </span>reserved = <span class="self">self</span>.env.slots.get(<span class="kw-2">&amp;</span>index).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
+        <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..<span class="kw-2">*</span>params).rev() {
+            <span class="macro">tracing::trace!</span>(<span class="string">"storing local at {} for function {index}"</span>, i + reserved);
+            <span class="self">self</span>.masm.push(<span class="kw-2">&amp;</span>((i + reserved) * <span class="number">0x20</span>).to_ls_bytes())<span class="question-mark">?</span>;
+            <span class="self">self</span>.masm._mstore()<span class="question-mark">?</span>;
+        }
+
+        <span class="comment">// TODO: support same pc different jumps. (#160)
         </span><span class="self">self</span>.table.call(<span class="self">self</span>.masm.pc_offset(), index);
 
         <span class="comment">// jump to the callee function
-        //
-        // TODO: check the stack output.
         </span><span class="self">self</span>.masm._jump()<span class="question-mark">?</span>;
         <span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
 
+        <span class="comment">// Stack: [ , ..results ]
+        </span><span class="self">self</span>.masm.increment_sp(<span class="kw-2">*</span>results <span class="kw">as </span>u8)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -158,7 +234,7 @@
             HostFunc::Evm(OpCode::LOG3) =&gt; <span class="self">self</span>.log(<span class="number">3</span>),
             HostFunc::Evm(OpCode::LOG4) =&gt; <span class="self">self</span>.log(<span class="number">4</span>),
             HostFunc::Evm(op) =&gt; <span class="self">self</span>.masm.emit_op(op),
-            HostFunc::NoOp =&gt; <span class="prelude-val">Ok</span>(()),
+            HostFunc::NoOp | HostFunc::Label(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
             <span class="kw">_ </span>=&gt; {
                 <span class="macro">tracing::error!</span>(<span class="string">"unsupported host function {func:?}"</span>);
                 <span class="prelude-val">Err</span>(Error::UnsupportedHostFunc(func))
