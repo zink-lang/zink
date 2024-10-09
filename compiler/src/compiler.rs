@@ -34,16 +34,15 @@ impl Compiler {
     /// Returns runtime bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Artifact> {
         let mut parser = Parser::try_from(wasm)?;
+        let mut env = parser.to_func_env();
 
-        let env = parser.to_func_env();
         self.compile_dispatcher(&mut parser)?;
         for func in parser.funcs.into_funcs() {
-            self.compile_func(env.clone(), func)?;
+            env.reserved += self.compile_func(env.clone(), func)?;
         }
 
         self.table.code_offset(self.buffer.len() as u16);
         self.table.relocate(&mut self.buffer)?;
-
         self.artifact()
     }
 
@@ -89,7 +88,7 @@ impl Compiler {
     }
 
     /// Compile WASM function.
-    fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<()> {
+    fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<usize> {
         let func_index = func.index();
         let sig = func.sig()?;
         let abi = self.abi(&env, func_index);
@@ -104,8 +103,9 @@ impl Compiler {
         codegen.emit_locals(&mut locals_reader, &mut func.validator)?;
         codegen.emit_operators(&mut ops_reader, &mut func.validator)?;
 
+        let slots = codegen.locals.len();
         self.emit_buffer(func_index, codegen)?;
-        Ok(())
+        Ok(slots)
     }
 
     /// Emit buffer to the inner buffer.

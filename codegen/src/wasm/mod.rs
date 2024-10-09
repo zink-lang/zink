@@ -13,6 +13,7 @@ pub use self::{
 };
 use crate::{Error, Result};
 use host::CompilerLabel;
+use smallvec::SmallVec;
 use std::collections::BTreeMap;
 use wasmparser::Operator;
 use zabi::Abi;
@@ -56,8 +57,8 @@ pub struct Env {
     pub exports: Exports,
     /// WASM data slots
     pub data: Data,
-    /// Reserved bytes in memory
-    pub reserved: u8,
+    /// Reserved memory slots
+    pub reserved: usize,
 }
 
 impl Env {
@@ -123,6 +124,12 @@ impl Env {
     pub fn is_main(&self, index: u32) -> bool {
         self.imports.len() as u32 == index
     }
+
+    /// Allocate memory slots from local index
+    pub fn alloc(&self, index: usize) -> SmallVec<[u8; 4]> {
+        let slots = (index + self.reserved) as u32;
+        (slots * 0x20).to_ls_bytes()
+    }
 }
 
 impl Imports {
@@ -131,14 +138,14 @@ impl Imports {
         self.get(&index) == Some(&HostFunc::EmitABI)
     }
 
-    /// Get reserved memory bytes
-    pub fn reserved(&self) -> u8 {
+    /// Get reserved slots in memory for storage calculations
+    pub fn reserved(&self) -> usize {
         let mut reserved = 0;
         for host_fn in self.0.values() {
             match *host_fn {
-                HostFunc::Label(CompilerLabel::ReserveMemory32) => reserved = 0x20,
+                HostFunc::Label(CompilerLabel::ReserveMemory32) => reserved = 1,
                 HostFunc::Label(CompilerLabel::ReserveMemory64) => {
-                    return 0x40;
+                    return 2;
                 }
                 _ => {}
             }

@@ -110,7 +110,7 @@ impl<'p> Parser<'p> {
             imports: self.imports.clone(),
             data: self.data.clone(),
             exports: self.exports.clone(),
-            reserved: 0,
+            reserved: self.imports.reserved(),
         }
     }
 }
