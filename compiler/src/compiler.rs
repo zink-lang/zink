@@ -38,7 +38,7 @@ impl Compiler {
 
         self.compile_dispatcher(&mut parser)?;
         for func in parser.funcs.into_funcs() {
-            self.compile_func(env.clone(), func)?;
+            self.compile_func(env.with_index(func.index()), func)?;
         }
 
         self.table.code_offset(self.buffer.len() as u16);

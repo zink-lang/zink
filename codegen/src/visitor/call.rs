@@ -4,6 +4,7 @@ use crate::{
     wasm::{HostFunc, ToLSBytes},
     Error, Function, Result,
 };
+use anyhow::anyhow;
 use opcodes::ShangHai as OpCode;
 
 impl Function {
@@ -34,6 +35,13 @@ impl Function {
 
     /// Call internal functions
     fn call_internal(&mut self, index: u32) -> Result<()> {
+        if self.env.index == Some(index) {
+            return Err(anyhow!(
+                "Recursion is no more supported in this version, see https://github.com/zink-lang/zink/issues/248"
+            )
+            .into());
+        }
+
         tracing::trace!("call internal function: index={index}");
         let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
 

@@ -23,6 +23,7 @@ fn internal_rec(n: u64) -> u64 {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
+#[ignore]
 #[test]
 fn test() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract};
