@@ -12,6 +12,7 @@ pub use self::{
     host::HostFunc,
 };
 use crate::{Error, Result};
+use host::CompilerLabel;
 use std::collections::BTreeMap;
 use wasmparser::Operator;
 use zabi::Abi;
@@ -55,6 +56,8 @@ pub struct Env {
     pub exports: Exports,
     /// WASM data slots
     pub data: Data,
+    /// Reserved bytes in memory
+    pub reserved: u8,
 }
 
 impl Env {
@@ -126,6 +129,22 @@ impl Imports {
     /// If the function is `emit_abi`.
     pub fn is_emit_abi(&self, index: u32) -> bool {
         self.get(&index) == Some(&HostFunc::EmitABI)
+    }
+
+    /// Get reserved memory bytes
+    pub fn reserved(&self) -> u8 {
+        let mut reserved = 0;
+        for host_fn in self.0.values() {
+            match *host_fn {
+                HostFunc::Label(CompilerLabel::ReserveMemory32) => reserved = 0x20,
+                HostFunc::Label(CompilerLabel::ReserveMemory64) => {
+                    return 0x40;
+                }
+                _ => {}
+            }
+        }
+
+        reserved
     }
 }
 

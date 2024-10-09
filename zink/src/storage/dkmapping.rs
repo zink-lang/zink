@@ -33,6 +33,8 @@ pub trait DoubleKeyMapping {
 #[inline(always)]
 fn load_double_key(key1: impl Asm, key2: impl Asm, index: i32) {
     unsafe {
+        ffi::label_reserve_mem_64();
+
         // write key1 to memory
         key1.push();
         ffi::evm::push0();

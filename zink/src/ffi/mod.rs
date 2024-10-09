@@ -13,4 +13,10 @@ extern "C" {
 
     /// Equal operation for addresses
     pub fn address_eq(this: Address, other: Address) -> bool;
+
+    /// Set up a label for reserving 32 bytes in memory
+    pub fn label_reserve_mem_32();
+
+    /// Set up a label for reserving 64 bytes in memory
+    pub fn label_reserve_mem_64();
 }

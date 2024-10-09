@@ -70,7 +70,7 @@ impl Compiler {
     /// Drain selectors anyway, compile dispatcher if it is enabled.
     fn compile_dispatcher(&mut self, parser: &mut Parser) -> Result<()> {
         let selectors = parser.funcs.drain_selectors(&parser.exports);
-        let env = parser.to_env();
+        let env = parser.to_func_env();
 
         if !self.config.dispatcher {
             self.abi.append(&mut env.load_abis(&selectors)?);

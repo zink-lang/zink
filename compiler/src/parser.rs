@@ -104,21 +104,13 @@ impl<'p> Parser<'p> {
         Ok(imports)
     }
 
-    /// Returns full environment.
-    pub fn to_env(&self) -> Env {
-        Env {
-            imports: self.imports.clone(),
-            data: self.data.clone(),
-            exports: self.exports.clone(),
-        }
-    }
-
     /// Returns function environment.
     pub fn to_func_env(&self) -> Env {
         Env {
             imports: self.imports.clone(),
             data: self.data.clone(),
             exports: self.exports.clone(),
+            reserved: 0,
         }
     }
 }
