@@ -43,20 +43,22 @@ impl<'p> Parser<'p> {
         // compute slots from functions
         let mut slots = self.env.imports.reserved();
         for (idx, fun) in self.funcs.iter() {
-            let locals = fun.body.get_locals_reader()?.get_count();
-            slots += locals;
-
             let sig = fun.sig()?;
+            let locals = fun.body.get_locals_reader()?.get_count();
             let params = sig.params().len();
-            if self.env.is_external(fun.index()) {
-                // TODO: use checked sub
-                slots -= params as u32;
-            }
+            tracing::trace!(
+                "computing slots for function {idx}, locals: {locals}, params: {params}, reserved: {slots}"
+            );
 
-            self.env.slots.insert(*idx, slots);
+            self.env.slots.insert(fun.index(), slots);
             self.env
                 .funcs
-                .insert(*idx, (params as u32, sig.results().len() as u32));
+                .insert(fun.index(), (params as u32, sig.results().len() as u32));
+
+            slots += locals;
+            if !self.env.is_external(fun.index()) && !self.env.is_main(fun.index()) {
+                slots += params as u32;
+            }
         }
 
         Ok(())

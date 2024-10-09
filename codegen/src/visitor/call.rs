@@ -67,6 +67,7 @@ impl Function {
         // 2. register the call index to the jump table.
         let reserved = self.env.slots.get(&index).unwrap_or(&0);
         for i in (0..*params).rev() {
+            tracing::trace!("storing local at {} for function {index}", i + reserved);
             self.masm.push(&((i + reserved) * 0x20).to_ls_bytes())?;
             self.masm._mstore()?;
         }

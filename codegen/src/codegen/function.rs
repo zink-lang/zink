@@ -97,7 +97,6 @@ impl Function {
         //
         // Record the offset for validation.
         while let Ok((count, val)) = locals.read() {
-            let validation_offset = locals.original_position();
             for _ in 0..count {
                 // TODO: the below here is outdated, sp is not required anymore after #245
 
@@ -108,6 +107,7 @@ impl Function {
                 sp += 1;
             }
 
+            let validation_offset = locals.original_position();
             validator.define_locals(validation_offset, count, val)?;
         }
 

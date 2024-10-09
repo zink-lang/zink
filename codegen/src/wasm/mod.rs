@@ -128,6 +128,9 @@ impl Env {
     }
 
     /// If the present function index is the main function
+    ///
+    /// NOTE: in wasm the indexes of the imports will be ordered
+    /// before the functions
     pub fn is_main(&self, index: u32) -> bool {
         self.imports.len() as u32 == index
     }
@@ -151,6 +154,10 @@ impl Env {
     /// Allocate memory slots from local index
     pub fn alloc(&self, index: u32) -> SmallVec<[u8; 4]> {
         let slots = index + self.reserved();
+        tracing::trace!(
+            "allocating memory for local {index} of function {:?}, slot: {slots}",
+            self.index
+        );
         (slots * 0x20).to_ls_bytes()
     }
 }
