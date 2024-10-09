@@ -58,11 +58,13 @@ impl Function {
         // post process program counter and stack pointer.
         if is_external {
             // codegen.masm.increment_sp(1)?;
+            tracing::debug!("<External function>");
             codegen.masm._jumpdest()?;
         } else {
             // Mock the stack frame for the callee function
             //
             // STACK: [ PC ]
+            tracing::debug!("<Internal function>");
             codegen.masm.increment_sp(1)?;
             codegen.masm._jumpdest()?;
         }
@@ -97,8 +99,7 @@ impl Function {
         while let Ok((count, val)) = locals.read() {
             let validation_offset = locals.original_position();
             for _ in 0..count {
-                // Init locals with zero.
-                self.masm.push(&[0])?;
+                // TODO: the below here is outdated, sp is not required anymore after #245
 
                 // Define locals.
                 self.locals

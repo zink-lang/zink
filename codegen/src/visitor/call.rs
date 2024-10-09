@@ -37,6 +37,8 @@ impl Function {
         tracing::trace!("call internal function: index={index}");
         let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
 
+        // TODO: adapat the case that the params is larger than 0xff (#247)
+        //
         // 1. record the program counter of the end of this expression
         // call and pass it to the callee function.
         //

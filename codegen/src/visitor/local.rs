@@ -56,6 +56,7 @@ impl Function {
 
     /// Local get for variables.
     fn _local_get_var(&mut self, local_index: usize) -> Result<()> {
+        tracing::trace!("Local get variable: {local_index}");
         if local_index + 1 > self.locals.len() {
             // The local we want is not from function arguments
             return Err(Error::InvalidLocalIndex(local_index));
@@ -63,23 +64,6 @@ impl Function {
 
         self.masm.push(&self.env.alloc(local_index as u32))?;
         self.masm._mload()?;
-        // // If local is already on stack.
-        // if self.masm.buffer().len() == self.locals.len() + 1 {
-        //     return Ok(());
-        // }
-        //
-        // tracing::debug!("buffer: {:?}", self.masm.buffer());
-        //
-        // let local = self.locals.get(local_index)?;
-        // let local_sp = local.sp as u8;
-        // let sp = self.masm.sp();
-        //
-        // tracing::trace!("local_get: {local_index} {local_sp} {sp}");
-        //
-        // // TODO: Arthmetic checks
-        // if sp > local_sp + 1 {
-        //     self.masm.dup(sp - local_sp)?;
-        // }
         Ok(())
     }
 }

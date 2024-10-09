@@ -118,6 +118,7 @@ impl Env {
 
     /// Check if the input function is external function
     pub fn is_external(&self, index: u32) -> bool {
+        // self.exports.get(&index).is_some()
         let Some(name) = self.exports.get(&index) else {
             return false;
         };
