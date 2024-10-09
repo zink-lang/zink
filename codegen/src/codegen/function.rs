@@ -38,10 +38,10 @@ pub struct Function {
 impl Function {
     /// Create a new code generator.
     pub fn new(env: Env, ty: FuncType, abi: Option<Abi>, is_main: bool) -> Result<Self> {
-        let mut params_count = 0;
-        if !is_main {
-            params_count = ty.params().len() as u8;
-        }
+        // let mut params_count = 0;
+        // if !is_main {
+        //     params_count = ty.params().len() as u8;
+        // }
 
         let is_external = abi.is_some();
         let mut codegen = Self {
@@ -68,9 +68,9 @@ impl Function {
             // Mock the stack frame for the callee function
             //
             // STACK: PC + params
-            codegen.masm.increment_sp(1 + params_count)?;
+            codegen.masm.increment_sp(1)?;
             codegen.masm._jumpdest()?;
-            codegen.masm.shift_stack(params_count, true)?;
+            // codegen.masm.shift_stack(params_count, true)?;
         }
 
         Ok(codegen)

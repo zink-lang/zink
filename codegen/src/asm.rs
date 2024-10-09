@@ -72,10 +72,13 @@ impl Assembler {
             self.sp,
             self.sp - items
         );
-        self.sp = self
-            .sp
-            .checked_sub(items)
-            .ok_or(Error::StackUnderflow(self.sp, items))?;
+        self.sp = if self.sp == items {
+            0
+        } else {
+            self.sp
+                .checked_sub(items)
+                .ok_or(Error::StackUnderflow(self.sp, items))?
+        };
 
         Ok(())
     }
