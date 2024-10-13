@@ -9,6 +9,7 @@ use crate::{
     wasm::Env,
     Buffer, Error, Result,
 };
+use opcodes::ShangHai as OpCode;
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
 use zabi::Abi;
 
@@ -37,11 +38,6 @@ pub struct Function {
 impl Function {
     /// Create a new code generator.
     pub fn new(env: Env, ty: FuncType, abi: Option<Abi>, is_main: bool) -> Result<Self> {
-        let mut params_count = 0;
-        if !is_main {
-            params_count = ty.params().len() as u8;
-        }
-
         let is_external = abi.is_some();
         let mut codegen = Self {
             abi,
@@ -61,15 +57,16 @@ impl Function {
 
         // post process program counter and stack pointer.
         if is_external {
-            codegen.masm.increment_sp(1)?;
+            // codegen.masm.increment_sp(1)?;
+            tracing::debug!("<External function>");
             codegen.masm._jumpdest()?;
         } else {
             // Mock the stack frame for the callee function
             //
-            // STACK: PC + params
-            codegen.masm.increment_sp(1 + params_count)?;
+            // STACK: [ PC ]
+            tracing::debug!("<Internal function>");
+            codegen.masm.increment_sp(1)?;
             codegen.masm._jumpdest()?;
-            codegen.masm.shift_stack(params_count, true)?;
         }
 
         Ok(codegen)
@@ -80,7 +77,7 @@ impl Function {
     /// 1. the function parameters.
     /// 2. function body locals.
     ///
-    /// NOTE: we don't care about the origin offset of the locals.
+    /// NOTE: we don't care about the original offset of the locals.
     /// bcz we will serialize the locals to an index map anyway.
     pub fn emit_locals(
         &mut self,
@@ -100,10 +97,8 @@ impl Function {
         //
         // Record the offset for validation.
         while let Ok((count, val)) = locals.read() {
-            let validation_offset = locals.original_position();
             for _ in 0..count {
-                // Init locals with zero.
-                self.masm.push(&[0])?;
+                // TODO: the below here is outdated, sp is not required anymore after #245
 
                 // Define locals.
                 self.locals
@@ -112,6 +107,7 @@ impl Function {
                 sp += 1;
             }
 
+            let validation_offset = locals.original_position();
             validator.define_locals(validation_offset, count, val)?;
         }
 
@@ -129,6 +125,12 @@ impl Function {
             let offset = ops.original_position();
             let mut validate_then_visit = ValidateThenVisit(validator.visitor(offset), self);
             ops.visit_operator(&mut validate_then_visit)???;
+        }
+
+        if (self.abi.is_some() || self.is_main)
+            && self.masm.buffer().last() != Some(&OpCode::RETURN.into())
+        {
+            self._end()?;
         }
 
         Ok(())

@@ -3,6 +3,9 @@
 /// Codegen error
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    /// Any error
+    #[error("{0}")]
+    Anyhow(#[from] anyhow::Error),
     /// Failed to parse function ABI.
     #[error(transparent)]
     Abi(#[from] zabi::result::Error),

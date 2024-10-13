@@ -12,6 +12,8 @@ pub use self::{
     host::HostFunc,
 };
 use crate::{Error, Result};
+use host::CompilerLabel;
+use smallvec::SmallVec;
 use std::collections::BTreeMap;
 use wasmparser::Operator;
 use zabi::Abi;
@@ -43,7 +45,9 @@ macro_rules! impl_deref {
 
 impl_deref! {
     ("WASM import section", Imports, BTreeMap<u32, HostFunc>),
-    ("WASM export section", Exports, BTreeMap<u32, String>)
+    ("WASM export section", Exports, BTreeMap<u32, String>),
+    ("WASM slot registry", Slots, BTreeMap<u32, u32>),
+    ("WASM function registry", Funcs, BTreeMap<u32, (u32, u32)>)
 }
 
 /// A struct that holds the environment wasm module.
@@ -53,8 +57,14 @@ pub struct Env {
     pub imports: Imports,
     /// WASM exports
     pub exports: Exports,
+    /// Function memory slots
+    pub slots: Slots,
+    /// Function params count
+    pub funcs: Funcs,
     /// WASM data slots
     pub data: Data,
+    /// Current function index
+    pub index: Option<u32>,
 }
 
 impl Env {
@@ -108,6 +118,7 @@ impl Env {
 
     /// Check if the input function is external function
     pub fn is_external(&self, index: u32) -> bool {
+        // self.exports.get(&index).is_some()
         let Some(name) = self.exports.get(&index) else {
             return false;
         };
@@ -117,8 +128,37 @@ impl Env {
     }
 
     /// If the present function index is the main function
+    ///
+    /// NOTE: in wasm the indexes of the imports will be ordered
+    /// before the functions
     pub fn is_main(&self, index: u32) -> bool {
         self.imports.len() as u32 == index
+    }
+
+    /// Clone a new environment with function index provided
+    pub fn with_index(&self, index: u32) -> Self {
+        let mut this = self.clone();
+        this.index = Some(index);
+        this
+    }
+
+    /// Get reserved slots
+    pub fn reserved(&self) -> u32 {
+        let Some(index) = self.index else {
+            return 0;
+        };
+
+        *self.slots.get(&index).unwrap_or(&0)
+    }
+
+    /// Allocate memory slots from local index
+    pub fn alloc(&self, index: u32) -> SmallVec<[u8; 4]> {
+        let slots = index + self.reserved();
+        tracing::trace!(
+            "allocating memory for local {index} of function {:?}, slot: {slots}",
+            self.index
+        );
+        (slots * 0x20).to_ls_bytes()
     }
 }
 
@@ -126,6 +166,22 @@ impl Imports {
     /// If the function is `emit_abi`.
     pub fn is_emit_abi(&self, index: u32) -> bool {
         self.get(&index) == Some(&HostFunc::EmitABI)
+    }
+
+    /// Get reserved slots in memory for storage calculations
+    pub fn reserved(&self) -> u32 {
+        let mut reserved = 0;
+        for host_fn in self.0.values() {
+            match *host_fn {
+                HostFunc::Label(CompilerLabel::ReserveMemory32) => reserved = 1,
+                HostFunc::Label(CompilerLabel::ReserveMemory64) => {
+                    return 2;
+                }
+                _ => {}
+            }
+        }
+
+        reserved
     }
 }
 

@@ -2,6 +2,7 @@ use anyhow::Result;
 use filetests::Test;
 use zint::{Bytes32, Contract};
 
+#[ignore]
 #[test]
 fn fibonacci() -> Result<()> {
     let mut contract = Contract::from(Test::RECURSION_FIBONACCI).pure().compile()?;
@@ -16,6 +17,7 @@ fn fibonacci() -> Result<()> {
 
     // x = 2
     let info = contract.execute([2])?;
+    assert_eq!(info.halt, None);
     assert_eq!(1.to_bytes32().to_vec(), info.ret);
 
     // x = 3

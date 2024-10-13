@@ -34,16 +34,15 @@ impl Compiler {
     /// Returns runtime bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Artifact> {
         let mut parser = Parser::try_from(wasm)?;
+        let env = parser.env.clone();
 
-        let env = parser.to_func_env();
         self.compile_dispatcher(&mut parser)?;
         for func in parser.funcs.into_funcs() {
-            self.compile_func(env.clone(), func)?;
+            self.compile_func(env.with_index(func.index()), func)?;
         }
 
         self.table.code_offset(self.buffer.len() as u16);
         self.table.relocate(&mut self.buffer)?;
-
         self.artifact()
     }
 
@@ -69,8 +68,8 @@ impl Compiler {
     ///
     /// Drain selectors anyway, compile dispatcher if it is enabled.
     fn compile_dispatcher(&mut self, parser: &mut Parser) -> Result<()> {
-        let selectors = parser.funcs.drain_selectors(&parser.exports);
-        let env = parser.to_env();
+        let selectors = parser.drain_selectors();
+        let env = parser.env.clone();
 
         if !self.config.dispatcher {
             self.abi.append(&mut env.load_abis(&selectors)?);
