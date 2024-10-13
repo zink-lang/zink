@@ -2,11 +2,12 @@
 
 use anyhow::{anyhow, Result};
 use revm::{
+    db::EmptyDB,
     primitives::{
-        AccountInfo, Bytecode, Bytes, CreateScheme, Eval, ExecutionResult, Halt, Log, Output,
-        ResultAndState, TransactTo, U256,
+        AccountInfo, Bytecode, Bytes, ExecutionResult, HaltReason, Log, Output, ResultAndState,
+        SuccessReason, TransactTo, TxKind, U256,
     },
-    InMemoryDB, EVM as REVM,
+    Database, Evm as Revm, InMemoryDB,
 };
 use std::collections::HashMap;
 
@@ -20,24 +21,26 @@ pub const ALICE: [u8; 20] = [0; 20];
 pub const CONTRACT: [u8; 20] = [1; 20];
 
 /// Wrapper of full REVM
-pub struct EVM {
-    inner: REVM<InMemoryDB>,
+pub struct EVM<'e> {
+    inner: Revm<'e, (), InMemoryDB>,
+    /// If commit changes
+    commit: bool,
 }
 
-impl Default for EVM {
+impl<'e> Default for EVM<'e> {
     fn default() -> Self {
         let mut db = InMemoryDB::default();
         db.insert_account_info(ALICE.into(), AccountInfo::from_balance(U256::MAX));
 
-        let mut evm = REVM::new();
-        evm.database(db);
-        evm.env.tx.gas_limit = GAS_LIMIT;
-
-        Self { inner: evm }
+        let evm = Revm::<'e, (), EmptyDB>::builder().with_db(db).build();
+        Self {
+            inner: evm,
+            commit: false,
+        }
     }
 }
 
-impl EVM {
+impl<'e> EVM<'e> {
     /// Interpret runtime bytecode with provided arguments
     pub fn interp(runtime_bytecode: &[u8], input: &[u8]) -> Result<Info> {
         Self::default()
@@ -46,24 +49,43 @@ impl EVM {
             .call(CONTRACT)
     }
 
+    /// Get storage from address and storage index
+    pub fn storage(&mut self, address: [u8; 20], key: [u8; 32]) -> Result<[u8; 32]> {
+        let db = self.inner.db_mut();
+        Ok(db
+            .storage(address.into(), U256::from_be_bytes(key))?
+            .to_be_bytes())
+    }
+
+    /// If commit changes
+    pub fn commit(mut self, flag: bool) -> Self {
+        self.commit = flag;
+        self
+    }
+
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
-        self.inner.env.tx.transact_to = to.clone();
-        let result = self.inner.transact_ref().map_err(|e| anyhow!(e))?;
-        (result, to).try_into()
+        self.inner.tx_mut().gas_limit = GAS_LIMIT;
+        self.inner.tx_mut().transact_to = to;
+        if self.commit {
+            self.inner.transact_commit()?.try_into()
+        } else {
+            let result = self.inner.transact().map_err(|e| anyhow!(e))?;
+            (result, to).try_into()
+        }
     }
 
     /// Interpret runtime bytecode with provided arguments
     pub fn deploy(&mut self, bytecode: &[u8]) -> Result<Info> {
         self.calldata(bytecode);
-        self.inner.env.tx.transact_to = TransactTo::Create(CreateScheme::Create);
+        self.inner.tx_mut().transact_to = TxKind::Create;
         self.inner.transact_commit()?.try_into()
     }
 
     /// Fill the calldata of the present transaction.
     pub fn calldata(&mut self, input: &[u8]) -> &mut Self {
-        self.inner.env.tx.data = Bytes::copy_from_slice(input);
+        self.inner.tx_mut().data = Bytes::copy_from_slice(input);
         self
     }
 
@@ -83,9 +105,7 @@ impl EVM {
     }
 
     fn db(&mut self) -> &mut InMemoryDB {
-        self.inner
-            .db()
-            .unwrap_or_else(|| unreachable!("provided on initialization"))
+        self.inner.db_mut()
     }
 }
 
@@ -103,7 +123,7 @@ pub struct Info {
     /// Execution logs.
     pub logs: Vec<Log>,
     /// Transaction halt reason.
-    pub halt: Option<Halt>,
+    pub halt: Option<HaltReason>,
 }
 
 impl TryFrom<ExecutionResult> for Info {
@@ -122,7 +142,7 @@ impl TryFrom<ExecutionResult> for Info {
                 output,
                 ..
             } => {
-                if reason != Eval::Return {
+                if reason != SuccessReason::Return {
                     return Err(anyhow!("Transaction is not returned: {reason:?}"));
                 }
                 info.logs = logs;

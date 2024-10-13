@@ -6,7 +6,7 @@ use crate::{Buffer, Error, Result};
 use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
 
 /// Low level assembler implementation for EVM.
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Assembler {
     /// Buffer of the assembler.
     buffer: Buffer,
@@ -46,8 +46,8 @@ impl Assembler {
             return Ok(());
         }
 
-        tracing::trace!(
-            "increment stack pointer {}({items}) -> {}",
+        tracing::debug!(
+            "increment stack pointer {}.add({items}) -> {}",
             self.sp,
             self.sp + items
         );
@@ -67,15 +67,18 @@ impl Assembler {
             return Ok(());
         }
 
-        tracing::trace!(
-            "decrement stack pointer {}({items}) -> {}",
+        tracing::debug!(
+            "decrement stack pointer {}.sub({items}) -> {}",
             self.sp,
             self.sp - items
         );
-        self.sp = self
-            .sp
-            .checked_sub(items)
-            .ok_or(Error::StackUnderflow(self.sp, items))?;
+        self.sp = if self.sp == items {
+            0
+        } else {
+            self.sp
+                .checked_sub(items)
+                .ok_or(Error::StackUnderflow(self.sp, items))?
+        };
 
         Ok(())
     }

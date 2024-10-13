@@ -32,17 +32,17 @@ fn visit_op_when_unreachable(op: Operator) -> bool {
     matches!(op, If { .. } | Block { .. } | Loop { .. } | Else | End)
 }
 
-/// Trait to handle reachability state.
-trait ReachableState {
-    /// Returns true if the current state of the program is reachable.
-    fn is_reachable(&self) -> bool;
-}
-
-impl ReachableState for Function {
-    fn is_reachable(&self) -> bool {
-        true
-    }
-}
+// /// Trait to handle reachability state.
+// trait ReachableState {
+//     /// Returns true if the current state of the program is reachable.
+//     fn is_reachable(&self) -> bool;
+// }
+//
+// impl ReachableState for Function {
+//     fn is_reachable(&self) -> bool {
+//         true
+//     }
+// }
 
 impl<'a, T> VisitOperator<'a> for ValidateThenVisit<'_, T>
 where

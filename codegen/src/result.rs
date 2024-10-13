@@ -3,6 +3,9 @@
 /// Codegen error
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    /// Any error
+    #[error("{0}")]
+    Anyhow(#[from] anyhow::Error),
     /// Failed to parse function ABI.
     #[error(transparent)]
     Abi(#[from] zabi::result::Error),
@@ -61,7 +64,7 @@ pub enum Error {
     #[error("Invalid data size {0}")]
     InvalidDataSize(usize),
     /// Failed to get frame info of the given depth.
-    #[error("Invalid contract stack fram depth {0}")]
+    #[error("Invalid contract stack frame depth {0}")]
     InvalidDepth(usize),
     /// Failed to parse function selector.
     #[error("Invalid function selector")]

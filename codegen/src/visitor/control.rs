@@ -130,20 +130,21 @@ impl Function {
 
     /// Handle the end of instructions for different situations.
     ///
-    /// TODO: (#28)
-    ///
     /// - End of control flow operators.
     /// - End of function.
     /// - End of program.
     pub fn _end(&mut self) -> Result<()> {
         if let Ok(frame) = self.control.pop() {
-            self.handle_frame_popping(frame)
-        } else if !self.is_main {
-            tracing::trace!("end of call");
-            self.handle_call_return()
-        } else {
+            return self.handle_frame_popping(frame);
+        }
+
+        let results = self.ty.results();
+        if self.is_main || self.abi.is_some() {
             tracing::trace!("end of main function");
-            self.handle_return()
+            self.masm.main_return(results)
+        } else {
+            tracing::trace!("end of call");
+            self.masm.call_return(results)
         }
     }
 
@@ -159,5 +160,26 @@ impl Function {
     /// Perform nothing in EVM bytecode.
     pub fn _nop(&mut self) -> Result<()> {
         Ok(())
+    }
+
+    /// Handle the popping of a frame.
+    ///
+    /// TODO: validate stack IO for all frames (#59)
+    pub(crate) fn handle_frame_popping(&mut self, frame: ControlStackFrame) -> Result<()> {
+        match frame.ty {
+            ControlStackFrameType::If(true) => Ok(()),
+            ControlStackFrameType::Block => self.masm._jumpdest(),
+            ControlStackFrameType::Loop => Ok(()),
+            _ => {
+                self.table
+                    .label(frame.original_pc_offset, self.masm.pc_offset());
+
+                // TODO: Check the stack output and make decisions
+                // how to handle the results.
+
+                // Emit JUMPDEST after at the end of the control flow.
+                self.masm._jumpdest()
+            }
+        }
     }
 }

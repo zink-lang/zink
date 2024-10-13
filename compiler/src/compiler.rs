@@ -34,34 +34,51 @@ impl Compiler {
     /// Returns runtime bytecode.
     pub fn compile(mut self, wasm: &[u8]) -> Result<Artifact> {
         let mut parser = Parser::try_from(wasm)?;
-        let constructor = parser.remove_constructor();
+        let env = parser.env.clone();
 
         self.compile_dispatcher(&mut parser)?;
-        let env = parser.to_func_env();
         for func in parser.funcs.into_funcs() {
-            self.compile_func(env.clone(), func)?;
+            self.compile_func(env.with_index(func.index()), func)?;
         }
 
         self.table.code_offset(self.buffer.len() as u16);
         self.table.relocate(&mut self.buffer)?;
+        self.artifact()
+    }
 
-        Artifact::try_from((self, constructor)).map_err(Into::into)
+    /// Generate artifact
+    ///
+    /// yields runtime bytecode and construct bytecode
+    fn artifact(self) -> Result<Artifact> {
+        let Compiler {
+            abi,
+            buffer,
+            config,
+            ..
+        } = self;
+
+        Ok(Artifact {
+            abi,
+            config,
+            runtime_bytecode: buffer.to_vec(),
+        })
     }
 
     /// Compile EVM dispatcher.
     ///
-    /// Drain selectors anyway, if dispatcher is
-    /// enabled, compile dispatcher.
+    /// Drain selectors anyway, compile dispatcher if it is enabled.
     fn compile_dispatcher(&mut self, parser: &mut Parser) -> Result<()> {
-        let selectors = parser.funcs.drain_selectors(&parser.exports);
+        let selectors = parser.drain_selectors();
+        let env = parser.env.clone();
+
         if !self.config.dispatcher {
+            self.abi.append(&mut env.load_abis(&selectors)?);
             return Ok(());
         }
 
-        let mut dispatcher = Dispatcher::new(parser.to_env(), &parser.funcs)?;
+        let mut dispatcher = Dispatcher::new(env, &parser.funcs)?;
         let buffer = dispatcher.finish(selectors, &mut self.table)?;
         self.buffer.extend_from_slice(&buffer);
-
         if self.buffer.len() > BUFFER_LIMIT {
             return Err(Error::BufferOverflow(self.buffer.len()));
         }
@@ -74,15 +91,12 @@ impl Compiler {
     fn compile_func(&mut self, env: Env, mut func: wasm::Function<'_>) -> Result<()> {
         let func_index = func.index();
         let sig = func.sig()?;
+        let abi = self.abi(&env, func_index);
 
-        tracing::trace!("compile function {}: {:?}", func_index, sig);
-        let is_main = if self.config.dispatcher {
-            false
-        } else {
-            func_index - (env.imports.len() as u32) == 0
-        };
+        tracing::debug!("compile function {func_index} {:?}, abi: {abi:#?}", sig);
+        let is_main = !self.config.dispatcher && env.is_main(func_index);
 
-        let mut codegen = Function::new(env, sig, is_main)?;
+        let mut codegen = Function::new(env, sig, abi, is_main)?;
         let mut locals_reader = func.body.get_locals_reader()?;
         let mut ops_reader = func.body.get_operators_reader()?;
 
@@ -105,5 +119,11 @@ impl Compiler {
         }
 
         Ok(())
+    }
+
+    /// Get abi from env and function index
+    fn abi(&self, env: &Env, index: u32) -> Option<Abi> {
+        let name = env.exports.get(&index)?;
+        self.abi.iter().find(|a| name == &a.name).cloned()
     }
 }

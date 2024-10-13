@@ -108,6 +108,18 @@ extern "C" {
     /// Load a value from the storage
     pub fn sload();
 
+    /// Save word to memory
+    pub fn mstore();
+
+    /// Save byte to memory
+    pub fn mstore8();
+
+    /// Load word from memory
+    pub fn mload();
+
+    /// Compute Keccak-256 hash
+    pub fn keccak256();
+
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);
 

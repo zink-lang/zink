@@ -30,7 +30,7 @@ opcodes! {
     (0x1b, SHL, 3, 2, 1, "Left shift operation", Constantinople, ComparisonBitwiseLogic),
     (0x1c, SHR, 3, 2, 1, "Logical right shift operation", Constantinople, ComparisonBitwiseLogic),
     (0x1d, SAR, 3, 2, 1, "Arithmetic (signed) right shift operation", Constantinople, ComparisonBitwiseLogic),
-    (0x20, SHA3, 30, 2, 1, "Compute Keccak-256 hash.", Frontier, StopArithmetic),
+    (0x20, KECCAK256, 30, 2, 1, "Compute Keccak-256 hash.", Frontier, StopArithmetic),
     (0x30, ADDRESS, 2, 0, 1, "Get address of currently executing account.", Frontier, EnvironmentalInformation),
     (0x31, BALANCE, 20, 1, 1, "Get balance of the given account.", Frontier, EnvironmentalInformation),
     (0x32, ORIGIN, 2, 0, 1, "Get execution origination address.", Frontier, EnvironmentalInformation),

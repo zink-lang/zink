@@ -9,10 +9,14 @@ use crate::{
     wasm::Env,
     Buffer, Error, Result,
 };
+use opcodes::ShangHai as OpCode;
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
+use zabi::Abi;
 
 /// The code generation abstraction.
 pub struct Function {
+    /// Abi of this function,
+    pub abi: Option<Abi>,
     /// The backtrace.
     pub backtrace: Backtrace,
     /// Control stack frames.
@@ -33,13 +37,10 @@ pub struct Function {
 
 impl Function {
     /// Create a new code generator.
-    pub fn new(env: Env, ty: FuncType, is_main: bool) -> Result<Self> {
-        let mut params_count = 0;
-        if !is_main {
-            params_count = ty.params().len() as u8;
-        }
-
+    pub fn new(env: Env, ty: FuncType, abi: Option<Abi>, is_main: bool) -> Result<Self> {
+        let is_external = abi.is_some();
         let mut codegen = Self {
+            abi,
             backtrace: Backtrace::default(),
             control: ControlStack::default(),
             env,
@@ -50,14 +51,22 @@ impl Function {
             is_main,
         };
 
+        if is_main {
+            return Ok(codegen);
+        }
+
         // post process program counter and stack pointer.
-        if !is_main {
+        if is_external {
+            // codegen.masm.increment_sp(1)?;
+            tracing::debug!("<External function>");
+            codegen.masm._jumpdest()?;
+        } else {
             // Mock the stack frame for the callee function
             //
-            // STACK: PC + params
-            codegen.masm.increment_sp(1 + params_count)?;
+            // STACK: [ PC ]
+            tracing::debug!("<Internal function>");
+            codegen.masm.increment_sp(1)?;
             codegen.masm._jumpdest()?;
-            codegen.masm.shift_stack(params_count, true)?;
         }
 
         Ok(codegen)
@@ -68,7 +77,7 @@ impl Function {
     /// 1. the function parameters.
     /// 2. function body locals.
     ///
-    /// NOTE: we don't care about the origin offset of the locals.
+    /// NOTE: we don't care about the original offset of the locals.
     /// bcz we will serialize the locals to an index map anyway.
     pub fn emit_locals(
         &mut self,
@@ -88,10 +97,8 @@ impl Function {
         //
         // Record the offset for validation.
         while let Ok((count, val)) = locals.read() {
-            let validation_offset = locals.original_position();
             for _ in 0..count {
-                // Init locals with zero.
-                self.masm.push(&[0])?;
+                // TODO: the below here is outdated, sp is not required anymore after #245
 
                 // Define locals.
                 self.locals
@@ -100,6 +107,7 @@ impl Function {
                 sp += 1;
             }
 
+            let validation_offset = locals.original_position();
             validator.define_locals(validation_offset, count, val)?;
         }
 
@@ -119,13 +127,19 @@ impl Function {
             ops.visit_operator(&mut validate_then_visit)???;
         }
 
+        if (self.abi.is_some() || self.is_main)
+            && self.masm.buffer().last() != Some(&OpCode::RETURN.into())
+        {
+            self._end()?;
+        }
+
         Ok(())
     }
 
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
         let sp = self.masm.sp();
-        if !self.is_main && self.masm.sp() != self.ty.results().len() as u8 {
+        if !self.is_main && self.abi.is_none() && self.masm.sp() != self.ty.results().len() as u8 {
             return Err(Error::StackNotBalanced(sp));
         }
 
