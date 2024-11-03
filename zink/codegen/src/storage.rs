@@ -98,7 +98,7 @@ impl Storage {
 
                     let mut seed = [0; 64];
                     seed[..32].copy_from_slice(&key.bytes32());
-                    seed[60..].copy_from_slice(&Self::STORAGE_SLOT.bytes32());
+                    seed[32..].copy_from_slice(&Self::STORAGE_SLOT.bytes32());
                     zink::keccak256(&seed)
                 }
             }
@@ -140,7 +140,7 @@ impl Storage {
 
                     let mut seed = [0; 64];
                     seed[..32].copy_from_slice(&key1.bytes32());
-                    seed[60..].copy_from_slice(&Self::STORAGE_SLOT.bytes32());
+                    seed[32..].copy_from_slice(&Self::STORAGE_SLOT.bytes32());
                     let skey1 = zink::keccak256(&seed);
                     seed[..32].copy_from_slice(&skey1);
                     seed[32..].copy_from_slice(&key2.bytes32());
