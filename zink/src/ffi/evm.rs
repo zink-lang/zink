@@ -100,7 +100,7 @@ extern "C" {
     pub fn push31(val: i32);
 
     /// Push 32 bytes to the stack.
-    pub fn push32(val: i32);
+    pub fn push32();
 
     /// Store a value in the storage
     pub fn sstore();

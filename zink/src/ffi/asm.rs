@@ -1,6 +1,6 @@
 //! Assembly FFI.
 
-use crate::primitives::Address;
+use crate::primitives::{Address, U256};
 
 #[link(wasm_import_module = "asm")]
 #[allow(improper_ctypes)]
@@ -32,6 +32,9 @@ extern "C" {
     /// Push address to stack
     pub fn push_address(address: Address);
 
+    /// Push u256 to stack
+    pub fn push_u256(u256: U256);
+
     /// Load a 8-bit signed integer from the storage.
     pub fn sload_i8() -> i8;
 
@@ -58,4 +61,7 @@ extern "C" {
 
     /// Load address from storage
     pub fn sload_address() -> Address;
+
+    /// Load address from storage
+    pub fn sload_u256() -> U256;
 }

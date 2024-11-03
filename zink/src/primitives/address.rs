@@ -9,6 +9,12 @@ pub struct Address(
 );
 
 impl Address {
+    /// Returns empty address
+    #[cfg(not(target_family = "wasm"))]
+    pub const fn empty() -> Self {
+        Address([0; 20])
+    }
+
     /// if self equal to another
     ///
     /// NOTE: not using core::cmp because it uses registers in wasm
