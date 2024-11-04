@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["push_address","push_i16","push_i32","push_i64","push_i8","push_u16","push_u32","push_u64","push_u8","sload_address","sload_i16","sload_i32","sload_i64","sload_i8","sload_u16","sload_u32","sload_u64","sload_u8"]};
+window.SIDEBAR_ITEMS = {"fn":["push_address","push_i16","push_i32","push_i64","push_i8","push_u16","push_u32","push_u64","push_u8","revert1","revert2","revert3","revert4","sload_address","sload_i16","sload_i32","sload_i64","sload_i8","sload_u16","sload_u32","sload_u64","sload_u8"]};
