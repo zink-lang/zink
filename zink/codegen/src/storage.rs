@@ -1,5 +1,3 @@
-extern crate proc_macro;
-
 use crate::utils::Bytes32;
 use heck::AsSnakeCase;
 use proc_macro::TokenStream;

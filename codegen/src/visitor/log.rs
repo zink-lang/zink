@@ -4,7 +4,13 @@ use crate::{masm::MemoryInfo, wasm::ToLSBytes, Error, Function, Result};
 
 impl Function {
     /// Parse log data from the bytecode.
-    fn log_data(&mut self) -> Result<(i32, i32)> {
+    ///
+    /// WASM example:
+    /// ```
+    /// i32.const 1048576   ;; offset
+    /// i32.const 4         ;; 4 bytes
+    /// ```
+    fn data(&mut self) -> Result<(i32, i32)> {
         let buffer: Vec<u8> = self.masm.buffer().into();
 
         // Pop offset and size from the bytecode.
@@ -53,7 +59,7 @@ impl Function {
     pub fn log(&mut self, count: usize) -> Result<()> {
         let mut topics = Vec::<Vec<u8>>::default();
         for topic in (1..=count).rev() {
-            let (offset, size) = self.log_data()?;
+            let (offset, size) = self.data()?;
             let size = size as usize;
             let data = self.env.data.load(offset, size)?;
 
@@ -62,7 +68,7 @@ impl Function {
         }
 
         let name = {
-            let (offset, size) = self.log_data()?;
+            let (offset, size) = self.data()?;
             let size = size as usize;
             let data = self.env.data.load(offset, size)?;
 
@@ -91,6 +97,37 @@ impl Function {
             _ => unreachable!("invalid topics"),
         }?;
 
+        Ok(())
+    }
+
+    /// Revert with message.
+    pub fn revert(&mut self, count: usize) -> Result<()> {
+        let mut message = Vec::<Vec<u8>>::default();
+        for slot in 0..count {
+            let (offset, size) = self.data()?;
+            let size = size as usize;
+            let data = self.env.data.load(offset, size)?;
+
+            self.masm.push(&data)?;
+            if slot == 0 {
+                self.masm._push0()?;
+            } else {
+                self.masm.push(&slot.to_ls_bytes())?;
+            }
+            self.masm._mstore()?;
+            message.push(data);
+        }
+
+        tracing::debug!(
+            "revert message: {}",
+            String::from_utf8_lossy(&message.into_iter().flatten().collect::<Vec<u8>>())
+        );
+
+        self.masm.push(&(count * 32).to_ls_bytes())?;
+        self.masm._push0()?;
+
+        // 3. run log for the data
+        self.masm._revert()?;
         Ok(())
     }
 }

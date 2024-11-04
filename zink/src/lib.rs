@@ -13,7 +13,7 @@ pub mod storage;
 
 pub use self::{asm::Asm, event::Event};
 pub use storage::{DoubleKeyMapping, Mapping, Storage};
-pub use zink_codegen::{external, storage, Event};
+pub use zink_codegen::{external, revert, storage, Event};
 
 /// Generate a keccak hash of the input (sha3)
 #[cfg(not(target_family = "wasm"))]
