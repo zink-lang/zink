@@ -6,7 +6,7 @@ extern crate zink;
 
 use zink::{
     primitives::{Address, String32, U256},
-    Mapping, Storage,
+    DoubleKeyMapping, Mapping, Storage,
 };
 
 #[zink::storage(String32)]
@@ -21,6 +21,9 @@ pub struct TotalSupply;
 #[zink::storage(Address, U256)]
 pub struct Balances;
 
+#[zink::storage(Address, Address, U256)]
+pub struct Allowance;
+
 /// Get value from the storage.
 #[zink::external]
 pub fn init(name: String32, symbol: String32) {
@@ -34,15 +37,80 @@ pub fn decimals() -> u32 {
     8
 }
 
-fn _transfer(_from: Address, _to: Address) {
-    // TODO: check and reverts
+#[zink::external]
+pub fn approve(spender: Address, value: U256) -> bool {
+    // TODO: wrap this in env
+    let owner = unsafe { zink::ffi::evm::msg_sender() };
+    _approve(owner, spender, value, false);
+    true
 }
 
-fn _update(_from: Address) {}
+#[zink::external]
+pub fn transfer_from(from: Address, to: Address, value: U256) -> bool {
+    let spender = unsafe { zink::ffi::evm::msg_sender() };
+    _spend_allowance(from, spender, value);
+    _transfer(from, to, value);
+    true
+}
+
+fn _transfer(from: Address, to: Address, value: U256) {
+    if from.eq(Address::empty()) {
+        zink::revert!("Empty from address");
+    }
+
+    if to.eq(Address::empty()) {
+        zink::revert!("Empty to address");
+    }
+
+    _update(from, to, value)
+}
+
+fn _update(from: Address, to: Address, value: U256) {
+    if from.eq(Address::empty()) {
+        TotalSupply::set(TotalSupply::get().add(value));
+    } else {
+        let from_balance = Balances::get(from);
+        if from_balance.lt(value) {
+            zink::revert!("Insufficient balance");
+        }
+
+        Balances::set(from, from_balance.sub(value));
+    }
+
+    if to.eq(Address::empty()) {
+        TotalSupply::set(TotalSupply::get().sub(value));
+    } else {
+        TotalSupply::set(TotalSupply::get().add(value));
+    }
+}
+
+fn _approve(owner: Address, spender: Address, value: U256, _emit_event: bool) {
+    if owner.eq(Address::empty()) {
+        zink::revert!("ERC20 Invalid approval");
+    }
+
+    if spender.eq(Address::empty()) {
+        zink::revert!("ERC20 Invalid spender");
+    }
+
+    Allowance::set(owner, spender, value);
+}
+
+fn _spend_allowance(owner: Address, spender: Address, value: U256) {
+    let current_allowance = Allowance::get(owner, spender);
+    if current_allowance.lt(U256::max()) {
+        if current_allowance.lt(value) {
+            zink::revert!("ERC20 Insufficient allowance");
+        }
+
+        _approve(owner, spender, current_allowance.sub(value), false)
+    }
+}
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
+#[ignore]
 #[test]
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};

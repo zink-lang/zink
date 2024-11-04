@@ -15,6 +15,12 @@ impl Address {
         Address([0; 20])
     }
 
+    /// Returns empty address
+    #[cfg(target_family = "wasm")]
+    pub const fn empty() -> Self {
+        Address(0)
+    }
+
     /// if self equal to another
     ///
     /// NOTE: not using core::cmp because it uses registers in wasm

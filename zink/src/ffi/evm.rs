@@ -1,5 +1,7 @@
 //! EVM FFI.
 
+use crate::primitives::Address;
+
 #[link(wasm_import_module = "evm")]
 #[allow(improper_ctypes)]
 extern "C" {
@@ -119,6 +121,9 @@ extern "C" {
 
     /// Compute Keccak-256 hash
     pub fn keccak256();
+
+    /// Get the current message sender
+    pub fn msg_sender() -> Address;
 
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);

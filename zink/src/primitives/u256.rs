@@ -1,3 +1,4 @@
+#![allow(clippy::should_implement_trait)]
 use crate::{ffi, storage::StorageValue, Asm};
 
 /// Account address
@@ -13,6 +14,26 @@ impl U256 {
     #[cfg(not(target_family = "wasm"))]
     pub const fn empty() -> Self {
         U256([0; 32])
+    }
+
+    /// add another value
+    pub fn add(self, other: Self) -> Self {
+        unsafe { ffi::u256_add(self, other) }
+    }
+
+    /// add another value
+    pub fn lt(self, other: Self) -> bool {
+        unsafe { ffi::u256_lt(self, other) }
+    }
+
+    /// add another value
+    pub fn sub(self, other: Self) -> Self {
+        unsafe { ffi::u256_sub(self, other) }
+    }
+
+    /// max of u256
+    pub fn max() -> Self {
+        unsafe { ffi::u256_max() }
     }
 }
 
