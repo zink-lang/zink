@@ -120,6 +120,18 @@ extern "C" {
     /// Compute Keccak-256 hash
     pub fn keccak256();
 
+    /// Revert with message in 32 bytes
+    pub fn revert1(message: &'static [u8]);
+
+    /// Revert with message in 64 bytes
+    pub fn revert2(message: &'static [u8]);
+
+    /// Revert with message in 96 bytes
+    pub fn revert3(message: &'static [u8]);
+
+    /// Revert with message in 128 bytes
+    pub fn revert4(message: &'static [u8]);
+
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);
 
