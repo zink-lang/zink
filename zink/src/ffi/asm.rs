@@ -32,6 +32,9 @@ extern "C" {
     /// Push address to stack
     pub fn push_address(address: Address);
 
+    /// Revert with message
+    pub fn revert(len: i32, message: &'static [u8]);
+
     /// Load a 8-bit signed integer from the storage.
     pub fn sload_i8() -> i8;
 

@@ -104,7 +104,6 @@ impl Function {
             .ok_or(Error::ImportedFuncNotFound(index))?;
 
         tracing::trace!("call imported function, index={index}, func={func:?}");
-
         match func {
             HostFunc::Evm(OpCode::LOG0) => self.log(0),
             HostFunc::Evm(OpCode::LOG1) => self.log(1),

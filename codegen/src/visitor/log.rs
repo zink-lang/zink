@@ -4,7 +4,13 @@ use crate::{masm::MemoryInfo, wasm::ToLSBytes, Error, Function, Result};
 
 impl Function {
     /// Parse log data from the bytecode.
-    fn log_data(&mut self) -> Result<(i32, i32)> {
+    ///
+    /// WASM example:
+    /// ```
+    /// i32.const 1048576   ;; offset
+    /// i32.const 4         ;; 4 bytes
+    /// ```
+    fn data(&mut self) -> Result<(i32, i32)> {
         let buffer: Vec<u8> = self.masm.buffer().into();
 
         // Pop offset and size from the bytecode.
@@ -53,7 +59,7 @@ impl Function {
     pub fn log(&mut self, count: usize) -> Result<()> {
         let mut topics = Vec::<Vec<u8>>::default();
         for topic in (1..=count).rev() {
-            let (offset, size) = self.log_data()?;
+            let (offset, size) = self.data()?;
             let size = size as usize;
             let data = self.env.data.load(offset, size)?;
 
@@ -62,7 +68,7 @@ impl Function {
         }
 
         let name = {
-            let (offset, size) = self.log_data()?;
+            let (offset, size) = self.data()?;
             let size = size as usize;
             let data = self.env.data.load(offset, size)?;
 
