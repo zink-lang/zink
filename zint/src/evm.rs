@@ -124,6 +124,8 @@ pub struct Info {
     pub logs: Vec<Log>,
     /// Transaction halt reason.
     pub halt: Option<HaltReason>,
+    /// The revert message.
+    pub revert: Option<String>,
 }
 
 impl TryFrom<ExecutionResult> for Info {
@@ -166,7 +168,14 @@ impl TryFrom<ExecutionResult> for Info {
             ExecutionResult::Halt { reason, .. } => {
                 info.halt = Some(reason);
             }
-            _ => unreachable!("This should never happen"),
+            ExecutionResult::Revert { gas_used, output } => {
+                info.gas = gas_used;
+                info.revert = Some(
+                    String::from_utf8_lossy(&output)
+                        .trim_start_matches("\0")
+                        .to_string(),
+                );
+            }
         }
 
         Ok(info)

@@ -1,5 +1,3 @@
-extern crate proc_macro;
-
 use heck::AsSnakeCase;
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span, TokenTree};

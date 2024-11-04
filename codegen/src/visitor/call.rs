@@ -104,7 +104,6 @@ impl Function {
             .ok_or(Error::ImportedFuncNotFound(index))?;
 
         tracing::trace!("call imported function, index={index}, func={func:?}");
-
         match func {
             HostFunc::Evm(OpCode::LOG0) => self.log(0),
             HostFunc::Evm(OpCode::LOG1) => self.log(1),
@@ -112,6 +111,7 @@ impl Function {
             HostFunc::Evm(OpCode::LOG3) => self.log(3),
             HostFunc::Evm(OpCode::LOG4) => self.log(4),
             HostFunc::Evm(op) => self.masm.emit_op(op),
+            HostFunc::Revert(count) => self.revert(count),
             HostFunc::NoOp | HostFunc::Label(_) => Ok(()),
             _ => {
                 tracing::error!("unsupported host function {func:?}");

@@ -1,6 +1,7 @@
 //! Host functions
 
 use crate::{Error, Result};
+use anyhow::anyhow;
 use core::str::FromStr;
 use opcodes::{OpCode as _, ShangHai as OpCode};
 
@@ -17,6 +18,8 @@ pub enum HostFunc {
     EmitABI,
     /// check equal of two addresses
     AddressEq,
+    /// Revert messages with length of slots
+    Revert(usize),
     /// Compiler labels
     Label(CompilerLabel),
 }
@@ -48,6 +51,11 @@ impl TryFrom<(&str, &str)> for HostFunc {
             ("asm", name) => {
                 if name.starts_with("sload") {
                     Ok(Self::Evm(OpCode::SLOAD))
+                } else if name.starts_with("revert") {
+                    let count = name.trim_start_matches("revert");
+
+                    // TODO: use anyhow instead of Error
+                    Ok(Self::Revert(count.parse().map_err(|e| anyhow!("{e}"))?))
                 } else {
                     Ok(Self::NoOp)
                 }
