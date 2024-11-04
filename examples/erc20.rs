@@ -38,6 +38,13 @@ pub fn decimals() -> u32 {
 }
 
 #[zink::external]
+pub fn transfer(to: Address, value: U256) -> bool {
+    let owner = unsafe { zink::ffi::evm::msg_sender() };
+    _transfer(owner, to, value);
+    true
+}
+
+#[zink::external]
 pub fn approve(spender: Address, value: U256) -> bool {
     // TODO: wrap this in env
     let owner = unsafe { zink::ffi::evm::msg_sender() };
@@ -82,6 +89,22 @@ fn _update(from: Address, to: Address, value: U256) {
     } else {
         TotalSupply::set(TotalSupply::get().add(value));
     }
+}
+
+fn _mint(account: Address, value: U256) {
+    if account.eq(Address::empty()) {
+        zink::revert!("ERC20 invalid receiver");
+    }
+
+    _update(Address::empty(), account, value)
+}
+
+fn _burn(account: Address, value: U256) {
+    if account.eq(Address::empty()) {
+        zink::revert!("ERC20 invalid sender");
+    }
+
+    _update(account, Address::empty(), value)
 }
 
 fn _approve(owner: Address, spender: Address, value: U256, _emit_event: bool) {
