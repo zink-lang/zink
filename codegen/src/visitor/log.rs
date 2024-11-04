@@ -99,4 +99,35 @@ impl Function {
 
         Ok(())
     }
+
+    /// Revert with message.
+    pub fn revert(&mut self, count: usize) -> Result<()> {
+        let mut message = Vec::<Vec<u8>>::default();
+        for slot in 0..count {
+            let (offset, size) = self.data()?;
+            let size = size as usize;
+            let data = self.env.data.load(offset, size)?;
+
+            self.masm.push(&data)?;
+            if slot == 0 {
+                self.masm._push0()?;
+            } else {
+                self.masm.push(&slot.to_ls_bytes())?;
+            }
+            self.masm._mstore()?;
+            message.push(data);
+        }
+
+        tracing::debug!(
+            "revert message: {}",
+            String::from_utf8_lossy(&message.into_iter().flatten().collect::<Vec<u8>>())
+        );
+
+        self.masm.push(&(count * 32).to_ls_bytes())?;
+        self.masm._push0()?;
+
+        // 3. run log for the data
+        self.masm._revert()?;
+        Ok(())
+    }
 }

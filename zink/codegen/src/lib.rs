@@ -4,7 +4,7 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, Attribute, DeriveInput, ItemFn, ItemStruct};
+use syn::{parse_macro_input, Attribute, DeriveInput, ItemFn, ItemStruct, LitStr};
 
 mod event;
 mod revert;
@@ -16,6 +16,7 @@ mod storage;
 /// Only raw string is supported, formatter currently doesn't work.
 #[proc_macro]
 pub fn revert(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as LitStr);
     revert::parse(input)
 }
 

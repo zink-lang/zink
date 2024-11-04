@@ -2,18 +2,19 @@
 
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
-use quote::quote;
-use syn::Ident;
+use quote::{quote, ToTokens};
+use syn::{Ident, LitStr};
 
 /// Revert with message
-pub fn parse(input: TokenStream) -> TokenStream {
-    let message = input.to_string();
+pub fn parse(input: LitStr) -> TokenStream {
+    let message = input.value();
     let len = message.len() as i32;
     if len > 128 {
         panic!("Only support revert message less than 128 bytes atm.");
     }
 
-    let lit = Literal::string(&message);
+    // TODO: handle the string correctly
+    let lit = Literal::string(&message.replace("\"", ""));
     let rev = Ident::new(
         &format!(
             "revert{}",
@@ -29,7 +30,7 @@ pub fn parse(input: TokenStream) -> TokenStream {
     );
 
     quote! {
-        zink::ffi::asm::#rev(#lit)
+        unsafe { zink::ffi::asm::#rev(#lit) }
     }
     .into()
 }
