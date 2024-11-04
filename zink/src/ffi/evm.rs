@@ -123,7 +123,7 @@ extern "C" {
     pub fn keccak256();
 
     /// Get the current message sender
-    pub fn msg_sender() -> Address;
+    pub fn caller() -> Address;
 
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);

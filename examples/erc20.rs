@@ -39,7 +39,7 @@ pub fn decimals() -> u32 {
 
 #[zink::external]
 pub fn transfer(to: Address, value: U256) -> bool {
-    let owner = unsafe { zink::ffi::evm::msg_sender() };
+    let owner = unsafe { zink::ffi::evm::caller() };
     _transfer(owner, to, value);
     true
 }
@@ -47,14 +47,14 @@ pub fn transfer(to: Address, value: U256) -> bool {
 #[zink::external]
 pub fn approve(spender: Address, value: U256) -> bool {
     // TODO: wrap this in env
-    let owner = unsafe { zink::ffi::evm::msg_sender() };
+    let owner = unsafe { zink::ffi::evm::caller() };
     _approve(owner, spender, value, false);
     true
 }
 
 #[zink::external]
 pub fn transfer_from(from: Address, to: Address, value: U256) -> bool {
-    let spender = unsafe { zink::ffi::evm::msg_sender() };
+    let spender = unsafe { zink::ffi::evm::caller() };
     _spend_allowance(from, spender, value);
     _transfer(from, to, value);
     true
