@@ -17,6 +17,7 @@ pub struct Constructor {
 impl Constructor {
     /// preset storage for the contract
     pub fn storage(&mut self, mapping: InitStorage) -> Result<()> {
+        tracing::debug!("Building storage in constructor ...");
         for (key, value) in mapping.into_iter() {
             self.masm.push(&value)?;
             self.masm.push(&key)?;
@@ -38,6 +39,11 @@ impl Constructor {
         let runtime_bytecode_offset =
             Self::runtime_bytcode_offset(init_code_len, runtime_bytecode_size.len());
 
+        tracing::trace!("length of bytecode: {:?}", runtime_bytecode_len);
+        tracing::trace!(
+            "length of bytecode in hex: {:?}",
+            hex::encode(&runtime_bytecode_size)
+        );
         let mut masm = self.masm.clone();
 
         // 1. copy runtime bytecode to memory

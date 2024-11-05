@@ -33,9 +33,11 @@ impl Function {
         }
 
         let offset_len = (data[0] - 0x5f) as usize;
+        tracing::trace!("offset len: {offset_len}");
         let offset = {
             let mut bytes = [0; 4];
-            bytes[..offset_len].copy_from_slice(&data[1..(1 + offset_len)]);
+            bytes[(4 - offset_len)..].copy_from_slice(&data[1..(offset_len + 1)]);
+            bytes.reverse();
             i32::from_le_bytes(bytes)
         };
         tracing::debug!("log offset: {:?}", offset);
@@ -45,6 +47,7 @@ impl Function {
             return Err(Error::InvalidDataOffset(data[offset_len + 1].into()));
         }
         let size = {
+            // TODO: from ls bytes as offset
             let mut bytes = [0; 4];
             let size_bytes = &data[(offset_len + 2)..];
             bytes[..size_bytes.len()].copy_from_slice(size_bytes);
