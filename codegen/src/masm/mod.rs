@@ -86,7 +86,7 @@ impl MacroAssembler {
 
     /// Place n bytes on stack.
     pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
-        tracing::trace!("push bytes: 0x{:x?}", bytes);
+        tracing::trace!("push bytes: 0x{}", hex::encode(bytes));
 
         // TODO: support PUSH0 #247
         //

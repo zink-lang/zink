@@ -1,3 +1,4 @@
+use crate::utils::Bytes32;
 use heck::AsSnakeCase;
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span, TokenTree};
@@ -45,8 +46,7 @@ impl Storage {
         let is = &self.target;
         let name = self.target.ident.clone();
         let slot = storage_slot(name.to_string());
-        let mut key = [0; 32];
-        key[28..].copy_from_slice(&slot.to_le_bytes());
+        let key = slot.to_bytes32();
 
         let keyl = Literal::byte_string(&key);
         let mut expanded = quote! {
@@ -96,7 +96,7 @@ impl Storage {
 
                     let mut seed = [0; 64];
                     seed[..32].copy_from_slice(&key.bytes32());
-                    seed[60..].copy_from_slice(&Self::STORAGE_SLOT.to_le_bytes());
+                    seed[32..].copy_from_slice(&Self::STORAGE_SLOT.bytes32());
                     zink::keccak256(&seed)
                 }
             }
@@ -138,7 +138,7 @@ impl Storage {
 
                     let mut seed = [0; 64];
                     seed[..32].copy_from_slice(&key1.bytes32());
-                    seed[60..].copy_from_slice(&Self::STORAGE_SLOT.to_le_bytes());
+                    seed[32..].copy_from_slice(&Self::STORAGE_SLOT.bytes32());
                     let skey1 = zink::keccak256(&seed);
                     seed[..32].copy_from_slice(&skey1);
                     seed[32..].copy_from_slice(&key2.bytes32());

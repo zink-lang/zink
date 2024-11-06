@@ -18,6 +18,8 @@ pub enum HostFunc {
     EmitABI,
     /// check equal of two addresses
     AddressEq,
+    /// Push u256 max to stack
+    U256MAX,
     /// Revert messages with length of slots
     Revert(usize),
     /// Compiler labels
@@ -66,6 +68,10 @@ impl TryFrom<(&str, &str)> for HostFunc {
             })?)),
             ("zinkc", "emit_abi") => Ok(Self::EmitABI),
             ("zinkc", "address_eq") => Ok(Self::Evm(OpCode::EQ)),
+            ("zinkc", "u256_add") => Ok(Self::Evm(OpCode::ADD)),
+            ("zinkc", "u256_sub") => Ok(Self::Evm(OpCode::SUB)),
+            ("zinkc", "u256_lt") => Ok(Self::Evm(OpCode::LT)),
+            ("zinkc", "u256_max") => Ok(Self::U256MAX),
             ("zinkc", "label_reserve_mem_32") => Ok(Self::Label(CompilerLabel::ReserveMemory32)),
             ("zinkc", "label_reserve_mem_64") => Ok(Self::Label(CompilerLabel::ReserveMemory64)),
             _ => {

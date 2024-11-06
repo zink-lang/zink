@@ -110,3 +110,7 @@ opcodes = { workspace = true, features = ["data"] }
 tracing.workspace = true
 zint.workspace = true
 hex.workspace = true
+
+# [features]
+# default = [ "evm" ]
+# evm = [  ]

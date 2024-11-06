@@ -104,7 +104,8 @@ impl Function {
     ///
     /// Performs an unconditional branch.
     pub fn _br(&mut self, _depth: u32) -> Result<()> {
-        todo!()
+        // TODO: do sth here?
+        Ok(())
     }
 
     /// Performs a conditional branch if i32 is non-zero.

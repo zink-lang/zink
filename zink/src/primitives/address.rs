@@ -5,10 +5,22 @@ use crate::{ffi, storage::StorageValue, Asm};
 #[derive(Clone, Copy)]
 pub struct Address(
     #[cfg(target_family = "wasm")] i32,
-    #[cfg(not(target_family = "wasm"))] [u8; 20],
+    #[cfg(not(target_family = "wasm"))] pub [u8; 20],
 );
 
 impl Address {
+    /// Returns empty address
+    #[cfg(not(target_family = "wasm"))]
+    pub const fn empty() -> Self {
+        Address([0; 20])
+    }
+
+    /// Returns empty address
+    #[cfg(target_family = "wasm")]
+    pub const fn empty() -> Self {
+        Address(0)
+    }
+
     /// if self equal to another
     ///
     /// NOTE: not using core::cmp because it uses registers in wasm

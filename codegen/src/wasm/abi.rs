@@ -78,9 +78,6 @@ macro_rules! offset {
                     .rev()
                     .skip_while(|b| *b == 0)
                     .collect::<Vec<_>>()
-                    .into_iter()
-                    .rev()
-                    .collect::<Vec<_>>()
                     .into()
             }
         }
@@ -130,4 +127,10 @@ impl ToLSBytes for &[ValType] {
             .sum::<usize>()
             .to_ls_bytes()
     }
+}
+
+#[test]
+fn test_usize_to_ls_bytes() {
+    assert_eq!(363usize.to_ls_bytes().to_vec(), vec![0x01, 0x6b]);
+    assert_eq!(255usize.to_ls_bytes().to_vec(), vec![0xff]);
 }

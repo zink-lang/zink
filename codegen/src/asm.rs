@@ -46,7 +46,7 @@ impl Assembler {
             return Ok(());
         }
 
-        tracing::debug!(
+        tracing::trace!(
             "increment stack pointer {}.add({items}) -> {}",
             self.sp,
             self.sp + items
@@ -67,7 +67,7 @@ impl Assembler {
             return Ok(());
         }
 
-        tracing::debug!(
+        tracing::trace!(
             "decrement stack pointer {}.sub({items}) -> {}",
             self.sp,
             self.sp - items

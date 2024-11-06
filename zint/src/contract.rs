@@ -43,6 +43,7 @@ impl Contract {
             .finish(self.artifact.runtime_bytecode.clone().into())
             .map(|v| v.to_vec())?;
 
+        tracing::debug!("runtime bytecode: {}", hex::encode(&bytecode));
         Ok(bytecode)
     }
 

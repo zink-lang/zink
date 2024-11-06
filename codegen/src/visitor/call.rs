@@ -111,6 +111,7 @@ impl Function {
             HostFunc::Evm(OpCode::LOG3) => self.log(3),
             HostFunc::Evm(OpCode::LOG4) => self.log(4),
             HostFunc::Evm(op) => self.masm.emit_op(op),
+            HostFunc::U256MAX => self.masm.push(&[255; 32]),
             HostFunc::Revert(count) => self.revert(count),
             HostFunc::NoOp | HostFunc::Label(_) => Ok(()),
             _ => {

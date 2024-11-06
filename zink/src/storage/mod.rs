@@ -18,3 +18,9 @@ impl StorageValue for i32 {
         unsafe { ffi::asm::sload_i32() }
     }
 }
+
+impl StorageValue for u32 {
+    fn sload() -> Self {
+        unsafe { ffi::asm::sload_u32() }
+    }
+}
