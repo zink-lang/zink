@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["address"],"struct":["Address"]};
+window.SIDEBAR_ITEMS = {"mod":["address","u256"],"struct":["Address","U256"],"type":["Bytes20","Bytes32","String32"]};

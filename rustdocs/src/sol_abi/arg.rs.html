@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `evm/abi/src/arg.rs`."><title>arg.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-590a400c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sol_abi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (b8c8287a2 2024-11-03)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">sol_abi/</div>arg.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `evm/abi/src/arg.rs`."><title>arg.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-590a400c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sol_abi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (bc5cf994d 2024-11-05)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">sol_abi/</div>arg.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -113,7 +113,13 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a></pre></div><pre class="rust"><code><span class="doccomment">//! Arg of solidity ABI.
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a></pre></div><pre class="rust"><code><span class="doccomment">//! Arg of solidity ABI.
 
 </span><span class="kw">use </span>core::{convert::Infallible, fmt, str::FromStr};
 
@@ -152,7 +158,11 @@
     </span>UInt32,
     <span class="doccomment">/// A 64-bit unsigned integer.
     </span>UInt64,
-    <span class="doccomment">/// A boolean type.
+    <span class="doccomment">/// A 256-bit unsigned integer.
+    </span>UInt256,
+    <span class="comment">// /// A 256-bit unsigned integer.
+    // UInt256,
+    </span><span class="doccomment">/// A boolean type.
     </span>Bool,
     <span class="doccomment">/// An EVM address.
     </span>Address,
@@ -175,10 +185,11 @@
             <span class="string">"u16" </span>| <span class="string">"uint16" </span>=&gt; Param::UInt16,
             <span class="string">"u32" </span>| <span class="string">"uint32" </span>=&gt; Param::UInt32,
             <span class="string">"u64" </span>| <span class="string">"uint64" </span>=&gt; Param::UInt64,
+            <span class="string">"U256" </span>| <span class="string">"u256" </span>| <span class="string">"uint256" </span>=&gt; Param::UInt256,
             <span class="string">"bool" </span>=&gt; Param::Bool,
             <span class="string">"address" </span>| <span class="string">"Address" </span>=&gt; Param::Address,
             <span class="string">"Bytes" </span>| <span class="string">"Vec&lt;u8&gt;" </span>=&gt; Param::Bytes,
-            <span class="string">"String" </span>=&gt; Param::String,
+            <span class="string">"String" </span>| <span class="string">"String32" </span>=&gt; Param::String,
             <span class="kw">_ </span>=&gt; Param::Unknown(s.to_string()),
         }
     }
@@ -203,6 +214,7 @@
             Param::UInt16 =&gt; <span class="string">"uint16"</span>,
             Param::UInt32 =&gt; <span class="string">"uint32"</span>,
             Param::UInt64 =&gt; <span class="string">"uint64"</span>,
+            Param::UInt256 =&gt; <span class="string">"uint256"</span>,
             Param::Address =&gt; <span class="string">"address"</span>,
             Param::Bool =&gt; <span class="string">"boolean"</span>,
             Param::Bytes =&gt; <span class="string">"bytes"</span>,

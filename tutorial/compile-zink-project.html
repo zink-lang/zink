@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="dark" dir="ltr">
+<html lang="en" class="dark sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body class="sidebar-visible no-js">
+    <body>
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -60,19 +60,16 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('dark')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
             var sidebar = null;
             var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
@@ -82,45 +79,27 @@
                 sidebar = 'hidden';
             }
             sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial/index.html"><strong aria-hidden="true">2.</strong> Tutorial</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/create-zink-project.html"><strong aria-hidden="true">2.1.</strong> Creating Zink Project</a></li><li class="chapter-item expanded "><a href="../tutorial/compile-zink-project.html" class="active"><strong aria-hidden="true">2.2.</strong> Compiling Zink Project</a></li></ol></li><li class="chapter-item expanded "><a href="../examples/index.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../examples/add-two.html"><strong aria-hidden="true">3.1.</strong> AddTwo</a></li><li class="chapter-item expanded "><a href="../examples/fibonacci.html"><strong aria-hidden="true">3.2.</strong> Fibonacci</a></li><li class="chapter-item expanded "><a href="../examples/log.html"><strong aria-hidden="true">3.3.</strong> Log</a></li><li class="chapter-item expanded "><a href="../examples/select.html"><strong aria-hidden="true">3.4.</strong> Select</a></li><li class="chapter-item expanded "><a href="../examples/storage.html"><strong aria-hidden="true">3.5.</strong> Storage</a></li></ol></li><li class="chapter-item expanded "><a href="../styles/index.html"><strong aria-hidden="true">4.</strong> Styles</a></li><li class="chapter-item expanded "><a href="../compiler/index.html"><strong aria-hidden="true">5.</strong> Compiler</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../compiler/arithmetic.html"><strong aria-hidden="true">5.1.</strong> Arithmetic</a></li><li class="chapter-item expanded "><a href="../compiler/calls.html"><strong aria-hidden="true">5.2.</strong> Calls</a></li><li class="chapter-item expanded "><a href="../compiler/control-flow.html"><strong aria-hidden="true">5.3.</strong> Control Flow</a></li><li class="chapter-item expanded "><a href="../compiler/locals.html"><strong aria-hidden="true">5.4.</strong> Locals</a></li><li class="chapter-item expanded "><a href="../compiler/recursion.html"><strong aria-hidden="true">5.5.</strong> Recursion</a></li><li class="chapter-item expanded "><a href="../compiler/storage.html"><strong aria-hidden="true">5.6.</strong> Storage</a></li></ol></li><li class="chapter-item expanded "><a href="../stability/index.html"><strong aria-hidden="true">6.</strong> Stability</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../stability/v0.1.0.html"><strong aria-hidden="true">6.1.</strong> v0.1.0</a></li></ol></li><li class="chapter-item expanded "><a href="../security.html"><strong aria-hidden="true">7.</strong> Security</a></li><li class="chapter-item expanded "><a href="../benchmarks/index.html"><strong aria-hidden="true">8.</strong> Benchmarks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../benchmarks/fibonacci.html"><strong aria-hidden="true">8.1.</strong> Fibonacci</a></li><li class="chapter-item expanded "><a href="../benchmarks/log.html"><strong aria-hidden="true">8.2.</strong> Log</a></li><li class="chapter-item expanded "><a href="../benchmarks/storage.html"><strong aria-hidden="true">8.3.</strong> Storage</a></li></ol></li><li class="chapter-item expanded "><a href="../cli/index.html"><strong aria-hidden="true">9.</strong> Command Line Tool</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../cli/elko.html"><strong aria-hidden="true">9.1.</strong> elko</a></li><li class="chapter-item expanded "><a href="../cli/zinkc.html"><strong aria-hidden="true">9.2.</strong> zinkc</a></li></ol></li><li class="chapter-item expanded "><a href="../contributing/index.html"><strong aria-hidden="true">10.</strong> Contributing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../contributing/architecture.html"><strong aria-hidden="true">10.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="../contributing/building.html"><strong aria-hidden="true">10.2.</strong> Building</a></li><li class="chapter-item expanded "><a href="../contributing/testing.html"><strong aria-hidden="true">10.3.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../appendix/index.html"><strong aria-hidden="true">11.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../appendix/optimizations.html"><strong aria-hidden="true">11.1.</strong> A - Optimizations</a></li></ol></li></ol>
-            </div>
+            <!-- populated by js -->
+            <div class="sidebar-scrollbox"></div>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
+        <script async src="../toc.js"></script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">

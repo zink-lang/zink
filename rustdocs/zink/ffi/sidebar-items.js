@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["address_eq","emit_abi","label_reserve_mem_32","label_reserve_mem_64"],"mod":["asm","evm"]};
+window.SIDEBAR_ITEMS = {"fn":["address_eq","emit_abi","label_reserve_mem_32","label_reserve_mem_64","u256_add","u256_lt","u256_max","u256_sub"],"mod":["asm","evm"]};
