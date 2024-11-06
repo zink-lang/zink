@@ -65,7 +65,7 @@ impl Dispatcher {
         self.abi.push(abi.clone());
 
         let selector_bytes = abi.selector();
-        tracing::trace!(
+        tracing::debug!(
             "Emitting selector {:?} for function: {}",
             selector_bytes,
             abi.signature(),

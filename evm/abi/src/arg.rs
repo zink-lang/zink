@@ -37,6 +37,10 @@ pub enum Param {
     UInt32,
     /// A 64-bit unsigned integer.
     UInt64,
+    /// A 256-bit unsigned integer.
+    UInt256,
+    // /// A 256-bit unsigned integer.
+    // UInt256,
     /// A boolean type.
     Bool,
     /// An EVM address.
@@ -60,10 +64,11 @@ impl From<&str> for Param {
             "u16" | "uint16" => Param::UInt16,
             "u32" | "uint32" => Param::UInt32,
             "u64" | "uint64" => Param::UInt64,
+            "U256" | "u256" | "uint256" => Param::UInt256,
             "bool" => Param::Bool,
             "address" | "Address" => Param::Address,
             "Bytes" | "Vec<u8>" => Param::Bytes,
-            "String" => Param::String,
+            "String" | "String32" => Param::String,
             _ => Param::Unknown(s.to_string()),
         }
     }
@@ -88,6 +93,7 @@ impl AsRef<str> for Param {
             Param::UInt16 => "uint16",
             Param::UInt32 => "uint32",
             Param::UInt64 => "uint64",
+            Param::UInt256 => "uint256",
             Param::Address => "address",
             Param::Bool => "boolean",
             Param::Bytes => "bytes",

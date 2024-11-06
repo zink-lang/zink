@@ -5,7 +5,7 @@ use crate::{ffi, storage::StorageValue, Asm};
 #[derive(Clone, Copy)]
 pub struct Address(
     #[cfg(target_family = "wasm")] i32,
-    #[cfg(not(target_family = "wasm"))] [u8; 20],
+    #[cfg(not(target_family = "wasm"))] pub [u8; 20],
 );
 
 impl Address {

@@ -189,5 +189,19 @@ fn deploy() -> anyhow::Result<()> {
         .call(address)?;
     assert_eq!(info.ret, 8u64.to_bytes32());
 
+    // 5. check approve
+    let info = evm
+        .calldata(&contract.encode(&[
+            b"approve(address,uint256)".to_vec(),
+            [1; 20].to_vec(),
+            42.to_bytes32().to_vec(),
+        ])?)
+        .call(address)?;
+    println!("{info:?}");
+    println!("{:?}", String::from_utf8_lossy(&info.ret));
+    let storage_key = Allowance::storage_key(Address::empty(), Address([1; 20]));
+    let storage = evm.storage(contract.address, storage_key)?;
+    println!("{storage:?}");
+
     Ok(())
 }
