@@ -68,6 +68,8 @@ impl<'e> EVM<'e> {
         let to = TransactTo::Call(to.into());
         self.inner.tx_mut().gas_limit = GAS_LIMIT;
         self.inner.tx_mut().transact_to = to;
+        println!("caller: {:?}", self.inner.tx().caller);
+
         if self.commit {
             self.inner.transact_commit()?.try_into()
         } else {
