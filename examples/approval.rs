@@ -18,7 +18,7 @@ pub fn approve(spender: Address, value: U256) -> bool {
     true
 }
 
-// NOTE:
+// NOTE: issue #272
 //
 // #[no_mangle] here is required otherwise the inner functions could
 // not get the passing variables correctly.
