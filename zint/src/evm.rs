@@ -23,6 +23,8 @@ pub const CONTRACT: [u8; 20] = [1; 20];
 /// Wrapper of full REVM
 pub struct EVM<'e> {
     inner: Revm<'e, (), InMemoryDB>,
+    /// Caller for the execution
+    pub caller: [u8; 20],
     /// If commit changes
     commit: bool,
 }
@@ -35,6 +37,7 @@ impl<'e> Default for EVM<'e> {
         let evm = Revm::<'e, (), EmptyDB>::builder().with_db(db).build();
         Self {
             inner: evm,
+            caller: [0; 20],
             commit: false,
         }
     }
@@ -63,11 +66,19 @@ impl<'e> EVM<'e> {
         self
     }
 
+    /// Set caller for the execution
+    pub fn caller(mut self, caller: [u8; 20]) -> Self {
+        self.caller = caller;
+        self
+    }
+
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
         self.inner.tx_mut().gas_limit = GAS_LIMIT;
         self.inner.tx_mut().transact_to = to;
+        self.inner.tx_mut().caller = self.caller.into();
+
         if self.commit {
             self.inner.transact_commit()?.try_into()
         } else {

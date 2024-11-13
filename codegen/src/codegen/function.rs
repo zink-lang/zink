@@ -98,8 +98,6 @@ impl Function {
         // Record the offset for validation.
         while let Ok((count, val)) = locals.read() {
             for _ in 0..count {
-                // TODO: the below here is outdated, sp is not required anymore after #245
-
                 // Define locals.
                 self.locals
                     .push(LocalSlot::new(val, LocalSlotType::Variable, sp));

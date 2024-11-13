@@ -21,10 +21,16 @@ impl Address {
         Address(0)
     }
 
+    /// Returns empty address
+    pub fn caller() -> Self {
+        unsafe { ffi::evm::caller() }
+    }
+
     /// if self equal to another
     ///
     /// NOTE: not using core::cmp because it uses registers in wasm
     #[allow(clippy::should_implement_trait)]
+    #[inline(always)]
     pub fn eq(self, other: Self) -> bool {
         unsafe { ffi::address_eq(self, other) }
     }

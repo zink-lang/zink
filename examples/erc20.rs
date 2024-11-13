@@ -60,6 +60,7 @@ pub fn transfer_from(from: Address, to: Address, value: U256) -> bool {
     true
 }
 
+#[no_mangle]
 fn _transfer(from: Address, to: Address, value: U256) {
     if from.eq(Address::empty()) {
         zink::revert!("Empty from address");
@@ -72,6 +73,7 @@ fn _transfer(from: Address, to: Address, value: U256) {
     _update(from, to, value)
 }
 
+#[no_mangle]
 fn _update(from: Address, to: Address, value: U256) {
     if from.eq(Address::empty()) {
         TotalSupply::set(TotalSupply::get().add(value));
@@ -91,6 +93,7 @@ fn _update(from: Address, to: Address, value: U256) {
     }
 }
 
+#[no_mangle]
 fn _mint(account: Address, value: U256) {
     if account.eq(Address::empty()) {
         zink::revert!("ERC20 invalid receiver");
@@ -99,6 +102,7 @@ fn _mint(account: Address, value: U256) {
     _update(Address::empty(), account, value)
 }
 
+#[no_mangle]
 fn _burn(account: Address, value: U256) {
     if account.eq(Address::empty()) {
         zink::revert!("ERC20 invalid sender");
@@ -107,6 +111,7 @@ fn _burn(account: Address, value: U256) {
     _update(account, Address::empty(), value)
 }
 
+#[no_mangle]
 fn _approve(owner: Address, spender: Address, value: U256, _emit_event: bool) {
     if owner.eq(Address::empty()) {
         zink::revert!("ERC20 Invalid approval");
@@ -119,6 +124,7 @@ fn _approve(owner: Address, spender: Address, value: U256, _emit_event: bool) {
     Allowance::set(owner, spender, value);
 }
 
+#[no_mangle]
 fn _spend_allowance(owner: Address, spender: Address, value: U256) {
     let current_allowance = Allowance::get(owner, spender);
     if current_allowance.lt(U256::max()) {
@@ -137,14 +143,13 @@ fn main() {}
 //
 // 1. nested function allocations
 // 2. memory slots for local variables
-#[ignore]
 #[test]
+#[ignore]
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
 
     let mut contract = Contract::search("erc20")?.compile()?;
-
-    let mut evm = EVM::default();
+    let mut evm = EVM::default().commit(true);
     let name = "The Zink Language";
     let symbol = "zink";
 
