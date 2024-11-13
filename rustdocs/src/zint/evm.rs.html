@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zint/src/evm.rs`."><title>evm.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-590a400c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (bc5cf994d 2024-11-05)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zint/</div>evm.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `zint/src/evm.rs`."><title>evm.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (f7273e004 2024-11-12)" data-channel="nightly" data-search-js="search-853ef39b.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zint/</div>evm.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -202,7 +202,18 @@
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
 <a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a></pre></div><pre class="rust"><code><span class="doccomment">//! Wrapper of revm
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a></pre></div><pre class="rust"><code><span class="doccomment">//! Wrapper of revm
 
 </span><span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>revm::{
@@ -227,6 +238,8 @@
 <span class="doccomment">/// Wrapper of full REVM
 </span><span class="kw">pub struct </span>EVM&lt;<span class="lifetime">'e</span>&gt; {
     inner: Revm&lt;<span class="lifetime">'e</span>, (), InMemoryDB&gt;,
+    <span class="doccomment">/// Caller for the execution
+    </span><span class="kw">pub </span>caller: [u8; <span class="number">20</span>],
     <span class="doccomment">/// If commit changes
     </span>commit: bool,
 }
@@ -239,6 +252,7 @@
         <span class="kw">let </span>evm = Revm::&lt;<span class="lifetime">'e</span>, (), EmptyDB&gt;::builder().with_db(db).build();
         <span class="self">Self </span>{
             inner: evm,
+            caller: [<span class="number">0</span>; <span class="number">20</span>],
             commit: <span class="bool-val">false</span>,
         }
     }
@@ -267,11 +281,19 @@
         <span class="self">self
     </span>}
 
+    <span class="doccomment">/// Set caller for the execution
+    </span><span class="kw">pub fn </span>caller(<span class="kw-2">mut </span><span class="self">self</span>, caller: [u8; <span class="number">20</span>]) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.caller = caller;
+        <span class="self">self
+    </span>}
+
     <span class="doccomment">/// Send transaction to the provided address.
     </span><span class="kw">pub fn </span>call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, to: [u8; <span class="number">20</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;Info&gt; {
         <span class="kw">let </span>to = TransactTo::Call(to.into());
         <span class="self">self</span>.inner.tx_mut().gas_limit = GAS_LIMIT;
         <span class="self">self</span>.inner.tx_mut().transact_to = to;
+        <span class="self">self</span>.inner.tx_mut().caller = <span class="self">self</span>.caller.into();
+
         <span class="kw">if </span><span class="self">self</span>.commit {
             <span class="self">self</span>.inner.transact_commit()<span class="question-mark">?</span>.try_into()
         } <span class="kw">else </span>{
