@@ -13,19 +13,24 @@ pub struct Allowance;
 
 #[zink::external]
 pub fn approve(spender: Address, value: U256) -> bool {
-    let owner = unsafe { zink::ffi::evm::caller() };
+    let owner = Address::caller();
     _approve(owner, spender, value);
     true
 }
 
+// NOTE:
+//
+// #[no_mangle] here is required otherwise the inner functions could
+// not get the passing variables correctly.
+#[no_mangle]
 fn _approve(owner: Address, spender: Address, value: U256) {
-    // if owner.eq(Address::empty()) {
-    //     zink::revert!("ERC20 Invalid approval");
-    // }
+    if owner.eq(Address::empty()) {
+        zink::revert!("ERC20 Invalid approval");
+    }
 
-    // if spender.eq(Address::empty()) {
-    //     zink::revert!("ERC20 Invalid spender");
-    // }
+    if spender.eq(Address::empty()) {
+        zink::revert!("ERC20 Invalid spender");
+    }
 
     Allowance::set(owner, spender, value);
 }
@@ -37,29 +42,26 @@ fn main() {}
 fn test_approval() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
 
-    let mut evm = EVM::default(); //.commit(true);
+    let mut evm = EVM::default().commit(true);
     let contract = Contract::search("approval")?.compile()?;
     let info = evm.deploy(&contract.bytecode()?)?;
     let address = info.address;
 
-    println!("contract address: 0x{}", hex::encode(address));
+    let value = 42;
+    let spender = [42; 20];
     let info = evm
         .calldata(&contract.encode(&[
             b"approve(address,uint256)".to_vec(),
-            [0; 20].to_bytes32().to_vec(),
-            42.to_bytes32().to_vec(),
+            spender.to_bytes32().to_vec(),
+            value.to_bytes32().to_vec(),
         ])?)
         .call(address)?;
-    println!("{info:?}");
-    // assert_eq!(info.ret, true.to_bytes32());
-    //
-    // let info = evm
-    //     .calldata(&contract.encode(&[
-    //         b"allowance(address,address)".to_vec(),
-    //         [0; 20].to_bytes32().to_vec(),
-    //         [0; 20].to_bytes32().to_vec(),
-    //     ])?)
-    //     .call(address)?;
-    // println!("{info:?}");
+    assert_eq!(info.ret, true.to_bytes32());
+
+    let stored_value = evm.storage(
+        address,
+        Allowance::storage_key(Address(evm.caller), Address(spender)),
+    )?;
+    assert_eq!(value.to_bytes32(), stored_value);
     Ok(())
 }

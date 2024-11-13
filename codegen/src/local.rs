@@ -87,11 +87,10 @@ impl Locals {
         let offset = if local.ty() == &LocalSlotType::Parameter {
             self.inner[..index].iter().fold(0, |acc, x| acc + x.align())
         } else {
-            panic!("This should never be reached");
-            // self.inner[..index]
-            //     .iter()
-            //     .filter(|x| x.ty() == &LocalSlotType::Variable)
-            //     .fold(0, |acc, x| acc + x.align())
+            self.inner[..index]
+                .iter()
+                .filter(|x| x.ty() == &LocalSlotType::Variable)
+                .fold(0, |acc, x| acc + x.align())
         }
         .to_ls_bytes()
         .to_vec()

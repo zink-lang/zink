@@ -154,7 +154,7 @@ impl Env {
     /// Allocate memory slots from local index
     pub fn alloc(&self, index: u32) -> SmallVec<[u8; 4]> {
         let slots = index + self.reserved();
-        tracing::trace!(
+        tracing::debug!(
             "allocating memory for local {index} of function {:?}, slot: {slots}",
             self.index
         );

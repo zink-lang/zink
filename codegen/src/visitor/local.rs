@@ -56,7 +56,7 @@ impl Function {
 
     /// Local get for variables.
     fn _local_get_var(&mut self, local_index: usize) -> Result<()> {
-        tracing::trace!("Local get variable: {local_index}");
+        tracing::debug!("Local get variable: {local_index}");
         if local_index + 1 > self.locals.len() {
             // The local we want is not from function arguments
             return Err(Error::InvalidLocalIndex(local_index));

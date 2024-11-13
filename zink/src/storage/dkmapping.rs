@@ -20,6 +20,7 @@ pub trait DoubleKeyMapping {
     }
 
     /// Set key and value
+    #[inline(always)]
     fn set(key1: Self::Key1, key2: Self::Key2, value: Self::Value) {
         value.push();
         load_double_key(key1, key2, Self::STORAGE_SLOT);
