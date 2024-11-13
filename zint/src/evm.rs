@@ -37,7 +37,7 @@ impl<'e> Default for EVM<'e> {
         let evm = Revm::<'e, (), EmptyDB>::builder().with_db(db).build();
         Self {
             inner: evm,
-            caller: [1; 20],
+            caller: [0; 20],
             commit: false,
         }
     }
