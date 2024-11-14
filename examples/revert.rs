@@ -13,6 +13,12 @@ pub fn run_revert() {
     zink::revert!("revert works")
 }
 
+/// check if the passing address is owner
+#[zink::external]
+pub fn run_assert() {
+    zink::assert!(false, "assert works");
+}
+
 #[test]
 fn test_revert() -> anyhow::Result<()> {
     use zint::Contract;

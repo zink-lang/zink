@@ -21,6 +21,20 @@ pub fn revert(input: TokenStream) -> TokenStream {
     revert::parse(input)
 }
 
+/// Check and expression and revert with the input message
+///
+/// This is similar with the builtin `assert!` in rust, but the revert
+/// message only support raw string.
+#[proc_macro]
+pub fn assert(input: TokenStream) -> TokenStream {
+    todo!(
+        r#"
+1. split input into condition and message then do the following
+2. if not cond then revert!(message);
+"#
+    )
+}
+
 /// Event logging interface
 ///
 /// ```ignore
