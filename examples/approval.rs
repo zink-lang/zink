@@ -86,20 +86,20 @@ fn test_approval() -> anyhow::Result<()> {
     // This could be caused by the `caller()` on stack is not consumed correctly
     //
     // // spend allowance
-    // let half_value = 21;
-    // let info = evm
-    //     .calldata(&contract.encode(&[
-    //         b"spend_allowance(address,uint256)".to_vec(),
-    //         spender.to_bytes32().to_vec(),
-    //         half_value.to_bytes32().to_vec(),
-    //     ])?)
-    //     .call(address)?;
-    // println!("{info:?}");
-    // assert_eq!(info.ret, true.to_bytes32());
-    // let allowance = evm.storage(
-    //     address,
-    //     Allowance::storage_key(Address(evm.caller), Address(spender)),
-    // )?;
-    // assert_eq!(half_value.to_bytes32(), allowance);
+    let half_value = 21;
+    let info = evm
+        .calldata(&contract.encode(&[
+            b"spend_allowance(address,uint256)".to_vec(),
+            spender.to_bytes32().to_vec(),
+            half_value.to_bytes32().to_vec(),
+        ])?)
+        .call(address)?;
+    println!("{info:?}");
+    assert_eq!(info.ret, true.to_bytes32());
+    let allowance = evm.storage(
+        address,
+        Allowance::storage_key(Address(evm.caller), Address(spender)),
+    )?;
+    assert_eq!(half_value.to_bytes32(), allowance);
     Ok(())
 }

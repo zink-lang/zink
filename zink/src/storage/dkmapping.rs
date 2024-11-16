@@ -14,6 +14,7 @@ pub trait DoubleKeyMapping {
     fn storage_key(key1: Self::Key1, key2: Self::Key2) -> [u8; 32];
 
     /// Get value from storage key.
+    #[inline(always)]
     fn get(key1: Self::Key1, key2: Self::Key2) -> Self::Value {
         load_double_key(key1, key2, Self::STORAGE_SLOT);
         Self::Value::sload()

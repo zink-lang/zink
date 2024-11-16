@@ -21,9 +21,20 @@ impl JumpTable {
 
             let offset = relocate::offset(pc)?;
             let mut target = self.target(&jump)?;
+
             if jump.is_offset() {
                 target += pc;
+
+                // for the case the marked offset has growed to 2 bytes.
+                if buffer.len() + pc as usize > 0xff {
+                    target += 1
+                }
             }
+
+            // // for the case target from < 0xff to > 0xff
+            // if buffer.len() + target as usize > 0xff && target > 0xff {
+            //     target -= 1;
+            // }
 
             relocate::pc(buffer, pc, target, offset)?;
             self.shift_label_pc(pc, offset)?;
@@ -53,7 +64,7 @@ pub fn offset(original_pc: u16) -> Result<u16> {
         // | PC   | PC BYTES | TARGET PC |
         // |------|----------|-----------|
         // | 0xfe | 1        |      0xff |
-        // | 0xff | 2        |     0x101 |
+        // | 0xff | 2        |    0x0101 |
         offset += if pc > 0xfe { 2 } else { 1 }
     }
 
