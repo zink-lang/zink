@@ -102,7 +102,6 @@ fn test_approval() -> anyhow::Result<()> {
             half_value.to_bytes32().to_vec(),
         ])?)
         .call(address)?;
-    println!("{info:?}");
     assert_eq!(info.ret, true.to_bytes32());
     let allowance = evm.storage(
         address,

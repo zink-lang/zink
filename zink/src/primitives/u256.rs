@@ -31,7 +31,7 @@ impl U256 {
     /// u256 sub
     #[inline(always)]
     pub fn sub(self, other: Self) -> Self {
-        unsafe { ffi::u256_sub(self, other) }
+        unsafe { ffi::u256_sub(other, self) }
     }
 
     /// max of u256
