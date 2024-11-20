@@ -18,16 +18,13 @@ impl JumpTable {
 
         while let Some((pc, jump)) = self.jump.pop_first() {
             tracing::trace!("run relocation for {jump:?}");
-
-            let offset = relocate::offset(pc)?;
             let mut target = self.target(&jump)?;
-
             if jump.is_offset() {
                 target += pc;
             }
 
-            relocate::pc(buffer, pc, target)?;
-            self.shift_label_pc(pc, offset)?;
+            let offset = relocate::pc(buffer, pc, target)?;
+            self.shift_label_pc(pc, offset as u16)?;
         }
 
         buffer.extend_from_slice(&self.code.finish());
@@ -36,11 +33,7 @@ impl JumpTable {
 }
 
 /// Get the offset of the program counter for relocation.
-///
-/// FIXME: only need to move offset for once in a batch but not
-/// for all shifting targets.
-pub fn offset(original_pc: u16) -> Result<u16> {
-    let pc = original_pc;
+pub fn offset(pc: u16) -> Result<u16> {
     let mut offset = 0;
 
     // Update the target program counter
@@ -70,7 +63,7 @@ pub fn offset(original_pc: u16) -> Result<u16> {
 }
 
 /// Relocate program counter to buffer.
-fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<()> {
+fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<usize> {
     let original_pc = original_pc as usize;
     let mut new_buffer: Buffer = buffer[..original_pc].into();
     let rest_buffer: Buffer = buffer[original_pc..].into();
@@ -96,5 +89,5 @@ fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<()> {
     }
 
     *buffer = new_buffer;
-    Ok(())
+    Ok(1 + pc_offset.len())
 }

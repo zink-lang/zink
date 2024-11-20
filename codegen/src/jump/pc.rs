@@ -50,10 +50,11 @@ impl JumpTable {
         let mut total_offset = 0;
         self.jump
             .clone()
-            .keys()
-            .try_for_each(|original_pc| -> Result<()> {
+            .iter()
+            .try_for_each(|(original_pc, _target)| -> Result<()> {
                 let pc = original_pc + total_offset;
                 let offset = relocate::offset(pc)?;
+                // let offset = self.target_offset(target)?;
                 total_offset += offset;
                 self.shift_target(pc, offset)
             })

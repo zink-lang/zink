@@ -81,7 +81,7 @@ impl JumpTable {
     }
 
     /// Get the target of a jump.
-    pub fn target(&mut self, jump: &Jump) -> Result<u16> {
+    pub fn target(&self, jump: &Jump) -> Result<u16> {
         match jump {
             Jump::Offset(offset) => Ok(*offset),
             Jump::Label(label) => Ok(*label),
