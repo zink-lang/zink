@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["offset","pc"]};
+window.SIDEBAR_ITEMS = {"fn":["pc"]};

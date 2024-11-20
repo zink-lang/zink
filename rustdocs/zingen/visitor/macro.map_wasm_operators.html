@@ -1,37 +1,37 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implement arithmetic operators for types."><title>map_wasm_operators in zingen::visitor - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (f7273e004 2024-11-12)" data-channel="nightly" data-search-js="search-853ef39b.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../zingen/index.html">zingen</a><span class="version">0.1.11</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"><h2><a href="index.html">In zingen::<wbr>visitor</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">zingen</a>::<wbr><a href="index.html">visitor</a></span><h1>Macro <span class="macro">map_wasm_operators</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/zingen/visitor/mod.rs.html#39-189">Source</a> </span></div><pre class="rust item-decl"><span class="macro">macro_rules!</span> map_wasm_operators {
-    (@basic <span class="macro-nonterminal">$ty</span>:tt, <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@integer32 <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@integer64 <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@integer <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@xdr <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@float32 <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@float64 <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@float <span class="macro-nonterminal">$wasm</span>:tt, <span class="macro-nonterminal">$evm</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@integer_and_float <span class="macro-nonterminal">$op</span>:tt $(<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$argty</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
-    (@field ($(<span class="macro-nonterminal">$field</span>:ident).<span class="kw-2">*</span>) (<span class="macro-nonterminal">$op</span>:tt -&gt; <span class="macro-nonterminal">$evm</span>:tt) $(<span class="macro-nonterminal">$arg</span>:tt: <span class="macro-nonterminal">$argty</span>:ty),* ) =&gt; { ... };
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implement arithmetic operators for types."><title>map_wasm_operators in zingen::visitor - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zingen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (ee612c45f 2024-11-19)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../zingen/index.html">zingen</a><span class="version">0.1.11</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"><h2><a href="index.html">In zingen::<wbr>visitor</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">zingen</a>::<wbr><a href="index.html">visitor</a></span><h1>Macro <span class="macro">map_wasm_operators</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/zingen/visitor/mod.rs.html#39-189">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! map_wasm_operators {
+    (@basic $ty:tt, $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@integer32 $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@integer64 $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@integer $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@xdr $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@float32 $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@float64 $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@float $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@integer_and_float $op:tt $($arg:ident: $argty:ty),*) =&gt; { ... };
+    (@field ($($field:ident).*) ($op:tt -&gt; $evm:tt) $($arg:tt: $argty:ty),* ) =&gt; { ... };
     (
-        all: [$(<span class="macro-nonterminal">$all</span>:tt),+],
-        xdr: [$(<span class="macro-nonterminal">$xdr</span>:tt),+],
-        integer: [$(<span class="macro-nonterminal">$integer</span>:tt),+],
-        integer_and_float: [$(<span class="macro-nonterminal">$op</span>:tt),+],
-        float: [$(<span class="macro-nonterminal">$float</span>:tt),+],
+        all: [$($all:tt),+],
+        xdr: [$($xdr:tt),+],
+        integer: [$($integer:tt),+],
+        integer_and_float: [$($op:tt),+],
+        float: [$($float:tt),+],
         map: {
-            integer: [$(<span class="macro-nonterminal">$map_int_wasm</span>:tt =&gt; <span class="macro-nonterminal">$map_int_evm</span>:tt),+],
+            integer: [$($map_int_wasm:tt =&gt; $map_int_evm:tt),+],
         },
         mem: {
-            all: [$(<span class="macro-nonterminal">$mem</span>:tt),+],
-            integer: [$(<span class="macro-nonterminal">$mem_integer</span>:tt),+],
-            integer64: [$(<span class="macro-nonterminal">$mem_integer64</span>:tt),+],
-            signed: [$(<span class="macro-nonterminal">$mem_signed</span>:tt),+],
-            signed64: [$(<span class="macro-nonterminal">$mem_signed64</span>:tt),+],
-            signed_and_float: [$(<span class="macro-nonterminal">$mem_signed_and_float</span>:tt),+],
+            all: [$($mem:tt),+],
+            integer: [$($mem_integer:tt),+],
+            integer64: [$($mem_integer64:tt),+],
+            signed: [$($mem_signed:tt),+],
+            signed64: [$($mem_signed64:tt),+],
+            signed_and_float: [$($mem_signed_and_float:tt),+],
         },
         masm: {
-            $( <span class="macro-nonterminal">$masm</span>:tt $(: { $(<span class="macro-nonterminal">$marg</span>:ident: <span class="macro-nonterminal">$margty</span>:ty),+ })<span class="question-mark">? </span>),+
+            $( $masm:tt $(: { $($marg:ident: $margty:ty),+ })? ),+
         },
         global: {
-            $( <span class="macro-nonterminal">$global</span>:tt $(: { $(<span class="macro-nonterminal">$garg</span>:ident: <span class="macro-nonterminal">$gargty</span>:ty),+ })<span class="question-mark">? </span>),+
+            $( $global:tt $(: { $($garg:ident: $gargty:ty),+ })? ),+
         }
     ) =&gt; { ... };
-}</pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implement arithmetic operators for types.</p>
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implement arithmetic operators for types.</p>
 </div></details></section></div></main></body></html>
