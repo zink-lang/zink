@@ -24,14 +24,16 @@ impl JumpTable {
             .map(|(k, v)| {
                 let mut k = *k;
                 if k > start {
-                    tracing::trace!(
-                        "shift {v:x?} pc with offset={offset}: 0x{k:x}(0x{start:x}) -> 0x{:x}",
-                        k + offset
-                    );
-                    k += offset;
+                    let next_offset = k + offset;
                     if k > BUFFER_LIMIT as u16 {
                         return Err(Error::InvalidPC(k as usize));
                     }
+
+                    tracing::trace!(
+                        "shift {v:x?} pc with offset={offset}: 0x{k:x}(0x{start:x}) -> 0x{:x}",
+                        next_offset
+                    );
+                    k = next_offset;
                 }
 
                 Ok((k, v.clone()))
@@ -70,6 +72,11 @@ impl JumpTable {
 
     /// Shift program counter for functions.
     pub fn shift_func_target(&mut self, start: u16, offset: u16) -> Result<()> {
+        if self.func.is_empty() {
+            tracing::trace!("No functions to shift.");
+            return Ok(());
+        }
+
         self.func.iter_mut().try_for_each(|(k, v)| {
             if *v > start {
                 tracing::trace!(
@@ -90,6 +97,11 @@ impl JumpTable {
 
     /// Shift target program counter for labels.
     pub fn shift_label_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
+        if self.jump.is_empty() {
+            tracing::trace!("No labels to shift.");
+            return Ok(());
+        }
+
         self.jump.iter_mut().try_for_each(|(pc, target)| {
             if let Jump::Label(label) = target {
                 if *label > ptr {

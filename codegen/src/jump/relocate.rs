@@ -24,19 +24,9 @@ impl JumpTable {
 
             if jump.is_offset() {
                 target += pc;
-
-                // for the case the marked offset has growed to 2 bytes.
-                if buffer.len() + pc as usize > 0xff {
-                    target += 1
-                }
             }
 
-            // // for the case target from < 0xff to > 0xff
-            // if buffer.len() + target as usize > 0xff && target > 0xff {
-            //     target -= 1;
-            // }
-
-            relocate::pc(buffer, pc, target, offset)?;
+            relocate::pc(buffer, pc, target)?;
             self.shift_label_pc(pc, offset)?;
         }
 
@@ -46,13 +36,16 @@ impl JumpTable {
 }
 
 /// Get the offset of the program counter for relocation.
+///
+/// FIXME: only need to move offset for once in a batch but not
+/// for all shifting targets.
 pub fn offset(original_pc: u16) -> Result<u16> {
     let pc = original_pc;
     let mut offset = 0;
 
     // Update the target program counter
     {
-        // The maximum size of the PC is 2 bytes, whatever PUSH1 or PUSH2
+        // The maximum size of the PC is 2 bytes, whatever PUSH1 or PUSH32
         // takes 1 more byte.
         offset += 1;
 
@@ -77,19 +70,23 @@ pub fn offset(original_pc: u16) -> Result<u16> {
 }
 
 /// Relocate program counter to buffer.
-fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16, offset: u16) -> Result<()> {
+fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<()> {
     let original_pc = original_pc as usize;
     let mut new_buffer: Buffer = buffer[..original_pc].into();
     let rest_buffer: Buffer = buffer[original_pc..].into();
 
-    if offset == 2 {
+    let pc_offset = target_pc.to_ls_bytes();
+    if pc_offset.len() == 1 {
         new_buffer.push(OpCode::PUSH1.into());
     } else {
         new_buffer.push(OpCode::PUSH2.into());
     }
 
-    let pc_offset = target_pc.to_ls_bytes();
-    tracing::trace!("push bytes: 0x{:x?} at 0x{:x}", pc_offset, original_pc);
+    tracing::trace!(
+        "push bytes: 0x{} at 0x{}",
+        hex::encode(&pc_offset),
+        hex::encode(original_pc.to_ls_bytes())
+    );
     new_buffer.extend_from_slice(&pc_offset);
     new_buffer.extend_from_slice(&rest_buffer);
 
