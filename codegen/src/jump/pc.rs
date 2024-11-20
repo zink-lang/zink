@@ -1,7 +1,7 @@
 //! Program counter handlers.
 
 use crate::{
-    jump::{relocate, Jump, JumpTable},
+    jump::{Jump, JumpTable},
     Error, Result, BUFFER_LIMIT,
 };
 
@@ -10,8 +10,8 @@ impl JumpTable {
     pub fn shift_pc(&mut self, start: u16, offset: u16) -> Result<()> {
         tracing::trace!("shift pc from 0x{start:x} with offset={offset}");
         self.shift_label_pc(start, offset)?;
-        self.shift_label_target(start, 0, offset)?;
-        self.shift_func_target(start, 0, offset)?;
+        self.shift_label_target(start, offset)?;
+        self.shift_func_target(start, offset)?;
 
         Ok(())
     }
@@ -35,9 +35,8 @@ impl JumpTable {
                         total_offset
                     },
                 )?;
-                // let offset = self.target_offset(&target, total_offset)?;
 
-                self.shift_target(pc, total_offset, offset)?;
+                self.shift_target(pc, offset)?;
                 total_offset += offset;
                 Ok(())
             })
@@ -48,10 +47,10 @@ impl JumpTable {
     /// 1. shift code section.
     /// 2. shift label targets.
     /// 3. shift function targets.
-    pub fn shift_target(&mut self, ptr: u16, total_offset: u16, target_offset: u16) -> Result<()> {
-        self.code.shift(target_offset);
-        self.shift_label_target(ptr, total_offset, target_offset)?;
-        self.shift_func_target(ptr, total_offset, target_offset)
+    pub fn shift_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
+        self.code.shift(offset);
+        self.shift_label_target(ptr, offset)?;
+        self.shift_func_target(ptr, offset)
     }
 
     /// Shift program counter for labels.
@@ -82,7 +81,7 @@ impl JumpTable {
     }
 
     /// Shift program counter for functions.
-    pub fn shift_func_target(&mut self, ptr: u16, total_offset: u16, offset: u16) -> Result<()> {
+    pub fn shift_func_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
         if self.func.is_empty() {
             tracing::trace!("No functions to shift.");
             return Ok(());
@@ -93,14 +92,14 @@ impl JumpTable {
 
             if *target > ptr {
                 tracing::trace!(
-                    "[{total_offset}] shift Func({index}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
+                    "shift Func({index}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
                     next_target
                 );
 
                 *target = next_target;
             } else {
                 tracing::trace!(
-                    "[{total_offset}] shift Func({index}) target with offset=0: 0x{target:x}(0x{ptr:x}) -> 0x{target:x}"
+                    "shift Func({index}) target with offset=0: 0x{target:x}(0x{ptr:x}) -> 0x{target:x}"
                 );
             }
 
@@ -109,7 +108,7 @@ impl JumpTable {
     }
 
     /// Shift target program counter for labels.
-    pub fn shift_label_target(&mut self, ptr: u16, total_offset: u16, offset: u16) -> Result<()> {
+    pub fn shift_label_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
         if self.jump.is_empty() {
             tracing::trace!("No labels to shift.");
             return Ok(());
@@ -121,14 +120,14 @@ impl JumpTable {
 
                 if *label > ptr {
                     tracing::trace!(
-                        "[{total_offset}] shift Label(0x{pc:x}) target with offset={offset}: 0x{label:x}(0x{ptr:x}) -> 0x{:x}",
+                        "shift Label(0x{pc:x}) target with offset={offset}: 0x{label:x}(0x{ptr:x}) -> 0x{:x}",
                         next_label,
                     );
 
                     *label = next_label;
                 } else {
                     tracing::trace!(
-                        "[{total_offset}] shift Label(0x{pc:x}) target with offset=0: 0x{label:x}(0x{ptr:x}) -> 0x{label:x}"
+                        "shift Label(0x{pc:x}) target with offset=0: 0x{label:x}(0x{ptr:x}) -> 0x{label:x}"
                     );
                 }
             }

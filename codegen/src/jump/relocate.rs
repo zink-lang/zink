@@ -37,35 +37,35 @@ impl JumpTable {
     }
 }
 
-/// Get the offset of the program counter for relocation.
-pub fn offset(pc: u16) -> Result<u16> {
-    let mut offset = 0;
-
-    // Update the target program counter
-    {
-        // The maximum size of the PC is 2 bytes, whatever PUSH1 or PUSH32
-        // takes 1 more byte.
-        offset += 1;
-
-        // Update the program counter for the edge cases.
-        //
-        // Start from 0xff, the lowest significant bytes of the target
-        // program counter will take 2 bytes instead of 1 byte.
-        //
-        // | PC   | PC BYTES | TARGET PC |
-        // |------|----------|-----------|
-        // | 0xfe | 1        |      0xff |
-        // | 0xff | 2        |    0x0101 |
-        offset += if pc > 0xfe { 2 } else { 1 }
-    }
-
-    // Check PC range.
-    if pc + offset > BUFFER_LIMIT as u16 {
-        return Err(Error::InvalidPC((pc + offset) as usize));
-    }
-
-    Ok(offset)
-}
+// /// Get the offset of the program counter for relocation.
+// pub fn offset(pc: u16) -> Result<u16> {
+//     let mut offset = 0;
+//
+//     // Update the target program counter
+//     {
+//         // The maximum size of the PC is 2 bytes, whatever PUSH1 or PUSH32
+//         // takes 1 more byte.
+//         offset += 1;
+//
+//         // Update the program counter for the edge cases.
+//         //
+//         // Start from 0xff, the lowest significant bytes of the target
+//         // program counter will take 2 bytes instead of 1 byte.
+//         //
+//         // | PC   | PC BYTES | TARGET PC |
+//         // |------|----------|-----------|
+//         // | 0xfe | 1        |      0xff |
+//         // | 0xff | 2        |    0x0101 |
+//         offset += if pc > 0xfe { 2 } else { 1 }
+//     }
+//
+//     // Check PC range.
+//     if pc + offset > BUFFER_LIMIT as u16 {
+//         return Err(Error::InvalidPC((pc + offset) as usize));
+//     }
+//
+//     Ok(offset)
+// }
 
 /// Relocate program counter to buffer.
 fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<usize> {

@@ -42,7 +42,7 @@ impl Function {
             .into());
         }
 
-        tracing::trace!("call internal function: index={index}");
+        tracing::debug!("call internal function: index={index}");
         let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
 
         // TODO: adapat the case that the params is larger than 0xff (#247)
@@ -53,7 +53,7 @@ impl Function {
         // [ ..,
         //   <PC>,
         //   params[SWAP], params[PUSH, SLOT, MSTORE],
-        //   PUSH, PC, JUMP, <JUMPDEST>
+        //   {(PUSH, PC), JUMP, JUMPDEST}
         // ]
         // <- selfparams[PUSH, OFFSET, CALLDATALOAD]
         //
