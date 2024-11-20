@@ -1,7 +1,7 @@
 //! Program Relocations
 
 use crate::{
-    jump::{relocate, JumpTable},
+    jump::{relocate, Jump, JumpTable},
     wasm::ToLSBytes,
     Buffer, Error, Result, BUFFER_LIMIT,
 };
@@ -21,30 +21,38 @@ impl JumpTable {
         while let Some((pc, jump)) = self.jump.pop_first() {
             tracing::debug!("run relocation for {jump}");
             let mut target = self.target(&jump)?;
-
-            // NOTE: If the target is offset the return data is
-            // the offset instead of the PC.
-            if jump.is_offset() {
-                target += pc;
-
-                // check the original pc of the offset is greater than 0xff
-                if pc > 0xff {
-                    target += 1;
-                }
-
-                // check if the offset of the embedded call is greater than 0xff
-                if let Some((_, next_target)) = self.jump.first_key_value() {
-                    if next_target.is_call() && self.target(next_target)? > 0xff {
-                        target += 1
-                    }
-                }
-            }
+            self.relocate_offset(pc, jump, &mut target)?;
 
             let offset = relocate::pc(buffer, pc, target)?;
             self.shift_label_pc(pc, offset as u16)?;
         }
 
         buffer.extend_from_slice(&self.code.finish());
+        Ok(())
+    }
+
+    /// relocate the target of offset jump
+    fn relocate_offset(&self, pc: u16, jump: Jump, target: &mut u16) -> Result<()> {
+        if !jump.is_offset() {
+            return Ok(());
+        }
+
+        // NOTE: If the target is offset the return data is
+        // the offset instead of the PC.
+        *target += pc;
+
+        // check the original pc of the offset is greater than 0xff
+        if pc > 0xff {
+            *target += 1;
+        }
+
+        // check if the offset of the embedded call is greater than 0xff
+        if let Some((_, next_target)) = self.jump.first_key_value() {
+            if next_target.is_call() && self.target(next_target)? > 0xff {
+                *target += 1
+            }
+        }
+
         Ok(())
     }
 }

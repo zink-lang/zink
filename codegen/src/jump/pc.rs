@@ -26,7 +26,7 @@ impl JumpTable {
                 tracing::debug!("shift targets for {target} <- (0x{original_pc:x})");
                 let pc = original_pc + total_offset;
                 let offset = self.target_offset(
-                    &target,
+                    target,
                     if target.is_offset() {
                         total_offset + original_pc
                     } else {
