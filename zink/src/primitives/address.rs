@@ -22,6 +22,7 @@ impl Address {
     }
 
     /// Returns empty address
+    #[inline(always)]
     pub fn caller() -> Self {
         unsafe { ffi::evm::caller() }
     }

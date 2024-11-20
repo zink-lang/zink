@@ -16,28 +16,33 @@ impl U256 {
         U256([0; 32])
     }
 
-    /// add another value
+    /// u256 add
+    #[inline(always)]
     pub fn add(self, other: Self) -> Self {
         unsafe { ffi::u256_add(self, other) }
     }
 
-    /// add another value
+    /// u256 less than
+    #[inline(always)]
     pub fn lt(self, other: Self) -> bool {
-        unsafe { ffi::u256_lt(self, other) }
+        unsafe { ffi::u256_lt(other, self) }
     }
 
-    /// add another value
+    /// u256 sub
+    #[inline(always)]
     pub fn sub(self, other: Self) -> Self {
-        unsafe { ffi::u256_sub(self, other) }
+        unsafe { ffi::u256_sub(other, self) }
     }
 
     /// max of u256
+    #[inline(always)]
     pub fn max() -> Self {
         unsafe { ffi::u256_max() }
     }
 }
 
 impl Asm for U256 {
+    #[inline(always)]
     fn push(self) {
         unsafe { ffi::asm::push_u256(self) }
     }
@@ -49,6 +54,7 @@ impl Asm for U256 {
 }
 
 impl StorageValue for U256 {
+    #[inline(always)]
     fn sload() -> Self {
         unsafe { ffi::asm::sload_u256() }
     }

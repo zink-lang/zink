@@ -60,7 +60,7 @@ impl Contract {
         let compiler = Compiler::new(config);
         self.artifact = compiler.compile(&self.wasm)?;
 
-        tracing::debug!("abi: {:#}", self.json_abi()?);
+        // tracing::debug!("abi: {:#}", self.json_abi()?);
         tracing::debug!("bytecode: {}", hex::encode(&self.artifact.runtime_bytecode));
         Ok(self)
     }

@@ -20,7 +20,7 @@ extern "C" {
     /// Equal operation for addresses
     pub fn u256_sub(this: U256, other: U256) -> U256;
 
-    /// Equal operation for addresses
+    /// Less than operation for addresses
     pub fn u256_lt(this: U256, other: U256) -> bool;
 
     /// Equal operation for addresses

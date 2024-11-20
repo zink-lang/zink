@@ -81,12 +81,20 @@ impl JumpTable {
     }
 
     /// Get the target of a jump.
-    pub fn target(&mut self, jump: &Jump) -> Result<u16> {
+    pub fn target(&self, jump: &Jump) -> Result<u16> {
         match jump {
             Jump::Offset(offset) => Ok(*offset),
             Jump::Label(label) => Ok(*label),
             Jump::Func(func) => Ok(*self.func.get(func).ok_or(Error::FuncNotFound(*func))?),
             Jump::ExtFunc(ext) => Ok(self.code.offset_of(ext).ok_or(Error::ExtFuncNotFound)?),
         }
+    }
+
+    /// Get the target offset
+    pub fn target_offset(&self, jump: &Jump, offset: u16) -> Result<u16> {
+        let target = self.target(jump)?;
+
+        // [PUSH_N, PC]
+        Ok(if (target + offset) > 0xff { 3 } else { 2 })
     }
 }
