@@ -13,12 +13,17 @@ impl JumpTable {
     /// *WARNING*: This function should only be called once in the compiler.
     /// considering move it to the compiler.
     pub fn relocate(&mut self, buffer: &mut Buffer) -> Result<()> {
+        // pre-calculate and shift targets
         self.shift_targets()?;
         tracing::trace!("code section offset: 0x{:x}", self.code.offset());
 
+        // relocate functions
         while let Some((pc, jump)) = self.jump.pop_first() {
-            tracing::trace!("run relocation for {jump:?}");
+            tracing::debug!("run relocation for {jump}");
             let mut target = self.target(&jump)?;
+
+            // NOTE: If the target is offset the return data is
+            // the offset instead of the PC.
             if jump.is_offset() {
                 target += pc;
             }

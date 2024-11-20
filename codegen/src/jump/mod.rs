@@ -1,6 +1,7 @@
 //! Jump table implementation.
 
 use crate::codegen::ExtFunc;
+use core::fmt::Display;
 pub use table::JumpTable;
 
 mod pc;
@@ -19,6 +20,17 @@ pub enum Jump {
     Func(u32),
     /// External function.
     ExtFunc(ExtFunc),
+}
+
+impl Display for Jump {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Jump::Offset(offset) => write!(f, "Offset(0x{offset:x})"),
+            Jump::Label(offset) => write!(f, "Label(0x{offset:x})"),
+            Jump::Func(index) => write!(f, "Func({index})"),
+            Jump::ExtFunc(_) => write!(f, "ExtFunc"),
+        }
+    }
 }
 
 impl Jump {

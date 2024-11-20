@@ -89,4 +89,12 @@ impl JumpTable {
             Jump::ExtFunc(ext) => Ok(self.code.offset_of(ext).ok_or(Error::ExtFuncNotFound)?),
         }
     }
+
+    /// Get the target offset
+    pub fn target_offset(&self, jump: &Jump, offset: u16) -> Result<u16> {
+        let target = self.target(jump)?;
+
+        // [PUSH_N, PC]
+        Ok(if (target + offset) > 0xff { 3 } else { 2 })
+    }
 }
