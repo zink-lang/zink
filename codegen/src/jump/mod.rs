@@ -43,4 +43,9 @@ impl Jump {
     pub fn is_offset(&self) -> bool {
         matches!(self, Jump::Offset(_))
     }
+
+    /// If the target is a function call
+    pub fn is_call(&self) -> bool {
+        !self.is_label() && !self.is_offset()
+    }
 }

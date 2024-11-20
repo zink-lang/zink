@@ -56,7 +56,11 @@ fn main() {}
 fn test_approval() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
 
-    let mut evm = EVM::default().commit(true).caller([1; 20]);
+    let caller_bytes = hex::decode("be862ad9abfe6f22bcb087716c7d89a26051f74c")?;
+    let mut caller = [0; 20];
+    caller.copy_from_slice(&caller_bytes);
+
+    let mut evm = EVM::default().commit(true).caller(caller);
     let contract = Contract::search("approval")?.compile()?;
     let info = evm.deploy(&contract.bytecode()?)?;
     let address = info.address;
@@ -79,13 +83,17 @@ fn test_approval() -> anyhow::Result<()> {
     )?;
     assert_eq!(value.to_bytes32(), allowance);
 
-    // TODO: #273
-    //
-    // error: invalid jump while there are to composed functions
-    //
-    // This could be caused by the `caller()` on stack is not consumed correctly
-    //
-    // // spend allowance
+    // get on-chain storage
+    let info = evm
+        .calldata(&contract.encode(&[
+            b"allowance(address,address)".to_vec(),
+            evm.caller.to_bytes32().to_vec(),
+            spender.to_bytes32().to_vec(),
+        ])?)
+        .call(address)?;
+    assert_eq!(info.ret, allowance);
+
+    // spend allowance
     let half_value = 21;
     let info = evm
         .calldata(&contract.encode(&[

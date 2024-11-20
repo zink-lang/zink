@@ -26,6 +26,18 @@ impl JumpTable {
             // the offset instead of the PC.
             if jump.is_offset() {
                 target += pc;
+
+                // check the original pc of the offset is greater than 0xff
+                if pc > 0xff {
+                    target += 1;
+                }
+
+                // check if the offset of the embedded call is greater than 0xff
+                if let Some((_, next_target)) = self.jump.first_key_value() {
+                    if next_target.is_call() && self.target(next_target)? > 0xff {
+                        target += 1
+                    }
+                }
             }
 
             let offset = relocate::pc(buffer, pc, target)?;

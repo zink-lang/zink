@@ -11,9 +11,7 @@ impl JumpTable {
         tracing::trace!("shift pc from 0x{start:x} with offset={offset}");
         self.shift_label_pc(start, offset)?;
         self.shift_label_target(start, offset)?;
-        self.shift_func_target(start, offset)?;
-
-        Ok(())
+        self.shift_func_target(start, offset)
     }
 
     /// Shift the target program counters.
