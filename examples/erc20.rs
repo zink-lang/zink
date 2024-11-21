@@ -139,12 +139,7 @@ fn _spend_allowance(owner: Address, spender: Address, value: U256) {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-// TODO:
-//
-// 1. nested function allocations
-// 2. memory slots for local variables
 #[test]
-#[ignore]
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
 
