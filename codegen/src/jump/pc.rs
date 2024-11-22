@@ -1,9 +1,14 @@
 //! Program counter handlers.
+//!
+//! This module provides functionality to shift the program counter for various jump types
+//! and manage the relationships between labels and their corresponding program counters.
 
 use crate::{jump::JumpTable, Error, Result, BUFFER_LIMIT};
 
 impl JumpTable {
-    /// Shift program counter for all items.
+    /// Shifts the program counter for all jump items.
+    ///
+    /// This function updates the program counters based on a starting point and an offset.
     pub fn shift_pc(&mut self, start: u16, offset: u16) -> Result<()> {
         tracing::trace!("shift pc from 0x{start:x} with offset={offset}");
         self.shift_label_pc(start, offset)?;
@@ -11,7 +16,10 @@ impl JumpTable {
         self.shift_func_target(start, offset)
     }
 
-    /// Shift program counter for labels.
+    /// Shifts the program counter for labels.
+    ///
+    /// This function updates the program counters of labels based on the specified start
+    /// point and offset.
     pub fn shift_label_pc(&mut self, start: u16, offset: u16) -> Result<()> {
         let mut new_jump = Vec::new();
         for (label, jump) in self.jump.iter() {

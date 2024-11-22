@@ -1,4 +1,8 @@
 //! Jump table implementation.
+//!
+//! This module defines the `Jump` enum and the `JumpTable` struct, which are used to manage
+//! various types of jumps in the program, including offsets, labels, function calls, and
+//! external functions.
 
 use crate::codegen::ExtFunc;
 use core::fmt::Display;
@@ -9,17 +13,16 @@ mod relocate;
 mod table;
 mod target;
 
-/// Jump types
+/// Represents the different types of jumps in the program.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Jump {
-    /// offset to the program counter.
+    /// Offset to the program counter.
     Offset(u16),
-    /// Jump to the given label, the label here
-    /// is the original program counter.
+    /// Jump to a specific label, which corresponds to the original program counter.
     Label(u16),
-    /// Jump to function.
+    /// Jump to a function identified by its index.
     Func(u32),
-    /// External function.
+    /// Jump to an external function.
     ExtFunc(ExtFunc),
 }
 
@@ -35,17 +38,17 @@ impl Display for Jump {
 }
 
 impl Jump {
-    /// If the target is a label.
+    /// Checks if the target is a label.
     pub fn is_label(&self) -> bool {
         matches!(self, Jump::Label { .. })
     }
 
-    /// If the target is fixed to offset of the program counter.
+    /// Checks if the target is a fixed offset of the program counter.
     pub fn is_offset(&self) -> bool {
         matches!(self, Jump::Offset(_))
     }
 
-    /// If the target is a function call
+    /// Checks if the target is a function call.
     pub fn is_call(&self) -> bool {
         !self.is_label() && !self.is_offset()
     }
