@@ -7,6 +7,7 @@ pub use table::JumpTable;
 mod pc;
 mod relocate;
 mod table;
+mod target;
 
 /// Jump types
 #[derive(Clone, Debug, PartialEq, Eq)]

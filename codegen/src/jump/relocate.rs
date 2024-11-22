@@ -1,7 +1,7 @@
 //! Program Relocations
 
 use crate::{
-    jump::{relocate, Jump, JumpTable},
+    jump::{relocate, JumpTable},
     wasm::ToLSBytes,
     Buffer, Error, Result, BUFFER_LIMIT,
 };
@@ -21,7 +21,10 @@ impl JumpTable {
         while let Some((pc, jump)) = self.jump.pop_first() {
             tracing::debug!("run relocation for {jump}");
             let mut target = self.target(&jump)?;
-            self.relocate_offset(pc, jump, &mut target)?;
+            
+            if jump.is_offset() {
+                self.relocate_offset(pc, &mut target)?;
+            }
 
             let offset = relocate::pc(buffer, pc, target)?;
             self.shift_label_pc(pc, offset as u16)?;
@@ -32,11 +35,7 @@ impl JumpTable {
     }
 
     /// relocate the target of offset jump
-    fn relocate_offset(&self, pc: u16, jump: Jump, target: &mut u16) -> Result<()> {
-        if !jump.is_offset() {
-            return Ok(());
-        }
-
+    fn relocate_offset(&self, pc: u16, target: &mut u16) -> Result<()> {
         // NOTE: If the target is offset the return data is
         // the offset instead of the PC.
         *target += pc;
