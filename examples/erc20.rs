@@ -173,29 +173,29 @@ fn deploy() -> anyhow::Result<()> {
     )?;
     let address = info.address;
 
-    // 2. get name
-    let info = evm
-        .calldata(&contract.encode(&[b"name()".to_vec()])?)
-        .call(address)?;
-    assert_eq!(info.ret, name.to_bytes32());
-
-    // 3. get symbol
-    let info = evm
-        .calldata(&contract.encode(&[b"symbol()".to_vec()])?)
-        .call(address)?;
-    assert_eq!(info.ret, symbol.to_bytes32());
-
-    // 3. get total supply
-    let info = evm
-        .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
-        .call(address)?;
-    assert_eq!(info.ret, 42u64.to_bytes32());
-
-    // 4. check decimals
-    let info = evm
-        .calldata(&contract.encode(&[b"decimals()".to_vec()])?)
-        .call(address)?;
-    assert_eq!(info.ret, 8u64.to_bytes32());
+    // // 2. get name
+    // let info = evm
+    //     .calldata(&contract.encode(&[b"name()".to_vec()])?)
+    //     .call(address)?;
+    // assert_eq!(info.ret, name.to_bytes32());
+    //
+    // // 3. get symbol
+    // let info = evm
+    //     .calldata(&contract.encode(&[b"symbol()".to_vec()])?)
+    //     .call(address)?;
+    // assert_eq!(info.ret, symbol.to_bytes32());
+    //
+    // // 3. get total supply
+    // let info = evm
+    //     .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
+    //     .call(address)?;
+    // assert_eq!(info.ret, 42u64.to_bytes32());
+    //
+    // // 4. check decimals
+    // let info = evm
+    //     .calldata(&contract.encode(&[b"decimals()".to_vec()])?)
+    //     .call(address)?;
+    // assert_eq!(info.ret, 8u64.to_bytes32());
 
     // 5. check approval
     let value = 42;

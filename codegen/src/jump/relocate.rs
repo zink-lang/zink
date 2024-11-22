@@ -30,13 +30,25 @@ impl JumpTable {
 
         // Relocate each function in the jump table.
         while let Some((pc, jump)) = self.jump.pop_first() {
-            tracing::debug!("run relocation for {jump}");
+            tracing::debug!(
+                "Relocating jump {:?} at pc=0x{:x}, current_offset=0x{:x}",
+                jump,
+                pc,
+                self.code.offset()
+            );
             let mut target = self.target(&jump)?;
 
             // If the jump is an offset, adjust the target accordingly.
             if jump.is_offset() {
                 self.relocate_offset(pc, &mut target)?;
             }
+
+            tracing::debug!(
+                "relocate: pc=0x{:x}, jump={:?}, target=0x{:x}",
+                pc,
+                jump,
+                target
+            );
 
             // Update the buffer with the new target program counter.
             let offset = relocate::pc(buffer, pc, target)?;

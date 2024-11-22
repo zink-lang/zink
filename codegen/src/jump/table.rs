@@ -85,4 +85,82 @@ impl JumpTable {
 
         Ok(())
     }
+
+    /// register jump to program counter
+    pub fn register(&mut self, pc: u16, jump: Jump) {
+        self.jump.insert(pc, jump);
+    }
+}
+
+#[test]
+fn test_multiple_jumps_same_target() -> anyhow::Result<()> {
+    let mut table = JumpTable::default();
+
+    // Setup multiple jumps to same target
+    table.register(0x10, Jump::Label(0x100));
+    table.register(0x20, Jump::Label(0x100));
+    table.register(0x30, Jump::Offset(0x10));
+
+    table.shift_targets()?;
+
+    // Verify each jump's final target
+    assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x108);
+    assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x108);
+    assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x10);
+    Ok(())
+}
+
+#[test]
+fn test_nested_jumps() -> anyhow::Result<()> {
+    let mut table = JumpTable::default();
+
+    // Create nested jump pattern
+    table.register(0x10, Jump::Label(0x100)); // Jump to middle
+    table.register(0x100, Jump::Label(0x200)); // Middle jumps to end
+    table.register(0x20, Jump::Label(0x100)); // Another jump to middle
+
+    table.shift_targets()?;
+
+    // Verify jumps are processed correctly
+    assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x106);
+    assert_eq!(table.target(table.jump.get(&0x100).unwrap())?, 0x209);
+    assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x106);
+    Ok(())
+}
+
+#[test]
+fn test_offset_label_interaction() -> anyhow::Result<()> {
+    let mut table = JumpTable::default();
+
+    // Create offset and label jumps targeting same area
+    table.register(0x10, Jump::Offset(0x50)); // Offset jump forward
+    table.register(0x20, Jump::Label(0x60)); // Label jump to area after offset
+    table.register(0x30, Jump::Label(0x50)); // Label jump to offset target
+
+    table.shift_targets()?;
+
+    // Verify jumps are processed correctly
+    assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x50);
+    assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x66);
+    assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x56);
+
+    Ok(())
+}
+
+#[test]
+fn test_sequential_jumps() -> anyhow::Result<()> {
+    let mut table = JumpTable::default();
+
+    // Create sequence of jumps that follow each other
+    table.register(0x10, Jump::Label(0x20));
+    table.register(0x20, Jump::Label(0x30));
+    table.register(0x30, Jump::Label(0x40));
+
+    table.shift_targets()?;
+
+    // Each target should be shifted by accumulated offset
+    assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x22);
+    assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x34);
+    assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x46);
+    Ok(())
 }
