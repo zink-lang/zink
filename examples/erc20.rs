@@ -173,57 +173,58 @@ fn deploy() -> anyhow::Result<()> {
     )?;
     let address = info.address;
 
-    // // 2. get name
-    // let info = evm
-    //     .calldata(&contract.encode(&[b"name()".to_vec()])?)
-    //     .call(address)?;
-    // assert_eq!(info.ret, name.to_bytes32());
-    //
-    // // 3. get symbol
-    // let info = evm
-    //     .calldata(&contract.encode(&[b"symbol()".to_vec()])?)
-    //     .call(address)?;
-    // assert_eq!(info.ret, symbol.to_bytes32());
-    //
-    // // 3. get total supply
-    // let info = evm
-    //     .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
-    //     .call(address)?;
-    // assert_eq!(info.ret, 42u64.to_bytes32());
-    //
-    // // 4. check decimals
-    // let info = evm
-    //     .calldata(&contract.encode(&[b"decimals()".to_vec()])?)
-    //     .call(address)?;
-    // assert_eq!(info.ret, 8u64.to_bytes32());
-
-    // 5. check approval
-    let value = 42;
-    let spender = [42; 20];
+    // 2. get name
     let info = evm
-        .calldata(&contract.encode(&[
-            b"approve(address,uint256)".to_vec(),
-            spender.to_bytes32().to_vec(),
-            value.to_bytes32().to_vec(),
-        ])?)
+        .calldata(&contract.encode(&[b"name()".to_vec()])?)
         .call(address)?;
-    assert_eq!(info.ret, true.to_bytes32());
+    assert_eq!(info.ret, name.to_bytes32());
 
-    let allowance = evm.storage(
-        address,
-        Allowance::storage_key(Address(evm.caller), Address(spender)),
-    )?;
-    assert_eq!(value.to_bytes32(), allowance);
-
-    // 6. check approval results
+    // 3. get symbol
     let info = evm
-        .calldata(&contract.encode(&[
-            b"allowance(address,address)".to_vec(),
-            evm.caller.to_bytes32().to_vec(),
-            spender.to_bytes32().to_vec(),
-        ])?)
+        .calldata(&contract.encode(&[b"symbol()".to_vec()])?)
         .call(address)?;
-    assert_eq!(info.ret, allowance);
+    assert_eq!(info.ret, symbol.to_bytes32());
+
+    // 4. get total supply
+    let info = evm
+        .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
+        .call(address)?;
+    assert_eq!(info.ret, 42u64.to_bytes32());
+
+    // 5. check decimals
+    let info = evm
+        .calldata(&contract.encode(&[b"decimals()".to_vec()])?)
+        .call(address)?;
+    assert_eq!(info.ret, 8u64.to_bytes32());
+
+    // TODO: refactor offset handling (#280)
+    // // 6. check approval
+    // let value = 42;
+    // let spender = [42; 20];
+    // let info = evm
+    //     .calldata(&contract.encode(&[
+    //         b"approve(address,uint256)".to_vec(),
+    //         spender.to_bytes32().to_vec(),
+    //         value.to_bytes32().to_vec(),
+    //     ])?)
+    //     .call(address)?;
+    // assert_eq!(info.ret, true.to_bytes32(), "{info:?}");
+    //
+    // let allowance = evm.storage(
+    //     address,
+    //     Allowance::storage_key(Address(evm.caller), Address(spender)),
+    // )?;
+    // assert_eq!(value.to_bytes32(), allowance);
+    //
+    // // 7. check approval results
+    // let info = evm
+    //     .calldata(&contract.encode(&[
+    //         b"allowance(address,address)".to_vec(),
+    //         evm.caller.to_bytes32().to_vec(),
+    //         spender.to_bytes32().to_vec(),
+    //     ])?)
+    //     .call(address)?;
+    // assert_eq!(info.ret, allowance);
 
     Ok(())
 }

@@ -99,8 +99,8 @@ fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<usize> {
     let rest_buffer: Buffer = buffer[original_pc..].into();
 
     // Convert the target program counter to its byte representation.
-    let pc_offset = target_pc.to_ls_bytes();
-    if pc_offset.len() == 1 {
+    let target = target_pc.to_ls_bytes();
+    if target.len() == 1 {
         new_buffer.push(OpCode::PUSH1.into());
     } else {
         new_buffer.push(OpCode::PUSH2.into());
@@ -108,10 +108,10 @@ fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<usize> {
 
     tracing::trace!(
         "push bytes: 0x{} at 0x{}",
-        hex::encode(&pc_offset),
+        hex::encode(&target),
         hex::encode(original_pc.to_ls_bytes())
     );
-    new_buffer.extend_from_slice(&pc_offset);
+    new_buffer.extend_from_slice(&target);
     new_buffer.extend_from_slice(&rest_buffer);
 
     // Check if the new buffer size exceeds the defined limit.
@@ -121,5 +121,5 @@ fn pc(buffer: &mut Buffer, original_pc: u16, target_pc: u16) -> Result<usize> {
 
     // Update the original buffer with the new contents.
     *buffer = new_buffer;
-    Ok(1 + pc_offset.len())
+    Ok(1 + target.len())
 }
