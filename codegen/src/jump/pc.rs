@@ -12,8 +12,8 @@ impl JumpTable {
     pub fn shift_pc(&mut self, start: u16, offset: u16) -> Result<()> {
         tracing::trace!("shift pc from 0x{start:x} with offset={offset}");
         self.shift_label_pc(start, offset)?;
-        self.shift_label_target(start, offset)?;
-        self.shift_func_target(start, offset)
+        self.shift_label_target(start, 0, offset)?;
+        self.shift_func_target(start, 0, offset)
     }
 
     /// Shifts the program counter for labels.

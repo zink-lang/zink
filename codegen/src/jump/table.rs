@@ -173,3 +173,17 @@ fn test_sequential_jumps() -> anyhow::Result<()> {
     assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x46);
     Ok(())
 }
+
+#[test]
+fn test_jump_backwards() -> anyhow::Result<()> {
+    let mut table = JumpTable::default();
+
+    table.register(0x10, Jump::Label(0x20));
+    table.register(0x30, Jump::Label(0x20));
+
+    table.shift_targets()?;
+
+    assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x22);
+    assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x22);
+    Ok(())
+}

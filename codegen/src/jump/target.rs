@@ -33,13 +33,14 @@ impl JumpTable {
             let pc = original_pc + total_offset;
 
             // Determine the size of the target PC based on its value.
-            let offset = if self.target(jump)? + total_offset > 0xff {
+            let calculated_target = self.target(jump)? + total_offset;
+            let offset = if calculated_target > 0xff {
                 3 // Requires 3 bytes for processing the JUMP target offset
             } else {
                 2 // Requires 2 bytes
             };
 
-            self.shift_target(pc, offset)?;
+            self.shift_target(pc, calculated_target, offset)?;
             total_offset += offset;
         }
         Ok(())
@@ -49,14 +50,19 @@ impl JumpTable {
     ///
     /// This function handles the shifting of the code section, label targets, and
     /// function targets.
-    pub fn shift_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
+    pub fn shift_target(&mut self, ptr: u16, calculated_target: u16, offset: u16) -> Result<()> {
         self.code.shift(offset);
-        self.shift_label_target(ptr, offset)?;
-        self.shift_func_target(ptr, offset)
+        self.shift_label_target(ptr, calculated_target, offset)?;
+        self.shift_func_target(ptr, calculated_target, offset)
     }
 
     /// Shifts the program counter for functions.
-    pub fn shift_func_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
+    pub fn shift_func_target(
+        &mut self,
+        ptr: u16,
+        calculated_target: u16,
+        offset: u16,
+    ) -> Result<()> {
         if self.func.is_empty() {
             tracing::trace!("No functions to shift.");
             return Ok(());
@@ -79,23 +85,28 @@ impl JumpTable {
     }
 
     /// Shifts the program counter for labels.
-    pub fn shift_label_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
+    pub fn shift_label_target(
+        &mut self,
+        ptr: u16,
+        calculated_target: u16,
+        offset: u16,
+    ) -> Result<()> {
         if self.jump.is_empty() {
             tracing::trace!("No labels to shift.");
             return Ok(());
         }
 
-        self.jump.iter_mut().try_for_each(|(pc, target)| {
-            if let Jump::Label(label) = target {
-                let next_label = *label + offset;
+        self.jump.iter_mut().try_for_each(|(pc, jump)| {
+            if let Jump::Label(target) = jump {
+                let next_target = *target + offset;
 
-                if *label > ptr {
+                if *target > ptr {
                     tracing::trace!(
-                        "shift Label(0x{pc:x}) target with offset={offset}: 0x{label:x}(0x{ptr:x}) -> 0x{:x}",
-                        next_label,
+                        "shift Label(0x{pc:x}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
+                        next_target,
                     );
 
-                    *label = next_label;
+                    *target = next_target;
                 }
             }
 

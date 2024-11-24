@@ -40,7 +40,7 @@ impl JumpTable {
 
             // If the jump is an offset, adjust the target accordingly.
             if jump.is_offset() {
-                self.relocate_offset(pc, &mut target)?;
+                self.update_offset_target(pc, &mut target)?;
             }
 
             tracing::debug!(
@@ -66,12 +66,12 @@ impl JumpTable {
     /// represented as offsets. It modifies the target based on the original
     /// program counter and checks for specific conditions that may require
     /// further adjustments.
-    fn relocate_offset(&self, pc: u16, target: &mut u16) -> Result<()> {
+    fn update_offset_target(&self, pc: u16, target: &mut u16) -> Result<()> {
         // NOTE: If the target is offset, the return data is the offset instead of the PC.
         *target += pc;
 
         // Check if the original program counter of the offset is greater than 0xff.
-        if pc > 0xff {
+        if *target > 0xff {
             *target += 1;
         }
 
