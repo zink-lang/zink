@@ -90,6 +90,15 @@ impl JumpTable {
     pub fn register(&mut self, pc: u16, jump: Jump) {
         self.jump.insert(pc, jump);
     }
+
+    /// Get the max target from the current jump table
+    pub fn max_target(&self) -> u16 {
+        self.jump
+            .iter()
+            .filter_map(|(_, jump)| self.target(jump).ok())
+            .max()
+            .unwrap_or(0)
+    }
 }
 
 #[test]
