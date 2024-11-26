@@ -138,13 +138,13 @@ fn generate_abi_signature(
         let params = match &variant.fields {
             Fields::Named(fields) => {
                 fields.named.iter()
-                    .map(|f| format!("{:?}", f.ty))
+                    .map(|f| type_to_string(&f.ty))
                     .collect::<Vec<_>>()
                     .join(",")
             },
             Fields::Unnamed(fields) => {
                 fields.unnamed.iter()
-                    .map(|f| format!("{:?}", f.ty))
+                    .map(|f| type_to_string(&f.ty))
                     .collect::<Vec<_>>()
                     .join(",")
             },
@@ -170,4 +170,12 @@ fn generate_topic_hash(input: &str) -> [u8; 32] {
 fn generate_data_hash(data: &[Vec<u8>]) -> [u8; 32] {
     let flattened: Vec<u8> = data.concat();
     Keccak256::digest(&flattened).into()
+}
+
+fn type_to_string(ty: &syn::Type) -> String {
+    // use quote to convert the type to a token stream, then to a string
+    let type_tokens = quote! { #ty };
+    type_tokens.to_string()
+        .replace(' ', "")  
+        .replace("&", "")  
 }
