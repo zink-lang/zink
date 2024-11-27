@@ -23,7 +23,6 @@ macro_rules! impl_numeric {
     };
 }
 
-
 impl_numeric! {
     i8, addmod_i8, mulmod_i8;
     u8, addmod_u8, mulmod_u8;

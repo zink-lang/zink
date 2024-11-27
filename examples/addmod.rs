@@ -34,7 +34,6 @@ fn main() {}
 #[ignore]
 #[test]
 fn test() -> anyhow::Result<()> {
-
     // Test for i32
     let mut contract_i32 = Contract::search("addmod_i32")?.compile()?;
     let info_i32 = contract_i32.execute([
