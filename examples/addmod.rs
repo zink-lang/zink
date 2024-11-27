@@ -4,7 +4,6 @@
 
 extern crate zink;
 use zink::primitives::numeric::Numeric;
-use zint::{Bytes32 as _, Contract};
 
 #[zink::external]
 pub fn addmod_i32(a: i32, b: i32, n: i32) -> i32 {
@@ -34,6 +33,9 @@ fn main() {}
 #[ignore]
 #[test]
 fn test() -> anyhow::Result<()> {
+
+    use zint::{Bytes32 as _, Contract};
+
     // Test for i32
     let mut contract_i32 = Contract::search("addmod_i32")?.compile()?;
     let info_i32 = contract_i32.execute([
