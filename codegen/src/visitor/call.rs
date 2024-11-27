@@ -67,23 +67,9 @@ impl Function {
         let reserved = self.env.slots.get(&index).unwrap_or(&0);
         let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
 
-        // Prepare the stack structure for the function call.
-        // The stack will be structured as follows:
-        // [ ..,
-        //   <PC>,                         // The current program counter
-        //   params[SWAP],                 // Swap the parameters for the call
-        //   params[PUSH, SLOT, MSTORE],   // Push parameters to the stack
-        //   {(PUSH, PC), JUMP, JUMPDEST}   // Prepare for the jump to the callee
-        // ]
-        let base_offset = 5 + ((params + reserved) * 0x20).saturating_sub(0xff) / 0x20;
-
-        // Move the PC before the parameters in the stack.
-        self.table
-            .offset(self.masm.pc(), base_offset as u16 + 4 * (*params as u16));
+        // FIXME: This is a temporary fix to avoid stack underflow.
+        // We need to find a more elegant solution for this.
         self.masm.increment_sp(1)?;
-
-        // Adjust the stack to place the PC before the parameters.
-        self.masm.shift_stack(*params as u8, true)?;
 
         // Store parameters in memory and register the call index in the jump table.
         for i in (0..*params).rev() {
@@ -91,6 +77,13 @@ impl Function {
             self.masm.push(&((i + reserved) * 0x20).to_ls_bytes())?;
             self.masm._mstore()?;
         }
+
+        // Register the label to jump back.
+        self.table.label(self.masm.pc(), self.masm.pc() + 2);
+
+        // FIXME: This is a temporary fix to avoid stack underflow.
+        // TODO: same pc different label
+        self.masm._jumpdest()?;
 
         // Register the call index in the jump table.
         self.table.call(self.masm.pc(), index);

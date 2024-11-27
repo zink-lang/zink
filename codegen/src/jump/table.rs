@@ -53,17 +53,6 @@ impl JumpTable {
         self.jump.insert(pc, Jump::Label(label));
     }
 
-    /// Registers a label at a specific program counter offset.
-    pub fn offset(&mut self, pc: u16, offset: u16) {
-        self.jump.insert(
-            pc,
-            Jump::Offset {
-                offset,
-                target: offset,
-            },
-        );
-    }
-
     /// Merges another jump table into this one.
     ///
     /// This function updates the program counters of the target jump table and
@@ -114,20 +103,11 @@ fn test_multiple_jumps_same_target() -> anyhow::Result<()> {
     // Setup multiple jumps to same target
     table.register(0x10, Jump::Label(0x100));
     table.register(0x20, Jump::Label(0x100));
-    table.register(
-        0x30,
-        Jump::Offset {
-            offset: 0x10,
-            target: 0x10,
-        },
-    );
-
     table.shift_targets()?;
 
     // Verify each jump's final target
     assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x108);
     assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x108);
-    assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x10);
     Ok(())
 }
 
@@ -138,13 +118,6 @@ fn test_multiple_jumps_with_backwards() -> anyhow::Result<()> {
     // Simulate multiple functions calling _approve
     table.register(0x10, Jump::Label(0x100)); // approve() -> _approve
     table.register(0x20, Jump::Label(0x100)); // spend_allowance() -> _approve
-    table.register(
-        0x100,
-        Jump::Offset {
-            offset: 0x30,
-            target: 0x30,
-        },
-    ); // _approve implementation
 
     table.shift_targets()?;
 
@@ -169,31 +142,6 @@ fn test_nested_jumps() -> anyhow::Result<()> {
     assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x106);
     assert_eq!(table.target(table.jump.get(&0x100).unwrap())?, 0x209);
     assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x106);
-    Ok(())
-}
-
-#[test]
-fn test_offset_label_interaction() -> anyhow::Result<()> {
-    let mut table = JumpTable::default();
-
-    // Create offset and label jumps targeting same area
-    table.register(
-        0x10,
-        Jump::Offset {
-            offset: 0x50,
-            target: 0x50,
-        },
-    ); // Offset jump forward
-    table.register(0x20, Jump::Label(0x60)); // Label jump to area after offset
-    table.register(0x30, Jump::Label(0x50)); // Label jump to offset target
-
-    table.shift_targets()?;
-
-    // Verify jumps are processed correctly
-    assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x50);
-    assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x66);
-    assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x56);
-
     Ok(())
 }
 
