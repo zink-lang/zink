@@ -92,7 +92,8 @@ impl Function {
         tracing::trace!("select");
         self.masm._iszero()?;
         self.masm.increment_sp(1)?;
-        self.table.offset(self.masm.pc_offset(), 4);
+        self.table
+            .label(self.masm.pc_offset(), self.masm.pc_offset() + 4);
         self.masm._jumpi()?;
         self.masm._drop()?;
         self.masm._jumpdest()?;
