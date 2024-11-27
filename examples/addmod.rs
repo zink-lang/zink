@@ -33,7 +33,6 @@ fn main() {}
 #[ignore]
 #[test]
 fn test() -> anyhow::Result<()> {
-
     use zint::{Bytes32 as _, Contract};
 
     // Test for i32
