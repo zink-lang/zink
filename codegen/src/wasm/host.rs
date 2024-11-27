@@ -98,11 +98,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_addmod_mulmod_host_functions()  -> anyhow::Result<()> {
-      
-
+    fn test_addmod_mulmod_host_functions() -> anyhow::Result<()> {
         let addmod_func = HostFunc::try_from(("zinkc", "u256_addmod"))?;
-        
+
         assert_eq!(addmod_func, HostFunc::Evm(OpCode::ADDMOD));
 
         // Test MULMOD host function conversion
