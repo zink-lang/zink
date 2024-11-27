@@ -15,7 +15,7 @@ impl JumpTable {
     /// (offset, label, function, or external function).
     pub fn target(&self, jump: &Jump) -> Result<u16> {
         match jump {
-            Jump::Offset(offset) => Ok(*offset),
+            Jump::Offset { target, .. } => Ok(*target),
             Jump::Label(label) => Ok(*label),
             Jump::Func(func) => Ok(*self.func.get(func).ok_or(Error::FuncNotFound(*func))?),
             Jump::ExtFunc(ext) => Ok(self.code.offset_of(ext).ok_or(Error::ExtFuncNotFound)?),

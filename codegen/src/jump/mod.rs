@@ -17,7 +17,7 @@ mod target;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Jump {
     /// Offset to the program counter.
-    Offset(u16),
+    Offset { offset: u16, target: u16 },
     /// Jump to a specific label, which corresponds to the original program counter.
     Label(u16),
     /// Jump to a function identified by its index.
@@ -29,7 +29,7 @@ pub enum Jump {
 impl Display for Jump {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
-            Jump::Offset(offset) => write!(f, "Offset(0x{offset:x})"),
+            Jump::Offset { offset: _, target } => write!(f, "Offset(0x{target:x})"),
             Jump::Label(offset) => write!(f, "Label(0x{offset:x})"),
             Jump::Func(index) => write!(f, "Func({index})"),
             Jump::ExtFunc(_) => write!(f, "ExtFunc"),
@@ -45,7 +45,13 @@ impl Jump {
 
     /// Checks if the target is a fixed offset of the program counter.
     pub fn is_offset(&self) -> bool {
-        matches!(self, Jump::Offset(_))
+        matches!(
+            self,
+            Jump::Offset {
+                offset: _,
+                target: _
+            }
+        )
     }
 
     /// Checks if the target is a function call.
@@ -92,7 +98,13 @@ mod tests {
 
         // Register jumps with known offsets and labels
         table.register(0x10, Jump::Label(0x20)); // Jump to label at 0x20
-        table.register(0x20, Jump::Offset(0x10)); // Offset jump forward by 0x10
+        table.register(
+            0x20,
+            Jump::Offset {
+                offset: 0x10,
+                target: 0x10,
+            },
+        ); // Offset jump forward by 0x10
         table.register(0x30, Jump::Label(0x40)); // Jump to label at 0x40
 
         assert_target_shift_vs_relocation(table)
@@ -105,7 +117,13 @@ mod tests {
         // Simulate multiple functions calling _approve
         table.register(0x10, Jump::Label(0x100)); // approve() -> _approve
         table.register(0x20, Jump::Label(0x100)); // spend_allowance() -> _approve
-        table.register(0x60, Jump::Offset(0x30)); // _approve implementation
+        table.register(
+            0x60,
+            Jump::Offset {
+                offset: 0x30,
+                target: 0x30,
+            },
+        ); // _approve implementation
 
         assert_target_shift_vs_relocation(table)
     }
@@ -133,7 +151,13 @@ mod tests {
         table.register(0x10, Jump::Label(0x100)); // Entry point
         table.register(0x20, Jump::Label(0x200)); // If branch
         table.register(0x30, Jump::Label(0x300)); // Else branch
-        table.register(0x100, Jump::Offset(0x50)); // Condition check
+        table.register(
+            0x100,
+            Jump::Offset {
+                offset: 0x50,
+                target: 0x50,
+            },
+        ); // Condition check
         table.register(0x200, Jump::Label(0x400)); // Call to _approve
 
         assert_target_shift_vs_relocation(table)
