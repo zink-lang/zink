@@ -63,11 +63,6 @@ impl JumpTable {
 
     /// Shifts the program counter for functions.
     pub fn shift_func_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
-        if self.func.is_empty() {
-            tracing::trace!("No functions to shift.");
-            return Ok(());
-        }
-
         self.func.iter_mut().try_for_each(|(index, target)| {
             let next_target = *target + offset;
 
@@ -86,26 +81,23 @@ impl JumpTable {
 
     /// Shifts the program counter for labels.
     pub fn shift_label_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
-        if self.jump.is_empty() {
-            tracing::trace!("No labels to shift.");
-            return Ok(());
-        }
+        for (pc, jump) in self.jump.iter_mut() {
+            let target: &mut u16 = match jump {
+                Jump::Label(target) => target,
+                // Jump::Offset { target, .. } => target,
+                _ => continue,
+            };
 
-        self.jump.iter_mut().try_for_each(|(pc, jump)| {
-            if let Jump::Label(target) = jump {
-                let next_target = *target + offset;
+            let next_target = *target + offset;
+            if *target > ptr {
+                tracing::trace!(
+                            "shift Label(0x{pc:x}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
+                            next_target,
+                        );
 
-                if *target > ptr {
-                    tracing::trace!(
-                        "shift Label(0x{pc:x}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
-                        next_target,
-                    );
-
-                    *target = next_target;
-                }
+                *target = next_target;
             }
-
-            Ok(())
-        })
+        }
+        Ok(())
     }
 }
