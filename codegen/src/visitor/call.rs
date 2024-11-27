@@ -79,20 +79,15 @@ impl Function {
         }
 
         // Register the label to jump back.
-        self.table.label(self.masm.pc(), self.masm.pc() + 2);
-
-        // FIXME: This is a temporary fix to avoid stack underflow.
-        // TODO: same pc different label
-        self.masm._jumpdest()?;
+        self.table.label(self.masm.pc(), self.masm.pc() + 2); // [PUSHN, END_OF_CALL]
+        self.masm._jumpdest()?; // FIXME: same pc different label
 
         // Register the call index in the jump table.
-        self.table.call(self.masm.pc(), index);
-
-        // Jump to the callee function.
+        self.table.call(self.masm.pc(), index); // [PUSHN, CALL_PC]
         self.masm._jump()?;
-        self.masm._jumpdest()?;
 
         // Adjust the stack pointer for the results.
+        self.masm._jumpdest()?;
         self.masm.increment_sp(*results as u8)?;
         Ok(())
     }

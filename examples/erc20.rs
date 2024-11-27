@@ -177,25 +177,25 @@ fn deploy() -> anyhow::Result<()> {
     let info = evm
         .calldata(&contract.encode(&[b"name()".to_vec()])?)
         .call(address)?;
-    assert_eq!(info.ret, name.to_bytes32());
+    assert_eq!(info.ret, name.to_bytes32(), "{info:?}");
 
     // 3. get symbol
     let info = evm
         .calldata(&contract.encode(&[b"symbol()".to_vec()])?)
         .call(address)?;
-    assert_eq!(info.ret, symbol.to_bytes32());
+    assert_eq!(info.ret, symbol.to_bytes32(), "{info:?}");
 
     // 4. get total supply
     let info = evm
         .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
         .call(address)?;
-    assert_eq!(info.ret, 42u64.to_bytes32());
+    assert_eq!(info.ret, 42u64.to_bytes32(), "{info:?}");
 
     // 5. check decimals
     let info = evm
         .calldata(&contract.encode(&[b"decimals()".to_vec()])?)
         .call(address)?;
-    assert_eq!(info.ret, 8u64.to_bytes32());
+    assert_eq!(info.ret, 8u64.to_bytes32(), "{info:?}");
 
     // TODO: refactor offset handling (#280)
     // // 6. check approval

@@ -33,11 +33,6 @@ impl JumpTable {
 
             // Determine the size of the target PC based on its value.
             let target = self.target(jump)? + total_offset;
-
-            /* if jump.is_offset() {
-                target += original_pc;
-            } */
-
             let offset = if target > 0xff {
                 3 // Requires 3 bytes for processing the JUMP target offset
             } else {
@@ -81,10 +76,8 @@ impl JumpTable {
     /// Shifts the program counter for labels.
     pub fn shift_label_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
         for (pc, jump) in self.jump.iter_mut() {
-            let target: &mut u16 = match jump {
-                Jump::Label(target) => target,
-                // Jump::Offset { target, .. } => target,
-                _ => continue,
+            let Jump::Label(target) = jump else {
+                continue;
             };
 
             let next_target = *target + offset;
