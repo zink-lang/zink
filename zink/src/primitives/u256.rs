@@ -39,6 +39,18 @@ impl U256 {
     pub fn max() -> Self {
         unsafe { ffi::u256_max() }
     }
+
+    /// Addmod for U256
+    #[inline(always)]
+    pub fn addmod(self, other: Self, modulus: Self) -> Self {
+        unsafe { ffi::u256_addmod(self, other, modulus) }
+    }
+
+    /// Mulmod for U256
+    #[inline(always)]
+    pub fn mulmod(self, other: Self, modulus: Self) -> Self {
+        unsafe { ffi::u256_mulmod(self, other, modulus) }
+    }
 }
 
 impl Asm for U256 {

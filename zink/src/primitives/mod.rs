@@ -2,6 +2,7 @@
 
 mod address;
 mod u256;
+pub mod numeric;
 
 pub use address::Address;
 pub use u256::U256;
