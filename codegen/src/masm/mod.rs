@@ -80,7 +80,7 @@ impl MacroAssembler {
     }
 
     /// Get the current program counter offset.
-    pub fn pc_offset(&self) -> u16 {
+    pub fn pc(&self) -> u16 {
         self.asm.buffer().len() as u16
     }
 

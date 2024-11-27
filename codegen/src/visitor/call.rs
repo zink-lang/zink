@@ -78,10 +78,8 @@ impl Function {
         let base_offset = 5 + ((params + reserved) * 0x20).saturating_sub(0xff) / 0x20;
 
         // Move the PC before the parameters in the stack.
-        self.table.offset(
-            self.masm.pc_offset(),
-            base_offset as u16 + 4 * (*params as u16),
-        );
+        self.table
+            .offset(self.masm.pc(), base_offset as u16 + 4 * (*params as u16));
         self.masm.increment_sp(1)?;
 
         // Adjust the stack to place the PC before the parameters.
@@ -95,7 +93,7 @@ impl Function {
         }
 
         // Register the call index in the jump table.
-        self.table.call(self.masm.pc_offset(), index);
+        self.table.call(self.masm.pc(), index);
 
         // Jump to the callee function.
         self.masm._jump()?;
