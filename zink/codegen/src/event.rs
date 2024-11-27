@@ -1,5 +1,4 @@
 //! Event interface generation
-
 use proc_macro::{Span, TokenStream};
 use quote::quote;
 use sha3::{Digest, Keccak256};
@@ -10,7 +9,7 @@ pub fn parse(item: DeriveInput) -> TokenStream {
     let name = LitByteStr::new(item.ident.to_string().as_bytes(), Span::call_site().into());
     let ident = item.clone().ident;
 
-    //ensure we are working with an enum
+    // Ensure we are working with an enum
     let event_enum = match &item.data {
         Data::Enum(data_enum) => data_enum,
         _ => panic!("Event can only be derived for enums"),
@@ -18,8 +17,8 @@ pub fn parse(item: DeriveInput) -> TokenStream {
 
     let enum_name = &item.ident;
 
-     // Generate ABI signature
-     let abi_signature = generate_abi_signature(enum_name, &event_enum.variants);
+    // Generate ABI signature
+    let abi_signature = generate_abi_signature(enum_name, &event_enum.variants);
 
     let variant_implementations = event_enum
         .variants
@@ -43,25 +42,25 @@ pub fn parse(item: DeriveInput) -> TokenStream {
                 }
             }
 
-            fn log1(&self) {
+            fn log1(&self, topic: &'static [u8]) {
                 match self {
                     #(#variant_implementations)*
                 }
             }
 
-            fn log2(&self) {
+            fn log2(&self, topic1: &'static [u8], topic2: &'static [u8]) {
                 match self {
                     #(#variant_implementations)*
                 }
             }
 
-            fn log3(&self) {
+            fn log3(&self, topic1: &'static [u8], topic2: &'static [u8], topic3: &'static [u8]) {
                 match self {
                     #(#variant_implementations)*
                 }
             }
 
-            fn log4(&self) {
+            fn log4(&self, topic1: &'static [u8], topic2: &'static [u8], topic3: &'static [u8], topic4: &'static [u8]) {
                 match self {
                     #(#variant_implementations)*
                 }
@@ -72,7 +71,7 @@ pub fn parse(item: DeriveInput) -> TokenStream {
     expanded.into()
 }
 
-/// Generate implementation for a specific variant
+/// Generate Variant Implementation
 fn generate_variant_implementation(
     enum_name: &syn::Ident,
     variant: &Variant,
@@ -84,18 +83,14 @@ fn generate_variant_implementation(
             let field_names: Vec<_> = fields.named.iter().map(|f| &f.ident).collect();
             quote! {
                 #enum_name::#variant_name { #(#field_names),* } => {
+                    let topic = generate_topic_hash(stringify!(#variant_name));
                     let data = vec![
                         #(
-                            // Basic serialization - can be expanded
                             format!("{:?}", #field_names).into_bytes()
                         ),*
                     ];
-
-                    zink::sys::log2(
-                        &generate_topic_hash(stringify!(#variant_name)),
-                        &generate_data_hash(&data),
-                        data
-                    )
+                    let flattened_data: Vec<u8> = data.concat();
+                    zink::ffi::evm::log2(&topic, &generate_data_hash(&data), &flattened_data)
                 }
             }
         }
@@ -104,31 +99,29 @@ fn generate_variant_implementation(
             let field_indices_clone = field_indices.clone();
             quote! {
                 #enum_name::#variant_name(#(field #field_indices_clone),*) => {
+                    let topic = generate_topic_hash(stringify!(#variant_name));
                     let data = vec![
                         #(
                             format!("{:?}", field #field_indices).into_bytes()
                         ),*
                     ];
-
-                    zink::sys::log2(
-                        &generate_topic_hash(stringify!(#variant_name)),
-                        &generate_data_hash(&data),
-                        data
-                    )
+                    let flattened_data: Vec<u8> = data.concat();
+                    zink::ffi::evm::log2(&topic, &generate_data_hash(&data), &flattened_data)
                 }
             }
         }
         Fields::Unit => {
             quote! {
                 #enum_name::#variant_name => {
-                    zink::sys::log0(&[])
+                    zink::ffi::evm::log0(&generate_topic_hash(stringify!(#variant_name)))
                 }
             }
         }
     }
 }
 
-///Generate abi signature
+
+/// Generate ABI signature
 fn generate_abi_signature(
     enum_name: &syn::Ident, 
     variants: &syn::punctuated::Punctuated<Variant, syn::Token![,]>
@@ -161,19 +154,19 @@ fn generate_abi_signature(
     }
 }
 
-///Generate topic hash
+/// Generate topic hash
 fn generate_topic_hash(input: &str) -> [u8; 32] {
     Keccak256::digest(input.as_bytes()).into()
 }
 
-///Generate data hash
-fn generate_data_hash(data: &[Vec<u8>]) -> [u8; 32] {
+/// Generate data hash
+pub fn generate_data_hash(data: &[Vec<u8>]) -> [u8; 32] {
     let flattened: Vec<u8> = data.concat();
     Keccak256::digest(&flattened).into()
 }
 
 fn type_to_string(ty: &syn::Type) -> String {
-    // use quote to convert the type to a token stream, then to a string
+    // Use quote to convert the type to a token stream, then to a string
     let type_tokens = quote! { #ty };
     type_tokens.to_string()
         .replace(' ', "")  
