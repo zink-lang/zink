@@ -75,3 +75,41 @@ pub fn external(_args: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemFn);
     selector::external(input)
 }
+
+/// Bounds for Arithmetic Primitives
+trait SafeArithmetic: Sized {
+    fn safe_add(self, rhs: Self) -> Self;
+    fn safe_sub(self, rhs: Self) -> Self;
+    fn safe_mul(self, rhs: Self) -> Self;
+    fn safe_div(self, rhs: Self); 
+}
+
+macro_rules! impl_safe_arithmetic {
+    ($t:ty) => {
+        impl SafeArithmetic for $t {
+            fn safe_add(self, rhs: Self) -> Self {
+                self.checked_add(rhs)
+                    .unwrap_or_else(|| revert!(concat!(stringify!($t), " addition overflow")))
+            }
+
+            fn safe_sub(self, rhs: Self) -> Self {
+                self.checked_sub(rhs)
+                    .unwrap_or_else(|| revert!(concat!(stringify!($t), " subtraction overflow")))
+            }
+
+            fn safe_mul(self, rhs: Self) -> Self {
+                self.checked_mul(rhs)
+                    .unwrap_or_else(|| revert!(concat!(stringify!($t), " multiplication overflow")))
+            }
+
+            fn safe_div(self, rhs: Self) -> Self {
+                if rhs == 0 {
+                    revert!(concat!(stringify!($t), " division by zero"))
+                } else {
+                    self.checked_div(rhs)
+                        .unwrap_or_else(|| revert!(concat!(stringify!($t), " division overflow")))
+                }
+            }
+        }
+    };
+}
