@@ -43,13 +43,13 @@ impl U256 {
     /// Addmod for U256
     #[inline(always)]
     pub fn addmod(self, other: Self, modulus: Self) -> Self {
-        unsafe { ffi::u256_addmod(modulus, self, other) }
+        unsafe { ffi::u256_addmod(modulus, other, self) }
     }
 
     /// Mulmod for U256
     #[inline(always)]
     pub fn mulmod(self, other: Self, modulus: Self) -> Self {
-        unsafe { ffi::u256_mulmod(modulus, self, other) }
+        unsafe { ffi::u256_mulmod(modulus, other, self) }
     }
 }
 
