@@ -97,6 +97,7 @@ readme = "zink/README.md"
 path = "zink/src/lib.rs"
 
 [dependencies]
+fmt = "0.1.0"
 paste.workspace = true
 zink-codegen.workspace = true
 

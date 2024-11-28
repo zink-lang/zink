@@ -26,6 +26,12 @@ extern "C" {
     /// Equal operation for addresses
     pub fn u256_max() -> U256;
 
+    /// Addmod operation for addresses
+    pub fn u256_addmod(this: U256, other: U256, modulus: U256) -> U256;
+
+    /// Equal operation for addresses
+    pub fn u256_mulmod(this: U256, other: U256, modulus: U256) -> U256;
+
     /// Set up a label for reserving 32 bytes in memory
     pub fn label_reserve_mem_32();
 
