@@ -108,8 +108,7 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a></pre></div><pre class="rust"><code><span class="doccomment">//! Target related operations of the jump table.
+<a href="#110" id="110">110</a></pre></div><pre class="rust"><code><span class="doccomment">//! Target related operations of the jump table.
 //!
 //! This module provides functions to retrieve and shift the target program counters
 //! associated with various jump types.
@@ -126,7 +125,6 @@
     /// (offset, label, function, or external function).
     </span><span class="kw">pub fn </span>target(<span class="kw-2">&amp;</span><span class="self">self</span>, jump: <span class="kw-2">&amp;</span>Jump) -&gt; <span class="prelude-ty">Result</span>&lt;u16&gt; {
         <span class="kw">match </span>jump {
-            Jump::Offset(offset) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>offset),
             Jump::Label(label) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>label),
             Jump::Func(func) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span>.func.get(func).ok_or(Error::FuncNotFound(<span class="kw-2">*</span>func))<span class="question-mark">?</span>),
             Jump::ExtFunc(ext) =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.code.offset_of(ext).ok_or(Error::ExtFuncNotFound)<span class="question-mark">?</span>),
@@ -139,26 +137,33 @@
     /// counter and the target, adjusting for any offsets.
     </span><span class="kw">pub fn </span>shift_targets(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>total_offset = <span class="number">0</span>;
-        <span class="kw">for </span>(original_pc, jump) <span class="kw">in </span><span class="self">self</span>.jump.clone().iter() {
-            <span class="macro">tracing::debug!</span>(<span class="string">"shift targets for {jump} &lt;- (0x{original_pc:x})"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>target_sizes = Vec::new();
+        <span class="kw">let </span>jumps = <span class="self">self</span>.jump.clone();
+
+        <span class="comment">// First pass: calculate all target sizes and accumulate offsets
+        </span><span class="kw">for </span>(original_pc, jump) <span class="kw">in </span>jumps.iter() {
             <span class="kw">let </span>pc = original_pc + total_offset;
+            <span class="kw">let </span>target = <span class="self">self</span>.target(jump)<span class="question-mark">? </span>+ total_offset;
 
-            <span class="comment">// Determine the size of the target PC based on its value.
-            </span><span class="kw">let </span>target = <span class="self">self</span>.target(jump)<span class="question-mark">? </span>+ total_offset;
-
-            <span class="comment">/* if jump.is_offset() {
-                target += original_pc;
-            } */
-
-            </span><span class="kw">let </span>offset = <span class="kw">if </span>target &gt; <span class="number">0xff </span>{
-                <span class="number">3 </span><span class="comment">// Requires 3 bytes for processing the JUMP target offset
+            <span class="comment">// Calculate instruction size based on absolute target value
+            </span><span class="kw">let </span>instr_size = <span class="kw">if </span>target &gt; <span class="number">0xff </span>{
+                <span class="number">3 </span><span class="comment">// PUSH2 + 2 bytes
             </span>} <span class="kw">else </span>{
-                <span class="number">2 </span><span class="comment">// Requires 2 bytes
+                <span class="number">2 </span><span class="comment">// PUSH1 + 1 byte
             </span>};
 
-            <span class="self">self</span>.shift_target(pc, offset)<span class="question-mark">?</span>;
-            total_offset += offset;
+            target_sizes.push((pc, instr_size));
+            total_offset += instr_size;
         }
+
+        <span class="comment">// Second pass: apply shifts with accumulated offsets
+        </span>total_offset = <span class="number">0</span>;
+        <span class="kw">for </span>(pc, size) <span class="kw">in </span>target_sizes {
+            <span class="macro">tracing::debug!</span>(<span class="string">"shift target at pc=0x{pc:x} with size={size}"</span>);
+            <span class="self">self</span>.shift_target(pc, size)<span class="question-mark">?</span>;
+            total_offset += size;
+        }
+
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -167,22 +172,19 @@
     /// This function handles the shifting of the code section, label targets, and
     /// function targets.
     </span><span class="kw">pub fn </span>shift_target(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ptr: u16, offset: u16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.code.shift(offset);
-        <span class="self">self</span>.shift_label_target(ptr, offset)<span class="question-mark">?</span>;
+        <span class="comment">// First shift the code section
+        </span><span class="self">self</span>.code.shift(offset);
+
+        <span class="comment">// Only shift targets that are after ptr
+        </span><span class="self">self</span>.shift_label_target(ptr, offset)<span class="question-mark">?</span>;
         <span class="self">self</span>.shift_func_target(ptr, offset)
     }
 
     <span class="doccomment">/// Shifts the program counter for functions.
     </span><span class="kw">pub fn </span>shift_func_target(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ptr: u16, offset: u16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span><span class="self">self</span>.func.is_empty() {
-            <span class="macro">tracing::trace!</span>(<span class="string">"No functions to shift."</span>);
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-        }
-
         <span class="self">self</span>.func.iter_mut().try_for_each(|(index, target)| {
-            <span class="kw">let </span>next_target = <span class="kw-2">*</span>target + offset;
-
             <span class="kw">if </span><span class="kw-2">*</span>target &gt; ptr {
+                <span class="kw">let </span>next_target = <span class="kw-2">*</span>target + offset;
                 <span class="macro">tracing::trace!</span>(
                     <span class="string">"shift Func({index}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -&gt; 0x{:x}"</span>,
                     next_target
@@ -197,27 +199,23 @@
 
     <span class="doccomment">/// Shifts the program counter for labels.
     </span><span class="kw">pub fn </span>shift_label_target(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ptr: u16, offset: u16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span><span class="self">self</span>.jump.is_empty() {
-            <span class="macro">tracing::trace!</span>(<span class="string">"No labels to shift."</span>);
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-        }
+        <span class="kw">for </span>(<span class="kw">_</span>, jump) <span class="kw">in </span><span class="self">self</span>.jump.iter_mut() {
+            <span class="kw">let </span>Jump::Label(target) = jump <span class="kw">else </span>{
+                <span class="kw">continue</span>;
+            };
 
-        <span class="self">self</span>.jump.iter_mut().try_for_each(|(pc, jump)| {
-            <span class="kw">if let </span>Jump::Label(target) = jump {
+            <span class="comment">// Only shift targets that come after ptr AND
+            // only if the jump instruction itself comes after ptr
+            </span><span class="kw">if </span><span class="kw-2">*</span>target &gt; ptr {
                 <span class="kw">let </span>next_target = <span class="kw-2">*</span>target + offset;
-
-                <span class="kw">if </span><span class="kw-2">*</span>target &gt; ptr {
-                    <span class="macro">tracing::trace!</span>(
-                        <span class="string">"shift Label(0x{pc:x}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -&gt; 0x{:x}"</span>,
-                        next_target,
-                    );
-
-                    <span class="kw-2">*</span>target = next_target;
-                }
+                <span class="macro">tracing::trace!</span>(
+                    <span class="string">"shift Label target with offset={offset}: 0x{target:x}(0x{ptr:x}) -&gt; 0x{:x}"</span>,
+                    next_target,
+                );
+                <span class="kw-2">*</span>target = next_target;
             }
-
-            <span class="prelude-val">Ok</span>(())
-        })
+        }
+        <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div></section></main></body></html>

@@ -168,7 +168,7 @@
         <span class="self">self</span>.asm.increment_sp(<span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Prepare the `PC` of the callee function.
-        </span><span class="self">self</span>.table.call(<span class="self">self</span>.asm.pc_offset(), func);
+        </span><span class="self">self</span>.table.call(<span class="self">self</span>.asm.pc(), func);
 
         <span class="kw">if </span>last {
             <span class="self">self</span>.asm._swap1()<span class="question-mark">?</span>;

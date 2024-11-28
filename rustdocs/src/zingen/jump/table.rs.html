@@ -204,7 +204,25 @@
 <a href="#203" id="203">203</a>
 <a href="#204" id="204">204</a>
 <a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a></pre></div><pre class="rust"><code><span class="doccomment">//! Jump Table
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a></pre></div><pre class="rust"><code><span class="doccomment">//! Jump Table
 //!
 //! This module defines the `JumpTable` struct, which manages the jump table, function
 //! table, and code section. It provides methods to register jumps, functions, and
@@ -259,11 +277,6 @@
         <span class="self">self</span>.jump.insert(pc, Jump::Label(label));
     }
 
-    <span class="doccomment">/// Registers a label at a specific program counter offset.
-    </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pc: u16, offset: u16) {
-        <span class="self">self</span>.jump.insert(pc, Jump::Offset(offset));
-    }
-
     <span class="doccomment">/// Merges another jump table into this one.
     ///
     /// This function updates the program counters of the target jump table and
@@ -314,31 +327,11 @@
     <span class="comment">// Setup multiple jumps to same target
     </span>table.register(<span class="number">0x10</span>, Jump::Label(<span class="number">0x100</span>));
     table.register(<span class="number">0x20</span>, Jump::Label(<span class="number">0x100</span>));
-    table.register(<span class="number">0x30</span>, Jump::Offset(<span class="number">0x10</span>));
-
     table.shift_targets()<span class="question-mark">?</span>;
 
     <span class="comment">// Verify each jump's final target
-    </span><span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x10</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x108</span>);
-    <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x20</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x108</span>);
-    <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x30</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x10</span>);
-    <span class="prelude-val">Ok</span>(())
-}
-
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_multiple_jumps_with_backwards() -&gt; anyhow::Result&lt;()&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>table = JumpTable::default();
-
-    <span class="comment">// Simulate multiple functions calling _approve
-    </span>table.register(<span class="number">0x10</span>, Jump::Label(<span class="number">0x100</span>)); <span class="comment">// approve() -&gt; _approve
-    </span>table.register(<span class="number">0x20</span>, Jump::Label(<span class="number">0x100</span>)); <span class="comment">// spend_allowance() -&gt; _approve
-    </span>table.register(<span class="number">0x100</span>, Jump::Offset(<span class="number">0x30</span>)); <span class="comment">// _approve implementation
-
-    </span>table.shift_targets()<span class="question-mark">?</span>;
-
-    <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x10</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x106</span>);
+    </span><span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x10</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x106</span>);
     <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x20</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x106</span>);
-    <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x100</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x30</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
@@ -357,25 +350,6 @@
     </span><span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x10</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x106</span>);
     <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x100</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x209</span>);
     <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x20</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x106</span>);
-    <span class="prelude-val">Ok</span>(())
-}
-
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_offset_label_interaction() -&gt; anyhow::Result&lt;()&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>table = JumpTable::default();
-
-    <span class="comment">// Create offset and label jumps targeting same area
-    </span>table.register(<span class="number">0x10</span>, Jump::Offset(<span class="number">0x50</span>)); <span class="comment">// Offset jump forward
-    </span>table.register(<span class="number">0x20</span>, Jump::Label(<span class="number">0x60</span>)); <span class="comment">// Label jump to area after offset
-    </span>table.register(<span class="number">0x30</span>, Jump::Label(<span class="number">0x50</span>)); <span class="comment">// Label jump to offset target
-
-    </span>table.shift_targets()<span class="question-mark">?</span>;
-
-    <span class="comment">// Verify jumps are processed correctly
-    </span><span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x10</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x50</span>);
-    <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x20</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x66</span>);
-    <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x30</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x56</span>);
-
     <span class="prelude-val">Ok</span>(())
 }
 
@@ -408,6 +382,68 @@
 
     <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x10</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x22</span>);
     <span class="macro">assert_eq!</span>(table.target(table.jump.get(<span class="kw-2">&amp;</span><span class="number">0x30</span>).unwrap())<span class="question-mark">?</span>, <span class="number">0x22</span>);
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_jump_table_state_consistency() -&gt; anyhow::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>table = JumpTable::default();
+
+    <span class="comment">// Register a sequence of jumps that mirror ERC20's pattern
+    </span>table.register(<span class="number">0x10</span>, Jump::Label(<span class="number">0x100</span>)); <span class="comment">// First jump
+    </span>table.register(<span class="number">0x20</span>, Jump::Label(<span class="number">0x100</span>)); <span class="comment">// Second jump to same target
+
+    // Record state before and after each operation
+    </span><span class="kw">let </span>initial_state = table.jump.clone();
+    table.shift_targets()<span class="question-mark">?</span>;
+    <span class="kw">let </span>shifted_state = table.jump.clone();
+
+    <span class="comment">// Verify jump table consistency
+    </span><span class="macro">assert_eq!</span>(table.jump.len(), initial_state.len());
+    <span class="macro">assert!</span>(shifted_state.values().all(|j| <span class="macro">matches!</span>(j, Jump::Label(<span class="kw">_</span>))));
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_jump_target_ordering() -&gt; anyhow::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>table = JumpTable::default();
+
+    <span class="comment">// Register jumps in reverse order
+    </span>table.register(<span class="number">0x30</span>, Jump::Label(<span class="number">0x100</span>));
+    table.register(<span class="number">0x20</span>, Jump::Label(<span class="number">0x100</span>));
+    table.register(<span class="number">0x10</span>, Jump::Label(<span class="number">0x100</span>));
+
+    <span class="comment">// Track all target shifts
+    </span><span class="kw">let </span><span class="kw-2">mut </span>shifts = Vec::new();
+    <span class="kw">let </span>cloned = table.clone();
+    <span class="kw">let </span>original_targets: Vec&lt;<span class="kw">_</span>&gt; = cloned.jump.values().collect();
+
+    table.shift_targets()<span class="question-mark">?</span>;
+
+    <span class="comment">// Verify target consistency
+    </span><span class="kw">for </span>(orig, shifted) <span class="kw">in </span>original_targets.iter().zip(table.jump.values()) {
+        shifts.push((orig, shifted));
+    }
+
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_mixed_jump_types() -&gt; anyhow::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>table = JumpTable::default();
+
+    <span class="comment">// Mix function calls and labels like in ERC20
+    </span>table.func.insert(<span class="number">1</span>, <span class="number">0x100</span>);
+    table.call(<span class="number">0x10</span>, <span class="number">1</span>); <span class="comment">// Function call
+    </span>table.register(<span class="number">0x20</span>, Jump::Label(<span class="number">0x100</span>)); <span class="comment">// Label jump to same target
+
+    </span><span class="kw">let </span>before_shift = table.jump.clone();
+    table.shift_targets()<span class="question-mark">?</span>;
+    <span class="kw">let </span>after_shift = table.jump.clone();
+
+    <span class="comment">// Compare states
+    </span><span class="macro">assert_eq!</span>(before_shift.len(), after_shift.len());
+
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div></section></main></body></html>

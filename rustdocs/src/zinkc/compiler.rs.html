@@ -127,7 +127,8 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink compiler
 
 </span><span class="kw">use crate</span>::{parser::Parser, Artifact, Config, Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>zabi::Abi;
@@ -186,6 +187,7 @@
             ..
         } = <span class="self">self</span>;
 
+        <span class="macro">tracing::debug!</span>(<span class="string">"code length: {}"</span>, buffer.len());
         <span class="prelude-val">Ok</span>(Artifact {
             abi,
             config,

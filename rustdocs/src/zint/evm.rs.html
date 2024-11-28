@@ -258,7 +258,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'e</span>&gt; EVM&lt;<span class="lifetime">'e</span>&gt; {
+<span class="kw">impl </span>EVM&lt;<span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Interpret runtime bytecode with provided arguments
     </span><span class="kw">pub fn </span>interp(runtime_bytecode: <span class="kw-2">&amp;</span>[u8], input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Info&gt; {
         <span class="self">Self</span>::default()

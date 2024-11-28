@@ -129,20 +129,7 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a></pre></div><pre class="rust"><code><span class="doccomment">//! Call Instructions
+<a href="#131" id="131">131</a></pre></div><pre class="rust"><code><span class="doccomment">//! Call Instructions
 //!
 //! This module provides functionality for calling functions, both internal and imported,
 //! within the execution environment. It handles the setup of the call stack, manages
@@ -211,25 +198,9 @@
         <span class="kw">let </span>reserved = <span class="self">self</span>.env.slots.get(<span class="kw-2">&amp;</span>index).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
         <span class="kw">let </span>(params, results) = <span class="self">self</span>.env.funcs.get(<span class="kw-2">&amp;</span>index).unwrap_or(<span class="kw-2">&amp;</span>(<span class="number">0</span>, <span class="number">0</span>));
 
-        <span class="comment">// Prepare the stack structure for the function call.
-        // The stack will be structured as follows:
-        // [ ..,
-        //   &lt;PC&gt;,                         // The current program counter
-        //   params[SWAP],                 // Swap the parameters for the call
-        //   params[PUSH, SLOT, MSTORE],   // Push parameters to the stack
-        //   {(PUSH, PC), JUMP, JUMPDEST}   // Prepare for the jump to the callee
-        // ]
-        </span><span class="kw">let </span>base_offset = <span class="number">5 </span>+ ((params + reserved) * <span class="number">0x20</span>).saturating_sub(<span class="number">0xff</span>) / <span class="number">0x20</span>;
-
-        <span class="comment">// Move the PC before the parameters in the stack.
-        </span><span class="self">self</span>.table.offset(
-            <span class="self">self</span>.masm.pc_offset(),
-            base_offset <span class="kw">as </span>u16 + <span class="number">4 </span>* (<span class="kw-2">*</span>params <span class="kw">as </span>u16),
-        );
-        <span class="self">self</span>.masm.increment_sp(<span class="number">1</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// Adjust the stack to place the PC before the parameters.
-        </span><span class="self">self</span>.masm.shift_stack(<span class="kw-2">*</span>params <span class="kw">as </span>u8, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
+        <span class="comment">// TODO This is a temporary fix to avoid stack underflow.
+        // We need to find a more elegant solution for this.
+        </span><span class="self">self</span>.masm.increment_sp(<span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Store parameters in memory and register the call index in the jump table.
         </span><span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..<span class="kw-2">*</span>params).rev() {
@@ -238,15 +209,18 @@
             <span class="self">self</span>.masm._mstore()<span class="question-mark">?</span>;
         }
 
-        <span class="comment">// Register the call index in the jump table.
-        </span><span class="self">self</span>.table.call(<span class="self">self</span>.masm.pc_offset(), index);
+        <span class="comment">// Register the label to jump back.
+        </span><span class="kw">let </span>return_pc = <span class="self">self</span>.masm.pc() + <span class="number">2</span>;
+        <span class="self">self</span>.table.label(<span class="self">self</span>.masm.pc(), return_pc);
+        <span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>; <span class="comment">// TODO: support same pc different label
 
-        <span class="comment">// Jump to the callee function.
+        // Register the call index in the jump table.
+        </span><span class="self">self</span>.table.call(<span class="self">self</span>.masm.pc(), index); <span class="comment">// [PUSHN, CALL_PC]
         </span><span class="self">self</span>.masm._jump()<span class="question-mark">?</span>;
-        <span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
 
         <span class="comment">// Adjust the stack pointer for the results.
-        </span><span class="self">self</span>.masm.increment_sp(<span class="kw-2">*</span>results <span class="kw">as </span>u8)<span class="question-mark">?</span>;
+        </span><span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
+        <span class="self">self</span>.masm.increment_sp(<span class="kw-2">*</span>results <span class="kw">as </span>u8)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 

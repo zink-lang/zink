@@ -93,37 +93,7 @@
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a></pre></div><pre class="rust"><code><span class="doccomment">//! Program Relocations
+<a href="#95" id="95">95</a></pre></div><pre class="rust"><code><span class="doccomment">//! Program Relocations
 //!
 //! This module provides functionality for relocating program counters associated
 //! with various jump types in the jump table. It handles the adjustment of
@@ -161,12 +131,7 @@
                 pc,
                 <span class="self">self</span>.code.offset()
             );
-            <span class="kw">let </span><span class="kw-2">mut </span>target = <span class="self">self</span>.target(<span class="kw-2">&amp;</span>jump)<span class="question-mark">?</span>;
-
-            <span class="comment">// If the jump is an offset, adjust the target accordingly.
-            </span><span class="kw">if </span>jump.is_offset() {
-                <span class="self">self</span>.update_offset_target(pc, <span class="kw-2">&amp;mut </span>target)<span class="question-mark">?</span>;
-            }
+            <span class="kw">let </span>target = <span class="self">self</span>.target(<span class="kw-2">&amp;</span>jump)<span class="question-mark">?</span>;
 
             <span class="macro">tracing::debug!</span>(
                 <span class="string">"relocate: pc=0x{:x}, jump={:?}, target=0x{:x}"</span>,
@@ -182,31 +147,6 @@
 
         <span class="comment">// Extend the buffer with the finished code section.
         </span>buffer.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.code.finish());
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Relocate the target of an offset jump.
-    ///
-    /// This function adjusts the target program counter for jumps that are
-    /// represented as offsets. It modifies the target based on the original
-    /// program counter and checks for specific conditions that may require
-    /// further adjustments.
-    </span><span class="kw">fn </span>update_offset_target(<span class="kw-2">&amp;</span><span class="self">self</span>, pc: u16, target: <span class="kw-2">&amp;mut </span>u16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="comment">// NOTE: If the target is offset, the return data is the offset instead of the PC.
-        </span><span class="kw-2">*</span>target += pc;
-
-        <span class="comment">// Check if the original program counter of the offset is greater than 0xff.
-        </span><span class="kw">if </span><span class="kw-2">*</span>target &gt; <span class="number">0xff </span>{
-            <span class="kw-2">*</span>target += <span class="number">1</span>;
-        }
-
-        <span class="comment">// Check if the offset of the embedded call is greater than 0xff.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, next_target)) = <span class="self">self</span>.jump.first_key_value() {
-            <span class="kw">if </span>next_target.is_call() &amp;&amp; <span class="self">self</span>.target(next_target)<span class="question-mark">? </span>&gt; <span class="number">0xff </span>{
-                <span class="kw-2">*</span>target += <span class="number">1
-            </span>}
-        }
-
         <span class="prelude-val">Ok</span>(())
     }
 }

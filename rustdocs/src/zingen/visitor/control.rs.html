@@ -183,8 +183,7 @@
 <a href="#182" id="182">182</a>
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a></pre></div><pre class="rust"><code><span class="doccomment">//! Control flow visitors
+<a href="#185" id="185">185</a></pre></div><pre class="rust"><code><span class="doccomment">//! Control flow visitors
 
 </span><span class="kw">use crate</span>::{
     control::{ControlStackFrame, ControlStackFrameType},
@@ -201,7 +200,7 @@
         <span class="comment">// push an `If` frame to the control stack
         </span><span class="kw">let </span>frame = ControlStackFrame::new(
             ControlStackFrameType::If(<span class="bool-val">false</span>),
-            <span class="self">self</span>.masm.pc_offset(),
+            <span class="self">self</span>.masm.pc(),
             <span class="self">self</span>.masm.sp(),
             blockty,
         );
@@ -221,7 +220,7 @@
     </span><span class="kw">pub fn </span>_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blockty: BlockType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>frame = ControlStackFrame::new(
             ControlStackFrameType::Block,
-            <span class="self">self</span>.masm.pc_offset(),
+            <span class="self">self</span>.masm.pc(),
             <span class="self">self</span>.masm.sp(),
             blockty,
         );
@@ -236,7 +235,7 @@
     </span><span class="kw">pub fn </span>_loop(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blockty: BlockType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>frame = ControlStackFrame::new(
             ControlStackFrameType::Loop,
-            <span class="self">self</span>.masm.pc_offset(),
+            <span class="self">self</span>.masm.pc(),
             <span class="self">self</span>.masm.sp(),
             blockty,
         );
@@ -254,7 +253,7 @@
         <span class="comment">// push an `Else` frame to the control stack.
         </span><span class="kw">let </span>frame = ControlStackFrame::new(
             ControlStackFrameType::Else,
-            <span class="self">self</span>.masm.pc_offset(),
+            <span class="self">self</span>.masm.pc(),
             <span class="self">self</span>.masm.sp(),
             last_frame.result(),
         );
@@ -264,7 +263,7 @@
 
         <span class="comment">// mark else as the jump destination of the if block.
         </span><span class="self">self</span>.table
-            .label(last_frame.original_pc_offset, <span class="self">self</span>.masm.pc_offset());
+            .label(last_frame.original_pc_offset, <span class="self">self</span>.masm.pc());
         <span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -278,7 +277,7 @@
         <span class="macro">tracing::trace!</span>(<span class="string">"select"</span>);
         <span class="self">self</span>.masm._iszero()<span class="question-mark">?</span>;
         <span class="self">self</span>.masm.increment_sp(<span class="number">1</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.table.offset(<span class="self">self</span>.masm.pc_offset(), <span class="number">4</span>);
+        <span class="self">self</span>.table.label(<span class="self">self</span>.masm.pc(), <span class="self">self</span>.masm.pc() + <span class="number">2</span>);
         <span class="self">self</span>.masm._jumpi()<span class="question-mark">?</span>;
         <span class="self">self</span>.masm._drop()<span class="question-mark">?</span>;
         <span class="self">self</span>.masm._jumpdest()<span class="question-mark">?</span>;
@@ -299,7 +298,7 @@
     /// Conditional branch to a given label in an enclosing construct.
     </span><span class="kw">pub fn </span>_br_if(<span class="kw-2">&amp;mut </span><span class="self">self</span>, depth: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>label = <span class="self">self</span>.control.label_from_depth(depth)<span class="question-mark">?</span>;
-        <span class="self">self</span>.table.label(<span class="self">self</span>.masm.pc_offset(), label);
+        <span class="self">self</span>.table.label(<span class="self">self</span>.masm.pc(), label);
         <span class="self">self</span>.masm.asm.increment_sp(<span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.masm._jumpi()<span class="question-mark">?</span>;
 
@@ -358,13 +357,12 @@
             ControlStackFrameType::Block =&gt; <span class="self">self</span>.masm._jumpdest(),
             ControlStackFrameType::Loop =&gt; <span class="prelude-val">Ok</span>(()),
             <span class="kw">_ </span>=&gt; {
-                <span class="self">self</span>.table
-                    .label(frame.original_pc_offset, <span class="self">self</span>.masm.pc_offset());
+                <span class="self">self</span>.table.label(frame.original_pc_offset, <span class="self">self</span>.masm.pc());
 
                 <span class="comment">// TODO: Check the stack output and make decisions
                 // how to handle the results.
 
-                // Emit JUMPDEST after at the end of the control flow.
+                // Emit JUMPDEST at the end of the control flow.
                 </span><span class="self">self</span>.masm._jumpdest()
             }
         }
