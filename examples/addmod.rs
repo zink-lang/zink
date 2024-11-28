@@ -36,8 +36,7 @@ fn main() {}
 #[test]
 fn test() -> anyhow::Result<()> {
     use zint::{Bytes32 as _, Contract};
-    use zink::primitives::Asm;
-    
+
     // Test for i32
     let mut contract = Contract::search("addmod")?.compile()?;
 
