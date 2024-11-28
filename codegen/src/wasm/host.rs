@@ -58,6 +58,10 @@ impl TryFrom<(&str, &str)> for HostFunc {
 
                     // TODO: use anyhow instead of Error
                     Ok(Self::Revert(count.parse().map_err(|e| anyhow!("{e}"))?))
+                } else if name.starts_with("mulmod") {
+                    Ok(Self::Evm(OpCode::MULMOD))
+                } else if name.starts_with("addmod") {
+                    Ok(Self::Evm(OpCode::ADDMOD))
                 } else {
                     Ok(Self::NoOp)
                 }
