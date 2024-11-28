@@ -12,11 +12,11 @@ macro_rules! impl_numeric {
             impl Numeric for $t {
                 #[inline(always)]
                 fn addmod(self, other: Self, n: Self) -> Self {
-                    unsafe { ffi::asm::$addmod_fn(self, other, n) }
+                    unsafe { ffi::asm::$addmod_fn(n, other, self) }
                 }
                 #[inline(always)]
                 fn mulmod(self, other: Self, n: Self) -> Self {
-                    unsafe { ffi::asm::$mulmod_fn(self, other, n) }
+                    unsafe { ffi::asm::$mulmod_fn(n, other, self) }
                 }
             }
         )*

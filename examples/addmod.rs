@@ -3,7 +3,7 @@
 #![cfg_attr(target_arch = "wasm32", no_main)]
 
 extern crate zink;
-use zink::primitives::numeric::Numeric;
+use zink::primitives::{numeric::Numeric, U256};
 
 #[zink::external]
 pub fn addmod_i32(a: i32, b: i32, n: i32) -> i32 {
@@ -22,6 +22,11 @@ pub fn addmod_u32(a: u32, b: u32, n: u32) -> u32 {
 
 #[zink::external]
 pub fn addmod_u64(a: u64, b: u64, n: u64) -> u64 {
+    a.addmod(b, n)
+}
+
+#[zink::external]
+pub fn addmod_U256(a: U256, b: U256, n: U256) -> U256 {
     a.addmod(b, n)
 }
 
@@ -74,6 +79,16 @@ fn test() -> anyhow::Result<()> {
         &7u64.to_bytes32(),
     ])?;
     assert_eq!(info_u64.ret, 1u64.to_bytes32());
+
+    // Test for U256
+    let mut contract_u256 = Contract::search("addmod_U256")?.compile()?;
+    let info_u256 = contract_u256.execute([
+        "addmod_U256(uint256,uint256,uint256)".as_bytes(),
+        &U256::from(3).to_bytes32(),
+        &U256::from(5).to_bytes32(),
+        &U256::from(7).to_bytes32(),
+    ])?;
+    assert_eq!(info_u256.ret, U256::from(1).to_bytes32());
 
     Ok(())
 }
