@@ -198,7 +198,7 @@ fn deploy() -> anyhow::Result<()> {
     assert_eq!(info.ret, 8u64.to_bytes32(), "{info:?}");
 
     // TODO: refactor offset handling (#280)
-    // // 6. check approval
+    // 6. check approval
     // let value = 42;
     // let spender = [42; 20];
     // let info = evm

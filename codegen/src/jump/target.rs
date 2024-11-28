@@ -27,23 +27,32 @@ impl JumpTable {
     /// counter and the target, adjusting for any offsets.
     pub fn shift_targets(&mut self) -> Result<()> {
         let mut total_offset = 0;
-        for (original_pc, jump) in self.jump.clone().iter() {
-            tracing::debug!("shift targets for {jump} <- (0x{original_pc:x})");
-            let pc = original_pc + total_offset;
+        let mut target_sizes = Vec::new();
 
-            // Determine the size of the target PC based on its value.
+        // First pass: calculate all target sizes
+        for (original_pc, jump) in self.jump.clone().iter() {
+            let pc = original_pc + total_offset;
             let target = self.target(jump)? + total_offset;
-            let offset = if target > 0xff {
-                3 // Requires 3 bytes for processing the JUMP target offset
+
+            // Calculate instruction size based on target value
+            let instr_size = if target > 0xff {
+                3 // PUSH2 + 2 bytes
             } else {
-                2 // Requires 2 bytes
+                2 // PUSH1 + 1 byte
             };
 
-            tracing::trace!("before shifting: pc=0x{pc:x}, offset={offset:x}, table={self:?}");
-            self.shift_target(pc, offset)?;
-            tracing::trace!("after shifting: table={self:?}");
-            total_offset += offset;
+            target_sizes.push((pc, instr_size));
+            total_offset += instr_size;
         }
+
+        // Second pass: apply shifts with correct accumulated offsets
+        total_offset = 0;
+        for (pc, size) in target_sizes {
+            tracing::debug!("shift target at pc=0x{pc:x} with size={size}");
+            self.shift_target(pc, size)?;
+            total_offset += size;
+        }
+
         Ok(())
     }
 
