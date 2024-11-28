@@ -81,7 +81,7 @@ impl<'f> Deref for Functions<'f> {
     }
 }
 
-impl<'f> DerefMut for Functions<'f> {
+impl DerefMut for Functions<'_> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
