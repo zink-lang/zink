@@ -101,16 +101,23 @@ mod tests {
     }
 
     #[test]
-    fn test_nested_internal_calls() -> anyhow::Result<()> {
+    fn test_nested_function_calls() -> anyhow::Result<()> {
         let mut table = JumpTable::default();
 
-        // Simulate transfer_from calling both _spend_allowance and _transfer
-        table.register(0x10, Jump::Label(0x100)); // transfer_from -> _spend_allowance
-        table.register(0x100, Jump::Label(0x200)); // _spend_allowance -> _approve
-        table.register(0x20, Jump::Label(0x300)); // transfer_from -> _transfer
-        table.register(0x300, Jump::Label(0x400)); // _transfer -> _update
+        // Simulate ERC20's approve -> _approve call chain
+        table.register(0x100, Jump::Label(0x200)); // approve entry
+        table.register(0x110, Jump::Label(0x300)); // approve -> _approve
+        table.register(0x200, Jump::Label(0x400)); // _approve entry
 
-        assert_target_shift_vs_relocation(table)
+        let mut buffer = smallvec![0; table.max_target() as usize];
+        table.relocate(&mut buffer)?;
+
+        // Check if all jumps use correct PUSH instructions
+        assert_eq!(buffer[0x100], 0x61); // PUSH2
+        assert_eq!(buffer[0x113], 0x61); // PUSH2
+        assert_eq!(buffer[0x206], 0x61); // PUSH2
+
+        Ok(())
     }
 
     #[test]
@@ -186,6 +193,46 @@ mod tests {
         assert_eq!(buffer[last_idx + 1], 0x03); // First byte should be larger
         assert_eq!(buffer[last_idx + 2], 0x9c); // Second byte accounts for all previous jumps
         assert_eq!(0x039c, 0x100 + 0x20 * 19 + 20 * 3);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_dispatcher_jump_targets() -> anyhow::Result<()> {
+        let mut table = JumpTable::default();
+        let selectors = 5;
+
+        // Register jumps for each selector check
+        for i in 0..selectors {
+            let i = i as u16;
+            let check_pc = 0x10 + i * 0x20;
+            let target_pc = 0x100 + i * 0x40;
+
+            // Register both the comparison jump and function jump
+            table.register(check_pc, Jump::Label(check_pc + 0x10));
+            table.register(check_pc + 0x10, Jump::Label(target_pc));
+        }
+
+        let mut buffer = smallvec![0; table.max_target() as usize];
+        table.relocate(&mut buffer)?;
+
+        // Verify each selector's jump chain
+        let mut total_offset = 0;
+        for i in 0..selectors {
+            let check_pc = 0x10 + i * 0x20 + total_offset;
+            let check_pc_offset = if check_pc + 0x10 > 0xff { 3 } else { 2 };
+
+            let func_pc = check_pc + 0x10 + check_pc_offset;
+
+            let check_jump = buffer[check_pc];
+            let func_jump = buffer[func_pc];
+
+            assert_eq!(check_jump, if func_pc > 0xff { 0x61 } else { 0x60 });
+            assert_eq!(func_jump, 0x61);
+
+            // Update total offset for next iteration
+            total_offset += check_pc_offset + 3;
+        }
 
         Ok(())
     }

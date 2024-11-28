@@ -28,13 +28,14 @@ impl JumpTable {
     pub fn shift_targets(&mut self) -> Result<()> {
         let mut total_offset = 0;
         let mut target_sizes = Vec::new();
+        let jumps = self.jump.clone();
 
-        // First pass: calculate all target sizes
-        for (original_pc, jump) in self.jump.clone().iter() {
+        // First pass: calculate all target sizes and accumulate offsets
+        for (original_pc, jump) in jumps.iter() {
             let pc = original_pc + total_offset;
             let target = self.target(jump)? + total_offset;
 
-            // Calculate instruction size based on target value
+            // Calculate instruction size based on absolute target value
             let instr_size = if target > 0xff {
                 3 // PUSH2 + 2 bytes
             } else {
@@ -45,7 +46,7 @@ impl JumpTable {
             total_offset += instr_size;
         }
 
-        // Second pass: apply shifts with correct accumulated offsets
+        // Second pass: apply shifts with accumulated offsets
         total_offset = 0;
         for (pc, size) in target_sizes {
             tracing::debug!("shift target at pc=0x{pc:x} with size={size}");
@@ -61,7 +62,10 @@ impl JumpTable {
     /// This function handles the shifting of the code section, label targets, and
     /// function targets.
     pub fn shift_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
+        // First shift the code section
         self.code.shift(offset);
+
+        // Only shift targets that are after ptr
         self.shift_label_target(ptr, offset)?;
         self.shift_func_target(ptr, offset)
     }
@@ -69,9 +73,8 @@ impl JumpTable {
     /// Shifts the program counter for functions.
     pub fn shift_func_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
         self.func.iter_mut().try_for_each(|(index, target)| {
-            let next_target = *target + offset;
-
             if *target > ptr {
+                let next_target = *target + offset;
                 tracing::trace!(
                     "shift Func({index}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
                     next_target
@@ -91,13 +94,14 @@ impl JumpTable {
                 continue;
             };
 
-            let next_target = *target + offset;
-            if *target > ptr {
+            // Only shift targets that come after ptr AND
+            // only if the jump instruction itself comes after ptr
+            if *target > ptr && *pc >= ptr {
+                let next_target = *target + offset;
                 tracing::trace!(
-                            "shift Label(0x{pc:x}) target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
-                            next_target,
-                        );
-
+                    "shift Label target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
+                    next_target,
+                );
                 *target = next_target;
             }
         }
