@@ -33,9 +33,6 @@ pub fn addmod_U256(a: U256, b: U256, n: U256) -> U256 {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-// FIXME: this test should pass, fix it to learn how to
-// add opcodes to the compiler
-
 #[test]
 fn test() -> anyhow::Result<()> {
     use zint::{Bytes32 as _, Contract};
