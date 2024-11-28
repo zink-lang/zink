@@ -77,11 +77,11 @@ fn test() -> anyhow::Result<()> {
     //Test for U256
     let info_u256 = contract.execute([
         "addmod_U256(uint256,uint256,uint256)".as_bytes(),
-        &3i32.bytes32(),
-        &5i32.bytes32(),
-        &7i32.bytes32(),
+        &3i32.to_bytes32(),
+        &5i32.to_bytes32(),
+        &7i32.to_bytes32(),
     ])?;
-    assert_eq!(info_u256.ret, 1i32.bytes32());
+    assert_eq!(info_u256.ret, 1i32.to_bytes32());
 
     Ok(())
 }
