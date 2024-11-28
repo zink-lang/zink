@@ -43,7 +43,7 @@ impl<'e> Default for EVM<'e> {
     }
 }
 
-impl<'e> EVM<'e> {
+impl EVM<'_> {
     /// Interpret runtime bytecode with provided arguments
     pub fn interp(runtime_bytecode: &[u8], input: &[u8]) -> Result<Info> {
         Self::default()
