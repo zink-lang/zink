@@ -89,14 +89,14 @@ impl JumpTable {
 
     /// Shifts the program counter for labels.
     pub fn shift_label_target(&mut self, ptr: u16, offset: u16) -> Result<()> {
-        for (pc, jump) in self.jump.iter_mut() {
+        for (_, jump) in self.jump.iter_mut() {
             let Jump::Label(target) = jump else {
                 continue;
             };
 
             // Only shift targets that come after ptr AND
             // only if the jump instruction itself comes after ptr
-            if *target > ptr && *pc >= ptr {
+            if *target > ptr {
                 let next_target = *target + offset;
                 tracing::trace!(
                     "shift Label target with offset={offset}: 0x{target:x}(0x{ptr:x}) -> 0x{:x}",
