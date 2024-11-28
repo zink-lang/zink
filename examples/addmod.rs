@@ -3,7 +3,7 @@
 #![cfg_attr(target_arch = "wasm32", no_main)]
 
 extern crate zink;
-use zink::primitives::{numeric::Numeric, U256};
+use zink::{primitives::{numeric::Numeric, U256}, Asm};
 
 #[zink::external]
 pub fn addmod_i32(a: i32, b: i32, n: i32) -> i32 {
@@ -76,11 +76,11 @@ fn test() -> anyhow::Result<()> {
     //Test for U256
     let info_u256 = contract.execute([
         "addmod_U256(uint256,uint256,uint256)".as_bytes(),
-        &3_i32.bytes32(),
-        &5_i32.bytes32(),
-        &7_i32.bytes32(),
+        &3i32.bytes32(),
+        &5i32.bytes32(),
+        &7i32.bytes32(),
     ])?;
-    assert_eq!(info_u256.ret, 1.bytes32());
+    assert_eq!(info_u256.ret, 1i32.bytes32());
 
     Ok(())
 }
