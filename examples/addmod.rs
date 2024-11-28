@@ -41,51 +41,49 @@ fn test() -> anyhow::Result<()> {
     use zint::{Bytes32 as _, Contract};
     // Test for i32
     let mut contract = Contract::search("addmod")?.compile()?;
-    let a = contract.address;
-    println!("{a:?}");
-    // let info_i32 = contract.execute([
-    //     "addmod_i32(int32,int32,int32)".as_bytes(),
-    //     &3i32.to_bytes32(),
-    //     &5i32.to_bytes32(),
-    //     &7i32.to_bytes32(),
-    // ])?;
-    // assert_eq!(info_i32.ret, 1i32.to_bytes32());
 
-    // // Test for i64
-    // let info_i64 = contract.execute([
-    //     "addmod_i64(int64,int64,int64)".as_bytes(),
-    //     &3i64.to_bytes32(),
-    //     &5i64.to_bytes32(),
-    //     &7i64.to_bytes32(),
-    // ])?;
-    // assert_eq!(info_i64.ret, 1i64.to_bytes32());
+    let info_i32 = contract.execute([
+        "addmod_i32(int32,int32,int32)".as_bytes(),
+        &3i32.to_bytes32(),
+        &5i32.to_bytes32(),
+        &7i32.to_bytes32(),
+    ])?;
+    assert_eq!(info_i32.ret, 1i32.to_bytes32());
 
-    // let info_u32 = contract.execute([
-    //     "addmod_u32(uint32,uint32,uint32)".as_bytes(),
-    //     &3u32.to_bytes32(),
-    //     &5u32.to_bytes32(),
-    //     &7u32.to_bytes32(),
-    // ])?;
-    // assert_eq!(info_u32.ret, 1u32.to_bytes32());
+    // Test for i64
+    let info_i64 = contract.execute([
+        "addmod_i64(int64,int64,int64)".as_bytes(),
+        &3i64.to_bytes32(),
+        &5i64.to_bytes32(),
+        &7i64.to_bytes32(),
+    ])?;
+    assert_eq!(info_i64.ret, 1i64.to_bytes32());
 
-    // // Test for u64
-    // let info_u64 = contract.execute([
-    //     "addmod_u64(uint64,uint64,uint64)".as_bytes(),
-    //     &3u64.to_bytes32(),
-    //     &5u64.to_bytes32(),
-    //     &7u64.to_bytes32(),
-    // ])?;
-    // assert_eq!(info_u64.ret, 1u64.to_bytes32());
+    let info_u32 = contract.execute([
+        "addmod_u32(uint32,uint32,uint32)".as_bytes(),
+        &3u32.to_bytes32(),
+        &5u32.to_bytes32(),
+        &7u32.to_bytes32(),
+    ])?;
+    assert_eq!(info_u32.ret, 1u32.to_bytes32());
 
-    // // Test for U256
-    // let mut contract_u256 = Contract::search("addmod_U256")?.compile()?;
-    // let info_u256 = contract_u256.execute([
-    //     "addmod_U256(uint256,uint256,uint256)".as_bytes(),
-    //     &U256::from(3.into()).bytes32(),
-    //     &U256::from(5.into()).bytes32(),
-    //     &U256::from(7.into()).bytes32(),
-    // ])?;
-    // assert_eq!(info_u256.ret, U256::from(1.into()).bytes32());
+    // Test for u64
+    let info_u64 = contract.execute([
+        "addmod_u64(uint64,uint64,uint64)".as_bytes(),
+        &3u64.to_bytes32(),
+        &5u64.to_bytes32(),
+        &7u64.to_bytes32(),
+    ])?;
+    assert_eq!(info_u64.ret, 1u64.to_bytes32());
+
+    //Test for U256
+    let info_u256 = contract.execute([
+        "addmod_U256(uint256,uint256,uint256)".as_bytes(),
+        &U256::from(3.into()).bytes32(),
+        &U256::from(5.into()).bytes32(),
+        &U256::from(7.into()).bytes32(),
+    ])?;
+    assert_eq!(info_u256.ret, U256::from(1.into()).bytes32());
 
     Ok(())
 }
