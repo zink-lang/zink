@@ -3,7 +3,7 @@
 #![cfg_attr(target_arch = "wasm32", no_main)]
 
 extern crate zink;
-use zink::{primitives::{numeric::Numeric, U256}, Asm};
+use zink::primitives::{numeric::Numeric, U256};
 
 #[zink::external]
 pub fn addmod_i32(a: i32, b: i32, n: i32) -> i32 {
