@@ -33,7 +33,12 @@ impl JumpTable {
         // First pass: calculate all target sizes and accumulate offsets
         for (original_pc, jump) in jumps.iter() {
             let pc = original_pc + total_offset;
-            let target = self.target(jump)? + total_offset;
+            let raw_target = self.target(jump)?;
+            let target = if raw_target > *original_pc {
+                raw_target + total_offset
+            } else {
+                raw_target
+            };
 
             // Calculate instruction size based on absolute target value
             let instr_size = if target > 0xff {
