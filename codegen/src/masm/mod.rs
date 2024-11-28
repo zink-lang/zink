@@ -84,6 +84,15 @@ impl MacroAssembler {
         self.asm.buffer().len() as u16
     }
 
+    /// Get the current program counter offset.
+    pub fn pc_offset(&self) -> u16 {
+        if self.pc() > 0xff {
+            3
+        } else {
+            2
+        }
+    }
+
     /// Place n bytes on stack.
     pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
         tracing::trace!("push bytes: 0x{}", hex::encode(bytes));

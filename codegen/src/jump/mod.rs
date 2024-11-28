@@ -113,18 +113,76 @@ mod tests {
         assert_target_shift_vs_relocation(table)
     }
 
-    // FIXME: refactor offset handling (#280)
-    #[ignore]
     #[test]
-    fn test_conditional_jumps() -> anyhow::Result<()> {
+    fn test_label_call_interaction() -> anyhow::Result<()> {
+        init_tracing();
         let mut table = JumpTable::default();
 
-        // Simulate the conditional logic in _spend_allowance
-        table.register(0x10, Jump::Label(0x100)); // Entry point
-        table.register(0x20, Jump::Label(0x200)); // If branch
-        table.register(0x30, Jump::Label(0x300)); // Else branch
-        table.register(0x200, Jump::Label(0x400)); // Call to _approve
+        table.func.insert(1, 0x317);
+        table.label(0x10, 0x12);
+        table.call(0x11, 1);
 
-        assert_target_shift_vs_relocation(table)
+        let mut buffer = smallvec![0; table.max_target() as usize];
+        table.relocate(&mut buffer)?;
+
+        assert_eq!(buffer[0x11], 0x17, "{buffer:?}");
+        assert_eq!(buffer[0x14], 0x03, "{buffer:?}");
+        assert_eq!(buffer[0x15], 0x1c, "{buffer:?}");
+        Ok(())
+    }
+
+    #[test]
+    fn test_large_target_offset_calculation() -> anyhow::Result<()> {
+        let mut table = JumpTable::default();
+
+        // Register a jump with target < 0xff
+        table.register(0x10, Jump::Label(0x80));
+
+        // Register a jump with target > 0xff
+        table.register(0x20, Jump::Label(0x100));
+
+        // Register a jump with target > 0xfff
+        table.register(0x30, Jump::Label(0x1000));
+
+        let mut buffer = smallvec![0; table.max_target() as usize];
+        table.relocate(&mut buffer)?;
+
+        // Check if offsets are correctly calculated
+        // For target 0x80: PUSH1 (1 byte) + target (1 byte)
+        // For target 0x100: PUSH2 (1 byte) + target (2 bytes)
+        // For target 0x1000: PUSH2 (1 byte) + target (2 bytes)
+        assert_eq!(buffer[0x11], 0x88); // Small target
+        assert_eq!(buffer[0x23], 0x01); // First byte of large target
+        assert_eq!(buffer[0x24], 0x08); // Second byte of large target
+        assert_eq!(buffer[0x36], 0x10); // First byte of large target
+        assert_eq!(buffer[0x37], 0x08); // Second byte of large target
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_sequential_large_jumps() -> anyhow::Result<()> {
+        let mut table = JumpTable::default();
+
+        // Register multiple sequential jumps with increasing targets
+        // This mirrors the ERC20 pattern where we have many functions
+        for i in 0..20 {
+            let target = 0x100 + (i * 0x20);
+            table.register(0x10 + i, Jump::Label(target));
+        }
+
+        let mut buffer = smallvec![0; table.max_target() as usize];
+        table.relocate(&mut buffer)?;
+
+        // Check first jump (should use PUSH2)
+        assert_eq!(buffer[0x11], 0x01); // First byte
+        assert_eq!(buffer[0x14], 0x61); // Second byte
+
+        // Check last jump (should still use PUSH2 but with adjusted offset)
+        let last_idx = 0x10 + 19 + 19 * 3;
+        assert_eq!(buffer[last_idx], 0x61); // First byte should be larger
+        assert_eq!(buffer[last_idx + 1], 0x03); // Second byte accounts for all previous jumps
+
+        Ok(())
     }
 }

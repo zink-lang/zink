@@ -39,7 +39,9 @@ impl JumpTable {
                 2 // Requires 2 bytes
             };
 
+            tracing::trace!("before shifting: pc=0x{pc:x}, offset={offset:x}, table={self:?}");
             self.shift_target(pc, offset)?;
+            tracing::trace!("after shifting: table={self:?}");
             total_offset += offset;
         }
         Ok(())

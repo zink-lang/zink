@@ -67,7 +67,7 @@ impl Function {
         let reserved = self.env.slots.get(&index).unwrap_or(&0);
         let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
 
-        // FIXME: This is a temporary fix to avoid stack underflow.
+        // TODO This is a temporary fix to avoid stack underflow.
         // We need to find a more elegant solution for this.
         self.masm.increment_sp(1)?;
 
@@ -79,8 +79,9 @@ impl Function {
         }
 
         // Register the label to jump back.
-        self.table.label(self.masm.pc(), self.masm.pc() + 2); // [PUSHN, END_OF_CALL]
-        self.masm._jumpdest()?; // FIXME: same pc different label
+        let return_pc = self.masm.pc() + 2;
+        self.table.label(self.masm.pc(), return_pc);
+        self.masm._jumpdest()?; // TODO: support same pc different label
 
         // Register the call index in the jump table.
         self.table.call(self.masm.pc(), index); // [PUSHN, CALL_PC]
