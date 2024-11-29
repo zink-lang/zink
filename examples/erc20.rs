@@ -252,7 +252,7 @@ fn deploy() -> anyhow::Result<()> {
             .call(address)?;
         assert_eq!(info.ret, value.to_bytes32(), "{info:?}");
 
-        //  TODO: see br_balance.rs
+        //  TODO: see br_balance.rs (#287)
         // 4.2. check transfer
         /* evm = evm.commit(false);
         let info = evm
