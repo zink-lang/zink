@@ -153,7 +153,7 @@ fn deploy() -> anyhow::Result<()> {
     let name = "The Zink Language";
     let symbol = "zink";
     let value = 42;
-    // let half_value = 21;
+    //let half_value = 21;
 
     // 1. deploy
     let info = evm.deploy(
@@ -252,9 +252,9 @@ fn deploy() -> anyhow::Result<()> {
             .call(address)?;
         assert_eq!(info.ret, value.to_bytes32(), "{info:?}");
 
-        //  TODO: duplicated JUMPDEST
-        /* // 4.2. check transfer
-        evm = evm.commit(false);
+        //  TODO: see br_balance.rs
+        // 4.2. check transfer
+        /* evm = evm.commit(false);
         let info = evm
             .calldata(&contract.encode(&[
                 b"transfer(address,uint256)".to_vec(),

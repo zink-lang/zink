@@ -113,9 +113,16 @@ impl Function {
     /// Conditional branch to a given label in an enclosing construct.
     pub fn _br_if(&mut self, depth: u32) -> Result<()> {
         let label = self.control.label_from_depth(depth)?;
+
+        // Register the jump target for breaking out
         self.table.label(self.masm.pc(), label);
-        self.masm.asm.increment_sp(1)?;
+        self.masm.increment_sp(1)?;
+
+        // JUMPI will check condition and jump if true
         self.masm._jumpi()?;
+
+        // If we don't jump, we continue in the current frame
+        // No need for explicit ISZERO since JUMPI handles the condition
 
         Ok(())
     }
