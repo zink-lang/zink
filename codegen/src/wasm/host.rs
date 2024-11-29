@@ -75,6 +75,7 @@ impl TryFrom<(&str, &str)> for HostFunc {
             ("zinkc", "u256_add") => Ok(Self::Evm(OpCode::ADD)),
             ("zinkc", "u256_sub") => Ok(Self::Evm(OpCode::SUB)),
             ("zinkc", "u256_lt") => Ok(Self::Evm(OpCode::LT)),
+            ("zinkc", "u256_eq") => Ok(Self::Evm(OpCode::EQ)),
             ("zinkc", "u256_max") => Ok(Self::U256MAX),
             ("zinkc", "u256_addmod") => Ok(Self::Evm(OpCode::ADDMOD)),
             ("zinkc", "u256_mulmod") => Ok(Self::Evm(OpCode::MULMOD)),
