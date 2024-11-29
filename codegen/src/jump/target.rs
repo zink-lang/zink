@@ -34,6 +34,8 @@ impl JumpTable {
         for (original_pc, jump) in jumps.iter() {
             let pc = original_pc + total_offset;
             let raw_target = self.target(jump)?;
+
+            // Calculate the absolute target including future offsets
             let target = if raw_target > *original_pc {
                 raw_target + total_offset
             } else {

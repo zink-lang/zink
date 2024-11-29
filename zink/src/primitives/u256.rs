@@ -16,6 +16,18 @@ impl U256 {
         U256([0; 32])
     }
 
+    /// Returns zero value
+    #[cfg(not(target_family = "wasm"))]
+    pub const fn zero() -> Self {
+        Self([0; 32])
+    }
+
+    /// Returns zero value
+    #[cfg(target_family = "wasm")]
+    pub const fn zero() -> Self {
+        Self(0)
+    }
+
     /// u256 add
     #[inline(always)]
     pub fn add(self, other: Self) -> Self {
@@ -26,6 +38,12 @@ impl U256 {
     #[inline(always)]
     pub fn lt(self, other: Self) -> bool {
         unsafe { ffi::u256_lt(other, self) }
+    }
+
+    /// u256 eq
+    #[inline(always)]
+    pub fn eq(self, other: Self) -> bool {
+        unsafe { ffi::u256_eq(self, other) }
     }
 
     /// u256 sub
