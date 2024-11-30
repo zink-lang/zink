@@ -3,7 +3,10 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
 use quote::{quote, ToTokens};
-use syn::{Ident, LitStr};
+use syn::{
+    parse::{Parse, ParseStream},
+    parse2, Expr, Ident, LitStr, Token,
+};
 
 /// Revert with message
 pub fn parse(input: LitStr) -> TokenStream {
@@ -33,4 +36,42 @@ pub fn parse(input: LitStr) -> TokenStream {
         unsafe { zink::ffi::asm::#rev(#lit) }
     }
     .into()
+}
+
+/// Parse assert macro
+pub fn parse_assert(input: AssertInput) -> TokenStream {
+    let cond = input.cond;
+    let revert: Expr = syn::parse2(
+        parse(
+            input
+                .message
+                .unwrap_or(LitStr::new("unknown error", Span::call_site())),
+        )
+        .into(),
+    )
+    .expect("Invalid revert message");
+
+    quote! {
+        if !#cond {
+            #revert
+        }
+    }
+    .into()
+}
+
+/// Assert input
+pub struct AssertInput {
+    pub cond: Expr,
+    pub comma: Token![,],
+    pub message: Option<LitStr>,
+}
+
+impl Parse for AssertInput {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        Ok(AssertInput {
+            cond: input.parse()?,
+            comma: input.parse()?,
+            message: input.parse()?,
+        })
+    }
 }

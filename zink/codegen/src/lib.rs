@@ -4,7 +4,9 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, Attribute, DeriveInput, ItemFn, ItemStruct, LitStr};
+use proc_macro2::Span;
+use quote::ToTokens;
+use syn::{parse_macro_input, Attribute, DeriveInput, Expr, ItemFn, ItemStruct, LitStr};
 
 mod event;
 mod revert;
@@ -27,12 +29,8 @@ pub fn revert(input: TokenStream) -> TokenStream {
 /// message only support raw string.
 #[proc_macro]
 pub fn assert(input: TokenStream) -> TokenStream {
-    todo!(
-        r#"
-1. split input into condition and message then do the following
-2. if not cond then revert!(message);
-"#
-    )
+    let input = parse_macro_input!(input as revert::AssertInput);
+    revert::parse_assert(input)
 }
 
 /// Event logging interface
