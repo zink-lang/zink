@@ -11,6 +11,7 @@ mod revert;
 mod selector;
 mod storage;
 mod utils;
+mod transient_storage;
 
 /// Revert with the input message
 ///
@@ -68,6 +69,25 @@ pub fn storage(attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemStruct);
     storage::Storage::parse(ty, input)
 }
+
+/// Declare transient storage (cleared after each transaction)
+///
+/// ```ignore
+/// /// transient storage value
+/// #[zink::transient_storage(i32)]
+/// pub struct TempCounter;
+///
+/// /// transient storage mapping
+/// #[zink::transient_storage(i32, i32)]
+/// pub struct TempMapping;
+/// ```
+#[proc_macro_attribute]
+pub fn transient_storage(attr: TokenStream, input: TokenStream) -> TokenStream {
+    let ty = transient_storage::TransientStorageType::from(attr);
+    let input = parse_macro_input!(input as ItemStruct);
+    transient_storage::TransientStorage::parse(ty, input)
+}
+
 
 /// Mark the function as an external entry point.
 #[proc_macro_attribute]

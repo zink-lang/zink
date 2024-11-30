@@ -11,48 +11,48 @@ use syn::{
 };
 
 thread_local! {
-   static STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
+   static TRANSIENT_STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
 }
 
-/// Storage attributes parser
-pub struct Storage {
+/// Transient storage attributes parser
+pub struct TransientStorage {
     /// kind of the storage
-    ty: StorageType,
+    ty: TransientStorageType,
     /// The source and the target storage struct
     target: ItemStruct,
     /// Getter function of storage
     getter: Option<Ident>,
 }
 
-impl Storage {
+impl TransientStorage {
     /// Parse from proc_macro attribute
-    pub fn parse(ty: StorageType, target: ItemStruct) -> TokenStream {
+    pub fn parse(ty: TransientStorageType, target: ItemStruct) -> TokenStream {
         let storage = Self::from((ty, target));
         storage.expand()
     }
 
     fn expand(mut self) -> TokenStream {
         match &self.ty {
-            StorageType::Value(value) => self.expand_value(value.clone()),
-            StorageType::Mapping { key, value } => self.expand_mapping(key.clone(), value.clone()),
-            StorageType::DoubleKeyMapping { key1, key2, value } => {
+            TransientStorageType::Value(value) => self.expand_value(value.clone()),
+            TransientStorageType::Mapping { key, value } => self.expand_mapping(key.clone(), value.clone()),
+            TransientStorageType::DoubleKeyMapping { key1, key2, value } => {
                 self.expand_dk_mapping(key1.clone(), key2.clone(), value.clone())
             }
-            StorageType::Invalid => panic!("Invalid storage type"),
+            TransientStorageType::Invalid => panic!("Invalid transient storage type"),
         }
     }
 
     fn expand_value(&mut self, value: Ident) -> TokenStream {
         let is = &self.target;
         let name = self.target.ident.clone();
-        let slot = storage_slot(name.to_string());
+        let slot = transient_storage_slot(name.to_string());
         let key = slot.to_bytes32();
 
         let keyl = Literal::byte_string(&key);
         let mut expanded = quote! {
             #is
 
-            impl zink::storage::Storage for #name {
+            impl zink::transient_storage::TransientStorage for #name {
                 #[cfg(not(target_family = "wasm"))]
                 const STORAGE_KEY: [u8; 32] = *#keyl;
                 const STORAGE_SLOT: i32 = #slot;
@@ -62,7 +62,6 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
@@ -79,12 +78,12 @@ impl Storage {
     fn expand_mapping(&mut self, key: Ident, value: Ident) -> TokenStream {
         let is = &self.target;
         let name = self.target.ident.clone();
-        let slot = storage_slot(name.to_string());
+        let slot = transient_storage_slot(name.to_string());
 
         let mut expanded = quote! {
             #is
 
-            impl zink::storage::Mapping for #name {
+            impl zink::transient_storage::TransientMapping for #name {
                 const STORAGE_SLOT: i32 = #slot;
 
                 type Key = #key;
@@ -103,7 +102,6 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
@@ -120,12 +118,12 @@ impl Storage {
     fn expand_dk_mapping(&mut self, key1: Ident, key2: Ident, value: Ident) -> TokenStream {
         let is = &self.target;
         let name = self.target.ident.clone();
-        let slot = storage_slot(name.to_string());
+        let slot = transient_storage_slot(name.to_string());
 
         let mut expanded = quote! {
             #is
 
-            impl zink::DoubleKeyMapping for #name {
+            impl zink::transient_storage::DoubleKeyTransientMapping for #name {
                 const STORAGE_SLOT: i32 = #slot;
 
                 type Key1 = #key1;
@@ -148,7 +146,6 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
@@ -178,8 +175,8 @@ impl Storage {
     }
 }
 
-impl From<(StorageType, ItemStruct)> for Storage {
-    fn from(patts: (StorageType, ItemStruct)) -> Self {
+impl From<(TransientStorageType, ItemStruct)> for TransientStorage {
+    fn from(patts: (TransientStorageType, ItemStruct)) -> Self {
         let mut this = Self {
             ty: patts.0,
             target: patts.1,
@@ -194,7 +191,7 @@ impl From<(StorageType, ItemStruct)> for Storage {
             }
 
             let Ok(list) = attr.meta.require_list().clone() else {
-                panic!("Invali getter arguments");
+                panic!("Invalid getter arguments");
             };
 
             let Some(TokenTree::Ident(getter)) = list.tokens.clone().into_iter().nth(0) else {
@@ -209,9 +206,9 @@ impl From<(StorageType, ItemStruct)> for Storage {
     }
 }
 
-/// Zink storage type parser
+/// Zink transient storage type parser
 #[derive(Default, Debug)]
-pub enum StorageType {
+pub enum TransientStorageType {
     /// Single value storage
     Value(Ident),
     /// Mapping storage
@@ -227,31 +224,31 @@ pub enum StorageType {
     Invalid,
 }
 
-impl From<TokenStream> for StorageType {
+impl From<TokenStream> for TransientStorageType {
     fn from(input: TokenStream) -> Self {
         let tokens = input.to_string();
         let types: Vec<_> = tokens.split(',').collect();
         match types.len() {
-            1 => StorageType::Value(Ident::new(types[0].trim(), Span::call_site())),
-            2 => StorageType::Mapping {
+            1 => TransientStorageType::Value(Ident::new(types[0].trim(), Span::call_site())),
+            2 => TransientStorageType::Mapping {
                 key: Ident::new(types[0].trim(), Span::call_site()),
                 value: Ident::new(types[1].trim(), Span::call_site()),
             },
-            3 => StorageType::DoubleKeyMapping {
+            3 => TransientStorageType::DoubleKeyMapping {
                 key1: Ident::new(types[0].trim(), Span::call_site()),
                 key2: Ident::new(types[1].trim(), Span::call_site()),
                 value: Ident::new(types[2].trim(), Span::call_site()),
             },
-            _ => panic!("Invalid storage attributes"),
+            _ => panic!("Invalid transient storage attributes"),
         }
     }
 }
- 
-fn storage_slot(name: String) -> i32 {
-    STORAGE_REGISTRY.with_borrow_mut(|r| {
+
+fn transient_storage_slot(name: String) -> i32 {
+    TRANSIENT_STORAGE_REGISTRY.with_borrow_mut(|r| {
         let key = r.len();
         if !r.insert(name.clone()) {
-            panic!("Storage {name} has already been declared");
+            panic!("Transient storage {name} has already been declared");
         }
 
         key

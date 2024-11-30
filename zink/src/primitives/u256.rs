@@ -1,5 +1,5 @@
 #![allow(clippy::should_implement_trait)]
-use crate::{ffi, storage::StorageValue, Asm};
+use crate::{ffi, storage::{StorageValue, TransientStorageValue}, Asm};
 
 /// Account address
 #[repr(C)]
@@ -57,5 +57,12 @@ impl StorageValue for U256 {
     #[inline(always)]
     fn sload() -> Self {
         unsafe { ffi::asm::sload_u256() }
+    }
+}
+
+impl TransientStorageValue for U256 {
+    #[inline(always)]
+    fn tload() -> Self {
+        unsafe { ffi::asm::tload_u256() }
     }
 }

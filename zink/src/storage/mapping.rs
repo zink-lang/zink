@@ -1,6 +1,6 @@
 //! Storage Mapping
 
-use crate::{ffi, storage::StorageValue, Asm};
+use crate::{ffi, storage::{StorageValue, TransientStorageValue}, Asm};
 
 /// Storage mapping interface
 pub trait Mapping {
@@ -24,6 +24,32 @@ pub trait Mapping {
         load_key(key, Self::STORAGE_SLOT);
         unsafe {
             ffi::evm::sstore();
+        }
+    }
+}
+
+/// Transient storage mapping interface
+pub trait TransientMapping {
+    const STORAGE_SLOT: i32;
+
+    type Key: Asm;
+    type Value: TransientStorageValue;
+
+    #[cfg(not(target_family = "wasm"))]
+    fn storage_key(key: Self::Key) -> [u8; 32];
+
+    /// Get value from transient storage key.
+    fn get(key: Self::Key) -> Self::Value {
+        load_key(key, Self::STORAGE_SLOT);
+        Self::Value::tload()
+    }
+
+    /// Set key and value in transient storage
+    fn set(key: Self::Key, value: Self::Value) {
+        value.push();
+        load_key(key, Self::STORAGE_SLOT);
+        unsafe {
+            ffi::evm::tstore();
         }
     }
 }

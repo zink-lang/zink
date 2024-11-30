@@ -8,7 +8,7 @@ use std::collections::HashMap;
 pub type InitStorage = HashMap<SmallVec<[u8; 32]>, SmallVec<[u8; 32]>>;
 
 /// Contract constructor.
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone)] 
 pub struct Constructor {
     /// Code generator.
     masm: MacroAssembler,

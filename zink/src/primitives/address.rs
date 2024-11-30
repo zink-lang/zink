@@ -1,4 +1,4 @@
-use crate::{ffi, storage::StorageValue, Asm};
+use crate::{ffi, storage::{StorageValue, TransientStorageValue}, Asm};
 
 /// Account address
 #[repr(C)]
@@ -53,5 +53,11 @@ impl Asm for Address {
 impl StorageValue for Address {
     fn sload() -> Self {
         unsafe { ffi::asm::sload_address() }
+    }
+}
+
+impl TransientStorageValue for Address {
+    fn tload() -> Self {
+        unsafe { ffi::asm::tload_address() }
     }
 }

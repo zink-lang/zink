@@ -61,7 +61,7 @@ fn mapping() -> Result<()> {
         ShangHai::PUSH0,
         ShangHai::PUSH1,
         ShangHai::Data(0x01),
-        ShangHai::MSTORE,
+        ShangHai::MSTORE, 
         // hash key
         ShangHai::PUSH1,
         ShangHai::Data(0x20),
