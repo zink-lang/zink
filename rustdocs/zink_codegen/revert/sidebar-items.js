@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["parse"]};
+window.SIDEBAR_ITEMS = {"fn":["parse","parse_assert"],"struct":["AssertInput"]};
