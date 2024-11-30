@@ -9,8 +9,14 @@ fn main() {}
 
 /// check if the passing address is owner
 #[zink::external]
-pub fn run_revert() {
+pub fn revert() {
     zink::revert!("revert works")
+}
+
+/// check if the passing address is owner
+#[zink::external]
+pub fn assert() {
+    zink::assert!(false, "assert works");
 }
 
 #[test]
@@ -20,5 +26,8 @@ fn test_revert() -> anyhow::Result<()> {
 
     let info = contract.execute(["revert()".as_bytes()])?;
     assert_eq!(info.revert, Some("revert works".into()));
+
+    let info = contract.execute(["assert()".as_bytes()])?;
+    assert_eq!(info.revert, Some("assert works".into()));
     Ok(())
 }
