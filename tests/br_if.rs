@@ -1,7 +1,7 @@
 //! br_if tests for the zink compiler.
 use anyhow::Result;
 use filetests::Test;
-use zint::Contract;
+use zint::{Contract, HaltReason};
 
 #[test]
 fn as_block_last() -> Result<()> {
@@ -12,7 +12,7 @@ fn as_block_last() -> Result<()> {
     assert!(info.ret.is_empty());
 
     let info = contract.execute(&[42])?;
-    assert!(info.halt.is_none());
+    assert!(matches!(info.halt, Some(HaltReason::OutOfGas(_))));
     assert!(info.ret.is_empty());
 
     Ok(())

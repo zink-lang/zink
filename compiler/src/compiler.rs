@@ -57,6 +57,7 @@ impl Compiler {
             ..
         } = self;
 
+        tracing::debug!("code length: {}", buffer.len());
         Ok(Artifact {
             abi,
             config,

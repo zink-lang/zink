@@ -1,6 +1,7 @@
 //! Zink primitive types
 
 mod address;
+pub mod numeric;
 mod u256;
 
 pub use address::Address;

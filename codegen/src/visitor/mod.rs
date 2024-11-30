@@ -188,7 +188,7 @@ macro_rules! map_wasm_operators {
     };
 }
 
-impl<'a> VisitOperator<'a> for Function {
+impl VisitOperator<'_> for Function {
     type Output = Result<()>;
 
     for_each_operator!(impl_visit_operator);

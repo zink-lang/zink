@@ -47,7 +47,8 @@ impl<'p> Parser<'p> {
             let locals = fun.body.get_locals_reader()?.get_count();
             let params = sig.params().len();
             tracing::trace!(
-                "computing slots for function {idx}, locals: {locals}, params: {params}, reserved: {slots}"
+                "computing slots for function {idx}, locals: {locals}, params: {params}, reserved: {slots}, external: {}",
+                self.env.is_external(fun.index())
             );
 
             self.env.slots.insert(fun.index(), slots);
@@ -56,6 +57,8 @@ impl<'p> Parser<'p> {
                 .insert(fun.index(), (params as u32, sig.results().len() as u32));
 
             slots += locals;
+
+            // process prarams for internal functions only
             if !self.env.is_external(fun.index()) && !self.env.is_main(fun.index()) {
                 slots += params as u32;
             }

@@ -35,6 +35,46 @@ extern "C" {
     /// Push u256 to stack
     pub fn push_u256(u256: U256);
 
+    /// Emit opcode ADDMOD
+    pub fn addmod_i8(a: i8, b: i8, n: i8) -> i8;
+    /// Emit opcode ADDMOD
+    pub fn mulmod_i8(a: i8, b: i8, n: i8) -> i8;
+
+    /// Emit opcode ADDMOD
+    pub fn addmod_i16(a: i16, b: i16, n: i16) -> i16;
+    /// Emit opcode ADDMOD
+    pub fn mulmod_i16(a: i16, b: i16, n: i16) -> i16;
+
+    /// Emit opcode ADDMOD
+    pub fn addmod_i32(a: i32, b: i32, n: i32) -> i32;
+    /// Emit opcode ADDMOD
+    pub fn mulmod_i32(a: i32, b: i32, n: i32) -> i32;
+
+    /// Emit opcode ADDMOD
+    pub fn addmod_i64(a: i64, b: i64, n: i64) -> i64;
+    /// Emit opcode ADDMOD
+    pub fn mulmod_i64(a: i64, b: i64, n: i64) -> i64;
+
+    /// Emit opcode ADDMOD
+    pub fn addmod_u8(a: u8, b: u8, n: u8) -> u8;
+    /// Emit opcode ADDMOD
+    pub fn mulmod_u8(a: u8, b: u8, n: u8) -> u8;
+
+    /// Emit opcode ADDMOD
+    pub fn addmod_u16(a: u16, b: u16, n: u16) -> u16;
+    /// Emit opcode ADDMOD
+    pub fn mulmod_u16(a: u16, b: u16, n: u16) -> u16;
+
+    /// Emit opcode ADDMOD
+    pub fn addmod_u32(a: u32, b: u32, n: u32) -> u32;
+    /// Emit opcode ADDMOD
+    pub fn mulmod_u32(a: u32, b: u32, n: u32) -> u32;
+
+    /// Emit opcode ADDMOD
+    pub fn addmod_u64(a: u64, b: u64, n: u64) -> u64;
+    /// Emit opcode ADDMOD
+    pub fn mulmod_u64(a: u64, b: u64, n: u64) -> u64;
+
     /// Revert with message in 32 bytes
     pub fn revert1(message: &'static str);
 

@@ -17,6 +17,7 @@ paste.workspace = true
 smallvec.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
 wasmparser.workspace = true
-zabi = { workspace = true, features = [ "hex", "selector", "syn" ] }
+zabi = { workspace = true, features = ["hex", "selector", "syn"] }
 hex.workspace = true
