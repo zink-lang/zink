@@ -1,5 +1,4 @@
 //! Public traits for the EVM interfaces
-use alloc::string::String;
 
 use crate::ffi;
 
@@ -7,8 +6,6 @@ use crate::ffi;
 ///
 /// TODO: safety check for the length of the event name
 pub trait Event {
-    fn abi_signature() -> String;
-
     const NAME: &'static [u8];
 
     fn log0(&self) {
