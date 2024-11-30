@@ -111,7 +111,7 @@ impl fmt::Display for Param {
 }
 
 #[cfg(feature = "syn")]
-impl From<&Box<syn::Type>>  for Param {
+impl From<&Box<syn::Type>> for Param {
     fn from(ty: &Box<syn::Type>) -> Self {
         use quote::ToTokens;
 
