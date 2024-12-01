@@ -1,4 +1,8 @@
-use crate::{ffi, storage::{StorageValue, TransientStorageValue}, Asm};
+use crate::{
+    ffi,
+    storage::{StorageValue, TransientStorageValue},
+    Asm,
+};
 
 /// Account address
 #[repr(C)]

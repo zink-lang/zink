@@ -167,10 +167,10 @@
 //     let perm_value = 42u64;
 //     let trans_value = 84u64;
 //     let info = contract.execute([perm_value, trans_value])?;
-    
+
 //     // Verify both storages contain their respective values
 //     assert_eq!(info.storage.get(&U256::from(0)), Some(&U256::from(perm_value)));
 //     assert_eq!(info.transient_storage.get(&U256::from(0)), Some(&U256::from(trans_value)));
-    
+
 //     Ok(())
 // }

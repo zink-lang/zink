@@ -1,5 +1,9 @@
 //! Key-Value storage
-use crate::{ffi, storage::{StorageValue, TransientStorageValue}, Asm};
+use crate::{
+    ffi,
+    storage::{StorageValue, TransientStorageValue},
+    Asm,
+};
 
 /// Storage trait. Currently not for public use
 pub trait Storage {

@@ -12,10 +12,20 @@ use syn::{
 
 thread_local! {
    static STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
+   static TRANSIENT_STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
+}
+
+/// Storage type (persistent or transient)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum StorageKind {
+    Persistent,
+    Transient,
 }
 
 /// Storage attributes parser
 pub struct Storage {
+    /// Storage kind (persistent or transient)
+    kind: StorageKind,
     /// kind of the storage
     ty: StorageType,
     /// The source and the target storage struct
@@ -25,10 +35,46 @@ pub struct Storage {
 }
 
 impl Storage {
-    /// Parse from proc_macro attribute
+    /// Parse from proc_macro attribute for persistent storage
     pub fn parse(ty: StorageType, target: ItemStruct) -> TokenStream {
-        let storage = Self::from((ty, target));
+        let storage = Self::from_parts(StorageKind::Persistent, ty, target);
         storage.expand()
+    }
+
+    /// Parse from proc_macro attribute for transient storage
+    pub fn parse_transient(ty: StorageType, target: ItemStruct) -> TokenStream {
+        let storage = Self::from_parts(StorageKind::Transient, ty, target);
+        storage.expand()
+    }
+
+    fn from_parts(kind: StorageKind, ty: StorageType, target: ItemStruct) -> Self {
+        let mut this = Self {
+            kind,
+            ty,
+            target,
+            getter: None,
+        };
+
+        let mut attrs: Vec<Attribute> = Default::default();
+        for attr in this.target.attrs.iter().cloned() {
+            if !attr.path().is_ident("getter") {
+                attrs.push(attr);
+                continue;
+            }
+
+            let Ok(list) = attr.meta.require_list().clone() else {
+                panic!("Invalid getter arguments");
+            };
+
+            let Some(TokenTree::Ident(getter)) = list.tokens.clone().into_iter().nth(0) else {
+                panic!("Invalid getter function name");
+            };
+
+            this.getter = Some(getter);
+        }
+
+        this.target.attrs = attrs;
+        this
     }
 
     fn expand(mut self) -> TokenStream {
@@ -45,14 +91,19 @@ impl Storage {
     fn expand_value(&mut self, value: Ident) -> TokenStream {
         let is = &self.target;
         let name = self.target.ident.clone();
-        let slot = storage_slot(name.to_string());
+        let slot = self.get_storage_slot(name.to_string());
         let key = slot.to_bytes32();
 
         let keyl = Literal::byte_string(&key);
+        let trait_path = match self.kind {
+            StorageKind::Persistent => quote!(zink::storage::Storage),
+            StorageKind::Transient => quote!(zink::transient_storage::TransientStorage),
+        };
+
         let mut expanded = quote! {
             #is
 
-            impl zink::storage::Storage for #name {
+            impl #trait_path for #name {
                 #[cfg(not(target_family = "wasm"))]
                 const STORAGE_KEY: [u8; 32] = *#keyl;
                 const STORAGE_SLOT: i32 = #slot;
@@ -62,7 +113,6 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
@@ -79,12 +129,17 @@ impl Storage {
     fn expand_mapping(&mut self, key: Ident, value: Ident) -> TokenStream {
         let is = &self.target;
         let name = self.target.ident.clone();
-        let slot = storage_slot(name.to_string());
+        let slot = self.get_storage_slot(name.to_string());
+
+        let trait_path = match self.kind {
+            StorageKind::Persistent => quote!(zink::storage::Mapping),
+            StorageKind::Transient => quote!(zink::transient_storage::TransientMapping),
+        };
 
         let mut expanded = quote! {
             #is
 
-            impl zink::storage::Mapping for #name {
+            impl #trait_path for #name {
                 const STORAGE_SLOT: i32 = #slot;
 
                 type Key = #key;
@@ -103,7 +158,6 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
@@ -120,12 +174,17 @@ impl Storage {
     fn expand_dk_mapping(&mut self, key1: Ident, key2: Ident, value: Ident) -> TokenStream {
         let is = &self.target;
         let name = self.target.ident.clone();
-        let slot = storage_slot(name.to_string());
+        let slot = self.get_storage_slot(name.to_string());
+
+        let trait_path = match self.kind {
+            StorageKind::Persistent => quote!(zink::storage::DoubleKeyMapping),
+            StorageKind::Transient => quote!(zink::transient_storage::DoubleKeyTransientMapping),
+        };
 
         let mut expanded = quote! {
             #is
 
-            impl zink::DoubleKeyMapping for #name {
+            impl #trait_path for #name {
                 const STORAGE_SLOT: i32 = #slot;
 
                 type Key1 = #key1;
@@ -148,7 +207,6 @@ impl Storage {
         };
 
         if let Some(getter) = self.getter() {
-            // TODO: generate docs from the storage doc
             let gs: proc_macro2::TokenStream = parse_quote! {
                 #[allow(missing_docs)]
                 #[zink::external]
@@ -160,6 +218,25 @@ impl Storage {
         }
 
         expanded.into()
+    }
+
+    fn get_storage_slot(&self, name: String) -> i32 {
+        match self.kind {
+            StorageKind::Persistent => STORAGE_REGISTRY.with_borrow_mut(|r| {
+                let key = r.len();
+                if !r.insert(name.clone()) {
+                    panic!("Storage {name} has already been declared");
+                }
+                key
+            }) as i32,
+            StorageKind::Transient => TRANSIENT_STORAGE_REGISTRY.with_borrow_mut(|r| {
+                let key = r.len();
+                if !r.insert(name.clone()) {
+                    panic!("Transient storage {name} has already been declared");
+                }
+                key
+            }) as i32,
+        }
     }
 
     /// Get the getter of this storage
@@ -175,37 +252,6 @@ impl Storage {
         };
 
         self.getter.take().or(getter)
-    }
-}
-
-impl From<(StorageType, ItemStruct)> for Storage {
-    fn from(patts: (StorageType, ItemStruct)) -> Self {
-        let mut this = Self {
-            ty: patts.0,
-            target: patts.1,
-            getter: None,
-        };
-
-        let mut attrs: Vec<Attribute> = Default::default();
-        for attr in this.target.attrs.iter().cloned() {
-            if !attr.path().is_ident("getter") {
-                attrs.push(attr);
-                continue;
-            }
-
-            let Ok(list) = attr.meta.require_list().clone() else {
-                panic!("Invali getter arguments");
-            };
-
-            let Some(TokenTree::Ident(getter)) = list.tokens.clone().into_iter().nth(0) else {
-                panic!("Invalid getter function name");
-            };
-
-            this.getter = Some(getter);
-        }
-
-        this.target.attrs = attrs;
-        this
     }
 }
 
@@ -245,15 +291,4 @@ impl From<TokenStream> for StorageType {
             _ => panic!("Invalid storage attributes"),
         }
     }
-}
- 
-fn storage_slot(name: String) -> i32 {
-    STORAGE_REGISTRY.with_borrow_mut(|r| {
-        let key = r.len();
-        if !r.insert(name.clone()) {
-            panic!("Storage {name} has already been declared");
-        }
-
-        key
-    }) as i32
 }

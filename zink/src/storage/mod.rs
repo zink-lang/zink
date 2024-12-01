@@ -4,7 +4,7 @@ use crate::{ffi, Asm};
 pub use {
     dkmapping::{DoubleKeyMapping, DoubleKeyTransientMapping},
     mapping::{Mapping, TransientMapping},
-    value::{Storage, TransientStorage}
+    value::{Storage, TransientStorage},
 };
 
 mod dkmapping;

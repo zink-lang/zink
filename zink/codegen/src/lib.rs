@@ -11,7 +11,6 @@ mod revert;
 mod selector;
 mod storage;
 mod utils;
-mod transient_storage;
 
 /// Revert with the input message
 ///
@@ -83,11 +82,10 @@ pub fn storage(attr: TokenStream, input: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro_attribute]
 pub fn transient_storage(attr: TokenStream, input: TokenStream) -> TokenStream {
-    let ty = transient_storage::TransientStorageType::from(attr);
+    let ty = storage::StorageType::from(attr);
     let input = parse_macro_input!(input as ItemStruct);
-    transient_storage::TransientStorage::parse(ty, input)
+    storage::Storage::parse_transient(ty, input)
 }
-
 
 /// Mark the function as an external entry point.
 #[proc_macro_attribute]

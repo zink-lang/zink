@@ -37,12 +37,14 @@ fn transient_value() -> anyhow::Result<()> {
         let info = contract.execute(&[b"set_temp(int32)".to_vec(), value.to_bytes32().to_vec()])?;
         assert!(info.ret.is_empty());
         assert_eq!(
-            info.transient_storage.get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
+            info.transient_storage
+                .get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
             Some(&U256::from(value))
         );
         // Verify regular storage is untouched
         assert_eq!(
-            info.storage.get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
+            info.storage
+                .get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
             None
         );
     }
@@ -53,7 +55,8 @@ fn transient_value() -> anyhow::Result<()> {
         assert_eq!(info.ret, 0.to_bytes32());
         // Verify transient storage was cleared
         assert_eq!(
-            info.transient_storage.get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
+            info.transient_storage
+                .get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
             None
         );
     }
@@ -66,16 +69,16 @@ fn transient_value() -> anyhow::Result<()> {
 fn mixed_storage() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, U256};
 
-    let mut contract = Contract::search("mixed_storage")?.compile()?;
-    
+    let mut contract = Contract::search("transient_storage")?.compile()?;
+
     // Regular storage counter
     #[zink::storage(i32)]
     pub struct Counter;
-    
+
     // Transient storage counter
     #[zink::transient_storage(i32)]
     pub struct TempCounter;
-    
+
     let perm_value: i32 = 42;
     let temp_value: i32 = 84;
 
@@ -86,14 +89,15 @@ fn mixed_storage() -> anyhow::Result<()> {
             perm_value.to_bytes32().to_vec(),
             temp_value.to_bytes32().to_vec(),
         ])?;
-        
+
         // Verify both storages have correct values
         assert_eq!(
             info.storage.get(&U256::from_le_bytes(Counter::STORAGE_KEY)),
             Some(&U256::from(perm_value))
         );
         assert_eq!(
-            info.transient_storage.get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
+            info.transient_storage
+                .get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
             Some(&U256::from(temp_value))
         );
     }
@@ -106,7 +110,8 @@ fn mixed_storage() -> anyhow::Result<()> {
             Some(&U256::from(perm_value))
         );
         assert_eq!(
-            info.transient_storage.get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
+            info.transient_storage
+                .get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
             None
         );
     }

@@ -1,6 +1,10 @@
 //! Double key mapping
 
-use crate::{ffi, storage::{StorageValue, TransientStorageValue}, Asm};
+use crate::{
+    ffi,
+    storage::{StorageValue, TransientStorageValue},
+    Asm,
+};
 
 /// Storage mapping interface
 pub trait DoubleKeyMapping {

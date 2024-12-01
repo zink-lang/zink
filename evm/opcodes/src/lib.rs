@@ -1,12 +1,11 @@
 //! Ethereum virtual machine opcode
 #![deny(missing_docs)]
 
-mod shanghai;
 mod cancun;
+mod shanghai;
 
-pub use shanghai::ShangHai;
 pub use cancun::Cancun;
-
+pub use shanghai::ShangHai;
 
 /// Ethereum virtual machine opcode generator.
 #[macro_export]
@@ -189,7 +188,7 @@ pub enum Upgrade {
     /// Shanghai
     Shanghai,
     /// Cancun
-    Cancun
+    Cancun,
 }
 
 /// Ethereum virtual machine opcode.
