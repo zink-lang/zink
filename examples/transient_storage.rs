@@ -4,7 +4,7 @@
 
 extern crate zink;
 
-use zink::TransientStorage;
+use zink::storage::TransientStorage;
 
 /// Temporary counter with value type `i32` that resets after each transaction
 #[zink::transient_storage(i32)]
