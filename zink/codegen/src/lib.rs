@@ -11,7 +11,6 @@ mod revert;
 mod selector;
 mod storage;
 mod utils;
-mod transient_storage;
 
 /// Revert with the input message
 ///
