@@ -3,6 +3,7 @@
 use crate::primitives::{Address, U256};
 
 pub mod asm;
+pub mod bytes;
 pub mod evm;
 
 #[link(wasm_import_module = "zinkc")]

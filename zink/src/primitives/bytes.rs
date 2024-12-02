@@ -5,19 +5,32 @@ use paste::paste;
 macro_rules! impl_bytes {
     ($count:expr) => {
         paste! {
+            #[derive(Debug, Clone, Copy)]
             pub struct [<Bytes $count>] (
+                #[allow(unused)]
                 #[cfg(target_family = "wasm")] i32,
                 #[cfg(not(target_family = "wasm"))] pub [u8; $count],
             );
 
             impl [<Bytes $count>] {
+                /// Returns empty bytes
+                #[cfg(target_family = "wasm")]
+                pub const fn empty() -> Self {
+                    [<Bytes $count>](0)
+                }
+
+                #[cfg(not(target_family = "wasm"))]
+                pub const fn empty() -> Self {
+                    [<Bytes $count>]([0; $count])
+                }
+
                 /// if self equal to another
-                ///
-                /// NOTE: not using core::cmp because it uses registers in wasm
                 #[allow(clippy::should_implement_trait)]
                 #[inline(always)]
-                pub fn eq(self, _other: Self) -> bool {
-                    todo!("unsafe {{ ffi::bytesn_eq(self, other) }}")
+                pub fn eq(self, other: Self) -> bool {
+                    paste::paste! {
+                        unsafe { ffi::bytes::[< bytes $count _eq >](self, other) }
+                    }
                 }
             }
 
