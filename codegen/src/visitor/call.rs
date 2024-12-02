@@ -10,7 +10,7 @@ use crate::{
     Error, Function, Result,
 };
 use anyhow::anyhow;
-use opcodes::ShangHai as OpCode;
+use opcodes::Cancun as OpCode;
 
 impl Function {
     /// The call indirect instruction calls a function indirectly                                                                                                                                          
