@@ -10,7 +10,6 @@ mod event;
 pub mod ffi;
 pub mod primitives;
 pub mod storage;
-
 pub use self::{asm::Asm, event::Event};
 pub use storage::{DoubleKeyMapping, Mapping, Storage, TransientStorage};
 pub use zink_codegen::{external, revert, storage, transient_storage, Event};
