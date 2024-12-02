@@ -22,7 +22,7 @@ pub trait Storage {
     /// Set value to storage.
     fn set(value: Self::Value) {
         value.push();
-        Asm::push(Self::STORAGE_SLOT); 
+        Asm::push(Self::STORAGE_SLOT);
         unsafe {
             ffi::evm::sstore();
         }

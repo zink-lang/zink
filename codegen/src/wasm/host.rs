@@ -12,8 +12,6 @@ pub enum HostFunc {
     Evm(OpCode),
     /// No operations, this only covers `push_$ty` at the moment.
     NoOp,
-    /// Transient storage operations
-    TransientOp(OpCode),
     // Zinkc helper functions
     //
     /// Emit ABI to the compiler.
@@ -41,7 +39,6 @@ impl HostFunc {
     pub fn stack_out(&self) -> u8 {
         match self {
             Self::Evm(op) => op.stack_out() as u8,
-            Self::TransientOp(op) => op.stack_out() as u8,
             _ => 0,
         }
     }
@@ -57,7 +54,7 @@ impl TryFrom<(&str, &str)> for HostFunc {
                 if name.starts_with("sload") {
                     Ok(Self::Evm(OpCode::SLOAD))
                 } else if name.starts_with("tload") {
-                    Ok(Self::TransientOp(OpCode::TLOAD))
+                    Ok(Self::Evm(OpCode::TLOAD))
                 } else if name.starts_with("revert") {
                     let count = name.trim_start_matches("revert");
                     Ok(Self::Revert(count.parse().map_err(|e| anyhow!("{e}"))?))
@@ -66,11 +63,11 @@ impl TryFrom<(&str, &str)> for HostFunc {
                 }
             }
             ("evm", name) => match name {
-                "tstore" => Ok(Self::TransientOp(OpCode::TSTORE)),
-                "tload" => Ok(Self::TransientOp(OpCode::TLOAD)),
-                "mcopy" => Ok(Self::TransientOp(OpCode::MCOPY)),
-                "blobhash" => Ok(Self::TransientOp(OpCode::BLOBHASH)),
-                "blobbasefee" => Ok(Self::TransientOp(OpCode::BLOBBASEFEE)),
+                "tstore" => Ok(Self::Evm(OpCode::TSTORE)),
+                "tload" => Ok(Self::Evm(OpCode::TLOAD)),
+                "mcopy" => Ok(Self::Evm(OpCode::MCOPY)),
+                "blobhash" => Ok(Self::Evm(OpCode::BLOBHASH)),
+                "blobbasefee" => Ok(Self::Evm(OpCode::BLOBBASEFEE)),
                 _ => Ok(Self::Evm(OpCode::from_str(name).map_err(|_| {
                     tracing::error!("Failed to load host function: {:?}", import);
                     Error::HostFuncNotFound(module.into(), name.into())
