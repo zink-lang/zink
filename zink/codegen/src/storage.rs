@@ -97,7 +97,7 @@ impl Storage {
         let keyl = Literal::byte_string(&key);
         let trait_path = match self.kind {
             StorageKind::Persistent => quote!(zink::storage::Storage),
-            StorageKind::Transient => quote!(zink::transient_storage::TransientStorage),
+            StorageKind::Transient => quote!(zink::storage::TransientStorage),
         };
 
         let mut expanded = quote! {
