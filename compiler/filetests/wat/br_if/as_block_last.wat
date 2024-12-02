@@ -6,7 +6,7 @@
        )
  (func $internal (param i32)
        (block
-           (call $dummy)
+         (call $dummy)
          (call $dummy)
          (br_if 0 (local.get 0))
          )

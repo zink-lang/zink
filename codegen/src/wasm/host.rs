@@ -58,6 +58,10 @@ impl TryFrom<(&str, &str)> for HostFunc {
                 } else if name.starts_with("revert") {
                     let count = name.trim_start_matches("revert");
                     Ok(Self::Revert(count.parse().map_err(|e| anyhow!("{e}"))?))
+                } else if name.starts_with("mulmod") {
+                    Ok(Self::Evm(OpCode::MULMOD))
+                } else if name.starts_with("addmod") {
+                    Ok(Self::Evm(OpCode::ADDMOD))
                 } else {
                     Ok(Self::NoOp)
                 }
@@ -78,7 +82,10 @@ impl TryFrom<(&str, &str)> for HostFunc {
             ("zinkc", "u256_add") => Ok(Self::Evm(OpCode::ADD)),
             ("zinkc", "u256_sub") => Ok(Self::Evm(OpCode::SUB)),
             ("zinkc", "u256_lt") => Ok(Self::Evm(OpCode::LT)),
+            ("zinkc", "u256_eq") => Ok(Self::Evm(OpCode::EQ)),
             ("zinkc", "u256_max") => Ok(Self::U256MAX),
+            ("zinkc", "u256_addmod") => Ok(Self::Evm(OpCode::ADDMOD)),
+            ("zinkc", "u256_mulmod") => Ok(Self::Evm(OpCode::MULMOD)),
             ("zinkc", "label_reserve_mem_32") => Ok(Self::Label(CompilerLabel::ReserveMemory32)),
             ("zinkc", "label_reserve_mem_64") => Ok(Self::Label(CompilerLabel::ReserveMemory64)),
             _ => {
@@ -94,4 +101,23 @@ impl TryFrom<(&str, &str)> for HostFunc {
 pub enum CompilerLabel {
     ReserveMemory32,
     ReserveMemory64,
+}
+
+#[cfg(test)]
+mod tests {
+    use anyhow::Ok;
+
+    use super::*;
+
+    #[test]
+    fn test_addmod_mulmod_host_functions() -> anyhow::Result<()> {
+        let addmod_func = HostFunc::try_from(("zinkc", "u256_addmod"))?;
+
+        assert_eq!(addmod_func, HostFunc::Evm(OpCode::ADDMOD));
+
+        // Test MULMOD host function conversion
+        let mulmod_func = HostFunc::try_from(("zinkc", "u256_mulmod"));
+        assert!(mulmod_func.is_ok());
+        Ok(())
+    }
 }

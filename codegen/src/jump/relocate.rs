@@ -36,12 +36,7 @@ impl JumpTable {
                 pc,
                 self.code.offset()
             );
-            let mut target = self.target(&jump)?;
-
-            // If the jump is an offset, adjust the target accordingly.
-            if jump.is_offset() {
-                self.update_offset_target(pc, &mut target)?;
-            }
+            let target = self.target(&jump)?;
 
             tracing::debug!(
                 "relocate: pc=0x{:x}, jump={:?}, target=0x{:x}",
@@ -57,31 +52,6 @@ impl JumpTable {
 
         // Extend the buffer with the finished code section.
         buffer.extend_from_slice(&self.code.finish());
-        Ok(())
-    }
-
-    /// Relocate the target of an offset jump.
-    ///
-    /// This function adjusts the target program counter for jumps that are
-    /// represented as offsets. It modifies the target based on the original
-    /// program counter and checks for specific conditions that may require
-    /// further adjustments.
-    fn update_offset_target(&self, pc: u16, target: &mut u16) -> Result<()> {
-        // NOTE: If the target is offset, the return data is the offset instead of the PC.
-        *target += pc;
-
-        // Check if the original program counter of the offset is greater than 0xff.
-        if *target > 0xff {
-            *target += 1;
-        }
-
-        // Check if the offset of the embedded call is greater than 0xff.
-        if let Some((_, next_target)) = self.jump.first_key_value() {
-            if next_target.is_call() && self.target(next_target)? > 0xff {
-                *target += 1
-            }
-        }
-
         Ok(())
     }
 }
