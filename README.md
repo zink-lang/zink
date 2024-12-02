@@ -1,91 +1,68 @@
 <img align="right" width="150" height="150" top="100" src = "https://avatars.githubusercontent.com/u/138247979?s=400&u=cbf4b9e9da048899a947f08d92e030806d5bd50b&v=4"/>
 
-# The Zink Project
+# The Zink Language
 
 > [!CAUTION]
 >
-> This project is still under active development, plz DO NOT use it in production.
+> This project is still under active development, please DO NOT use it in production.
 
 [![zink][version-badge]][version-link]
 [![ci][ci-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
 
-[The Zink project][book] mainly provides a singlepass compiler `zinkc` which compiles
-WASM to EVM bytecode, the source code of your smart contracts could be any language you like!
+Rustic smart contract language that targets the EVM.
 
 ```mermaid
 flowchart LR
-    R{{Rust}} --> W(WebAssembly)
-    O[...] --> W
+    R{{Rust}} --> W(WASM)
     W --> Z{Zink Compiler}
     Z --> V[(EVM)]
 ```
 
-Here we highly recommend you to choose `rust` as the language of your smart contracts
-which will unlock all of the following features:
+- **Safe**: `rustc` monitors your code! After compiling to WASM, `zinkc` precomputes stack
+  and memory usage to ensure safety in EVM bytecode.
 
-- **Safe**: `rustc` is watching you! Furthermore, after compiling your rust code to WASM,
-  `zinkc` will precompute all of the stack and memory usage in your contracts to ensure they
-  are safe in EVM bytecode as well!
+- **High Performance**: Optimizations from `rustc`, `wasm-opt`, and `zinkc` yield small,
+  high-performance EVM bytecode.
 
-- **High Performance**: The optimizations are provided by the three of `rustc`, `wasm-opt`
-  and `zinkc`, your contracts will have the smallest size with **strong performance** in EVM
-  bytecode at the end!
+- **Modular**: Upload and download your contract components via `crates.io`.
 
-- **Compatible**: All of the `no_std` libraries in rust are your libraries, you can use your
-  solidity contracts as part of your zink contracts and your zink contracts as part of your
-  solidity contracts :)
-
-- **Easy Debugging**: Developing your smart contracts with only one programming language!
-  zink will provide everything you need for developing your contracts officially based on the
-  stable projects in rust like the `foundry` tools.
+- **Easy Debugging**: Develop smart contracts just in rust! All of the rust tools are available for your contracts!
 
 Run `cargo install zinkup` to install the toolchain!
 
-## Fibonacci Example
-
-| fib(n) | Zink | Solidity@0.8.21 |
-| ------ | ---- | --------------- |
-| 0      | 110  | 614             |
-| 1      | 110  | 614             |
-| 2      | 262  | 1322            |
-| 3      | 414  | 2030            |
-| 4      | 718  | 3446            |
-| 5      | 1174 | 5570            |
+## ERC20 Example (In Development)
 
 ```rust
-/// Calculates the nth fibonacci number using recursion.
-#[no_mangle]
-pub extern "C" fn recursion(n: usize) -> usize {
-    if n < 2 {
-        n
-    } else {
-        recursion(n - 1) + recursion(n - 2)
-    }
+#[zink::contract]
+pub struct ERC20;
+
+#[zink::calls]
+impl ERC20 {
+  /// VMs that zink supports
+  pub fn support() -> [zink::String; 4] {
+    ["EVM", "WASM", "RISC-V", "...OTHER_VMS"]
+  }
+}
+
+#[zink::interface]
+impl ERC20 for ERC20 {
+  fn name() -> zink::String {
+    "Zink Language".to_string()
+  }
 }
 ```
 
-As an example for the benchmark, calculating fibonacci sequence with recursion, missed
-vyper because it doesn't support recursion...Zink is 5x fast on this, but it is mainly
-caused by our current implementation is not completed yet ( missing logic to adapt to more
-situations ), let's stay tuned for `v0.3.0`.
+## Special Thanks
 
-## Donation
-
-After completing the ERC20 implementation, Zink will focus on MEV logic since everything could
-be even more compact and realistic from this dark forest. 
-
-Zink is now moving forward without any grants or backups, if you like this dreaming project, 
-please feel free to reach out, would be appreciated for any opportunities ^ ^
-
-- ETH: `0xf0306047Fa598fe95502f466aeb49b68dd94365B`
-- SOL: `AZGXAerErfwVzJkiSR8moVPZxe1nEhvjdkvxQ7qR6Yst`
+- [MegaETH](https://github.com/MegaETH) for the funding and trust!
+- [revm](https://github.com/bluealloy/revm) for the EVM in rust!
 
 ## LICENSE
 
 GPL-3.0-only
 
-[book]: https://docs.zink-lang.org/
+[book]: https://zink-lang.org/
 [telegram-badge]: https://img.shields.io/endpoint?label=chat&style=flat&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dzinklang
 [telegram-group]: https://t.me/zinklang
 [version-badge]: https://img.shields.io/crates/v/zinkc
