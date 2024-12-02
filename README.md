@@ -10,6 +10,14 @@
 [![ci][ci-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
 
+- **Safe**: `rustc` monitors your code!
+
+- **Efficient**: Efficient EVM bytecode from `rustc`, `wasm-opt`, and `zinkc`.
+
+- **Modular**: Upload and download your contract components via `crates.io`.
+
+- **Rusty**: All of the rust tools are available for your contracts!
+
 ```rust
 //! ERC20 Example (In Development)
 #[zink::contract]
@@ -31,15 +39,7 @@ impl ERC20 for ERC20 {
 }
 ```
 
-- **Safe**: `rustc` monitors your code!
-
-- **Efficient**: Optimizations from `rustc`, `wasm-opt`, and `zinkc` yield efficient EVM bytecode.
-
-- **Modular**: Upload and download your contract components via `crates.io`.
-
-- **Easy Debugging**: All of the rust tools are available for your contracts!
-
-Run `cargo install zinkup` to install the toolchain! See [book](https://zink-lang.org/) for the handbook.
+Run `cargo install zinkup` to install the toolchain! See [book](https://zink-lang.org/) for more details.
 
 ## Testing & Development
 
