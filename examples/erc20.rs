@@ -39,22 +39,21 @@ pub fn decimals() -> u32 {
 
 #[zink::external]
 pub fn transfer(to: Address, value: U256) -> bool {
-    let owner = unsafe { zink::ffi::evm::caller() };
+    let owner = Address::caller();
     _transfer(owner, to, value);
     true
 }
 
 #[zink::external]
 pub fn approve(spender: Address, value: U256) -> bool {
-    // TODO: wrap this in env
-    let owner = unsafe { zink::ffi::evm::caller() };
-    _approve(owner, spender, value, false);
+    let owner = Address::caller();
+    _approve(owner, spender, value);
     true
 }
 
 #[zink::external]
 pub fn transfer_from(from: Address, to: Address, value: U256) -> bool {
-    let spender = unsafe { zink::ffi::evm::caller() };
+    let spender = Address::caller();
     _spend_allowance(from, spender, value);
     _transfer(from, to, value);
     true
@@ -79,6 +78,7 @@ fn _update(from: Address, to: Address, value: U256) {
         TotalSupply::set(TotalSupply::get().add(value));
     } else {
         let from_balance = Balances::get(from);
+
         if from_balance.lt(value) {
             zink::revert!("Insufficient balance");
         }
@@ -112,7 +112,7 @@ fn _burn(account: Address, value: U256) {
 }
 
 #[no_mangle]
-fn _approve(owner: Address, spender: Address, value: U256, _emit_event: bool) {
+fn _approve(owner: Address, spender: Address, value: U256) {
     if owner.eq(Address::empty()) {
         zink::revert!("ERC20 Invalid approval");
     }
@@ -132,26 +132,28 @@ fn _spend_allowance(owner: Address, spender: Address, value: U256) {
             zink::revert!("ERC20 Insufficient allowance");
         }
 
-        _approve(owner, spender, current_allowance.sub(value), false)
+        _approve(owner, spender, current_allowance.sub(value))
     }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-// TODO:
-//
-// 1. nested function allocations
-// 2. memory slots for local variables
 #[test]
-#[ignore]
 fn deploy() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};
 
+    let caller_bytes = hex::decode("be862ad9abfe6f22bcb087716c7d89a26051f74c")?;
+    let spender = [42; 20];
+    let mut caller = [0; 20];
+    caller.copy_from_slice(&caller_bytes);
+
+    let mut evm = EVM::default().commit(true).caller(caller);
     let mut contract = Contract::search("erc20")?.compile()?;
-    let mut evm = EVM::default().commit(true);
     let name = "The Zink Language";
     let symbol = "zink";
+    let value = 42;
+    //let half_value = 21;
 
     // 1. deploy
     let info = evm.deploy(
@@ -167,6 +169,10 @@ fn deploy() -> anyhow::Result<()> {
                         TotalSupply::STORAGE_KEY.to_bytes32().into(),
                         vec![42].try_into()?,
                     ),
+                    (
+                        Balances::storage_key(Address(caller)).into(),
+                        vec![42].try_into()?,
+                    ),
                 ]
                 .into_iter()
                 .collect(),
@@ -175,43 +181,90 @@ fn deploy() -> anyhow::Result<()> {
     )?;
     let address = info.address;
 
-    // 2. get name
-    let info = evm
-        .calldata(&contract.encode(&[b"name()".to_vec()])?)
-        .call(address)?;
-    assert_eq!(info.ret, name.to_bytes32());
+    // 2. get static data
+    {
+        // 2.1. get name
+        let info = evm
+            .calldata(&contract.encode(&[b"name()".to_vec()])?)
+            .call(address)?;
+        assert_eq!(info.ret, name.to_bytes32(), "{info:?}");
 
-    // 3. get symbol
-    let info = evm
-        .calldata(&contract.encode(&[b"symbol()".to_vec()])?)
-        .call(address)?;
-    assert_eq!(info.ret, symbol.to_bytes32());
+        // 2.2. get symbol
+        let info = evm
+            .calldata(&contract.encode(&[b"symbol()".to_vec()])?)
+            .call(address)?;
+        assert_eq!(info.ret, symbol.to_bytes32(), "{info:?}");
 
-    // 3. get total supply
-    let info = evm
-        .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
-        .call(address)?;
-    assert_eq!(info.ret, 42u64.to_bytes32());
+        // 2.3. get total supply
+        let info = evm
+            .calldata(&contract.encode(&[b"total_supply()".to_vec()])?)
+            .call(address)?;
+        assert_eq!(info.ret, 42u64.to_bytes32(), "{info:?}");
 
-    // 4. check decimals
-    let info = evm
-        .calldata(&contract.encode(&[b"decimals()".to_vec()])?)
-        .call(address)?;
-    assert_eq!(info.ret, 8u64.to_bytes32());
+        // 2.4. check decimals
+        let info = evm
+            .calldata(&contract.encode(&[b"decimals()".to_vec()])?)
+            .call(address)?;
+        assert_eq!(info.ret, 8u64.to_bytes32(), "{info:?}");
 
-    // 5. check approve
-    let info = evm
-        .calldata(&contract.encode(&[
-            b"approve(address,uint256)".to_vec(),
-            [1; 20].to_vec(),
-            42.to_bytes32().to_vec(),
-        ])?)
-        .call(address)?;
-    println!("{info:?}");
-    println!("{:?}", String::from_utf8_lossy(&info.ret));
-    let storage_key = Allowance::storage_key(Address::empty(), Address([1; 20]));
-    let storage = evm.storage(contract.address, storage_key)?;
-    println!("{storage:?}");
+        // 2.5. check balance of the caller
+        let balance = evm.storage(address, Balances::storage_key(Address(caller)))?;
+        assert_eq!(value.to_bytes32(), balance);
+    }
+
+    // 3. check approval
+    {
+        // 3.1. approve
+        let info = evm
+            .calldata(&contract.encode(&[
+                b"approve(address,uint256)".to_vec(),
+                spender.to_bytes32().to_vec(),
+                value.to_bytes32().to_vec(),
+            ])?)
+            .call(address)?;
+        assert_eq!(info.ret, true.to_bytes32(), "{info:?}");
+
+        let allowance = evm.storage(
+            address,
+            Allowance::storage_key(Address(evm.caller), Address(spender)),
+        )?;
+        assert_eq!(value.to_bytes32(), allowance);
+
+        // 3.2. check approval results
+        let info = evm
+            .calldata(&contract.encode(&[
+                b"allowance(address,address)".to_vec(),
+                evm.caller.to_bytes32().to_vec(),
+                spender.to_bytes32().to_vec(),
+            ])?)
+            .call(address)?;
+        assert_eq!(info.ret, allowance);
+    }
+
+    // 4. check transfer
+    {
+        // 4.1. verify balance of the caller
+        let info = evm
+            .calldata(&contract.encode(&[
+                b"balances(address)".to_vec(),
+                evm.caller.to_bytes32().to_vec(),
+            ])?)
+            .call(address)?;
+        assert_eq!(info.ret, value.to_bytes32(), "{info:?}");
+
+        //  TODO: see br_balance.rs (#287)
+        // 4.2. check transfer
+        /* evm = evm.commit(false);
+        let info = evm
+            .calldata(&contract.encode(&[
+                b"transfer(address,uint256)".to_vec(),
+                spender.to_bytes32().to_vec(),
+                half_value.to_bytes32().to_vec(),
+            ])?)
+            .call(address)?;
+        println!("{info:?}");
+        assert_eq!(info.ret, true.to_bytes32(), "{info:?}"); */
+    }
 
     Ok(())
 }

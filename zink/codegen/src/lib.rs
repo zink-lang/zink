@@ -4,7 +4,9 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, Attribute, DeriveInput, ItemFn, ItemStruct, LitStr};
+use proc_macro2::Span;
+use quote::ToTokens;
+use syn::{parse_macro_input, Attribute, DeriveInput, Expr, ItemFn, ItemStruct, LitStr};
 
 mod event;
 mod revert;
@@ -19,6 +21,16 @@ mod utils;
 pub fn revert(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as LitStr);
     revert::parse(input)
+}
+
+/// Check and expression and revert with the input message
+///
+/// This is similar with the builtin `assert!` in rust, but the revert
+/// message only support raw string.
+#[proc_macro]
+pub fn assert(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as revert::AssertInput);
+    revert::parse_assert(input)
 }
 
 /// Event logging interface

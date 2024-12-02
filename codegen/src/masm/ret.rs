@@ -34,6 +34,7 @@ impl MacroAssembler {
         let len = results.len() as u8;
 
         tracing::trace!("cleaning frame stack, target: {}", len + 1);
+        // TODO: clean stacks via the count of nested control stacks.
         while self.sp() > len + 1 {
             self._drop()?;
         }
