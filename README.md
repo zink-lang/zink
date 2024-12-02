@@ -10,30 +10,8 @@
 [![ci][ci-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
 
-Rustic smart contract language that targets the EVM.
-
-```mermaid
-flowchart LR
-    R{{Rust}} --> W(WASM)
-    W --> Z{Zink Compiler}
-    Z --> V[(EVM)]
-```
-
-- **Safe**: `rustc` monitors your code! After compiling to WASM, `zinkc` precomputes stack
-  and memory usage to ensure safety in EVM bytecode.
-
-- **High Performance**: Optimizations from `rustc`, `wasm-opt`, and `zinkc` yield small,
-  high-performance EVM bytecode.
-
-- **Modular**: Upload and download your contract components via `crates.io`.
-
-- **Easy Debugging**: Develop smart contracts just in rust! All of the rust tools are available for your contracts!
-
-Run `cargo install zinkup` to install the toolchain!
-
-## ERC20 Example (In Development)
-
 ```rust
+//! ERC20 Example (In Development)
 #[zink::contract]
 pub struct ERC20;
 
@@ -53,9 +31,30 @@ impl ERC20 for ERC20 {
 }
 ```
 
+- **Safe**: `rustc` monitors your code!
+
+- **Efficient**: Optimizations from `rustc`, `wasm-opt`, and `zinkc` yield efficient EVM bytecode.
+
+- **Modular**: Upload and download your contract components via `crates.io`.
+
+- **Easy Debugging**: All of the rust tools are available for your contracts!
+
+Run `cargo install zinkup` to install the toolchain! See [book](https://zink-lang.org/) for the handbook.
+
+## Testing & Development
+
+| Command    | Description            |
+| ---------- | ---------------------- |
+| `cargo cc` | Clippy all packages    |
+| `cargo tt` | Run all tests          |
+| `cargo be` | Build all examples     |
+| `cargo te` | Run tests for examples |
+
+We're using `cargo-nextest` for testing, the commands above are described in [.cargo/config.toml](.cargo/config.toml).
+
 ## Special Thanks
 
-- [MegaETH](https://github.com/MegaETH) for the funding and trust!
+- [MegaETH](https://github.com/megaeth-labs) for the funding and trust!
 - [revm](https://github.com/bluealloy/revm) for the EVM in rust!
 
 ## LICENSE
