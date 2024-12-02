@@ -10,16 +10,10 @@
 [![ci][ci-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
 
-- **Safe**: `rustc` monitors your code!
-
-- **Efficient**: Efficient EVM bytecode from `rustc`, `wasm-opt`, and `zinkc`.
-
-- **Modular**: Upload and download your contract components via `crates.io`.
-
-- **Rusty**: All of the rust tools are available for your contracts!
+Welcome to the Zink Language! [Bounty issues](https://zink-lang.org/budgets) are now available, join the development of Zink by reading the [book](https://zink-lang.org/).
 
 ```rust
-//! ERC20 Example (In Development)
+//! ERC20 Example (WIP)
 #[zink::contract]
 pub struct ERC20;
 
@@ -39,7 +33,15 @@ impl ERC20 for ERC20 {
 }
 ```
 
-Run `cargo install zinkup` to install the toolchain! See [book](https://zink-lang.org/) for more details.
+- **Safe**: `rustc` monitors your code!
+
+- **Efficient**: Efficient EVM bytecode from `rustc`, `wasm-opt`, and `zinkc`.
+
+- **Modular**: Upload and download your contract components via `crates.io`.
+
+- **Rusty**: All of the rust tools are available for your contracts!
+
+Run `cargo install zinkup` to install the toolchain!
 
 ## Testing & Development
 
