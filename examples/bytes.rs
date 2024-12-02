@@ -6,7 +6,7 @@ extern crate zink;
 
 use zink::{primitives::Bytes16, Storage};
 
-/// Counter with value type `i32`
+/// Counter with value type `Bytes16`
 #[zink::storage(Bytes16)]
 pub struct Bytes;
 
@@ -19,9 +19,22 @@ pub fn set(value: Bytes16) {
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
-#[ignore]
 #[test]
 fn value() -> anyhow::Result<()> {
-    // TODO: see `./owner.rs`
+    use zink::Asm;
+    use zint::Contract;
+
+    let mut contract = Contract::search("bytes")?.compile()?;
+    let new_storage = [8u8; 16];
+    let mut evm = contract.deploy()?.commit(true);
+
+    evm.calldata(&contract.encode(&[b"set(bytes)".to_vec(), new_storage.to_vec()])?)
+        .call(contract.address)?;
+
+    assert_eq!(
+        evm.storage(contract.address, [0; 32])?,
+        Bytes16(new_storage).bytes32(),
+    );
+
     Ok(())
 }

@@ -36,7 +36,7 @@ macro_rules! impl_bytes {
 
             impl Asm for [<Bytes $count>] {
                 fn push(self) {
-                    todo!("unsafe {{ ffi::push_bytesn(self, other) }}")
+                    unsafe { ffi::bytes::[<push_bytes $count>](self) }
                 }
 
                 #[cfg(not(target_family = "wasm"))]
@@ -49,7 +49,7 @@ macro_rules! impl_bytes {
 
             impl StorageValue for [<Bytes $count>] {
                 fn sload() -> Self {
-                    todo!("unsafe {{ ffi::asm::bytesn() }}")
+                    unsafe { ffi::bytes::[<sload_bytes $count>]() }
                 }
             }
         }

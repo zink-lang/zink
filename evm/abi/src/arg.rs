@@ -67,8 +67,9 @@ impl From<&str> for Param {
             "U256" | "u256" | "uint256" => Param::UInt256,
             "bool" => Param::Bool,
             "address" | "Address" => Param::Address,
-            "Bytes" | "Vec<u8>" => Param::Bytes,
             "String" | "String32" => Param::String,
+            "Vec<u8>" => Param::Bytes,
+            bytes if bytes.starts_with("Bytes") => Param::Bytes,
             _ => Param::Unknown(s.to_string()),
         }
     }

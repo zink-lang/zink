@@ -4,7 +4,7 @@ use crate::primitives::*;
 
 macro_rules! impl_bytes {
     ($($count:expr),*) => {
-        #[link(wasm_import_module = "evm")]
+        #[link(wasm_import_module = "bytes")]
         #[allow(improper_ctypes)]
         extern "C" {
             paste::paste! {
@@ -13,7 +13,7 @@ macro_rules! impl_bytes {
                 pub fn [< push_bytes $count >] (bytes: [< Bytes $count >]);
 
                 #[doc = concat!("Load ", stringify!($count), " bytes from storage")]
-                pub fn [< sload_bytes $count >] (bytes: [< Bytes $count >]) -> [< Bytes $count >];
+                pub fn [< sload_bytes $count >] () -> [< Bytes $count >];
 
                 #[doc = concat!("Check equal for bytes", stringify!($count))]
                 pub fn [< bytes $count _eq >] (this: [< Bytes $count >], other: [< Bytes $count >]) -> bool;
