@@ -16,8 +16,6 @@ pub enum HostFunc {
     //
     /// Emit ABI to the compiler.
     EmitABI,
-    /// check equal of two addresses
-    AddressEq,
     /// Push u256 max to stack
     U256MAX,
     /// Revert messages with length of slots
@@ -52,11 +50,9 @@ impl TryFrom<(&str, &str)> for HostFunc {
         match import {
             ("zinkc", name) => match name {
                 "emit_abi" => Ok(Self::EmitABI),
-                "address_eq" => Ok(Self::Evm(OpCode::EQ)),
                 "u256_add" => Ok(Self::Evm(OpCode::ADD)),
                 "u256_sub" => Ok(Self::Evm(OpCode::SUB)),
                 "u256_lt" => Ok(Self::Evm(OpCode::LT)),
-                "u256_eq" => Ok(Self::Evm(OpCode::EQ)),
                 "u256_max" => Ok(Self::U256MAX),
                 "u256_addmod" => Ok(Self::Evm(OpCode::ADDMOD)),
                 "u256_mulmod" => Ok(Self::Evm(OpCode::MULMOD)),
