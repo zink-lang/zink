@@ -9,15 +9,10 @@ use zink::storage::TransientStorage;
 #[zink::transient_storage(i32)]
 pub struct TempCounter;
 
-/// Set value to the transient storage.
+/// Set and get value via the transient storage.
 #[zink::external]
-pub fn set_temp(value: i32) {
+pub fn set_and_get_temp(value: i32) -> i32 {
     TempCounter::set(value);
-}
-
-/// Get value from the transient storage.
-#[zink::external]
-pub fn get_temp() -> i32 {
     TempCounter::get()
 }
 
