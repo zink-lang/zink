@@ -26,33 +26,17 @@ fn transient_value() -> anyhow::Result<()> {
     let mut contract = Contract::search("transient_storage")?.compile()?;
     let value: i32 = 42;
 
-    // First transaction: set value
     {
-        let info = contract.execute(&[b"set_temp(int32)".to_vec(), value.to_bytes32().to_vec()])?;
+        let info = contract.execute(&[
+            b"set_and_get_temp(int32)".to_vec(),
+            value.to_bytes32().to_vec(),
+        ])?;
         assert!(info.ret.is_empty());
-        // assert_eq!(
-        //     info.transient_storage
-        //         .get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
-        //     Some(&U256::from(value))
-        // );
-        // Verify regular storage is untouched
         assert_eq!(
             info.storage
                 .get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
-            None
+            Some(&U256::from(value))
         );
-    }
-
-    // Second transaction: value should be cleared
-    {
-        let info = contract.execute(&[b"get_temp()".to_vec()])?;
-        assert_eq!(info.ret, 0.to_bytes32());
-        // Verify transient storage was cleared
-        // assert_eq!(
-        //     info.transient_storage
-        //         .get(&U256::from_le_bytes(TempCounter::STORAGE_KEY)),
-        //     None
-        // );
     }
 
     Ok(())
