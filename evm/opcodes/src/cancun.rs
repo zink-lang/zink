@@ -69,7 +69,10 @@ opcodes! {
     (0x58, PC, 2, 0, 1, "Get the value of the program counter prior to the increment.", Frontier, StackMemoryStorageFlow),
     (0x59, MSIZE, 2, 0, 1, "Get the size of active memory in bytes.", Frontier, StackMemoryStorageFlow),
     (0x5a, GAS, 2, 0, 1, "Get the amount of available gas.", Frontier, StackMemoryStorageFlow),
-    (0x5b, JUMPDEST, 1, 0, 0, "Mark a valid destination for jumps.", Frontier, StackMemoryStorageFlow),
+    (0x5b, JUMPDEST, 1, 0, 0, "Mark a valid destination for jumps.", Frontier, StackMemoryStorageFlow),|
+   (0x5c, TLOAD, ...),
+   (0x5d, TSTORE, ...),
+   (0x5e, MCOPY, ...)
     (0x5f, PUSH0, 2, 0, 1, "Place 0 byte item on stack.", Shanghai, Push),
     (0x60, PUSH1, 3, 0, 1, "Place 1 byte item on stack.", Frontier, Push),
     (0x61, PUSH2, 3, 0, 1, "Place 2-byte item on stack.", Frontier, Push),
