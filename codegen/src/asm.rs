@@ -3,7 +3,7 @@
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
 use crate::{Buffer, Error, Result};
-use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
+use opcodes::{for_each_cancun_operator, Cancun as OpCode, OpCode as _};
 
 /// Low level assembler implementation for EVM.
 #[derive(Default, Clone, Debug)]
@@ -141,5 +141,5 @@ macro_rules! impl_opcodes {
 
 /// Basic instruction implementations
 impl Assembler {
-    for_each_shanghai_operator!(impl_opcodes);
+    for_each_cancun_operator!(impl_opcodes);
 }

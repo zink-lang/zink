@@ -81,6 +81,24 @@ pub fn storage(attr: TokenStream, input: TokenStream) -> TokenStream {
     storage::Storage::parse(ty, input)
 }
 
+/// Declare transient storage (cleared after each transaction)
+///
+/// ```ignore
+/// /// transient storage value
+/// #[zink::transient_storage(i32)]
+/// pub struct TempCounter;
+///
+/// /// transient storage mapping
+/// #[zink::transient_storage(i32, i32)]
+/// pub struct TempMapping;
+/// ```
+#[proc_macro_attribute]
+pub fn transient_storage(attr: TokenStream, input: TokenStream) -> TokenStream {
+    let ty = storage::StorageType::from(attr);
+    let input = parse_macro_input!(input as ItemStruct);
+    storage::Storage::parse_transient(ty, input)
+}
+
 /// Mark the function as an external entry point.
 #[proc_macro_attribute]
 pub fn external(_args: TokenStream, input: TokenStream) -> TokenStream {

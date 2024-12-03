@@ -3,7 +3,7 @@
 use crate::{Error, Result};
 use anyhow::anyhow;
 use core::str::FromStr;
-use opcodes::{OpCode as _, ShangHai as OpCode};
+use opcodes::{Cancun as OpCode, OpCode as _};
 
 /// EVM built-in function.
 #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq)]
@@ -53,10 +53,10 @@ impl TryFrom<(&str, &str)> for HostFunc {
             ("asm", name) => {
                 if name.starts_with("sload") {
                     Ok(Self::Evm(OpCode::SLOAD))
+                } else if name.starts_with("tload") {
+                    Ok(Self::Evm(OpCode::TLOAD))
                 } else if name.starts_with("revert") {
                     let count = name.trim_start_matches("revert");
-
-                    // TODO: use anyhow instead of Error
                     Ok(Self::Revert(count.parse().map_err(|e| anyhow!("{e}"))?))
                 } else if name.starts_with("mulmod") {
                     Ok(Self::Evm(OpCode::MULMOD))
@@ -66,10 +66,17 @@ impl TryFrom<(&str, &str)> for HostFunc {
                     Ok(Self::NoOp)
                 }
             }
-            ("evm", name) => Ok(Self::Evm(OpCode::from_str(name).map_err(|_| {
-                tracing::error!("Failed to load host function: {:?}", import);
-                Error::HostFuncNotFound(module.into(), name.into())
-            })?)),
+            ("evm", name) => match name {
+                "tstore" => Ok(Self::Evm(OpCode::TSTORE)),
+                "tload" => Ok(Self::Evm(OpCode::TLOAD)),
+                "mcopy" => Ok(Self::Evm(OpCode::MCOPY)),
+                "blobhash" => Ok(Self::Evm(OpCode::BLOBHASH)),
+                "blobbasefee" => Ok(Self::Evm(OpCode::BLOBBASEFEE)),
+                _ => Ok(Self::Evm(OpCode::from_str(name).map_err(|_| {
+                    tracing::error!("Failed to load host function: {:?}", import);
+                    Error::HostFuncNotFound(module.into(), name.into())
+                })?)),
+            },
             ("zinkc", "emit_abi") => Ok(Self::EmitABI),
             ("zinkc", "address_eq") => Ok(Self::Evm(OpCode::EQ)),
             ("zinkc", "u256_add") => Ok(Self::Evm(OpCode::ADD)),
