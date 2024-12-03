@@ -1,5 +1,5 @@
 [book]
-title = "The Zink Project"
+title = "The Zink Language"
 authors = ["clearloop"]
 multilingual = false
 src = "."
@@ -9,7 +9,7 @@ edition = "2021"
 
 [output.html]
 cname = "docs.zink-lang.org"
-git-repository-url = "https://github.com/clearloop/zink"
+git-repository-url = "https://github.com/zink-lang/zink"
 git-repository-icon = "fa-github"
 default-theme = "dark"
 preferred-dark-theme = "navy"
@@ -17,11 +17,11 @@ curly-quotes = true
 mathjax-support = false
 
 # If editable
-# edit-url-template = "https://github.com/clearloop/zink/edit/main/docs/{path}"
+edit-url-template = "https://github.com/zink-lang/zink/edit/main/docs/{path}"
 
 # If enable folding chapters
-# [output.html.fold]
-# enable = true
+[output.html.fold]
+enable = true
 # level = 1
 
 [output.html.playground]
