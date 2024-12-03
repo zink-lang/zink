@@ -1,6 +1,10 @@
 //! Double key mapping
 
-use crate::{ffi, storage::StorageValue, Asm};
+use crate::{
+    ffi,
+    storage::{StorageValue, TransientStorageValue},
+    Asm,
+};
 
 /// Storage mapping interface
 pub trait DoubleKeyMapping {
@@ -27,6 +31,35 @@ pub trait DoubleKeyMapping {
         load_double_key(key1, key2, Self::STORAGE_SLOT);
         unsafe {
             ffi::evm::sstore();
+        }
+    }
+}
+
+/// Transient storage mapping interface
+pub trait DoubleKeyTransientMapping {
+    const STORAGE_SLOT: i32;
+
+    type Key1: Asm;
+    type Key2: Asm;
+    type Value: TransientStorageValue;
+
+    #[cfg(not(target_family = "wasm"))]
+    fn storage_key(key1: Self::Key1, key2: Self::Key2) -> [u8; 32];
+
+    /// Get value from transient storage key.
+    #[inline(always)]
+    fn get(key1: Self::Key1, key2: Self::Key2) -> Self::Value {
+        load_double_key(key1, key2, Self::STORAGE_SLOT);
+        Self::Value::tload()
+    }
+
+    /// Set key and value in transient storage
+    #[inline(always)]
+    fn set(key1: Self::Key1, key2: Self::Key2, value: Self::Value) {
+        value.push();
+        load_double_key(key1, key2, Self::STORAGE_SLOT);
+        unsafe {
+            ffi::evm::tstore();
         }
     }
 }

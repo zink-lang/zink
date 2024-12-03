@@ -3,7 +3,7 @@
 use crate::{Error, Result};
 use anyhow::anyhow;
 use core::str::FromStr;
-use opcodes::{OpCode as _, ShangHai as OpCode};
+use opcodes::{Cancun as OpCode, OpCode as _};
 
 /// EVM built-in function.
 #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq)]
@@ -66,6 +66,7 @@ impl TryFrom<(&str, &str)> for HostFunc {
             })?)),
             ("asm", name) => match name {
                 n if n.starts_with("sload") => Ok(Self::Evm(OpCode::SLOAD)),
+                n if n.starts_with("tload") => Ok(Self::Evm(OpCode::TLOAD)),
                 n if n.starts_with("revert") => {
                     let count = n.trim_start_matches("revert");
                     Ok(Self::Revert(count.parse().map_err(|e| anyhow!("{e}"))?))

@@ -15,6 +15,9 @@ macro_rules! impl_bytes {
                 #[doc = concat!("Load ", stringify!($count), " bytes from storage")]
                 pub fn [< sload_bytes $count >] () -> [< Bytes $count >];
 
+                #[doc = concat!("TLoad ", stringify!($count), " bytes from transient storage")]
+                pub fn [< tload_bytes $count >] () -> [< Bytes $count >];
+
                 #[doc = concat!("Check equal for bytes", stringify!($count))]
                 pub fn [< bytes $count _eq >] (this: [< Bytes $count >], other: [< Bytes $count >]) -> bool;
               )*

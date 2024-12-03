@@ -1,4 +1,9 @@
-use crate::{ffi, primitives::Bytes20, storage::StorageValue, Asm};
+use crate::{
+    ffi,
+    primitives::Bytes20,
+    storage::{StorageValue, TransientStorageValue},
+    Asm,
+};
 
 /// Account address
 #[repr(C)]
@@ -54,5 +59,11 @@ impl From<Bytes20> for Address {
 impl From<[u8; 20]> for Address {
     fn from(value: [u8; 20]) -> Self {
         Address(Bytes20(value))
+    }
+}
+
+impl TransientStorageValue for Address {
+    fn tload() -> Self {
+        Address(unsafe { ffi::bytes::tload_bytes20() })
     }
 }
