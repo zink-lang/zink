@@ -69,10 +69,10 @@ opcodes! {
     (0x58, PC, 2, 0, 1, "Get the value of the program counter prior to the increment.", Frontier, StackMemoryStorageFlow),
     (0x59, MSIZE, 2, 0, 1, "Get the size of active memory in bytes.", Frontier, StackMemoryStorageFlow),
     (0x5a, GAS, 2, 0, 1, "Get the amount of available gas.", Frontier, StackMemoryStorageFlow),
-    (0x5b, JUMPDEST, 1, 0, 0, "Mark a valid destination for jumps.", Frontier, StackMemoryStorageFlow),|
-   (0x5c, TLOAD, ...),
-   (0x5d, TSTORE, ...),
-   (0x5e, MCOPY, ...)
+    (0x5b, JUMPDEST, 1, 0, 0, "Mark a valid destination for jumps.", Frontier, StackMemoryStorageFlow),
+    (0x5c, TLOAD, 50, 1, 1, "Load word from transient storage", Cancun, StackMemoryStorageFlow),
+    (0x5d, TSTORE, 0, 2, 0, "Save word to transient storage.", Cancun, StackMemoryStorageFlow),
+    (0x5e, MCOPY, 3,3,0, "copy memory areas", Cancun,StackMemoryStorageFlow),
     (0x5f, PUSH0, 2, 0, 1, "Place 0 byte item on stack.", Shanghai, Push),
     (0x60, PUSH1, 3, 0, 1, "Place 1 byte item on stack.", Frontier, Push),
     (0x61, PUSH2, 3, 0, 1, "Place 2-byte item on stack.", Frontier, Push),
@@ -150,7 +150,6 @@ opcodes! {
     (0xf4, DELEGATECALL, 40, 6, 1, "Message-call with an alternative account's code, persisting the current context.", Frontier, System),
     (0xf5, CREATE2, 32000, 4, 1, "Create a new account with associated code at a specified address.", Constantinople, System),
     (0xfa, STATICCALL, 40, 6, 1, "Static message-call into an account.", Byzantium, System),
-    (0xfb, MCOPY, 3, 3, 0, "Copy memory to memory.", Cancun, System),
     (0xfd, REVERT, 0, 2, 0, "Stop execution and revert state changes, without consuming all gas and providing a reason.", Byzantium, System),
     (0xfe, INVALID, 0, 0, 0, "Designated invalid instruction.", Frontier, System),
     (0xff, SELFDESTRUCT, 5000, 1, 0, "Halt execution and register account for later deletion.", Frontier, System)
