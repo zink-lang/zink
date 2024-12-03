@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Group","ShangHai","Upgrade"],"macro":["for_each_shanghai_operator","opcodes"],"mod":["shanghai"],"trait":["OpCode"]};
+window.SIDEBAR_ITEMS = {"enum":["Cancun","Group","ShangHai","Upgrade"],"macro":["for_each_cancun_operator","for_each_shanghai_operator","opcodes"],"mod":["cancun","shanghai"],"trait":["OpCode"]};

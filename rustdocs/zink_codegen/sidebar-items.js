@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["external","storage"],"derive":["Event"],"macro":["assert","revert"],"mod":["event","revert","selector","storage","utils"]};
+window.SIDEBAR_ITEMS = {"attr":["external","storage","transient_storage"],"derive":["Event"],"macro":["assert","revert"],"mod":["event","revert","selector","storage","utils"]};

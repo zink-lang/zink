@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["load_key"],"trait":["Mapping"]};
+window.SIDEBAR_ITEMS = {"fn":["load_key"],"trait":["Mapping","TransientMapping"]};

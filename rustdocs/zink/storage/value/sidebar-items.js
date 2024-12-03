@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["Storage"]};
+window.SIDEBAR_ITEMS = {"trait":["Storage","TransientStorage"]};

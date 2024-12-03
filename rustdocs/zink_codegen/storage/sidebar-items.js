@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["STORAGE_REGISTRY"],"enum":["StorageType"],"fn":["storage_slot"],"struct":["Storage"]};
+window.SIDEBAR_ITEMS = {"constant":["STORAGE_REGISTRY","TRANSIENT_STORAGE_REGISTRY"],"enum":["StorageKind","StorageType"],"struct":["Storage"]};
