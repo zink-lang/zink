@@ -13,13 +13,13 @@
 <a href="#12" id="12">12</a></pre></div><pre class="rust"><code><span class="doccomment">//! Zink primitive types
 
 </span><span class="kw">mod </span>address;
+<span class="kw">pub mod </span>bytes;
 <span class="kw">pub mod </span>numeric;
 <span class="kw">mod </span>u256;
 
-<span class="kw">pub use </span>address::Address;
-<span class="kw">pub use </span>u256::U256;
+<span class="kw">pub use </span>{address::Address, bytes::<span class="kw-2">*</span>, u256::U256};
 
-<span class="kw">pub type </span>Bytes20 = Address;
-<span class="kw">pub type </span>Bytes32 = U256;
-<span class="kw">pub type </span>String32 = U256;
+<span class="comment">// pub type Address = Bytes20;
+// pub type Bytes32 = U256;
+</span><span class="kw">pub type </span>String32 = U256;
 </code></pre></div></section></main></body></html>

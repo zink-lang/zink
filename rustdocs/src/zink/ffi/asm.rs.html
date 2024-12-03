@@ -151,37 +151,9 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a></pre></div><pre class="rust"><code><span class="doccomment">//! Assembly FFI.
+<a href="#153" id="153">153</a></pre></div><pre class="rust"><code><span class="doccomment">//! Assembly FFI.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::primitives::{Address, U256};
-
-<span class="attr">#[link(wasm_import_module = <span class="string">"asm"</span>)]
+</span><span class="attr">#[link(wasm_import_module = <span class="string">"asm"</span>)]
 #[allow(improper_ctypes)]
 </span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="doccomment">/// Push a 8-bit signed integer to the stack.
@@ -207,12 +179,6 @@
 
     <span class="doccomment">/// Push a 64-bit unsigned integer to the stack.
     </span><span class="kw">pub fn </span>push_u64(val: u64);
-
-    <span class="doccomment">/// Push address to stack
-    </span><span class="kw">pub fn </span>push_address(address: Address);
-
-    <span class="doccomment">/// Push u256 to stack
-    </span><span class="kw">pub fn </span>push_u256(u256: U256);
 
     <span class="doccomment">/// Emit opcode ADDMOD
     </span><span class="kw">pub fn </span>addmod_i8(a: i8, b: i8, n: i8) -&gt; i8;
@@ -290,12 +256,6 @@
     <span class="doccomment">/// Load a 64-bit unsigned integer from the storage.
     </span><span class="kw">pub fn </span>sload_u64() -&gt; u64;
 
-    <span class="doccomment">/// Load address from storage
-    </span><span class="kw">pub fn </span>sload_address() -&gt; Address;
-
-    <span class="doccomment">/// Load address from storage
-    </span><span class="kw">pub fn </span>sload_u256() -&gt; U256;
-
     <span class="doccomment">/// Load a 8-bit signed integer from the transient storage.
     </span><span class="kw">pub fn </span>tload_i8() -&gt; i8;
 
@@ -320,12 +280,6 @@
     <span class="doccomment">/// Load a 64-bit unsigned integer from the transient storage.
     </span><span class="kw">pub fn </span>tload_u64() -&gt; u64;
 
-    <span class="doccomment">/// Load address from transient storage
-    </span><span class="kw">pub fn </span>tload_address() -&gt; Address;
-
-    <span class="doccomment">/// Load U256 from transient storage
-    </span><span class="kw">pub fn </span>tload_u256() -&gt; U256;
-
     <span class="doccomment">/// Store a 8-bit signed integer to the transient storage.
     </span><span class="kw">pub fn </span>tstore_i8(val: i8);
 
@@ -349,11 +303,5 @@
 
     <span class="doccomment">/// Store a 64-bit unsigned integer to the transient storage.
     </span><span class="kw">pub fn </span>tstore_u64(val: u64);
-
-    <span class="doccomment">/// Store address to transient storage
-    </span><span class="kw">pub fn </span>tstore_address(address: Address);
-
-    <span class="doccomment">/// Store U256 to transient storage
-    </span><span class="kw">pub fn </span>tstore_u256(u256: U256);
 }
 </code></pre></div></section></main></body></html>

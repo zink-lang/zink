@@ -117,11 +117,7 @@
 <a href="#116" id="116">116</a>
 <a href="#117" id="117">117</a>
 <a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a></pre></div><pre class="rust"><code><span class="doccomment">//! Host functions
+<a href="#119" id="119">119</a></pre></div><pre class="rust"><code><span class="doccomment">//! Host functions
 
 </span><span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>anyhow::anyhow;
@@ -139,8 +135,6 @@
     //
     </span><span class="doccomment">/// Emit ABI to the compiler.
     </span>EmitABI,
-    <span class="doccomment">/// check equal of two addresses
-    </span>AddressEq,
     <span class="doccomment">/// Push u256 max to stack
     </span>U256MAX,
     <span class="doccomment">/// Revert messages with length of slots
@@ -173,44 +167,42 @@
     <span class="kw">fn </span>try_from(import: (<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>(module, name) = import;
         <span class="kw">match </span>import {
-            (<span class="string">"asm"</span>, name) =&gt; {
-                <span class="kw">if </span>name.starts_with(<span class="string">"sload"</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::SLOAD))
-                } <span class="kw">else if </span>name.starts_with(<span class="string">"tload"</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::TLOAD))
-                } <span class="kw">else if </span>name.starts_with(<span class="string">"revert"</span>) {
-                    <span class="kw">let </span>count = name.trim_start_matches(<span class="string">"revert"</span>);
-                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Revert(count.parse().map_err(|e| <span class="macro">anyhow!</span>(<span class="string">"{e}"</span>))<span class="question-mark">?</span>))
-                } <span class="kw">else if </span>name.starts_with(<span class="string">"mulmod"</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::MULMOD))
-                } <span class="kw">else if </span>name.starts_with(<span class="string">"addmod"</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::ADDMOD))
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::NoOp)
-                }
-            }
-            (<span class="string">"evm"</span>, name) =&gt; <span class="kw">match </span>name {
-                <span class="string">"tstore" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::TSTORE)),
-                <span class="string">"tload" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::TLOAD)),
-                <span class="string">"mcopy" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::MCOPY)),
-                <span class="string">"blobhash" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::BLOBHASH)),
-                <span class="string">"blobbasefee" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::BLOBBASEFEE)),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::from_str(name).map_err(|<span class="kw">_</span>| {
-                    <span class="macro">tracing::error!</span>(<span class="string">"Failed to load host function: {:?}"</span>, import);
-                    Error::HostFuncNotFound(module.into(), name.into())
-                })<span class="question-mark">?</span>)),
+            (<span class="string">"zinkc"</span>, name) =&gt; <span class="kw">match </span>name {
+                <span class="string">"emit_abi" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::EmitABI),
+                <span class="string">"u256_add" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::ADD)),
+                <span class="string">"u256_sub" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::SUB)),
+                <span class="string">"u256_lt" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::LT)),
+                <span class="string">"u256_max" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::U256MAX),
+                <span class="string">"u256_addmod" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::ADDMOD)),
+                <span class="string">"u256_mulmod" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::MULMOD)),
+                <span class="string">"label_reserve_mem_32" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Label(CompilerLabel::ReserveMemory32)),
+                <span class="string">"label_reserve_mem_64" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Label(CompilerLabel::ReserveMemory64)),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::HostFuncNotFound(module.into(), name.into())),
             },
-            (<span class="string">"zinkc"</span>, <span class="string">"emit_abi"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::EmitABI),
-            (<span class="string">"zinkc"</span>, <span class="string">"address_eq"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::EQ)),
-            (<span class="string">"zinkc"</span>, <span class="string">"u256_add"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::ADD)),
-            (<span class="string">"zinkc"</span>, <span class="string">"u256_sub"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::SUB)),
-            (<span class="string">"zinkc"</span>, <span class="string">"u256_lt"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::LT)),
-            (<span class="string">"zinkc"</span>, <span class="string">"u256_eq"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::EQ)),
-            (<span class="string">"zinkc"</span>, <span class="string">"u256_max"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::U256MAX),
-            (<span class="string">"zinkc"</span>, <span class="string">"u256_addmod"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::ADDMOD)),
-            (<span class="string">"zinkc"</span>, <span class="string">"u256_mulmod"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::MULMOD)),
-            (<span class="string">"zinkc"</span>, <span class="string">"label_reserve_mem_32"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Label(CompilerLabel::ReserveMemory32)),
-            (<span class="string">"zinkc"</span>, <span class="string">"label_reserve_mem_64"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Label(CompilerLabel::ReserveMemory64)),
+            (<span class="string">"evm"</span>, name) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::from_str(name).map_err(|<span class="kw">_</span>| {
+                <span class="macro">tracing::error!</span>(<span class="string">"Failed to load host function: {:?}"</span>, import);
+                Error::HostFuncNotFound(module.into(), name.into())
+            })<span class="question-mark">?</span>)),
+            (<span class="string">"asm"</span>, name) =&gt; <span class="kw">match </span>name {
+                n <span class="kw">if </span>n.starts_with(<span class="string">"sload"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::SLOAD)),
+                n <span class="kw">if </span>n.starts_with(<span class="string">"tload"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::TLOAD)),
+                n <span class="kw">if </span>n.starts_with(<span class="string">"revert"</span>) =&gt; {
+                    <span class="kw">let </span>count = n.trim_start_matches(<span class="string">"revert"</span>);
+                    <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Revert(count.parse().map_err(|e| <span class="macro">anyhow!</span>(<span class="string">"{e}"</span>))<span class="question-mark">?</span>))
+                }
+                n <span class="kw">if </span>n.starts_with(<span class="string">"mulmod"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::MULMOD)),
+                n <span class="kw">if </span>n.starts_with(<span class="string">"addmod"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::ADDMOD)),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::NoOp),
+            },
+            (<span class="string">"bytes"</span>, instr) =&gt; <span class="kw">match </span>instr {
+                push <span class="kw">if </span>push.starts_with(<span class="string">"push_bytes"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::NoOp),
+                sload <span class="kw">if </span>sload.starts_with(<span class="string">"sload_bytes"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::SLOAD)),
+                eq <span class="kw">if </span>eq.ends_with(<span class="string">"_eq"</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Evm(OpCode::EQ)),
+                <span class="kw">_ </span>=&gt; {
+                    <span class="macro">tracing::warn!</span>(<span class="string">"Failed to load host function: {import:?} from module bytes"</span>);
+                    <span class="prelude-val">Err</span>(Error::HostFuncNotFound(module.into(), name.into()))
+                }
+            },
             <span class="kw">_ </span>=&gt; {
                 <span class="macro">tracing::warn!</span>(<span class="string">"Failed to load host function: {:?}"</span>, import);
                 <span class="prelude-val">Err</span>(Error::HostFuncNotFound(module.into(), name.into()))

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["impl_bytes"],"struct":["Bytes10","Bytes11","Bytes12","Bytes13","Bytes14","Bytes15","Bytes16","Bytes17","Bytes18","Bytes19","Bytes2","Bytes20","Bytes21","Bytes22","Bytes23","Bytes24","Bytes25","Bytes26","Bytes27","Bytes28","Bytes29","Bytes3","Bytes30","Bytes31","Bytes32","Bytes4","Bytes5","Bytes6","Bytes7","Bytes8","Bytes9"]};
