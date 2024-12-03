@@ -11,6 +11,7 @@ contracts on Ethereum.
 
 This guide is intended to serve a number of purposes and within you'll find:
 
+- [The Bounty issues][bounty]
 - [The rustdocs of the zink project][rustdocs]
 - [The design of the zink compiler][compiler]
 - [The rust guide of zink projects][styles]
@@ -23,3 +24,4 @@ This guide is intended to serve a number of purposes and within you'll find:
 [zinkc]: https://github.com/clearloop/zink/tree/main/compiler
 [rustdocs]: https://docs.zink-lang.org/rustdocs
 [source]: https://github.com/clearloop/zink/tree/main/docs
+[bounty]: https://zink-lang.org/budgets
