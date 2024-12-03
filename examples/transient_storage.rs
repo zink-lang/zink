@@ -21,7 +21,7 @@ fn main() {}
 
 #[test]
 fn transient_value() -> anyhow::Result<()> {
-    use zint::{Bytes32, Contract, U256};
+    use zint::{Bytes32, Contract};
 
     let mut contract = Contract::search("transient_storage")?.compile()?;
     let value: i32 = 42;

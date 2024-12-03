@@ -16,8 +16,6 @@ pub enum HostFunc {
     //
     /// Emit ABI to the compiler.
     EmitABI,
-    /// check equal of two addresses
-    AddressEq,
     /// Push u256 max to stack
     U256MAX,
     /// Revert messages with length of slots
@@ -50,44 +48,42 @@ impl TryFrom<(&str, &str)> for HostFunc {
     fn try_from(import: (&str, &str)) -> Result<Self> {
         let (module, name) = import;
         match import {
-            ("asm", name) => {
-                if name.starts_with("sload") {
-                    Ok(Self::Evm(OpCode::SLOAD))
-                } else if name.starts_with("tload") {
-                    Ok(Self::Evm(OpCode::TLOAD))
-                } else if name.starts_with("revert") {
-                    let count = name.trim_start_matches("revert");
-                    Ok(Self::Revert(count.parse().map_err(|e| anyhow!("{e}"))?))
-                } else if name.starts_with("mulmod") {
-                    Ok(Self::Evm(OpCode::MULMOD))
-                } else if name.starts_with("addmod") {
-                    Ok(Self::Evm(OpCode::ADDMOD))
-                } else {
-                    Ok(Self::NoOp)
-                }
-            }
-            ("evm", name) => match name {
-                "tstore" => Ok(Self::Evm(OpCode::TSTORE)),
-                "tload" => Ok(Self::Evm(OpCode::TLOAD)),
-                "mcopy" => Ok(Self::Evm(OpCode::MCOPY)),
-                "blobhash" => Ok(Self::Evm(OpCode::BLOBHASH)),
-                "blobbasefee" => Ok(Self::Evm(OpCode::BLOBBASEFEE)),
-                _ => Ok(Self::Evm(OpCode::from_str(name).map_err(|_| {
-                    tracing::error!("Failed to load host function: {:?}", import);
-                    Error::HostFuncNotFound(module.into(), name.into())
-                })?)),
+            ("zinkc", name) => match name {
+                "emit_abi" => Ok(Self::EmitABI),
+                "u256_add" => Ok(Self::Evm(OpCode::ADD)),
+                "u256_sub" => Ok(Self::Evm(OpCode::SUB)),
+                "u256_lt" => Ok(Self::Evm(OpCode::LT)),
+                "u256_max" => Ok(Self::U256MAX),
+                "u256_addmod" => Ok(Self::Evm(OpCode::ADDMOD)),
+                "u256_mulmod" => Ok(Self::Evm(OpCode::MULMOD)),
+                "label_reserve_mem_32" => Ok(Self::Label(CompilerLabel::ReserveMemory32)),
+                "label_reserve_mem_64" => Ok(Self::Label(CompilerLabel::ReserveMemory64)),
+                _ => Err(Error::HostFuncNotFound(module.into(), name.into())),
             },
-            ("zinkc", "emit_abi") => Ok(Self::EmitABI),
-            ("zinkc", "address_eq") => Ok(Self::Evm(OpCode::EQ)),
-            ("zinkc", "u256_add") => Ok(Self::Evm(OpCode::ADD)),
-            ("zinkc", "u256_sub") => Ok(Self::Evm(OpCode::SUB)),
-            ("zinkc", "u256_lt") => Ok(Self::Evm(OpCode::LT)),
-            ("zinkc", "u256_eq") => Ok(Self::Evm(OpCode::EQ)),
-            ("zinkc", "u256_max") => Ok(Self::U256MAX),
-            ("zinkc", "u256_addmod") => Ok(Self::Evm(OpCode::ADDMOD)),
-            ("zinkc", "u256_mulmod") => Ok(Self::Evm(OpCode::MULMOD)),
-            ("zinkc", "label_reserve_mem_32") => Ok(Self::Label(CompilerLabel::ReserveMemory32)),
-            ("zinkc", "label_reserve_mem_64") => Ok(Self::Label(CompilerLabel::ReserveMemory64)),
+            ("evm", name) => Ok(Self::Evm(OpCode::from_str(name).map_err(|_| {
+                tracing::error!("Failed to load host function: {:?}", import);
+                Error::HostFuncNotFound(module.into(), name.into())
+            })?)),
+            ("asm", name) => match name {
+                n if n.starts_with("sload") => Ok(Self::Evm(OpCode::SLOAD)),
+                n if n.starts_with("tload") => Ok(Self::Evm(OpCode::TLOAD)),
+                n if n.starts_with("revert") => {
+                    let count = n.trim_start_matches("revert");
+                    Ok(Self::Revert(count.parse().map_err(|e| anyhow!("{e}"))?))
+                }
+                n if n.starts_with("mulmod") => Ok(Self::Evm(OpCode::MULMOD)),
+                n if n.starts_with("addmod") => Ok(Self::Evm(OpCode::ADDMOD)),
+                _ => Ok(Self::NoOp),
+            },
+            ("bytes", instr) => match instr {
+                push if push.starts_with("push_bytes") => Ok(Self::NoOp),
+                sload if sload.starts_with("sload_bytes") => Ok(Self::Evm(OpCode::SLOAD)),
+                eq if eq.ends_with("_eq") => Ok(Self::Evm(OpCode::EQ)),
+                _ => {
+                    tracing::warn!("Failed to load host function: {import:?} from module bytes");
+                    Err(Error::HostFuncNotFound(module.into(), name.into()))
+                }
+            },
             _ => {
                 tracing::warn!("Failed to load host function: {:?}", import);
                 Err(Error::HostFuncNotFound(module.into(), name.into()))

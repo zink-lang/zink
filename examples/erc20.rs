@@ -170,7 +170,7 @@ fn deploy() -> anyhow::Result<()> {
                         vec![42].try_into()?,
                     ),
                     (
-                        Balances::storage_key(Address(caller)).into(),
+                        Balances::storage_key(Address::from(caller)).into(),
                         vec![42].try_into()?,
                     ),
                 ]
@@ -208,7 +208,7 @@ fn deploy() -> anyhow::Result<()> {
         assert_eq!(info.ret, 8u64.to_bytes32(), "{info:?}");
 
         // 2.5. check balance of the caller
-        let balance = evm.storage(address, Balances::storage_key(Address(caller)))?;
+        let balance = evm.storage(address, Balances::storage_key(Address::from(caller)))?;
         assert_eq!(value.to_bytes32(), balance);
     }
 
@@ -226,7 +226,7 @@ fn deploy() -> anyhow::Result<()> {
 
         let allowance = evm.storage(
             address,
-            Allowance::storage_key(Address(evm.caller), Address(spender)),
+            Allowance::storage_key(Address::from(evm.caller), Address::from(spender)),
         )?;
         assert_eq!(value.to_bytes32(), allowance);
 

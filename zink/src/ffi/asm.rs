@@ -1,7 +1,5 @@
 //! Assembly FFI.
 
-use crate::primitives::{Address, U256};
-
 #[link(wasm_import_module = "asm")]
 #[allow(improper_ctypes)]
 extern "C" {
@@ -28,12 +26,6 @@ extern "C" {
 
     /// Push a 64-bit unsigned integer to the stack.
     pub fn push_u64(val: u64);
-
-    /// Push address to stack
-    pub fn push_address(address: Address);
-
-    /// Push u256 to stack
-    pub fn push_u256(u256: U256);
 
     /// Emit opcode ADDMOD
     pub fn addmod_i8(a: i8, b: i8, n: i8) -> i8;
@@ -111,12 +103,6 @@ extern "C" {
     /// Load a 64-bit unsigned integer from the storage.
     pub fn sload_u64() -> u64;
 
-    /// Load address from storage
-    pub fn sload_address() -> Address;
-
-    /// Load address from storage
-    pub fn sload_u256() -> U256;
-
     /// Load a 8-bit signed integer from the transient storage.
     pub fn tload_i8() -> i8;
 
@@ -141,12 +127,6 @@ extern "C" {
     /// Load a 64-bit unsigned integer from the transient storage.
     pub fn tload_u64() -> u64;
 
-    /// Load address from transient storage
-    pub fn tload_address() -> Address;
-
-    /// Load U256 from transient storage
-    pub fn tload_u256() -> U256;
-
     /// Store a 8-bit signed integer to the transient storage.
     pub fn tstore_i8(val: i8);
 
@@ -170,10 +150,4 @@ extern "C" {
 
     /// Store a 64-bit unsigned integer to the transient storage.
     pub fn tstore_u64(val: u64);
-
-    /// Store address to transient storage
-    pub fn tstore_address(address: Address);
-
-    /// Store U256 to transient storage
-    pub fn tstore_u256(u256: U256);
 }

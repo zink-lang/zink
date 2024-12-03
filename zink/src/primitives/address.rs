@@ -1,5 +1,6 @@
 use crate::{
     ffi,
+    primitives::Bytes20,
     storage::{StorageValue, TransientStorageValue},
     Asm,
 };
@@ -7,22 +8,12 @@ use crate::{
 /// Account address
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Address(
-    #[cfg(target_family = "wasm")] i32,
-    #[cfg(not(target_family = "wasm"))] pub [u8; 20],
-);
+pub struct Address(Bytes20);
 
 impl Address {
     /// Returns empty address
-    #[cfg(not(target_family = "wasm"))]
     pub const fn empty() -> Self {
-        Address([0; 20])
-    }
-
-    /// Returns empty address
-    #[cfg(target_family = "wasm")]
-    pub const fn empty() -> Self {
-        Address(0)
+        Address(Bytes20::empty())
     }
 
     /// Returns empty address
@@ -37,31 +28,42 @@ impl Address {
     #[allow(clippy::should_implement_trait)]
     #[inline(always)]
     pub fn eq(self, other: Self) -> bool {
-        unsafe { ffi::address_eq(self, other) }
+        self.0.eq(other.0)
     }
 }
 
 impl Asm for Address {
     fn push(self) {
-        unsafe { ffi::asm::push_address(self) }
+        unsafe { ffi::bytes::push_bytes20(self.0) }
     }
 
     #[cfg(not(target_family = "wasm"))]
     fn bytes32(&self) -> [u8; 32] {
-        let mut output = [0; 32];
-        output[12..].copy_from_slice(&self.0);
-        output
+        self.0.bytes32()
     }
 }
 
 impl StorageValue for Address {
     fn sload() -> Self {
-        unsafe { ffi::asm::sload_address() }
+        Self(unsafe { ffi::bytes::sload_bytes20() })
+    }
+}
+
+impl From<Bytes20> for Address {
+    fn from(value: Bytes20) -> Self {
+        Address(value)
+    }
+}
+
+#[cfg(not(target_family = "wasm"))]
+impl From<[u8; 20]> for Address {
+    fn from(value: [u8; 20]) -> Self {
+        Address(Bytes20(value))
     }
 }
 
 impl TransientStorageValue for Address {
     fn tload() -> Self {
-        unsafe { ffi::asm::tload_address() }
+        Address(unsafe { ffi::bytes::tload_bytes20() })
     }
 }

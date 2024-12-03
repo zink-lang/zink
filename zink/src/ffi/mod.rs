@@ -1,8 +1,9 @@
 //! Zink FFI.
 
-use crate::primitives::{Address, U256};
+use crate::primitives::U256;
 
 pub mod asm;
+pub mod bytes;
 pub mod evm;
 
 #[link(wasm_import_module = "zinkc")]
@@ -12,9 +13,6 @@ extern "C" {
     pub fn emit_abi(ptr: u32, len: u32);
 
     /// Equal operation for addresses
-    pub fn address_eq(this: Address, other: Address) -> bool;
-
-    /// Equal operation for addresses
     pub fn u256_add(this: U256, other: U256) -> U256;
 
     /// Equal operation for addresses
@@ -22,12 +20,6 @@ extern "C" {
 
     /// Less than operation for addresses
     pub fn u256_lt(this: U256, other: U256) -> bool;
-
-    /// Equal operation for addresses
-    pub fn u256_eq(this: U256, other: U256) -> bool;
-
-    /// Returns zero value
-    pub fn u256_zero() -> U256;
 
     /// Equal operation for addresses
     pub fn u256_max() -> U256;
