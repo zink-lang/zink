@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_opcodes"],"struct":["Assembler"]};
+window.SIDEBAR_ITEMS = {"constant":["MAX_STACK_SIZE"],"macro":["impl_opcodes"],"struct":["Assembler"]};
