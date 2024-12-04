@@ -1,14 +1,9 @@
 
-
-use alloc::string::String;
-
 use crate::{ffi, primitives::Bytes32};
 
 /// Zink event interface
 pub trait Event {
     const NAME: &'static [u8];
-
-    fn abi_signature() -> String;
 
     fn log0(&self) {
         unsafe {
