@@ -34,91 +34,50 @@ impl EventError {
 /// Expand the event interface with better error handling
 pub fn parse(item: DeriveInput) -> TokenStream {
     match parse_impl(item) {
-        Ok(token_stream) => token_stream,
-        Err(err) => err.to_compile_error().into(),
+        token_stream => token_stream,
     }
 }
 
-fn parse_impl(item: DeriveInput) -> Result<TokenStream> {
-    let name = LitByteStr::new(item.ident.to_string().as_bytes(), Span::call_site().into());
-    let ident = item.clone().ident;
+fn parse_impl(input: DeriveInput) -> TokenStream {
+    let name = &input.ident;
+    let name_bytes = LitByteStr::new(name.to_string().as_bytes(), Span::call_site().into());
 
     // Ensure we are working with an enum
-    let event_enum = match &item.data {
+    let event_enum = match &input.data {
         Data::Enum(data_enum) => data_enum,
         _ => {
-            return Err(Error::new_spanned(
-                &item,
-                "Event can only be derived for enums",
-            ))
+            return EventError::NotEnum(proc_macro::Span::call_site())
+                .to_compile_error()
+                .into();
         }
     };
 
-    let enum_name = &item.ident;
-
-    // Generate ABI signature with validation
-    let abi_signature = generate_abi_signature(enum_name, &event_enum.variants)?;
-
     // Generate variant implementations with validation
-    let variant_implementations = event_enum
+    let variant_implementations = match event_enum
         .variants
         .iter()
-        .map(|variant| generate_variant_implementation(enum_name, variant))
-        .collect::<Result<Vec<_>>>()?;
+        .map(|variant| generate_variant_implementation(name, variant))
+        .collect::<Result<Vec<_>>>()
+    {
+        Ok(impls) => impls,
+        Err(e) => return e.to_compile_error().into(),
+    };
 
-    // Generate the final implementation
+    // Generate ABI signature with validation
+    let abi_signature = match generate_abi_signature(name, &event_enum.variants) {
+        Ok(sig) => sig,
+        Err(e) => return e.to_compile_error().into(),
+    };
+
     let expanded = quote! {
-        impl zink::Event for #ident {
-            const NAME: &'static [u8] = #name;
+        impl Event for #name {
+            const NAME: &'static [u8] = #name_bytes;
 
-            pub fn abi_signature() -> String {
+            fn abi_signature() -> String {
                 #abi_signature
             }
 
-            fn log0(&self) -> Result<(), zink::EventError> {
-                match self {
-                    #(#variant_implementations)*
-                }
-            }
-
-            fn log1(&self, topic: &[u8]) -> Result<(), zink::EventError> {
-                if topic.len() != 32 {
-                    return Err(zink::EventError::InvalidTopicLength);
-                }
-                match self {
-                    #(#variant_implementations)*
-                }
-            }
-
-            fn log2(&self, topic1: &[u8], topic2: &[u8]) -> Result<(), zink::EventError> {
-                if topic1.len() != 32 || topic2.len() != 32 {
-                    return Err(zink::EventError::InvalidTopicLength);
-                }
-                match self {
-                    #(#variant_implementations)*
-                }
-            }
-
-            fn log3(&self, topic1: &[u8], topic2: &[u8], topic3: &[u8]) -> Result<(), zink::EventError> {
-                if topic1.len() != 32 || topic2.len() != 32 || topic3.len() != 32 {
-                    return Err(zink::EventError::InvalidTopicLength);
-                }
-                match self {
-                    #(#variant_implementations)*
-                }
-            }
-
-            fn log4(
-                &self,
-                topic1: &[u8],
-                topic2: &[u8],
-                topic3: &[u8],
-                topic4: &[u8]
-            ) -> Result<(), zink::EventError> {
-                if topic1.len() != 32 || topic2.len() != 32 ||
-                   topic3.len() != 32 || topic4.len() != 32 {
-                    return Err(zink::EventError::InvalidTopicLength);
-                }
+            fn log0(&self) {
                 match self {
                     #(#variant_implementations)*
                 }
@@ -126,8 +85,9 @@ fn parse_impl(item: DeriveInput) -> Result<TokenStream> {
         }
     };
 
-    Ok(expanded.into())
+    expanded.into()
 }
+
 
 /// Generate Variant Implementation with validation
 fn generate_variant_implementation(
@@ -148,27 +108,47 @@ fn generate_variant_implementation(
 
             validate_types(&field_types)?;
 
+            // Generate the appropriate log call based on field count
+            let log_impl = match field_names.as_slice() {
+                [] => quote! {
+                    zink::ffi::evm::log0(stringify!(#variant_name).as_bytes())
+                },
+                [f1] => quote! {
+                    let topic1 = #f1.bytes32();
+                    zink::ffi::evm::log1(stringify!(#variant_name).as_bytes(), topic1)
+                },
+                [f1, f2] => quote! {
+                    let topic1 = #f1.bytes32();
+                    let topic2 = #f2.bytes32();
+                    zink::ffi::evm::log2(stringify!(#variant_name).as_bytes(), topic1, topic2)
+                },
+                [f1, f2, f3] => quote! {
+                    let topic1 = #f1.bytes32();
+                    let topic2 = #f2.bytes32();
+                    let topic3 = #f3.bytes32();
+                    zink::ffi::evm::log3(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3)
+                },
+                [f1, f2, f3, f4] => quote! {
+                    let topic1 = #f1.bytes32();
+                    let topic2 = #f2.bytes32();
+                    let topic3 = #f3.bytes32();
+                    let topic4 = #f4.bytes32();
+                    zink::ffi::evm::log4(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3, topic4)
+                },
+                _ => unreachable!(),
+            };
+
             Ok(quote! {
                 #enum_name::#variant_name { #(#field_names),* } => {
-                    let topic = generate_topic_hash(stringify!(#variant_name));
-                    let data: Vec<Vec<u8>> = vec![
-                        #(encode_field(&#field_names)?),*
-                    ];
-                    let flattened_data = flatten_and_pad_data(&data)?;
-                    zink::ffi::evm::log1(&topic, &flattened_data)
-                        .map_err(|e| zink::EventError::LogError(e))
+                    #log_impl
                 }
             })
-        }
+        },
         Fields::Unnamed(fields) => {
             if fields.unnamed.len() > 4 {
-                return Err(Error::new(
-                    variant.span(),
-                    "Tuple event can have at most 4 fields",
-                ));
+                return Err(Error::new(span, "Tuple event can have at most 4 fields"));
             }
 
-            // Use a consistent binding pattern for tuple variants with explicit ref patterns
             let field_count = fields.unnamed.len();
             let field_bindings = (0..field_count)
                 .map(|i| quote::format_ident!("v{}", i))
@@ -181,22 +161,45 @@ fn generate_variant_implementation(
             let field_types: Vec<_> = fields.unnamed.iter().map(|f| &f.ty).collect();
             validate_types(&field_types)?;
 
+            // Generate the appropriate log call based on field count
+            let log_impl = match field_bindings.as_slice() {
+                [] => quote! {
+                    zink::ffi::evm::log0(stringify!(#variant_name).as_bytes())
+                },
+                [v0] => quote! {
+                    let topic1 = #v0.bytes32();
+                    zink::ffi::evm::log1(stringify!(#variant_name).as_bytes(), topic1)
+                },
+                [v0, v1] => quote! {
+                    let topic1 = #v0.bytes32();
+                    let topic2 = #v1.bytes32();
+                    zink::ffi::evm::log2(stringify!(#variant_name).as_bytes(), topic1, topic2)
+                },
+                [v0, v1, v2] => quote! {
+                    let topic1 = #v0.bytes32();
+                    let topic2 = #v1.bytes32();
+                    let topic3 = #v2.bytes32();
+                    zink::ffi::evm::log3(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3)
+                },
+                [v0, v1, v2, v3] => quote! {
+                    let topic1 = #v0.bytes32();
+                    let topic2 = #v1.bytes32();
+                    let topic3 = #v2.bytes32();
+                    let topic4 = #v3.bytes32();
+                    zink::ffi::evm::log4(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3, topic4)
+                },
+                _ => unreachable!(),
+            };
+
             Ok(quote! {
-                #enum_name::#variant_name(#(#ref_patterns),*) => unsafe {
-                    let topic = generate_topic_hash(stringify!(#variant_name));
-                    let data = vec![
-                        #(encode_field(#field_bindings)?),*
-                    ];
-                    zink::ffi::evm::log1(&topic, &data)
-                        .map_err(|e| zink::EventError::LogError(e))
+                #enum_name::#variant_name(#(#ref_patterns),*) => {
+                    #log_impl
                 }
             })
-        }
+        },
         Fields::Unit => Ok(quote! {
             #enum_name::#variant_name => {
-                let topic = generate_topic_hash(stringify!(#variant_name));
-                zink::ffi::evm::log0(&topic)
-                    .map_err(|e| zink::EventError::LogError(e))
+                zink::ffi::evm::log0(stringify!(#variant_name).as_bytes())
             }
         }),
     }

@@ -1,12 +1,14 @@
-//! Public traits for the EVM interfaces
 
-use crate::ffi;
+
+use alloc::string::String;
+
+use crate::{ffi, primitives::Bytes32};
 
 /// Zink event interface
-///
-/// TODO: safety check for the length of the event name
 pub trait Event {
     const NAME: &'static [u8];
+
+    fn abi_signature() -> String;
 
     fn log0(&self) {
         unsafe {
@@ -14,33 +16,45 @@ pub trait Event {
         }
     }
 
-    fn log1(&self, topic: &'static [u8]) {
+    fn log1(&self, topic: impl Into<Bytes32>) {
         unsafe {
-            ffi::evm::log1(Self::NAME, topic);
+            ffi::evm::log1(Self::NAME, topic.into())
         }
     }
 
-    fn log2(&self, topic1: &'static [u8], topic2: &'static [u8]) {
+    fn log2(&self, topic1: impl Into<Bytes32>, topic2: impl Into<Bytes32>) {
         unsafe {
-            ffi::evm::log2(Self::NAME, topic1, topic2);
+            ffi::evm::log2(Self::NAME, topic1.into(), topic2.into())
         }
     }
 
-    fn log3(&self, topic1: &'static [u8], topic2: &'static [u8], topic3: &'static [u8]) {
+    fn log3(
+        &self,
+        topic1: impl Into<Bytes32>,
+        topic2: impl Into<Bytes32>,
+        topic3: impl Into<Bytes32>
+    ) {
         unsafe {
-            ffi::evm::log3(Self::NAME, topic1, topic2, topic3);
+            ffi::evm::log3(Self::NAME, topic1.into(), topic2.into(), topic3.into())
         }
     }
 
     fn log4(
         &self,
-        topic1: &'static [u8],
-        topic2: &'static [u8],
-        topic3: &'static [u8],
-        topic4: &'static [u8],
+        topic1: impl Into<Bytes32>,
+        topic2: impl Into<Bytes32>,
+        topic3: impl Into<Bytes32>,
+        topic4: impl Into<Bytes32>
     ) {
         unsafe {
-            ffi::evm::log4(Self::NAME, topic1, topic2, topic3, topic4);
+            ffi::evm::log4(
+                Self::NAME,
+                topic1.into(),
+                topic2.into(),
+                topic3.into(),
+                topic4.into()
+            )
         }
     }
 }
+

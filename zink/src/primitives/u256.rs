@@ -51,6 +51,7 @@ impl Asm for U256 {
     fn bytes32(&self) -> [u8; 32] {
         self.0
     }
+    
 }
 
 impl StorageValue for U256 {
