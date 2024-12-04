@@ -1,6 +1,6 @@
 //! Zink FFI.
 
-use crate::primitives::{Address, U256};
+use crate::primitives::{Address, Bytes32, U256};
 
 pub mod asm;
 pub mod evm;
@@ -25,6 +25,9 @@ extern "C" {
 
     /// Equal operation for addresses
     pub fn u256_max() -> U256;
+
+    /// Cast U256 to bytes32
+    pub fn cast_bytes32(value: U256) -> Bytes32;
 
     /// Set up a label for reserving 32 bytes in memory
     pub fn label_reserve_mem_32();

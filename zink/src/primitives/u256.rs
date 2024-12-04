@@ -1,6 +1,7 @@
 #![allow(clippy::should_implement_trait)]
-use crate::{ffi, storage::StorageValue, Asm};
 
+use super::Bytes32;
+use crate::{ffi, storage::StorageValue, Asm};
 /// Account address
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -39,6 +40,17 @@ impl U256 {
     pub fn max() -> Self {
         unsafe { ffi::u256_max() }
     }
+
+    #[cfg(target_family = "wasm")]
+    pub fn to_bytes32(&self) -> Bytes32 {
+        unsafe { ffi::asm::cast_bytes32(*self) }
+    }
+
+    #[cfg(not(target_family = "wasm"))]
+    pub fn to_bytes32(&self) -> Bytes32 {
+        // Bytes32::from(self.0)
+        todo!()
+    }
 }
 
 impl Asm for U256 {
@@ -51,7 +63,6 @@ impl Asm for U256 {
     fn bytes32(&self) -> [u8; 32] {
         self.0
     }
-    
 }
 
 impl StorageValue for U256 {
