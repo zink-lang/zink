@@ -89,7 +89,7 @@ impl Function {
 
         // Adjust the stack pointer for the results.
         self.masm._jumpdest()?;
-        self.masm.increment_sp(*results as u8)?;
+        self.masm.increment_sp(*results as u16)?;
         Ok(())
     }
 
