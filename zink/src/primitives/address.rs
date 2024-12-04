@@ -1,5 +1,5 @@
-use crate::{ffi, storage::StorageValue, Asm};
 use super::Bytes32;
+use crate::{ffi, storage::StorageValue, Asm};
 
 /// Account address
 #[repr(C)]
@@ -38,7 +38,7 @@ impl Address {
     }
 
     #[cfg(not(target_family = "wasm"))]
-    pub fn to_bytes32(&self) -> Bytes32 {        
+    pub fn to_bytes32(&self) -> Bytes32 {
         let mut output = [0; 32];
         output[12..].copy_from_slice(&self.0);
         // Bytes32::from(U256::from(output))

@@ -135,12 +135,7 @@ extern "C" {
     pub fn log2(name: &'static [u8], topic1: Bytes32, topic2: Bytes32);
 
     /// Append log record with three topics
-    pub fn log3(
-        name: &'static [u8],
-        topic1: Bytes32,
-        topic2: Bytes32,
-        topic3: Bytes32,
-    );
+    pub fn log3(name: &'static [u8], topic1: Bytes32, topic2: Bytes32, topic3: Bytes32);
 
     /// Append log record with four topics
     pub fn log4(

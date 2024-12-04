@@ -33,9 +33,7 @@ impl EventError {
 
 /// Expand the event interface with better error handling
 pub fn parse(item: DeriveInput) -> TokenStream {
-    match parse_impl(item) {
-        token_stream => token_stream,
-    }
+    parse_impl(item)
 }
 
 fn parse_impl(input: DeriveInput) -> TokenStream {
@@ -45,11 +43,7 @@ fn parse_impl(input: DeriveInput) -> TokenStream {
     // Ensure we are working with an enum
     let event_enum = match &input.data {
         Data::Enum(data_enum) => data_enum,
-        _ => {
-            return EventError::NotEnum(proc_macro::Span::call_site())
-                .to_compile_error()
-                .into();
-        }
+        _ => return EventError::NotEnum(proc_macro::Span::call_site()).to_compile_error(),
     };
 
     // Generate variant implementations with validation
@@ -84,7 +78,6 @@ fn parse_impl(input: DeriveInput) -> TokenStream {
 
     expanded.into()
 }
-
 
 /// Generate Variant Implementation with validation
 fn generate_variant_implementation(
@@ -140,7 +133,7 @@ fn generate_variant_implementation(
                     #log_impl
                 }
             })
-        },
+        }
         Fields::Unnamed(fields) => {
             if fields.unnamed.len() > 4 {
                 return Err(Error::new(span, "Tuple event can have at most 4 fields"));
@@ -193,7 +186,7 @@ fn generate_variant_implementation(
                     #log_impl
                 }
             })
-        },
+        }
         Fields::Unit => Ok(quote! {
             #enum_name::#variant_name => {
                 zink::ffi::evm::log0(stringify!(#variant_name).as_bytes())
