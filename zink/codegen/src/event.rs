@@ -73,9 +73,6 @@ fn parse_impl(input: DeriveInput) -> TokenStream {
         impl Event for #name {
             const NAME: &'static [u8] = #name_bytes;
 
-            fn abi_signature() -> String {
-                #abi_signature
-            }
 
             fn log0(&self) {
                 match self {
