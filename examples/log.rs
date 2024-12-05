@@ -53,7 +53,7 @@ pub mod event_tests {
         unsafe {
             let topic1 = value1.to_bytes32();
             let topic2 = value2.to_bytes32();
-            let topic3 = value3.to_bytes32();
+            let topic3 = value3.to_bytes32(); 
             zink::ffi::evm::log3(b"MyEvent", topic1, topic2, topic3)
         }
     }
