@@ -3,7 +3,9 @@
 //! TODO: refactor this module with Result as outputs. (issue-21)
 
 use crate::{Buffer, Error, Result};
-use opcodes::{for_each_shanghai_operator, OpCode as _, ShangHai as OpCode};
+use opcodes::{for_each_cancun_operator, Cancun as OpCode, OpCode as _};
+
+const MAX_STACK_SIZE: u16 = 1024;
 
 /// Low level assembler implementation for EVM.
 #[derive(Default, Clone, Debug)]
@@ -18,8 +20,8 @@ pub struct Assembler {
     gas: u128,
     /// Memory pointer for byte offset.
     pub mp: usize,
-    /// Stack pointer, maximum 1024 items.
-    pub sp: u8,
+    /// Stack pointer, maximum `MAX_STACK_SIZE` items.
+    pub sp: u16,
 }
 
 impl Assembler {
@@ -41,7 +43,7 @@ impl Assembler {
     }
 
     /// Increment stack pointer
-    pub fn increment_sp(&mut self, items: u8) -> Result<()> {
+    pub fn increment_sp(&mut self, items: u16) -> Result<()> {
         if items == 0 {
             return Ok(());
         }
@@ -51,18 +53,20 @@ impl Assembler {
             self.sp,
             self.sp + items
         );
-        self.sp += items;
+        self.sp = self
+            .sp
+            .checked_add(items)
+            .ok_or(Error::StackOverflow(self.sp, items))?;
 
-        // TODO: fix this limitation: should be 1024. (#127)
-        if self.sp > 254 {
-            return Err(Error::StackOverflow(self.sp));
+        if self.sp > MAX_STACK_SIZE {
+            return Err(Error::StackOverflow(self.sp, items));
         }
 
         Ok(())
     }
 
     /// Decrement stack pointer
-    pub fn decrement_sp(&mut self, items: u8) -> Result<()> {
+    pub fn decrement_sp(&mut self, items: u16) -> Result<()> {
         if items == 0 {
             return Ok(());
         }
@@ -118,10 +122,10 @@ impl Assembler {
     /// the stack usages.
     pub fn emit_op(&mut self, opcode: OpCode) -> Result<()> {
         tracing::trace!("emit opcode: {:?}", opcode);
-        self.decrement_sp(opcode.stack_in() as u8)?;
+        self.decrement_sp(opcode.stack_in())?;
         self.emit(opcode.into());
         self.increment_gas(opcode.gas().into());
-        self.increment_sp(opcode.stack_out() as u8)?;
+        self.increment_sp(opcode.stack_out())?;
 
         Ok(())
     }
@@ -141,5 +145,5 @@ macro_rules! impl_opcodes {
 
 /// Basic instruction implementations
 impl Assembler {
-    for_each_shanghai_operator!(impl_opcodes);
+    for_each_cancun_operator!(impl_opcodes);
 }

@@ -79,7 +79,7 @@ fn test_approval() -> anyhow::Result<()> {
 
     let allowance = evm.storage(
         address,
-        Allowance::storage_key(Address(evm.caller), Address(spender)),
+        Allowance::storage_key(Address::from(evm.caller), Address::from(spender)),
     )?;
     assert_eq!(value.to_bytes32(), allowance);
 
@@ -105,7 +105,7 @@ fn test_approval() -> anyhow::Result<()> {
     assert_eq!(info.ret, true.to_bytes32());
     let allowance = evm.storage(
         address,
-        Allowance::storage_key(Address(evm.caller), Address(spender)),
+        Allowance::storage_key(Address::from(evm.caller), Address::from(spender)),
     )?;
     assert_eq!(half_value.to_bytes32(), allowance);
     Ok(())

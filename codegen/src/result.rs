@@ -86,16 +86,16 @@ pub enum Error {
     SelectorNotFound,
     /// Failed to index data on stack.
     #[error("Stack index is out of range {0}, max is 255 (0x400)")]
-    StackIndexOutOfRange(u8),
+    StackIndexOutOfRange(u16),
     /// Failed to increment stack pointer.
-    #[error("Stack overflow, max is 1024 stack items, got {0}")]
-    StackOverflow(u8),
+    #[error("Stack overflow, max is 1024 stack items, but add {1} to {0}")]
+    StackOverflow(u16, u16),
     /// Failed to decrement stack pointer.
     #[error("Stack underflow, current stack items {0}, expect at least {1}")]
-    StackUnderflow(u8, u8),
+    StackUnderflow(u16, u16),
     /// Failed to pop stack.
     #[error("Stack not balanced, current stack items {0}")]
-    StackNotBalanced(u8),
+    StackNotBalanced(u16),
     /// Failed to queue host functions.
     #[error("Unsupported host function {0:?}")]
     UnsupportedHostFunc(crate::wasm::HostFunc),

@@ -1,8 +1,8 @@
 //! Zink FFI.
 
 use crate::primitives::{Address, Bytes32, U256};
-
 pub mod asm;
+pub mod bytes;
 pub mod evm;
 
 #[link(wasm_import_module = "zinkc")]
@@ -10,9 +10,6 @@ pub mod evm;
 extern "C" {
     /// Emit ABI to host state.
     pub fn emit_abi(ptr: u32, len: u32);
-
-    /// Equal operation for addresses
-    pub fn address_eq(this: Address, other: Address) -> bool;
 
     /// Equal operation for addresses
     pub fn u256_add(this: U256, other: U256) -> U256;
@@ -29,6 +26,12 @@ extern "C" {
     /// Cast U256 to bytes32
     pub fn cast_bytes32(value: U256) -> Bytes32;
 
+    /// Addmod operation for addresses
+    pub fn u256_addmod(this: U256, other: U256, modulus: U256) -> U256;
+
+    /// Equal operation for addresses
+    pub fn u256_mulmod(this: U256, other: U256, modulus: U256) -> U256;
+  
     /// Set up a label for reserving 32 bytes in memory
     pub fn label_reserve_mem_32();
 
