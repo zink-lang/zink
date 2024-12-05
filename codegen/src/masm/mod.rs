@@ -80,8 +80,17 @@ impl MacroAssembler {
     }
 
     /// Get the current program counter offset.
-    pub fn pc_offset(&self) -> u16 {
+    pub fn pc(&self) -> u16 {
         self.asm.buffer().len() as u16
+    }
+
+    /// Get the current program counter offset.
+    pub fn pc_offset(&self) -> u16 {
+        if self.pc() > 0xff {
+            3
+        } else {
+            2
+        }
     }
 
     /// Place n bytes on stack.
@@ -130,7 +139,7 @@ impl MacroAssembler {
             30 => self.asm._push30(),
             31 => self.asm._push31(),
             32 => self.asm._push32(),
-            _ => return Err(Error::StackIndexOutOfRange(len as u8)),
+            _ => return Err(Error::StackIndexOutOfRange(len as u16)),
         }?;
 
         self.asm.emitn(bytes);
@@ -146,12 +155,12 @@ impl MacroAssembler {
     }
 
     /// Get the stack pointer.
-    pub fn sp(&self) -> u8 {
+    pub fn sp(&self) -> u16 {
         self.asm.sp
     }
 
     /// Swap memory by target index.
-    pub fn swap(&mut self, index: u8) -> Result<()> {
+    pub fn swap(&mut self, index: u16) -> Result<()> {
         tracing::trace!("swap index: {}", index);
         match index {
             0 => Ok(()),
@@ -176,7 +185,7 @@ impl MacroAssembler {
     }
 
     /// Duplicate stack item by target index.
-    pub fn dup(&mut self, index: u8) -> Result<()> {
+    pub fn dup(&mut self, index: u16) -> Result<()> {
         tracing::trace!("dup index: {}", index);
         match index {
             0 => Ok(()),
@@ -203,7 +212,7 @@ impl MacroAssembler {
     /// Shift the program counter to the bottom or the top of the
     /// parameters. This is used by the callee function for jumping
     /// back to the caller function.
-    pub fn shift_stack(&mut self, count: u8, from_top: bool) -> Result<()> {
+    pub fn shift_stack(&mut self, count: u16, from_top: bool) -> Result<()> {
         let mut swaps = 0;
 
         if from_top {

@@ -110,6 +110,12 @@ extern "C" {
     /// Load a value from the storage
     pub fn sload();
 
+    /// Store a value in the transient storage
+    pub fn tstore();
+
+    /// Load a value from the transient storage
+    pub fn tload();
+
     /// Save word to memory
     pub fn mstore();
 
@@ -119,11 +125,20 @@ extern "C" {
     /// Load word from memory
     pub fn mload();
 
+    /// Copy memory to memory
+    pub fn mcopy();
+
     /// Compute Keccak-256 hash
     pub fn keccak256();
 
     /// Get the current message sender
     pub fn caller() -> Address;
+
+    /// Get the current blob hash at index
+    pub fn blobhash();
+
+    /// Get the current blob base fee
+    pub fn blobbasefee();
 
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);

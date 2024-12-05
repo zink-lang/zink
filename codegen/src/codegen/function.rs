@@ -137,7 +137,7 @@ impl Function {
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
         let sp = self.masm.sp();
-        if !self.is_main && self.abi.is_none() && self.masm.sp() != self.ty.results().len() as u8 {
+        if !self.is_main && self.abi.is_none() && self.masm.sp() != self.ty.results().len() as u16 {
             return Err(Error::StackNotBalanced(sp));
         }
 

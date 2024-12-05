@@ -75,7 +75,7 @@ impl Dispatcher {
         self.asm.increment_sp(1)?;
 
         // Prepare the `PC` of the callee function.
-        self.table.call(self.asm.pc_offset(), func);
+        self.table.call(self.asm.pc(), func);
 
         if last {
             self.asm._swap1()?;

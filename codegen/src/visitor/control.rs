@@ -15,7 +15,7 @@ impl Function {
         // push an `If` frame to the control stack
         let frame = ControlStackFrame::new(
             ControlStackFrameType::If(false),
-            self.masm.pc_offset(),
+            self.masm.pc(),
             self.masm.sp(),
             blockty,
         );
@@ -35,7 +35,7 @@ impl Function {
     pub fn _block(&mut self, blockty: BlockType) -> Result<()> {
         let frame = ControlStackFrame::new(
             ControlStackFrameType::Block,
-            self.masm.pc_offset(),
+            self.masm.pc(),
             self.masm.sp(),
             blockty,
         );
@@ -50,7 +50,7 @@ impl Function {
     pub fn _loop(&mut self, blockty: BlockType) -> Result<()> {
         let frame = ControlStackFrame::new(
             ControlStackFrameType::Loop,
-            self.masm.pc_offset(),
+            self.masm.pc(),
             self.masm.sp(),
             blockty,
         );
@@ -68,7 +68,7 @@ impl Function {
         // push an `Else` frame to the control stack.
         let frame = ControlStackFrame::new(
             ControlStackFrameType::Else,
-            self.masm.pc_offset(),
+            self.masm.pc(),
             self.masm.sp(),
             last_frame.result(),
         );
@@ -78,7 +78,7 @@ impl Function {
 
         // mark else as the jump destination of the if block.
         self.table
-            .label(last_frame.original_pc_offset, self.masm.pc_offset());
+            .label(last_frame.original_pc_offset, self.masm.pc());
         self.masm._jumpdest()?;
 
         Ok(())
@@ -92,7 +92,7 @@ impl Function {
         tracing::trace!("select");
         self.masm._iszero()?;
         self.masm.increment_sp(1)?;
-        self.table.offset(self.masm.pc_offset(), 4);
+        self.table.label(self.masm.pc(), self.masm.pc() + 2);
         self.masm._jumpi()?;
         self.masm._drop()?;
         self.masm._jumpdest()?;
@@ -113,9 +113,16 @@ impl Function {
     /// Conditional branch to a given label in an enclosing construct.
     pub fn _br_if(&mut self, depth: u32) -> Result<()> {
         let label = self.control.label_from_depth(depth)?;
-        self.table.label(self.masm.pc_offset(), label);
-        self.masm.asm.increment_sp(1)?;
+
+        // Register the jump target for breaking out
+        self.table.label(self.masm.pc(), label);
+        self.masm.increment_sp(1)?;
+
+        // JUMPI will check condition and jump if true
         self.masm._jumpi()?;
+
+        // If we don't jump, we continue in the current frame
+        // No need for explicit ISZERO since JUMPI handles the condition
 
         Ok(())
     }
@@ -172,13 +179,12 @@ impl Function {
             ControlStackFrameType::Block => self.masm._jumpdest(),
             ControlStackFrameType::Loop => Ok(()),
             _ => {
-                self.table
-                    .label(frame.original_pc_offset, self.masm.pc_offset());
+                self.table.label(frame.original_pc_offset, self.masm.pc());
 
                 // TODO: Check the stack output and make decisions
                 // how to handle the results.
 
-                // Emit JUMPDEST after at the end of the control flow.
+                // Emit JUMPDEST at the end of the control flow.
                 self.masm._jumpdest()
             }
         }

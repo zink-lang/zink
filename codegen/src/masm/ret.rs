@@ -31,7 +31,7 @@ impl MacroAssembler {
 
     /// Handle the return of a call.
     pub fn call_return(&mut self, results: &[ValType]) -> Result<()> {
-        let len = results.len() as u8;
+        let len = results.len() as u16;
 
         tracing::trace!("cleaning frame stack, target: {}", len + 1);
         // TODO: clean stacks via the count of nested control stacks.

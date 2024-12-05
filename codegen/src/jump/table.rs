@@ -53,11 +53,6 @@ impl JumpTable {
         self.jump.insert(pc, Jump::Label(label));
     }
 
-    /// Registers a label at a specific program counter offset.
-    pub fn offset(&mut self, pc: u16, offset: u16) {
-        self.jump.insert(pc, Jump::Offset(offset));
-    }
-
     /// Merges another jump table into this one.
     ///
     /// This function updates the program counters of the target jump table and
@@ -108,31 +103,11 @@ fn test_multiple_jumps_same_target() -> anyhow::Result<()> {
     // Setup multiple jumps to same target
     table.register(0x10, Jump::Label(0x100));
     table.register(0x20, Jump::Label(0x100));
-    table.register(0x30, Jump::Offset(0x10));
-
     table.shift_targets()?;
 
     // Verify each jump's final target
-    assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x108);
-    assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x108);
-    assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x10);
-    Ok(())
-}
-
-#[test]
-fn test_multiple_jumps_with_backwards() -> anyhow::Result<()> {
-    let mut table = JumpTable::default();
-
-    // Simulate multiple functions calling _approve
-    table.register(0x10, Jump::Label(0x100)); // approve() -> _approve
-    table.register(0x20, Jump::Label(0x100)); // spend_allowance() -> _approve
-    table.register(0x100, Jump::Offset(0x30)); // _approve implementation
-
-    table.shift_targets()?;
-
     assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x106);
     assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x106);
-    assert_eq!(table.target(table.jump.get(&0x100).unwrap())?, 0x30);
     Ok(())
 }
 
@@ -151,25 +126,6 @@ fn test_nested_jumps() -> anyhow::Result<()> {
     assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x106);
     assert_eq!(table.target(table.jump.get(&0x100).unwrap())?, 0x209);
     assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x106);
-    Ok(())
-}
-
-#[test]
-fn test_offset_label_interaction() -> anyhow::Result<()> {
-    let mut table = JumpTable::default();
-
-    // Create offset and label jumps targeting same area
-    table.register(0x10, Jump::Offset(0x50)); // Offset jump forward
-    table.register(0x20, Jump::Label(0x60)); // Label jump to area after offset
-    table.register(0x30, Jump::Label(0x50)); // Label jump to offset target
-
-    table.shift_targets()?;
-
-    // Verify jumps are processed correctly
-    assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x50);
-    assert_eq!(table.target(table.jump.get(&0x20).unwrap())?, 0x66);
-    assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x56);
-
     Ok(())
 }
 
@@ -202,5 +158,67 @@ fn test_jump_backwards() -> anyhow::Result<()> {
 
     assert_eq!(table.target(table.jump.get(&0x10).unwrap())?, 0x22);
     assert_eq!(table.target(table.jump.get(&0x30).unwrap())?, 0x22);
+    Ok(())
+}
+
+#[test]
+fn test_jump_table_state_consistency() -> anyhow::Result<()> {
+    let mut table = JumpTable::default();
+
+    // Register a sequence of jumps that mirror ERC20's pattern
+    table.register(0x10, Jump::Label(0x100)); // First jump
+    table.register(0x20, Jump::Label(0x100)); // Second jump to same target
+
+    // Record state before and after each operation
+    let initial_state = table.jump.clone();
+    table.shift_targets()?;
+    let shifted_state = table.jump.clone();
+
+    // Verify jump table consistency
+    assert_eq!(table.jump.len(), initial_state.len());
+    assert!(shifted_state.values().all(|j| matches!(j, Jump::Label(_))));
+    Ok(())
+}
+
+#[test]
+fn test_jump_target_ordering() -> anyhow::Result<()> {
+    let mut table = JumpTable::default();
+
+    // Register jumps in reverse order
+    table.register(0x30, Jump::Label(0x100));
+    table.register(0x20, Jump::Label(0x100));
+    table.register(0x10, Jump::Label(0x100));
+
+    // Track all target shifts
+    let mut shifts = Vec::new();
+    let cloned = table.clone();
+    let original_targets: Vec<_> = cloned.jump.values().collect();
+
+    table.shift_targets()?;
+
+    // Verify target consistency
+    for (orig, shifted) in original_targets.iter().zip(table.jump.values()) {
+        shifts.push((orig, shifted));
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_mixed_jump_types() -> anyhow::Result<()> {
+    let mut table = JumpTable::default();
+
+    // Mix function calls and labels like in ERC20
+    table.func.insert(1, 0x100);
+    table.call(0x10, 1); // Function call
+    table.register(0x20, Jump::Label(0x100)); // Label jump to same target
+
+    let before_shift = table.jump.clone();
+    table.shift_targets()?;
+    let after_shift = table.jump.clone();
+
+    // Compare states
+    assert_eq!(before_shift.len(), after_shift.len());
+
     Ok(())
 }

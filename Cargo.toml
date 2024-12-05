@@ -1,18 +1,18 @@
 [profile]
-dev = { panic = "abort"}
+dev = { panic = "abort" }
 release = { panic = "unwind" }
 
 [workspace]
 members = [
-  "abi",
   "codegen",
   "compiler",
   "compiler/filetests",
-  "elko",
   "evm/opcodes",
   "evm/abi",
+  "zink/abi",
   "zink/codegen",
-  "zint",
+  "zink/elko",
+  "zink/zint",
 ]
 resolver = "2"
 
@@ -42,9 +42,11 @@ semver = "1.0.21"
 serde = { version = "1.0.196", default-features = false }
 serde_json = "1.0.113"
 smallvec = "1.13.1"
-syn =  { version = "2.0.77", features = [ "full" ] }
+syn = { version = "2.0.77", features = ["full"] }
 thiserror = "1.0.56"
-tiny-keccak = { version = "2.0.2", features = ["keccak"], default-features = false }
+tiny-keccak = { version = "2.0.2", features = [
+  "keccak",
+], default-features = false }
 toml = "0.8.9"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
@@ -53,18 +55,20 @@ wasmparser = "0.121.0"
 wat = "1.0.85"
 
 ## EVM packages
-opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.4", features = [ "data" ] }
+opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.4", features = [
+  "data",
+] }
 sol-abi = { path = "evm/abi", version = "=0.0.1" }
 
 ## Zink packages
 elko = { path = "elko", version = "0.1.11" }
 filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.11" }
-zabi = { path = "abi", version = "0.1.11" }
-zingen =  { path = "codegen", version = "0.1.11" }
+zabi = { path = "zink/abi", version = "0.1.11" }
+zingen = { path = "codegen", version = "0.1.11" }
 zink = { path = ".", version = "0.1.11" }
 zink-codegen = { path = "zink/codegen", version = "0.1.11" }
 zinkc = { path = "compiler", version = "0.1.11" }
-zint = { path = "zint", version = "0.1.11" }
+zint = { path = "zink/zint", version = "0.1.11" }
 
 [workspace.metadata.conta]
 packages = [
@@ -75,7 +79,7 @@ packages = [
   "zint",
   "zink-codegen",
   "zink",
-  "elko"
+  "elko",
 ]
 
 # Zink Programming Language
@@ -97,6 +101,7 @@ readme = "zink/README.md"
 path = "zink/src/lib.rs"
 
 [dependencies]
+fmt = "0.1.0"
 paste.workspace = true
 zink-codegen.workspace = true
 

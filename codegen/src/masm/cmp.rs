@@ -1,7 +1,7 @@
 // Comparison Instructions
 
 use crate::{MacroAssembler, Result};
-use opcodes::ShangHai as OpCode;
+use opcodes::Cancun as OpCode;
 
 impl MacroAssembler {
     /// Greater than or equal comparison.

@@ -38,7 +38,7 @@ pub struct ControlStackFrame {
     result: BlockType,
 
     /// Original stack pointer.
-    pub original_sp: u8,
+    pub original_sp: u16,
 }
 
 impl ControlStackFrame {
@@ -46,7 +46,7 @@ impl ControlStackFrame {
     pub fn new(
         ty: ControlStackFrameType,
         original_pc_offset: u16,
-        original_sp: u8,
+        original_sp: u16,
         result: BlockType,
     ) -> Self {
         Self {
