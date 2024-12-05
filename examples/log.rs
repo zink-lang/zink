@@ -3,69 +3,86 @@
 
 extern crate zink;
 
-use zink::{
-    primitives::{Address, U256},
-    Asm, Event,
-};
+use zink::{primitives::U256, Asm, Event};
 
-/// ERC20 standard events
 #[derive(Event)]
-pub enum ERC20Events {
-    /// Emitted when tokens are transferred between addresses
-    /// Parameters: from, to, value
-    Transfer(Address, Address, U256),
-
-    /// Emitted when an address approves another address to spend tokens
-    /// Parameters: owner, spender, value
-    Approval(Address, Address, U256),
+pub enum MyEvent {
+    /// Event with no topics
+    Topic0,
+    /// Event with one topic
+    Topic1(U256),
+    /// Event with two topics
+    Topic2(U256, U256),
+    /// Event with three topics
+    Topic3(U256, U256, U256),
+    /// Event with four topics 
+    Topic4(U256, U256, U256, U256),
 }
 
-impl ERC20Events {
-    /// Log a transfer event
-    pub fn log_transfer(from: Address, to: Address, value: U256) {
-        match Self::Transfer(from, to, value) {
-            event => event.log0(),
-        }
-    }
-
-    /// Log an approval event
-    pub fn log_approval(owner: Address, spender: Address, value: U256) {
-        match Self::Approval(owner, spender, value) {
-            event => event.log0(),
-        }
-    }
-}
-
-pub mod erc20_events {
+pub mod event_tests {
     use super::*;
 
-    /// Logs a transfer event
-    /// Example contract functions demonstrating event logging
+    /// Test log0 
     #[zink::external]
-    pub fn log_transfer(from: Address, to: Address, value: U256) {
-        ERC20Events::log_transfer(from, to, value)
+    pub fn test_log0() {
+        unsafe { zink::ffi::evm::log0(b"MyEvent") }
     }
 
-    /// Logs an approval event
-    /// Example contract functions demonstrating event logging
+    /// Test log1 
     #[zink::external]
-    pub fn log_approval(owner: Address, spender: Address, value: U256) {
-        ERC20Events::log_approval(owner, spender, value)
+    pub fn test_log1(value: U256) {
+        unsafe {
+            let topic = value.to_bytes32();
+            zink::ffi::evm::log1(b"MyEvent", topic)
+        }
     }
 
-    /// Example of logging multiple events in a single transaction
-    /// Example contract functions demonstrating event logging
+    /// Test log2 
     #[zink::external]
-    pub fn log_transfer_and_approval(
-        from: Address,
-        to: Address,
-        spender: Address,
-        value: U256,
+    pub fn test_log2(value1: U256, value2: U256) {
+        unsafe {
+            let topic1 = value1.to_bytes32();
+            let topic2 = value2.to_bytes32();
+            zink::ffi::evm::log2(b"MyEvent", topic1, topic2)
+        }
+    }
+
+    /// Test log3 
+    #[zink::external]
+    pub fn test_log3(value1: U256, value2: U256, value3: U256) {
+        unsafe {
+            let topic1 = value1.to_bytes32();
+            let topic2 = value2.to_bytes32();
+            let topic3 = value3.to_bytes32();
+            zink::ffi::evm::log3(b"MyEvent", topic1, topic2, topic3)
+        }
+    }
+
+    /// Test log4 
+    #[zink::external]
+    pub fn test_log4(value1: U256, value2: U256, value3: U256, value4: U256) {
+        unsafe {
+            let topic1 = value1.to_bytes32();
+            let topic2 = value2.to_bytes32();
+            let topic3 = value3.to_bytes32();
+            let topic4 = value4.to_bytes32();
+            zink::ffi::evm::log4(b"MyEvent", topic1, topic2, topic3, topic4)
+        }
+    }
+
+    /// Test multiple event logs in one transaction
+    #[zink::external]
+    pub fn test_multiple_logs(
+        value1: U256,
+        value2: U256,
+        value3: U256,
+        value4: U256,
     ) -> Result<(), ()> {
-        // Log transfer first
-        log_transfer(from, to, value);
-        // Then log approval
-        log_approval(from, spender, value);
+        test_log0();
+        test_log1(value1);
+        test_log2(value1, value2);
+        test_log3(value1, value2, value3);
+        test_log4(value1, value2, value3, value4);
         Ok(())
     }
 }
@@ -73,26 +90,25 @@ pub mod erc20_events {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zink::EventError;
 
     #[test]
-    fn test_event_logging() -> Result<(), EventError> {
-        let from = Address([1u8; 20]);
-        let to = Address([2u8; 20]);
-        let spender = Address([3u8; 20]);
-        let value = U256::from(1000u64);
+    fn test_events() {
+        let value1 = U256::from(U256::empty());
+        let value2 = U256::from(U256::empty());
+        let value3 = U256::from(U256::empty());
+        let value4 = U256::from(U256::empty());
 
-        // Test individual event logging
-        erc20_events::log_transfer(from, to, value)?;
-        erc20_events::log_approval(from, spender, value)?;
+        // Test each log function
+        event_tests::test_log0();
+        event_tests::test_log1(value1);
+        event_tests::test_log2(value1, value2);
+        event_tests::test_log3(value1, value2, value3);
+        event_tests::test_log4(value1, value2, value3, value4);
 
-        // Test multiple events
-        erc20_events::log_transfer_and_approval(from, to, spender, value)?;
-
-        Ok(())
+        // Test multiple logs
+        event_tests::test_multiple_logs(value1, value2, value3, value4).unwrap();
     }
 }
 
-// Only include main when not targeting wasm32
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
