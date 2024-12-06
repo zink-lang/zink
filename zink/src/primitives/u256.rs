@@ -48,6 +48,18 @@ impl U256 {
         unsafe { ffi::u256_max() }
     }
 
+
+    #[cfg(target_family = "wasm")]
+    pub fn to_bytes32(&self) -> Bytes32 {
+        unsafe { ffi::asm::cast_bytes32(*self) }
+    }
+
+    #[cfg(not(target_family = "wasm"))]
+    pub fn to_bytes32(&self) -> Bytes32 {
+        // Bytes32::from(self.0)
+        todo!()
+    }
+
     /// Addmod for U256
     #[inline(always)]
     pub fn addmod(self, other: Self, modulus: Self) -> Self {
