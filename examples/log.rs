@@ -15,20 +15,20 @@ pub enum MyEvent {
     Topic2(U256, U256),
     /// Event with three topics
     Topic3(U256, U256, U256),
-    /// Event with four topics 
+    /// Event with four topics
     Topic4(U256, U256, U256, U256),
 }
 
 pub mod event_tests {
     use super::*;
 
-    /// Test log0 
+    /// Test log0
     #[zink::external]
     pub fn test_log0() {
         unsafe { zink::ffi::evm::log0(b"MyEvent") }
     }
 
-    /// Test log1 
+    /// Test log1
     #[zink::external]
     pub fn test_log1(value: U256) {
         unsafe {
@@ -37,7 +37,7 @@ pub mod event_tests {
         }
     }
 
-    /// Test log2 
+    /// Test log2
     #[zink::external]
     pub fn test_log2(value1: U256, value2: U256) {
         unsafe {
@@ -47,7 +47,7 @@ pub mod event_tests {
         }
     }
 
-    /// Test log3 
+    /// Test log3
     #[zink::external]
     pub fn test_log3(value1: U256, value2: U256, value3: U256) {
         unsafe {
@@ -58,7 +58,7 @@ pub mod event_tests {
         }
     }
 
-    /// Test log4 
+    /// Test log4
     #[zink::external]
     pub fn test_log4(value1: U256, value2: U256, value3: U256, value4: U256) {
         unsafe {
@@ -66,6 +66,7 @@ pub mod event_tests {
             let topic2 = value2.to_bytes32();
             let topic3 = value3.to_bytes32();
             let topic4 = value4.to_bytes32();
+
             zink::ffi::evm::log4(b"MyEvent", topic1, topic2, topic3, topic4)
         }
     }
@@ -83,6 +84,7 @@ pub mod event_tests {
         test_log2(value1, value2);
         test_log3(value1, value2, value3);
         test_log4(value1, value2, value3, value4);
+
         Ok(())
     }
 }
@@ -99,14 +101,16 @@ mod tests {
         let value4 = U256::from(U256::empty());
 
         // Test each log function
-        event_tests::test_log0();
-        event_tests::test_log1(value1);
-        event_tests::test_log2(value1, value2);
-        event_tests::test_log3(value1, value2, value3);
-        event_tests::test_log4(value1, value2, value3, value4);
+        unsafe {
+            event_tests::test_log0();
+            event_tests::test_log1(value1);
+            event_tests::test_log2(value1, value2);
+            event_tests::test_log3(value1, value2, value3);
+            event_tests::test_log4(value1, value2, value3, value4);
 
-        // Test multiple logs
-        event_tests::test_multiple_logs(value1, value2, value3, value4).unwrap();
+            // Test multiple logs
+            event_tests::test_multiple_logs(value1, value2, value3, value4).unwrap();
+        }
     }
 }
 

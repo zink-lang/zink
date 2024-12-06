@@ -101,29 +101,39 @@ fn generate_variant_implementation(
             // Generate the appropriate log call based on field count
             let log_impl = match field_names.as_slice() {
                 [] => quote! {
-                    zink::ffi::evm::log0(stringify!(#variant_name).as_bytes()) 
+                    unsafe {
+                    zink::ffi::evm::log0(stringify!(#variant_name).as_bytes());
+                    }
                 },
                 [f1] => quote! {
                     let topic1 = #f1.bytes32();
-                    zink::ffi::evm::log1(stringify!(#variant_name).as_bytes(), topic1)
+                    unsafe {
+                    zink::ffi::evm::log1(stringify!(#variant_name).as_bytes(), topic1);
+                    }
                 },
                 [f1, f2] => quote! {
                     let topic1 = #f1.bytes32();
                     let topic2 = #f2.bytes32();
-                    zink::ffi::evm::log2(stringify!(#variant_name).as_bytes(), topic1, topic2)
+                    unsafe {
+                    zink::ffi::evm::log2(stringify!(#variant_name).as_bytes(), topic1, topic2);
+                    }
                 },
                 [f1, f2, f3] => quote! {
                     let topic1 = #f1.bytes32();
                     let topic2 = #f2.bytes32();
                     let topic3 = #f3.bytes32();
-                    zink::ffi::evm::log3(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3)
+                    unsafe {
+                    zink::ffi::evm::log3(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3);
+                    }
                 },
                 [f1, f2, f3, f4] => quote! {
                     let topic1 = #f1.bytes32();
                     let topic2 = #f2.bytes32();
                     let topic3 = #f3.bytes32();
                     let topic4 = #f4.bytes32();
-                    zink::ffi::evm::log4(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3, topic4)
+                    unsafe {
+                    zink::ffi::evm::log4(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3, topic4);
+                    }
                 },
                 _ => unreachable!(),
             };
@@ -154,29 +164,39 @@ fn generate_variant_implementation(
             // Generate the appropriate log call based on field count
             let log_impl = match field_bindings.as_slice() {
                 [] => quote! {
-                    zink::ffi::evm::log0(stringify!(#variant_name).as_bytes())
+                    unsafe {
+                    zink::ffi::evm::log0(stringify!(#variant_name).as_bytes());
+                    }
                 },
                 [v0] => quote! {
                     let topic1 = #v0.bytes32();
-                    zink::ffi::evm::log1(stringify!(#variant_name).as_bytes(), topic1)
+                    unsafe {
+                    zink::ffi::evm::log1(stringify!(#variant_name).as_bytes(), topic1);
+                    }
                 },
                 [v0, v1] => quote! {
                     let topic1 = #v0.bytes32();
                     let topic2 = #v1.bytes32();
-                    zink::ffi::evm::log2(stringify!(#variant_name).as_bytes(), topic1, topic2)
+                    unsafe {
+                    zink::ffi::evm::log2(stringify!(#variant_name).as_bytes(), topic1, topic2);
+                    }
                 },
                 [v0, v1, v2] => quote! {
                     let topic1 = #v0.bytes32();
                     let topic2 = #v1.bytes32();
                     let topic3 = #v2.bytes32();
-                    zink::ffi::evm::log3(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3)
+                    unsafe {
+                    zink::ffi::evm::log3(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3);
+                    }
                 },
                 [v0, v1, v2, v3] => quote! {
                     let topic1 = #v0.bytes32();
                     let topic2 = #v1.bytes32();
                     let topic3 = #v2.bytes32();
                     let topic4 = #v3.bytes32();
-                    zink::ffi::evm::log4(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3, topic4)
+                    unsafe {
+                    zink::ffi::evm::log4(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3, topic4);
+                    }
                 },
                 _ => unreachable!(),
             };
@@ -189,7 +209,9 @@ fn generate_variant_implementation(
         }
         Fields::Unit => Ok(quote! {
             #enum_name::#variant_name => {
+                unsafe {
                 zink::ffi::evm::log0(stringify!(#variant_name).as_bytes())
+                }
             }
         }),
     }
