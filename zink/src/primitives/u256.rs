@@ -53,6 +53,11 @@ impl U256 {
         unsafe { ffi::asm::cast_bytes32(*self) }
     }
 
+      /// U256 to bytes32
+      pub fn bytes32(&self) -> Bytes32 {
+        unsafe { ffi::asm::cast_bytes32(*self) }
+    }
+
     /// Addmod for U256
     #[inline(always)]
     pub fn addmod(self, other: Self, modulus: Self) -> Self {
