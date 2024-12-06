@@ -1,5 +1,7 @@
 //! Assembly FFI.
 
+use crate::primitives::{Bytes32, U256};
+
 #[link(wasm_import_module = "asm")]
 #[allow(improper_ctypes)]
 extern "C" {
@@ -78,6 +80,8 @@ extern "C" {
 
     /// Revert with message in 128 bytes
     pub fn revert4(message: &'static str);
+
+    pub fn cast_bytes32(a: U256) -> Bytes32;
 
     /// Load a 8-bit signed integer from the storage.
     pub fn sload_i8() -> i8;
