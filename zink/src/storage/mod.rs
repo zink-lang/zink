@@ -35,6 +35,12 @@ impl StorageValue for u32 {
     }
 }
 
+impl StorageValue for u64 {
+    fn sload() -> Self {
+        unsafe { ffi::asm::sload_u64() }
+    }
+}
+
 impl TransientStorageValue for i32 {
     fn tload() -> Self {
         unsafe { ffi::asm::tload_i32() }

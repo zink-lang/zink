@@ -25,6 +25,10 @@ pub struct EVM<'e> {
     inner: Revm<'e, (), InMemoryDB>,
     /// Caller for the execution
     pub caller: [u8; 20],
+    /// The block’s number
+    pub block_number: [u8; 32],
+    /// The block's hash
+    pub block_hash: [u8; 32],
     /// If commit changes
     commit: bool,
 }
@@ -38,6 +42,8 @@ impl<'e> Default for EVM<'e> {
         Self {
             inner: evm,
             caller: [0; 20],
+            block_number: [0; 32],
+            block_hash: [0; 32],
             commit: false,
         }
     }
@@ -72,12 +78,31 @@ impl EVM<'_> {
         self
     }
 
+    /// Set block number
+    pub fn block_number(mut self, number: [u8; 32]) -> Self {
+        self.block_number = number;
+        self
+    }
+
+    /// Set block hash
+    pub fn block_hash(mut self, hash: [u8; 32]) -> Self {
+        self.block_hash = hash;
+        self
+    }
+
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
         self.inner.tx_mut().gas_limit = GAS_LIMIT;
         self.inner.tx_mut().transact_to = to;
         self.inner.tx_mut().caller = self.caller.into();
+
+        let block_number = U256::from_be_bytes(self.block_number);
+        self.inner.block_mut().number = block_number;
+        self.inner
+            .db_mut()
+            .block_hashes
+            .insert(block_number, self.block_hash.into());
 
         if self.commit {
             self.inner.transact_commit()?.try_into()
@@ -147,7 +172,7 @@ impl TryFrom<ExecutionResult> for Info {
             gas: result.gas_used(),
             ..Default::default()
         };
-
+        println!("{:?}", result);
         match result {
             ExecutionResult::Success {
                 logs,

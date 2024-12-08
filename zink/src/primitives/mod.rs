@@ -3,6 +3,7 @@
 mod address;
 pub mod bytes;
 pub mod numeric;
+pub mod properties;
 mod u256;
 
 pub use {address::Address, bytes::*, u256::U256};
