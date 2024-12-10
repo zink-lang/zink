@@ -11,7 +11,7 @@ pub trait Event {
     }
 
     fn log1(&self, topic: impl Into<Bytes32>) {
-        unsafe { ffi::evm::log1(Self::NAME, topic.into()) }
+        unsafe { ffi::evm::log1(topic.into(), Self::NAME) }
     }
 
     fn log2(&self, topic1: impl Into<Bytes32>, topic2: impl Into<Bytes32>) {

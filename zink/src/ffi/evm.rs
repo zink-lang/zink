@@ -144,7 +144,7 @@ extern "C" {
     pub fn log0(name: &'static [u8]);
 
     /// Append log record with one topic
-    pub fn log1(name: &'static [u8], topic1: Bytes32);
+    pub fn log1(topic1: Bytes32, name: &'static [u8]);
 
     /// Append log record with two topics
     pub fn log2(name: &'static [u8], topic1: Bytes32, topic2: Bytes32);

@@ -2,7 +2,8 @@ use proc_macro::{Span, TokenStream};
 use quote::{quote, ToTokens};
 use sha3::{Digest, Keccak256};
 use syn::{
-    parse::Parse, parse_quote, spanned::Spanned, Abi, Data, DeriveInput, Error, Fields, LitByteStr, Result, Type, Variant
+    parse::Parse, parse_quote, spanned::Spanned, Abi, Data, DeriveInput, Error, Fields, LitByteStr,
+    Result, Type, Variant,
 };
 
 /// Custom error type for better error handling
@@ -107,7 +108,7 @@ fn generate_variant_implementation(
                 [f1] => quote! {
                     let topic1 = #f1.bytes32();
                     unsafe {
-                    zink::ffi::evm::log1(stringify!(#variant_name).as_bytes(), topic1);
+                    zink::ffi::evm::log1(topic1, stringify!(#variant_name).as_bytes());
                     }
                 },
                 [f1, f2] => quote! {
@@ -170,7 +171,7 @@ fn generate_variant_implementation(
                 [v0] => quote! {
                     let topic1 = #v0.bytes32();
                     unsafe {
-                    zink::ffi::evm::log1(stringify!(#variant_name).as_bytes(), topic1);
+                    zink::ffi::evm::log1(topic1, stringify!(#variant_name).as_bytes());
                     }
                 },
                 [v0, v1] => quote! {
