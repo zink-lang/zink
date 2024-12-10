@@ -5,7 +5,7 @@ use filetests::Test;
 use zint::{Bytes32, Contract};
 
 #[test]
-fn log0() -> Result<()> {
+fn log0() -> Result<()> { 
     let mut contract = Contract::from(Test::LOG_LOG0).pure().compile()?;
 
     // returns the bigger number.
@@ -22,6 +22,12 @@ fn log1() -> Result<()> {
     let mut contract = Contract::from(Test::LOG_LOG1).pure().compile()?;
 
     let info = contract.execute::<()>([])?;
+    let binding = info.logs[0].data.data.to_vec();
+    let c = binding.as_slice();
+    let a = String::from_utf8_lossy(c);
+    let binding = b"Ping".to_vec().to_bytes32();
+    let b =  String::from_utf8_lossy(binding.as_slice());
+    println!("{:?}{:?}", a, b);
     assert_eq!(
         info.logs[0].data.data.to_vec(),
         b"Ping".to_vec().to_bytes32()
@@ -37,7 +43,6 @@ fn log1() -> Result<()> {
 fn log2() -> Result<()> {
     let mut contract = Contract::from(Test::LOG_LOG2).pure().compile()?;
     let info = contract.execute::<()>([])?;
-
     assert_eq!(
         info.logs[0].data.data.to_vec(),
         b"Ping".to_vec().to_bytes32()
