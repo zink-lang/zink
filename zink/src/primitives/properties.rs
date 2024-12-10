@@ -42,11 +42,21 @@ pub fn prevrandao() -> Bytes32 {
 }
 
 /// Get the current block gaslimit.
-pub fn gaslimit() -> u64 {
+pub fn gaslimit() -> Bytes32 {
     unsafe { ffi::evm::gaslimit() }
+}
+
+/// Get the amount of available gas.
+pub fn gas() -> u64 {
+    unsafe { ffi::evm::gas() }
 }
 
 /// Get the block’s timestamp.
 pub fn timestamp() -> u64 {
     unsafe { ffi::evm::timestamp() }
+}
+
+/// Get the gas price of the transaction.
+pub fn gasprice() -> u64 {
+    unsafe { ffi::evm::gasprice() }
 }
