@@ -46,6 +46,11 @@ pub fn gaslimit() -> u64 {
     unsafe { ffi::evm::gaslimit() }
 }
 
+/// Get the amount of available gas.
+pub fn gas() -> u64 {
+    unsafe { ffi::evm::gas() }
+}
+
 /// Get the block’s timestamp.
 pub fn timestamp() -> u64 {
     unsafe { ffi::evm::timestamp() }

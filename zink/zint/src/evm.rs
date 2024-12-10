@@ -25,10 +25,6 @@ pub struct EVM<'e> {
     inner: Revm<'e, (), InMemoryDB>,
     /// Caller for the execution
     pub caller: [u8; 20],
-    /// The block’s number
-    pub block_number: [u8; 32],
-    /// The block's hash
-    pub block_hash: [u8; 32],
     /// If commit changes
     commit: bool,
 }
@@ -42,8 +38,6 @@ impl<'e> Default for EVM<'e> {
         Self {
             inner: evm,
             caller: [0; 20],
-            block_number: [0; 32],
-            block_hash: [0; 32],
             commit: false,
         }
     }
@@ -78,15 +72,24 @@ impl EVM<'_> {
         self
     }
 
+    /// Set chain id
+    pub fn chain_id(mut self, id: u64) -> Self {
+        self.inner.tx_mut().chain_id = Some(id);
+        self
+    }
+
     /// Set block number
-    pub fn block_number(mut self, number: [u8; 32]) -> Self {
-        self.block_number = number;
+    pub fn block_number(mut self, number: u64) -> Self {
+        self.inner.block_mut().number = U256::from(number);
         self
     }
 
     /// Set block hash
-    pub fn block_hash(mut self, hash: [u8; 32]) -> Self {
-        self.block_hash = hash;
+    pub fn block_hash(mut self, number: u64, hash: [u8; 32]) -> Self {
+        self.inner
+            .db_mut()
+            .block_hashes
+            .insert(U256::from(number), hash.into());
         self
     }
 
@@ -96,13 +99,6 @@ impl EVM<'_> {
         self.inner.tx_mut().gas_limit = GAS_LIMIT;
         self.inner.tx_mut().transact_to = to;
         self.inner.tx_mut().caller = self.caller.into();
-
-        let block_number = U256::from_be_bytes(self.block_number);
-        self.inner.block_mut().number = block_number;
-        self.inner
-            .db_mut()
-            .block_hashes
-            .insert(block_number, self.block_hash.into());
 
         if self.commit {
             self.inner.transact_commit()?.try_into()
@@ -172,7 +168,7 @@ impl TryFrom<ExecutionResult> for Info {
             gas: result.gas_used(),
             ..Default::default()
         };
-        println!("{:?}", result);
+
         match result {
             ExecutionResult::Success {
                 logs,

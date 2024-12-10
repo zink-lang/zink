@@ -182,6 +182,9 @@ extern "C" {
     /// Get the current block gaslimit.
     pub fn gaslimit() -> u64;
 
+    /// Get the amount of available gas.
+    pub fn gas() -> u64;
+
     /// Get the block’s timestamp.
     pub fn timestamp() -> u64;
 }
