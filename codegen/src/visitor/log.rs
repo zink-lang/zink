@@ -60,31 +60,11 @@ impl Function {
 
     /// Log a message with topics.
     pub fn log(&mut self, count: usize) -> Result<()> {
-        let mut topics = Vec::<Vec<u8>>::default();
-        for topic in (1..=count).rev() {
-            let (offset, size) = self.data()?;
-            let size = size as usize;
-            let data = self.env.data.load(offset, size)?;
-
-            tracing::debug!("log{count} topic{topic}: {:?}", data);
-            topics.push(data);
-        }
-
-        let name = {
-            let (offset, size) = self.data()?;
-            let size = size as usize;
-            let data = self.env.data.load(offset, size)?;
-
-            tracing::debug!("log1 name: {:?}", data);
-            data
-        };
-
-        for topic in topics {
-            self.masm.push(&topic)?;
-        }
+        let (offset, size) = self.data()?;
+        let data = self.env.data.load(offset, size as usize)?;
 
         // 1. write data to memory
-        let MemoryInfo { offset, size } = self.masm.memory_write_bytes(&name)?;
+        let MemoryInfo { offset, size } = self.masm.memory_write_bytes(&data)?;
 
         // 3. prepare the offset and size of the data.
         self.masm.push(&size.to_ls_bytes())?;
@@ -101,6 +81,7 @@ impl Function {
         }?;
 
         Ok(())
+
     }
 
     /// Revert with message.

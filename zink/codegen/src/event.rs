@@ -2,8 +2,7 @@ use proc_macro::{Span, TokenStream};
 use quote::{quote, ToTokens};
 use sha3::{Digest, Keccak256};
 use syn::{
-    parse_quote, spanned::Spanned, Data, DeriveInput, Error, Fields, LitByteStr, Result, Type,
-    Variant,
+    parse::Parse, parse_quote, spanned::Spanned, Abi, Data, DeriveInput, Error, Fields, LitByteStr, Result, Type, Variant
 };
 
 /// Custom error type for better error handling
@@ -282,7 +281,6 @@ fn generate_abi_signature(
             Ok(format!("{}({})", variant_name, params))
         })
         .collect::<Result<Vec<_>>>()?;
-
     Ok(quote! {
         vec![
             #(#variant_signatures.to_string()),*
