@@ -63,14 +63,15 @@ fn parse_impl(input: DeriveInput) -> TokenStream {
     };
 
     let expanded = quote! {
-        impl Event for #name {
-            const NAME: &'static [u8] = #name_bytes;
-
-
-            fn log0(&self) {
+        impl #name {
+            pub fn log0(&self) {
                 match self {
                     #(#variant_implementations)*
                 }
+            }
+
+            pub const fn name() -> &'static [u8] {
+                #name_bytes
             }
         }
     };
