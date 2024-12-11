@@ -126,89 +126,76 @@ mod tests {
             let info = contract
                 .execute(&[
                     b"test_log2(uint256,uint256)".to_vec(),
-                    value1.bytes32()[0].to_vec(),
-                    value2.bytes32()[0].to_vec(),
+                    value1.bytes32().to_vec(),
+                    value2.bytes32().to_vec(),
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
-            assert_eq!(info.logs[0].topics().to_vec(), value1.bytes32().to_vec());
+            assert_eq!(info.logs[0].topics()[1].to_vec(), value1.bytes32().to_vec());
             assert_eq!(
-                info.logs[0].data.topics().to_vec(),
-                value2.bytes32()[0].to_vec()
+                info.logs[0].topics()[0].to_vec(),
+                value2.bytes32().to_vec()
             );
 
             let info = contract
                 .execute(&[
                     b"test_log3(uint256,uint256,uint256)".to_vec(),
-                    value1.bytes32()[0].to_vec(),
-                    value2.bytes32()[0].to_vec(),
+                    value1.bytes32().to_vec(),
+                    value2.bytes32().to_vec(),
+                    value3.bytes32().to_vec(),
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
             assert_eq!(
-                info.logs[0].data.data.to_vec(),
-                value1.bytes32()[0].to_vec()
+                info.logs[0].topics()[2].to_vec(),
+                value1.bytes32().to_vec()
             );
             assert_eq!(
-                info.logs[1].data.data.to_vec(),
-                value2.bytes32()[0].to_vec()
+                info.logs[0].topics()[1].to_vec(),
+                value2.bytes32().to_vec()
             );
             assert_eq!(
-                info.logs[2].data.data.to_vec(),
-                value3.bytes32()[0].to_vec()
+                info.logs[0].topics()[0].to_vec(),
+                value3.bytes32().to_vec()
             );
 
             let info = contract
                 .execute(&[
                     b"test_log4(uint256,uint256,uint256,uint256)".to_vec(),
-                    value1.bytes32()[0].to_vec(),
-                    value2.bytes32()[0].to_vec(),
+                    value1.bytes32().to_vec(),
+                    value2.bytes32().to_vec(),
+                    value3.bytes32().to_vec(),
+                    value4.bytes32().to_vec(),
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
             assert_eq!(
-                info.logs[0].data.data.to_vec(),
-                value1.bytes32()[0].to_vec()
+                info.logs[0].topics()[3].to_vec(),
+                value1.bytes32().to_vec()
             );
             assert_eq!(
-                info.logs[1].data.data.to_vec(),
-                value2.bytes32()[0].to_vec()
+                info.logs[0].topics()[2].to_vec(),
+                value2.bytes32().to_vec()
             );
             assert_eq!(
-                info.logs[2].data.data.to_vec(),
-                value3.bytes32()[0].to_vec()
+                info.logs[0].topics()[1].to_vec(),
+                value3.bytes32().to_vec()
             );
             assert_eq!(
-                info.logs[3].data.data.to_vec(),
-                value4.bytes32()[0].to_vec()
+                info.logs[0].topics()[0].to_vec(),
+                value4.bytes32().to_vec()
             );
 
             let info = contract
                 .execute(&[
                     b"test_multiple_logs(uint256,uint256,uint256,uint256)".to_vec(),
-                    value1.bytes32()[0].to_vec(),
-                    value2.bytes32()[0].to_vec(),
-                    value3.bytes32()[0].to_vec(),
-                    value4.bytes32()[0].to_vec(),
+                    value1.bytes32().to_vec(),
+                    value2.bytes32().to_vec(),
+                    value3.bytes32().to_vec(),
+                    value4.bytes32().to_vec(),
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
-            assert_eq!(
-                info.logs[0].data.data.to_vec(),
-                value1.bytes32()[0].to_vec()
-            );
-            assert_eq!(
-                info.logs[1].data.data.to_vec(),
-                value2.bytes32()[0].to_vec()
-            );
-            assert_eq!(
-                info.logs[2].data.data.to_vec(),
-                value3.bytes32()[0].to_vec()
-            );
-            assert_eq!(
-                info.logs[3].data.data.to_vec(),
-                value4.bytes32()[0].to_vec()
-            );
         }
     }
 }
