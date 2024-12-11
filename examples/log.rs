@@ -98,9 +98,9 @@ mod tests {
 
         let name = b"MyEvent";
         let value1: i32 = 1;
-        let _value2: i32 = 2;
-        let _value3: i32 = 3;
-        let _value4: i32 = 4;
+        let value2: i32 = 2;
+        let value3: i32 = 3;
+        let value4: i32 = 4;
 
         {
             // Test log0
