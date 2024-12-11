@@ -115,7 +115,7 @@ fn generate_variant_implementation(
                     let topic1 = #f1.bytes32();
                     let topic2 = #f2.bytes32();
                     unsafe {
-                    zink::ffi::evm::log2(stringify!(#variant_name).as_bytes(), topic1, topic2);
+                    zink::ffi::evm::log2(topic1, topic2, stringify!(#variant_name).as_bytes());
                     }
                 },
                 [f1, f2, f3] => quote! {
@@ -123,7 +123,7 @@ fn generate_variant_implementation(
                     let topic2 = #f2.bytes32();
                     let topic3 = #f3.bytes32();
                     unsafe {
-                    zink::ffi::evm::log3(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3);
+                    zink::ffi::evm::log3(stringify!(topic1, topic2, topic3, #variant_name).as_bytes());
                     }
                 },
                 [f1, f2, f3, f4] => quote! {
@@ -132,7 +132,7 @@ fn generate_variant_implementation(
                     let topic3 = #f3.bytes32();
                     let topic4 = #f4.bytes32();
                     unsafe {
-                    zink::ffi::evm::log4(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3, topic4);
+                    zink::ffi::evm::log4(topic1, topic2, topic3, topic4, stringify!(#variant_name).as_bytes());
                     }
                 },
                 _ => unreachable!(),
@@ -178,7 +178,7 @@ fn generate_variant_implementation(
                     let topic1 = #v0.bytes32();
                     let topic2 = #v1.bytes32();
                     unsafe {
-                    zink::ffi::evm::log2(stringify!(#variant_name).as_bytes(), topic1, topic2);
+                    zink::ffi::evm::log2(topic1, topic2, stringify!(#variant_name).as_bytes());
                     }
                 },
                 [v0, v1, v2] => quote! {
@@ -186,7 +186,7 @@ fn generate_variant_implementation(
                     let topic2 = #v1.bytes32();
                     let topic3 = #v2.bytes32();
                     unsafe {
-                    zink::ffi::evm::log3(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3);
+                    zink::ffi::evm::log3(topic1, topic2, topic3, stringify!(#variant_name).as_bytes());
                     }
                 },
                 [v0, v1, v2, v3] => quote! {
@@ -195,7 +195,7 @@ fn generate_variant_implementation(
                     let topic3 = #v2.bytes32();
                     let topic4 = #v3.bytes32();
                     unsafe {
-                    zink::ffi::evm::log4(stringify!(#variant_name).as_bytes(), topic1, topic2, topic3, topic4);
+                    zink::ffi::evm::log4(topic1, topic2, topic3, topic4, stringify!(#variant_name).as_bytes());
                     }
                 },
                 _ => unreachable!(),

@@ -38,14 +38,13 @@ pub mod event_tests {
         }
     }
 
-    /*
     /// Test log2
     #[zink::external]
     pub fn test_log2(value1: U256, value2: U256) {
         unsafe {
             let topic1 = value1.bytes32();
             let topic2 = value2.bytes32();
-            zink::ffi::evm::log2(b"MyEvent", topic1, topic2)
+            zink::ffi::evm::log2(topic1, topic2, b"MyEvent")
         }
     }
 
@@ -56,7 +55,7 @@ pub mod event_tests {
             let topic1 = value1.bytes32();
             let topic2 = value2.bytes32();
             let topic3 = value3.bytes32();
-            zink::ffi::evm::log3(b"MyEvent", topic1, topic2, topic3)
+            zink::ffi::evm::log3(topic1, topic2, topic3, b"MyEvent")
         }
     }
 
@@ -69,11 +68,11 @@ pub mod event_tests {
             let topic3 = value3.bytes32();
             let topic4 = value4.bytes32();
 
-            zink::ffi::evm::log4(b"MyEvent", topic1, topic2, topic3, topic4)
+            zink::ffi::evm::log4(topic1, topic2, topic3, topic4, b"MyEvent")
         }
-    } */
+    }
 
-    /* /// Test multiple event logs in one transaction
+    /// Test multiple event logs in one transaction
     #[zink::external]
     pub fn test_multiple_logs(value1: U256, value2: U256, value3: U256, value4: U256) {
         test_log0();
@@ -81,7 +80,7 @@ pub mod event_tests {
         test_log2(value1, value2);
         test_log3(value1, value2, value3);
         test_log4(value1, value2, value3, value4);
-    } */
+    }
 }
 
 #[cfg(test)]
@@ -123,8 +122,7 @@ mod tests {
             );
             assert_eq!(info.logs[0].topics()[0].to_vec(), value1.bytes32().to_vec());
 
-            return;
-            /* // Test log2
+            // Test log2
             let info = contract
                 .execute(&[
                     b"test_log2(uint256,uint256)".to_vec(),
@@ -174,7 +172,7 @@ mod tests {
             assert_eq!(info.logs[0].data.data.to_vec(), value1.bytes32().0.to_vec());
             assert_eq!(info.logs[1].data.data.to_vec(), value2.bytes32().0.to_vec());
             assert_eq!(info.logs[2].data.data.to_vec(), value3.bytes32().0.to_vec());
-            assert_eq!(info.logs[3].data.data.to_vec(), value4.bytes32().0.to_vec()); */
+            assert_eq!(info.logs[3].data.data.to_vec(), value4.bytes32().0.to_vec());
         }
     }
 }

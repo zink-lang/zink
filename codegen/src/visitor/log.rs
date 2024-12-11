@@ -81,7 +81,6 @@ impl Function {
         }?;
 
         Ok(())
-
     }
 
     /// Revert with message.
