@@ -5,7 +5,6 @@ use syn::{
     Result, Type, Variant,
 };
 
-
 /// Custom error type for better error handling
 #[derive(Debug)]
 enum EventError {

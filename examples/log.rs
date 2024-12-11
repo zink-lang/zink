@@ -25,7 +25,6 @@ pub mod event_tests {
 
     /// Test log0
     #[zink::external]
-    #[allow(path_statements)]
     pub fn test_log0() {
         MyEvent::Topic0;
     }
@@ -77,6 +76,7 @@ mod tests {
         {
             // Test log0
             let info = contract.execute(&[b"test_log0()".to_vec()]).unwrap();
+            assert!(!info.logs.is_empty());
             assert_eq!(
                 info.logs[0].data.data.to_vec(),
                 name.to_vec().to_bytes32().to_vec()
