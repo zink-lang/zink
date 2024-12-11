@@ -1,10 +1,10 @@
 use proc_macro::{Span, TokenStream};
 use quote::{quote, ToTokens};
-use sha3::{Digest, Keccak256};
 use syn::{
     parse::Parse, parse_quote, spanned::Spanned, Abi, Data, DeriveInput, Error, Fields, LitByteStr,
     Result, Type, Variant,
 };
+use zabi::keccak256;
 
 /// Custom error type for better error handling
 #[derive(Debug)]
@@ -314,13 +314,13 @@ fn type_to_string(ty: &Type) -> String {
 
 /// Generate topic hash
 fn generate_topic_hash(input: &str) -> [u8; 32] {
-    Keccak256::digest(input.as_bytes()).into()
+    keccak256(input.as_bytes().to_vec().as_slice())
 }
 
 /// Generate data hash
 fn generate_data_hash(data: &[Vec<u8>]) -> [u8; 32] {
     let flattened: Vec<u8> = data.concat();
-    Keccak256::digest(&flattened).into()
+    keccak256(&flattened.as_slice())
 }
 
 /// Helper function to flatten and pad data

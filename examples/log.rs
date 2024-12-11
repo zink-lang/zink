@@ -25,51 +25,33 @@ pub mod event_tests {
 
     /// Test log0
     #[zink::external]
+    #[allow(path_statements)]
     pub fn test_log0() {
-        unsafe { zink::ffi::evm::log0(b"MyEvent") }
+        MyEvent::Topic0;
     }
 
     /// Test log1
     #[zink::external]
     pub fn test_log1(value: U256) {
-        unsafe {
-            let topic = value.bytes32();
-            zink::ffi::evm::log1(topic, b"MyEvent")
-        }
+        MyEvent::Topic1(value);
     }
 
     /// Test log2
     #[zink::external]
     pub fn test_log2(value1: U256, value2: U256) {
-        unsafe {
-            let topic1 = value1.bytes32();
-            let topic2 = value2.bytes32();
-            zink::ffi::evm::log2(topic1, topic2, b"MyEvent")
-        }
+        MyEvent::Topic2(value1, value2);
     }
 
     /// Test log3
     #[zink::external]
     pub fn test_log3(value1: U256, value2: U256, value3: U256) {
-        unsafe {
-            let topic1 = value1.bytes32();
-            let topic2 = value2.bytes32();
-            let topic3 = value3.bytes32();
-            zink::ffi::evm::log3(topic1, topic2, topic3, b"MyEvent")
-        }
+        MyEvent::Topic3(value1, value2, value3);
     }
 
     /// Test log4
     #[zink::external]
     pub fn test_log4(value1: U256, value2: U256, value3: U256, value4: U256) {
-        unsafe {
-            let topic1 = value1.bytes32();
-            let topic2 = value2.bytes32();
-            let topic3 = value3.bytes32();
-            let topic4 = value4.bytes32();
-
-            zink::ffi::evm::log4(topic1, topic2, topic3, topic4, b"MyEvent")
-        }
+        MyEvent::Topic4(value1, value2, value3, value4);
     }
 }
 
