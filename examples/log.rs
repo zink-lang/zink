@@ -131,8 +131,11 @@ mod tests {
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
-            assert_eq!(info.logs[0].data.data.to_vec(), value1.bytes32()[0].to_vec());
-            assert_eq!(info.logs[1].data.data.to_vec(), value2.bytes32()[0].to_vec());
+            assert_eq!(info.logs[0].data.data.to_vec(), value1.bytes32().to_vec());
+            assert_eq!(
+                info.logs[1].data.data.to_vec(),
+                value2.bytes32()[0].to_vec()
+            );
 
             let info = contract
                 .execute(&[
@@ -142,9 +145,18 @@ mod tests {
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
-            assert_eq!(info.logs[0].data.data.to_vec(), value1.bytes32()[0].to_vec());
-            assert_eq!(info.logs[1].data.data.to_vec(), value2.bytes32()[0].to_vec());
-            assert_eq!(info.logs[2].data.data.to_vec(), value3.bytes32()[0].to_vec());
+            assert_eq!(
+                info.logs[0].data.data.to_vec(),
+                value1.bytes32()[0].to_vec()
+            );
+            assert_eq!(
+                info.logs[1].data.data.to_vec(),
+                value2.bytes32()[0].to_vec()
+            );
+            assert_eq!(
+                info.logs[2].data.data.to_vec(),
+                value3.bytes32()[0].to_vec()
+            );
 
             let info = contract
                 .execute(&[
@@ -154,10 +166,22 @@ mod tests {
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
-            assert_eq!(info.logs[0].data.data.to_vec(), value1.bytes32()[0].to_vec());
-            assert_eq!(info.logs[1].data.data.to_vec(), value2.bytes32()[0].to_vec());
-            assert_eq!(info.logs[2].data.data.to_vec(), value3.bytes32()[0].to_vec());
-            assert_eq!(info.logs[3].data.data.to_vec(), value4.bytes32()[0].to_vec());
+            assert_eq!(
+                info.logs[0].data.data.to_vec(),
+                value1.bytes32()[0].to_vec()
+            );
+            assert_eq!(
+                info.logs[1].data.data.to_vec(),
+                value2.bytes32()[0].to_vec()
+            );
+            assert_eq!(
+                info.logs[2].data.data.to_vec(),
+                value3.bytes32()[0].to_vec()
+            );
+            assert_eq!(
+                info.logs[3].data.data.to_vec(),
+                value4.bytes32()[0].to_vec()
+            );
 
             let info = contract
                 .execute(&[
@@ -169,10 +193,22 @@ mod tests {
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
-            assert_eq!(info.logs[0].data.data.to_vec(), value1.bytes32()[0].to_vec());
-            assert_eq!(info.logs[1].data.data.to_vec(), value2.bytes32()[0].to_vec());
-            assert_eq!(info.logs[2].data.data.to_vec(), value3.bytes32()[0].to_vec());
-            assert_eq!(info.logs[3].data.data.to_vec(), value4.bytes32()[0].to_vec());
+            assert_eq!(
+                info.logs[0].data.data.to_vec(),
+                value1.bytes32()[0].to_vec()
+            );
+            assert_eq!(
+                info.logs[1].data.data.to_vec(),
+                value2.bytes32()[0].to_vec()
+            );
+            assert_eq!(
+                info.logs[2].data.data.to_vec(),
+                value3.bytes32()[0].to_vec()
+            );
+            assert_eq!(
+                info.logs[3].data.data.to_vec(),
+                value4.bytes32()[0].to_vec()
+            );
         }
     }
 }
