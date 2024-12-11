@@ -4,7 +4,7 @@ use syn::{
     parse::Parse, parse_quote, spanned::Spanned, Abi, Data, DeriveInput, Error, Fields, LitByteStr,
     Result, Type, Variant,
 };
-use zabi::keccak256;
+
 
 /// Custom error type for better error handling
 #[derive(Debug)]
@@ -313,11 +313,13 @@ fn type_to_string(ty: &Type) -> String {
 }
 
 /// Generate topic hash
+#[cfg(feature = "selector")]
 fn generate_topic_hash(input: &str) -> [u8; 32] {
     keccak256(input.as_bytes().to_vec().as_slice())
 }
 
 /// Generate data hash
+#[cfg(feature = "selector")]
 fn generate_data_hash(data: &[Vec<u8>]) -> [u8; 32] {
     let flattened: Vec<u8> = data.concat();
     keccak256(&flattened.as_slice())
