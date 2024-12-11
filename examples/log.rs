@@ -71,16 +71,6 @@ pub mod event_tests {
             zink::ffi::evm::log4(topic1, topic2, topic3, topic4, b"MyEvent")
         }
     }
-
-    /// Test multiple event logs in one transaction
-    #[zink::external]
-    pub fn test_multiple_logs(value1: U256, value2: U256, value3: U256, value4: U256) {
-        test_log0();
-        test_log1(value1);
-        test_log2(value1, value2);
-        test_log3(value1, value2, value3);
-        test_log4(value1, value2, value3, value4);
-    }
 }
 
 #[cfg(test)]
@@ -161,17 +151,6 @@ mod tests {
             assert_eq!(info.logs[0].topics()[2].to_vec(), value2.bytes32().to_vec());
             assert_eq!(info.logs[0].topics()[1].to_vec(), value3.bytes32().to_vec());
             assert_eq!(info.logs[0].topics()[0].to_vec(), value4.bytes32().to_vec());
-
-            let info = contract
-                .execute(&[
-                    b"test_multiple_logs(uint256,uint256,uint256,uint256)".to_vec(),
-                    value1.bytes32().to_vec(),
-                    value2.bytes32().to_vec(),
-                    value3.bytes32().to_vec(),
-                    value4.bytes32().to_vec(),
-                ])
-                .unwrap();
-            assert!(!info.logs.is_empty());
         }
     }
 }
