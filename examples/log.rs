@@ -131,9 +131,9 @@ mod tests {
                 ])
                 .unwrap();
             assert!(!info.logs.is_empty());
-            // assert_eq!(info.logs[0].data.data.to_vec(), value1.bytes32().to_vec());
+            assert_eq!(info.logs[0].topics().to_vec(), value1.bytes32().to_vec());
             assert_eq!(
-                info.logs[1].data.data.to_vec(),
+                info.logs[0].data.topics().to_vec(),
                 value2.bytes32()[0].to_vec()
             );
 
