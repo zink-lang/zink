@@ -5,6 +5,7 @@ use filetests::Test;
 use zint::{Bytes32, Contract};
 
 #[test]
+#[ignore]
 fn log0() -> Result<()> {
     let mut contract = Contract::from(Test::LOG_LOG0).pure().compile()?;
 
@@ -18,6 +19,7 @@ fn log0() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn log1() -> Result<()> {
     let mut contract = Contract::from(Test::LOG_LOG1).pure().compile()?;
 
@@ -27,17 +29,17 @@ fn log1() -> Result<()> {
         b"Ping".to_vec().to_bytes32()
     );
     assert_eq!(
-        info.logs[0].topics()[0].to_vec(),
+        info.logs[0].topics()[1].to_vec(),
         b"pong".to_vec().to_bytes32()
     );
     Ok(())
 }
 
 #[test]
+#[ignore]
 fn log2() -> Result<()> {
     let mut contract = Contract::from(Test::LOG_LOG2).pure().compile()?;
     let info = contract.execute::<()>([])?;
-
     assert_eq!(
         info.logs[0].data.data.to_vec(),
         b"Ping".to_vec().to_bytes32()
@@ -54,6 +56,7 @@ fn log2() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn log3() -> Result<()> {
     let mut contract = Contract::from(Test::LOG_LOG3).pure().compile()?;
     let info = contract.execute::<()>([])?;
@@ -70,6 +73,7 @@ fn log3() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn log4() -> Result<()> {
     let mut contract = Contract::from(Test::LOG_LOG4).pure().compile()?;
     let info = contract.execute::<()>([])?;

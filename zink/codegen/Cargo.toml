@@ -12,10 +12,14 @@ repository.workspace = true
 [lib]
 proc-macro = true
 
+[features]
+selector = []
+
 [dependencies]
 heck.workspace = true
 hex.workspace = true
+paste.workspace = true
 proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true
-zabi = { workspace = true, features = [ "hex", "syn" ] }
+zabi = { workspace = true, features = ["hex", "syn"] }

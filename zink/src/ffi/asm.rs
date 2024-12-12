@@ -1,5 +1,4 @@
 //! Assembly FFI.
-
 #[link(wasm_import_module = "asm")]
 #[allow(improper_ctypes)]
 extern "C" {

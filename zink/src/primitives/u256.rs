@@ -48,6 +48,11 @@ impl U256 {
         unsafe { ffi::u256_max() }
     }
 
+    /// U256 to bytes32
+    pub fn bytes32(&self) -> Bytes32 {
+        self.0
+    }
+
     /// Addmod for U256
     #[inline(always)]
     pub fn addmod(self, other: Self, modulus: Self) -> Self {
