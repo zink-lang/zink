@@ -1,341 +1,98 @@
-use proc_macro::{Span, TokenStream};
+use heck::ToSnakeCase;
+use proc_macro::TokenStream;
+use proc_macro2::{Ident, Span};
 use quote::{quote, ToTokens};
 use syn::{
-    parse::Parse, parse_quote, spanned::Spanned, Abi, Data, DeriveInput, Error, Fields, LitByteStr,
-    Result, Type, Variant,
+    parse::Parse, parse_quote, punctuated::Punctuated, spanned::Spanned, Arm, Data, DataEnum,
+    DeriveInput, Expr, ExprMatch, Fields, FnArg, ImplItemFn, ItemFn, LitByteStr, Result, Token,
+    Type, Variant, Visibility,
 };
-
-/// Custom error type for better error handling
-#[derive(Debug)]
-enum EventError {
-    NotEnum(Span),
-    UnsupportedType(Span, String),
-    TooManyFields(Span),
-}
-
-impl EventError {
-    fn to_compile_error(&self) -> TokenStream {
-        let error_msg = match self {
-            Self::NotEnum(span) => {
-                Error::new((*span).into(), "Event can only be derived for enums")
-            }
-            Self::UnsupportedType(span, ty) => {
-                Error::new((*span).into(), format!("Unsupported type: {}", ty))
-            }
-            Self::TooManyFields(span) => {
-                Error::new((*span).into(), "Too many fields for event logging")
-            }
-        };
-        error_msg.to_compile_error().into()
-    }
-}
 
 /// Expand the event interface with better error handling
 pub fn parse(item: DeriveInput) -> TokenStream {
-    parse_impl(item)
-}
+    let name = &item.ident;
+    let name_str = name.to_string();
+    let name_bytes = LitByteStr::new(name_str.as_bytes(), Span::call_site());
 
-fn parse_impl(input: DeriveInput) -> TokenStream {
-    let name = &input.ident;
-    let name_bytes = LitByteStr::new(name.to_string().as_bytes(), Span::call_site().into());
+    // 1. Check if the name is too long
+    if name_str.len() > 32 {
+        panic!("Event name too long: {name_str}");
+    }
 
-    // Ensure we are working with an enum
-    let event_enum = match &input.data {
-        Data::Enum(data_enum) => data_enum,
-        _ => return EventError::NotEnum(proc_macro::Span::call_site()).to_compile_error(),
+    // 2. Ensure we are working with an enum
+    let Data::Enum(event_enum) = &item.data else {
+        panic!("Event can only be derived for enums");
     };
 
-    // Generate variant implementations with validation
-    let variant_implementations = match event_enum
+    // 3. Generate variant implementations
+    let mut expr_match: ExprMatch = parse_quote!(match self {});
+    let variant_fns = event_enum
         .variants
         .iter()
-        .map(|variant| generate_variant_implementation(name, variant))
-        .collect::<Result<Vec<_>>>()
-    {
-        Ok(impls) => impls,
-        Err(e) => return e.to_compile_error().into(),
-    };
+        .map(|variant| impl_variant_fns(variant, &mut expr_match))
+        .collect::<Vec<_>>();
 
-    // Generate ABI signature with validation
-    let abi_signature = match generate_abi_signature(name, &event_enum.variants) {
-        Ok(sig) => sig,
-        Err(e) => return e.to_compile_error().into(),
-    };
-
-    let expanded = quote! {
+    // 4. Generate the impl block
+    quote! {
         impl #name {
-            pub fn log0(&self) {
-                match self {
-                    #(#variant_implementations)*
-                }
-            }
-
+            /// Name of the event
             pub const fn name() -> &'static [u8] {
                 #name_bytes
             }
-        }
-    };
 
-    expanded.into()
+            /// Emit the event name
+            pub fn emit_name() {
+                unsafe { zink::ffi::evm::log0(Self::name()) }
+            }
+
+            #(#variant_fns)*
+
+            /// Emit the event
+            pub fn emit(self) {
+                #expr_match
+            }
+        }
+    }
+    .into()
 }
 
 /// Generate Variant Implementation with validation
-fn generate_variant_implementation(
-    enum_name: &syn::Ident,
-    variant: &Variant,
-) -> Result<proc_macro2::TokenStream> {
-    let variant_name = &variant.ident;
-    let span = variant.span();
+fn impl_variant_fns(variant: &Variant, expr_match: &mut ExprMatch) -> ImplItemFn {
+    let name = &variant.ident;
+    let topic = variant.fields.len();
 
-    match &variant.fields {
-        Fields::Named(fields) => {
-            if fields.named.len() > 4 {
-                return Err(Error::new(span, "Named event can have at most 4 fields"));
-            }
+    // Parse function inputs
+    let mut inputs: Punctuated<FnArg, Token![,]> = Punctuated::new();
+    let mut args: Vec<Ident> = Vec::new();
+    for (index, field) in variant.fields.iter().enumerate() {
+        let var = field
+            .ident
+            .clone()
+            .unwrap_or(Ident::new(&format!("param_{index}"), Span::call_site()));
+        let ty = &field.ty;
 
-            let field_names: Vec<_> = fields.named.iter().map(|f| &f.ident).collect();
-            let field_types: Vec<_> = fields.named.iter().map(|f| &f.ty).collect();
-
-            validate_types(&field_types)?;
-
-            // Generate the appropriate log call based on field count
-            let log_impl = match field_names.as_slice() {
-                [] => quote! {
-                    unsafe {
-                    zink::ffi::evm::log0(stringify!(#variant_name).as_bytes());
-                    }
-                },
-                [f1] => quote! {
-                    let topic1 = #f1.bytes32();
-                    unsafe {
-                    zink::ffi::evm::log1(topic1, stringify!(#variant_name).as_bytes());
-                    }
-                },
-                [f1, f2] => quote! {
-                    let topic1 = #f1.bytes32();
-                    let topic2 = #f2.bytes32();
-                    unsafe {
-                    zink::ffi::evm::log2(topic1, topic2, stringify!(#variant_name).as_bytes());
-                    }
-                },
-                [f1, f2, f3] => quote! {
-                    let topic1 = #f1.bytes32();
-                    let topic2 = #f2.bytes32();
-                    let topic3 = #f3.bytes32();
-                    unsafe {
-                    zink::ffi::evm::log3(stringify!(topic1, topic2, topic3, #variant_name).as_bytes());
-                    }
-                },
-                [f1, f2, f3, f4] => quote! {
-                    let topic1 = #f1.bytes32();
-                    let topic2 = #f2.bytes32();
-                    let topic3 = #f3.bytes32();
-                    let topic4 = #f4.bytes32();
-                    unsafe {
-                    zink::ffi::evm::log4(topic1, topic2, topic3, topic4, stringify!(#variant_name).as_bytes());
-                    }
-                },
-                _ => unreachable!(),
-            };
-
-            Ok(quote! {
-                #enum_name::#variant_name { #(#field_names),* } => {
-                    #log_impl
-                }
-            })
-        }
-        Fields::Unnamed(fields) => {
-            if fields.unnamed.len() > 4 {
-                return Err(Error::new(span, "Tuple event can have at most 4 fields"));
-            }
-
-            let field_count = fields.unnamed.len();
-            let field_bindings = (0..field_count)
-                .map(|i| quote::format_ident!("v{}", i))
-                .collect::<Vec<_>>();
-            let ref_patterns = field_bindings
-                .iter()
-                .map(|id| quote!(ref #id))
-                .collect::<Vec<_>>();
-
-            let field_types: Vec<_> = fields.unnamed.iter().map(|f| &f.ty).collect();
-            validate_types(&field_types)?;
-
-            // Generate the appropriate log call based on field count
-            let log_impl = match field_bindings.as_slice() {
-                [] => quote! {
-                    unsafe {
-                    zink::ffi::evm::log0(stringify!(#variant_name).as_bytes());
-                    }
-                },
-                [v0] => quote! {
-                    let topic1 = #v0.bytes32();
-                    unsafe {
-                    zink::ffi::evm::log1(topic1, stringify!(#variant_name).as_bytes());
-                    }
-                },
-                [v0, v1] => quote! {
-                    let topic1 = #v0.bytes32();
-                    let topic2 = #v1.bytes32();
-                    unsafe {
-                    zink::ffi::evm::log2(topic1, topic2, stringify!(#variant_name).as_bytes());
-                    }
-                },
-                [v0, v1, v2] => quote! {
-                    let topic1 = #v0.bytes32();
-                    let topic2 = #v1.bytes32();
-                    let topic3 = #v2.bytes32();
-                    unsafe {
-                    zink::ffi::evm::log3(topic1, topic2, topic3, stringify!(#variant_name).as_bytes());
-                    }
-                },
-                [v0, v1, v2, v3] => quote! {
-                    let topic1 = #v0.bytes32();
-                    let topic2 = #v1.bytes32();
-                    let topic3 = #v2.bytes32();
-                    let topic4 = #v3.bytes32();
-                    unsafe {
-                    zink::ffi::evm::log4(topic1, topic2, topic3, topic4, stringify!(#variant_name).as_bytes());
-                    }
-                },
-                _ => unreachable!(),
-            };
-
-            Ok(quote! {
-                #enum_name::#variant_name(#(#ref_patterns),*) => {
-                    #log_impl
-                }
-            })
-        }
-        Fields::Unit => Ok(quote! {
-            #enum_name::#variant_name => {
-                unsafe {
-                zink::ffi::evm::log0(stringify!(#variant_name).as_bytes())
-                }
-            }
-        }),
+        args.push(var.clone());
+        inputs.push(FnArg::Typed(parse_quote!(#var: #ty)));
     }
-}
 
-/// Validate field types
-fn validate_types(types: &[&Type]) -> Result<()> {
-    for ty in types {
-        if !is_supported_type(ty) {
-            return Err(Error::new_spanned(
-                ty,
-                format!("Unsupported type for event field: {}", quote!(#ty)),
-            ));
-        }
-    }
-    Ok(())
-}
+    // Generate the snake case name
+    let name_snake: Ident = Ident::new(&name.to_string().to_snake_case(), Span::call_site());
 
-/// Check if type is supported
-fn is_supported_type(ty: &Type) -> bool {
-    matches!(
-        type_to_string(ty).as_str(),
-        "u8" | "u16"
-            | "u32"
-            | "u64"
-            | "u128"
-            | "i8"
-            | "i16"
-            | "i32"
-            | "i64"
-            | "i128"
-            | "bool"
-            | "String"
-            | "Vec<u8>"
-            | "&str"
-            | "&[u8]"
-            | "[u8;32]"
-            | "Address"
-            | "U256"
-    )
-}
+    // Generate the match arm
+    let arm: Arm = parse_quote! {
+        Self::#name( #(#args),* ) => Self::#name_snake( #(#args),* ),
+    };
+    expr_match.arms.push(arm);
 
-/// Generate ABI signature with validation
-fn generate_abi_signature(
-    enum_name: &syn::Ident,
-    variants: &syn::punctuated::Punctuated<Variant, syn::Token![,]>,
-) -> Result<proc_macro2::TokenStream> {
-    let variant_signatures = variants
+    // Generate the impl block
+    let logn = Ident::new(&format!("log{topic}"), Span::call_site());
+    let args = args
         .iter()
-        .map(|variant| {
-            let variant_name = &variant.ident;
-            let params = match &variant.fields {
-                Fields::Named(fields) => fields
-                    .named
-                    .iter()
-                    .map(|f| validate_and_convert_type(&f.ty))
-                    .collect::<Result<Vec<_>>>()?
-                    .join(","),
-                Fields::Unnamed(fields) => fields
-                    .unnamed
-                    .iter()
-                    .map(|f| validate_and_convert_type(&f.ty))
-                    .collect::<Result<Vec<_>>>()?
-                    .join(","),
-                Fields::Unit => String::new(),
-            };
-
-            Ok(format!("{}({})", variant_name, params))
-        })
-        .collect::<Result<Vec<_>>>()?;
-    Ok(quote! {
-        vec![
-            #(#variant_signatures.to_string()),*
-        ].join(";")
-    })
-}
-
-/// Validate and convert type to ABI string
-fn validate_and_convert_type(ty: &Type) -> Result<String> {
-    let type_str = type_to_string(ty);
-    match type_str.as_str() {
-        "u8" | "u16" | "u32" | "u64" => Ok("uint".to_string()),
-        "i8" | "i16" | "i32" | "i64" => Ok("int".to_string()),
-        "bool" => Ok("bool".to_string()),
-        "String" | "&str" => Ok("string".to_string()),
-        "Vec<u8>" | "&[u8]" | "[u8;32]" => Ok("bytes".to_string()),
-        "Address" => Ok("address".to_string()),
-        "U256" => Ok("uint256".to_string()),
-        _ => Err(Error::new_spanned(
-            ty,
-            format!("Unsupported type for ABI: {}", type_str),
-        )),
-    }
-}
-
-/// Helper function to convert type to string
-fn type_to_string(ty: &Type) -> String {
-    quote!(#ty).to_string().replace([' ', '&'], "")
-}
-
-/// Generate topic hash
-#[cfg(feature = "selector")]
-fn generate_topic_hash(input: &str) -> [u8; 32] {
-    keccak256(input.as_bytes().to_vec().as_slice())
-}
-
-/// Generate data hash
-#[cfg(feature = "selector")]
-fn generate_data_hash(data: &[Vec<u8>]) -> [u8; 32] {
-    let flattened: Vec<u8> = data.concat();
-    keccak256(&flattened.as_slice())
-}
-
-/// Helper function to flatten and pad data
-fn flatten_and_pad_data(data: &[Vec<u8>]) -> Result<Vec<u8>> {
-    let mut result = Vec::new();
-    for chunk in data {
-        if chunk.len() > 32 {
-            // return Err(zink::EventError::DataTooLong);
-            panic!("Data too long");
+        .map(|arg| quote!(#arg.bytes32()))
+        .collect::<Vec<_>>();
+    parse_quote! {
+        pub fn #name_snake(#inputs) {
+            unsafe {zink::ffi::evm::#logn(#(#args),*, &Self::name()) }
         }
-        let mut padded = vec![0u8; 32];
-        padded[..chunk.len()].copy_from_slice(chunk);
-        result.extend_from_slice(&padded);
     }
-    Ok(result)
 }

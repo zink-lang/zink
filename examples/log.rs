@@ -7,8 +7,6 @@ use zink::{primitives::U256, Event};
 
 #[derive(Event)]
 pub enum MyEvent {
-    /// Event with no topics
-    Topic0,
     /// Event with one topic
     Topic1(U256),
     /// Event with two topics
@@ -19,39 +17,34 @@ pub enum MyEvent {
     Topic4(U256, U256, U256, U256),
 }
 
-pub mod event_tests {
+/// Test log0
+#[zink::external]
+pub fn test_log0() {
+    MyEvent::emit_name();
+}
 
-    use super::*;
+/// Test log1
+#[zink::external]
+pub fn test_log1(value: U256) {
+    MyEvent::Topic1(value).emit();
+}
 
-    /// Test log0
-    #[zink::external]
-    pub fn test_log0() {
-        MyEvent::Topic0;
-    }
+/// Test log2
+#[zink::external]
+pub fn test_log2(value1: U256, value2: U256) {
+    MyEvent::Topic2(value1, value2).emit();
+}
 
-    /// Test log1
-    #[zink::external]
-    pub fn test_log1(value: U256) {
-        MyEvent::Topic1(value);
-    }
+/// Test log3
+#[zink::external]
+pub fn test_log3(value1: U256, value2: U256, value3: U256) {
+    MyEvent::Topic3(value1, value2, value3).emit();
+}
 
-    /// Test log2
-    #[zink::external]
-    pub fn test_log2(value1: U256, value2: U256) {
-        MyEvent::Topic2(value1, value2);
-    }
-
-    /// Test log3
-    #[zink::external]
-    pub fn test_log3(value1: U256, value2: U256, value3: U256) {
-        MyEvent::Topic3(value1, value2, value3);
-    }
-
-    /// Test log4
-    #[zink::external]
-    pub fn test_log4(value1: U256, value2: U256, value3: U256, value4: U256) {
-        MyEvent::Topic4(value1, value2, value3, value4);
-    }
+/// Test log4
+#[zink::external]
+pub fn test_log4(value1: U256, value2: U256, value3: U256, value4: U256) {
+    MyEvent::Topic4(value1, value2, value3, value4).emit();
 }
 
 #[cfg(test)]
