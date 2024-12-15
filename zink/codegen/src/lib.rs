@@ -17,9 +17,14 @@ mod utils;
 /// Revert with the input message
 ///
 /// Only raw string is supported, formatter currently doesn't work.
+#[proc_macro_derive(Error)]
+pub fn error(input: TokenStream) -> TokenStream {
+    revert::derive_error(input)
+}
+
 #[proc_macro]
 pub fn revert(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as LitStr);
+    let input = parse_macro_input!(input);
     revert::parse(input)
 }
 
@@ -32,6 +37,8 @@ pub fn assert(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as revert::AssertInput);
     revert::parse_assert(input)
 }
+
+
 
 /// Event logging interface
 ///
