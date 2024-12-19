@@ -72,6 +72,27 @@ impl EVM<'_> {
         self
     }
 
+    /// Set chain id
+    pub fn chain_id(mut self, id: u64) -> Self {
+        self.inner.tx_mut().chain_id = Some(id);
+        self
+    }
+
+    /// Set block number
+    pub fn block_number(mut self, number: u64) -> Self {
+        self.inner.block_mut().number = U256::from(number);
+        self
+    }
+
+    /// Set block hash
+    pub fn block_hash(mut self, number: u64, hash: [u8; 32]) -> Self {
+        self.inner
+            .db_mut()
+            .block_hashes
+            .insert(U256::from(number), hash.into());
+        self
+    }
+
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
