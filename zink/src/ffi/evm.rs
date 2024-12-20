@@ -183,7 +183,7 @@ extern "C" {
     pub fn gaslimit() -> Bytes32;
 
     /// Get the amount of available gas.
-    pub fn gas() -> u64;
+    pub fn gas() -> Bytes32;
 
     /// Get the block’s timestamp.
     pub fn timestamp() -> u64;

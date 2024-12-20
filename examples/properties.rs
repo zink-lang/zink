@@ -60,6 +60,11 @@ pub fn timestamp() -> u64 {
     properties::timestamp()
 }
 
+#[zink::external]
+pub fn gasleft() -> Bytes32 {
+    properties::gasleft()
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
@@ -191,6 +196,29 @@ mod tests {
             .calldata(&contract.encode(["timestamp()".as_bytes()])?)
             .call(address)?;
         assert_eq!(info.ret, 26u64.to_bytes32(), "{info:?}");
+        Ok(())
+    }
+
+    #[test]
+    fn test_gas_left() -> anyhow::Result<()> {
+        let contract = Contract::search("properties")?.compile()?;
+
+        let mut evm1 = EVM::default().tx_gas_limit(50000).commit(true);
+        let info1 = evm1.deploy(&contract.bytecode()?)?;
+        let info1 = evm1
+            .calldata(&contract.encode(["gasleft()".as_bytes()])?)
+            .call(info1.address)?;
+        let gasleft1 = u64::from_be_bytes(info1.ret[24..].try_into().unwrap());
+        let gas1 = 50000 - gasleft1;
+
+        let mut evm2 = EVM::default().tx_gas_limit(70000).commit(true);
+        let info2 = evm2.deploy(&contract.bytecode()?)?;
+        let info2 = evm2
+            .calldata(&contract.encode(["gasleft()".as_bytes()])?)
+            .call(info2.address)?;
+        let gasleft2 = u64::from_be_bytes(info2.ret[24..].try_into().unwrap());
+        let gas2 = 70000 - gasleft2;
+        assert_eq!(gas1, gas2);
         Ok(())
     }
 }

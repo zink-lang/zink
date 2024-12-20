@@ -27,6 +27,8 @@ pub struct EVM<'e> {
     pub caller: [u8; 20],
     /// Blob hashes
     pub blob_hashes: Option<Vec<B256>>,
+    /// The gas limit of the transaction
+    pub tx_gas_limit: u64,
     /// If commit changes
     commit: bool,
 }
@@ -41,6 +43,7 @@ impl<'e> Default for EVM<'e> {
             inner: evm,
             caller: [0; 20],
             blob_hashes: None,
+            tx_gas_limit: GAS_LIMIT,
             commit: false,
         }
     }
@@ -148,10 +151,16 @@ impl EVM<'_> {
         self
     }
 
+    /// Set tx’s gaslimit
+    pub fn tx_gas_limit(mut self, gaslimit: u64) -> Self {
+        self.tx_gas_limit = gaslimit;
+        self
+    }
+
     /// Send transaction to the provided address.
     pub fn call(&mut self, to: [u8; 20]) -> Result<Info> {
         let to = TransactTo::Call(to.into());
-        self.inner.tx_mut().gas_limit = GAS_LIMIT;
+        self.inner.tx_mut().gas_limit = self.tx_gas_limit;
         self.inner.tx_mut().transact_to = to;
         self.inner.tx_mut().caller = self.caller.into();
         if let Some(hashes) = &self.blob_hashes {

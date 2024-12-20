@@ -47,7 +47,7 @@ pub fn gaslimit() -> Bytes32 {
 }
 
 /// Get the amount of available gas.
-pub fn gas() -> u64 {
+pub fn gasleft() -> Bytes32 {
     unsafe { ffi::evm::gas() }
 }
 
