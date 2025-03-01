@@ -62,7 +62,7 @@ pub fn parse(item: DeriveInput) -> TokenStream {
                     // Get pointer and length to the ABI string
                     let ptr = abi.as_ptr() as u32;
                     let len = abi.len() as u32;
-                    
+
                     // Emit the ABI to the host
                     zink::ffi::emit_abi(ptr, len);
                 }
@@ -87,6 +87,7 @@ pub fn parse(item: DeriveInput) -> TokenStream {
 fn abi_for_variant(event_name: &str, variant: &Variant) -> String {
     let variant_name = variant.ident.to_string();
     let mut params = Vec::new();
+    let mut indexed_count = 0;
 
     for (index, field) in variant.fields.iter().enumerate() {
         let param_name = field
@@ -97,11 +98,20 @@ fn abi_for_variant(event_name: &str, variant: &Variant) -> String {
         let type_str = get_solidity_type(&field.ty)
             .unwrap_or_else(|e| panic!("Unsupported type for {}: {}", param_name, e));
 
-        // Assume first 3 fields are indexed, rest are not
-        let indexed = index < 3;
+        // Check for #[indexed] attribute
+        let is_indexed = field
+            .attrs
+            .iter()
+            .any(|attr| attr.path().is_ident("indexed"));
+        if is_indexed {
+            indexed_count += 1;
+            if indexed_count > 3 {
+                panic!("Event '{}' exceeds 3 indexed parameters", variant_name);
+            }
+        }
         params.push(format!(
             r#"{{"name":"{}","type":"{}","indexed":{}}}"#,
-            param_name, type_str, indexed
+            param_name, type_str, is_indexed
         ));
     }
 
@@ -114,59 +124,37 @@ fn abi_for_variant(event_name: &str, variant: &Variant) -> String {
 
 fn get_solidity_type(ty: &Type) -> Result<String> {
     match ty {
-        Type::Path(type_path)
-            if type_path
-                .path
-                .segments
-                .last()
-                .map_or(false, |s| s.ident == "Address") =>
-        {
-            Ok("address".to_string())
-        }
-        Type::Path(type_path)
-            if type_path
-                .path
-                .segments
-                .last()
-                .map_or(false, |s| s.ident == "U256") =>
-        {
-            Ok("uint256".to_string())
-        }
-        Type::Path(type_path)
-            if type_path
-                .path
-                .segments
-                .last()
-                .map_or(false, |s| s.ident == "I256") =>
-        {
-            Ok("int256".to_string())
-        }
-        Type::Path(type_path)
-            if type_path
-                .path
-                .segments
-                .last()
-                .map_or(false, |s| s.ident == "Bytes32") =>
-        {
-            Ok("bytes32".to_string())
-        }
-        Type::Path(type_path)
-            if type_path
-                .path
-                .segments
-                .last()
-                .map_or(false, |s| s.ident == "bool") =>
-        {
-            Ok("bool".to_string())
-        }
-        Type::Path(type_path)
-            if type_path
-                .path
-                .segments
-                .last()
-                .map_or(false, |s| s.ident == "String") =>
-        {
-            Ok("string".to_string())
+        Type::Path(type_path) => {
+            let segment = type_path.path.segments.last().ok_or_else(|| {
+                syn::Error::new(ty.span(), "Invalid type path for event parameter")
+            })?;
+            let ident = &segment.ident;
+
+            match ident.to_string().as_str() {
+                "Address" => Ok("address".to_string()),
+                "U256" => Ok("uint256".to_string()),
+                "I256" => Ok("int256".to_string()),
+                "Bytes32" => Ok("bytes32".to_string()),
+                "bool" => Ok("bool".to_string()),
+                "String" => Ok("string".to_string()),
+                "Bytes" => Ok("bytes".to_string()),
+                "Vec" => {
+                    if let syn::PathArguments::AngleBracketed(args) = &segment.arguments {
+                        if let Some(syn::GenericArgument::Type(inner_ty)) = args.args.first() {
+                            let inner_type = get_solidity_type(inner_ty)?;
+                            Ok(format!("{}[]", inner_type))
+                        } else {
+                            Err(syn::Error::new(ty.span(), "Vec requires a type argument"))
+                        }
+                    } else {
+                        Err(syn::Error::new(ty.span(), "Vec requires a type argument"))
+                    }
+                }
+                _ => Err(syn::Error::new(
+                    ty.span(),
+                    "Unsupported type for event parameter",
+                )),
+            }
         }
         _ => Err(syn::Error::new(
             ty.span(),

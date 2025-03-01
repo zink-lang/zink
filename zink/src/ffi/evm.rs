@@ -10,7 +10,7 @@ extern "C" {
 
     /// Push 1 byte to the stack.
     pub fn push1(val: i32);
- 
+
     /// Push 2 bytes to the stack.
     pub fn push2(val: i32);
 
