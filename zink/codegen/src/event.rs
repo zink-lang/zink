@@ -55,6 +55,19 @@ pub fn parse(item: DeriveInput) -> TokenStream {
                 unsafe { zink::ffi::evm::log0(Self::name()) }
             }
 
+            /// Register the ABI specification for this event
+            pub fn register_abi() {
+                let abi = Self::abi();
+                unsafe {
+                    // Get pointer and length to the ABI string
+                    let ptr = abi.as_ptr() as u32;
+                    let len = abi.len() as u32;
+                    
+                    // Emit the ABI to the host
+                    zink::ffi::emit_abi(ptr, len);
+                }
+            }
+
             /// Get the ABI specification for this event
             pub fn abi() -> &'static str {
                 #combined_abi_lit
