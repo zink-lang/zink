@@ -5,6 +5,10 @@
 mod abi;
 pub mod result;
 pub mod selector;
+#[cfg(feature = "encoding")]
+mod encoding;
+#[cfg(feature = "encoding")]
+pub use encoding::{encode, decode, AbiEncode, AbiDecode, is_dynamic_type, DecodeError};
 
 pub use abi::Abi;
 
