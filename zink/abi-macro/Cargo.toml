@@ -1,0 +1,28 @@
+[package]
+name = "zink-abi-macro"
+description = "Procedural macros for Zink ABI integration"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2.workspace = true
+quote.workspace = true
+syn.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+zabi = { workspace = true, features = ["bytes", "hex", "selector", "serde", "encoding"] }
+sol-abi.workspace = true
+
+# This dependency isn't in workspace, we need to add it
+convert_case = "0.6.0"
+tiny-keccak = { version = "2.0.2", features = ["keccak"] }
+
+[features]
+default = []

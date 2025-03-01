@@ -12,7 +12,7 @@ members = [
   "zink/abi",
   "zink/codegen",
   "zink/elko",
-  "zink/zint",
+  "zink/zint", "zink/abi-macro",
 ]
 resolver = "2"
 
@@ -104,6 +104,8 @@ path = "zink/src/lib.rs"
 fmt = "0.1.0"
 paste.workspace = true
 zink-codegen.workspace = true
+zink-abi-macro = { path = "zink/abi-macro", optional = true }
+zabi = { path = "zink/abi", version = "0.1.11" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tiny-keccak.workspace = true
@@ -117,6 +119,7 @@ zint.workspace = true
 hex.workspace = true
 serde_json.workspace = true
 
-# [features]
+[features]
 # default = [ "evm" ]
 # evm = [  ]
+abi-import = ["zink-abi-macro", "zabi/encoding"]
