@@ -15,7 +15,7 @@ fn check_and_update(value: i32) -> bool {
     if current < value {
         zink::revert!("Not enough balance");
         // TODO: #287
-        // return false;
+        return false;
     }
 
     Balance::set(current - value);

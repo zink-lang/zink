@@ -103,8 +103,22 @@ impl Function {
     /// Branch to a given label in an enclosing construct.
     ///
     /// Performs an unconditional branch.
-    pub fn _br(&mut self, _depth: u32) -> Result<()> {
-        // TODO: do sth here?
+    pub fn _br(&mut self, depth: u32) -> Result<()> {
+        // Get the target label
+        let label = self.control.label_from_depth(depth)?;
+        
+        // Check if this is a branch that would exit the function
+        let _is_exit_branch = self.control.is_exit_branch(depth);
+        
+        // Mark affected frames as having potential early returns
+        self.control.mark_frames_with_early_return(depth);
+        
+        // Set up jump target in the jump table
+        self.table.label(self.masm.pc(), label);
+        
+        // Emit unconditional jump instruction
+        self.masm._jump()?;
+        
         Ok(())
     }
 
@@ -113,16 +127,31 @@ impl Function {
     /// Conditional branch to a given label in an enclosing construct.
     pub fn _br_if(&mut self, depth: u32) -> Result<()> {
         let label = self.control.label_from_depth(depth)?;
-
-        // Register the jump target for breaking out
-        self.table.label(self.masm.pc(), label);
-        self.masm.increment_sp(1)?;
-
-        // JUMPI will check condition and jump if true
-        self.masm._jumpi()?;
-
-        // If we don't jump, we continue in the current frame
-        // No need for explicit ISZERO since JUMPI handles the condition
+        
+        // Check if this branch would exit the function (early return)
+        let is_exit_branch = self.control.is_exit_branch(depth);
+        
+        // Mark affected frames as potentially having early returns
+        self.control.mark_frames_with_early_return(depth);
+        
+        // Different handling based on whether this is an early return
+        if is_exit_branch {
+            // For early returns, we need special handling
+            tracing::trace!("Early return br_if detected");
+            
+            // We need to be careful about stack state when returning early
+            // Register the jump target for the early return
+            self.table.label(self.masm.pc(), label);
+            
+            // For a conditional branch, use JUMPI which jumps if condition is non-zero
+            self.masm.increment_sp(1)?;
+            self.masm._jumpi()?;
+        } else {
+            // Standard handling for normal conditional branches
+            self.table.label(self.masm.pc(), label);
+            self.masm.increment_sp(1)?;
+            self.masm._jumpi()?;
+        }
 
         Ok(())
     }
@@ -176,7 +205,14 @@ impl Function {
     pub(crate) fn handle_frame_popping(&mut self, frame: ControlStackFrame) -> Result<()> {
         match frame.ty {
             ControlStackFrameType::If(true) => Ok(()),
-            ControlStackFrameType::Block => self.masm._jumpdest(),
+            ControlStackFrameType::Block => {
+                // For blocks that might have early returns, ensure proper jump destination
+                if frame.might_return_early {
+                    // Make sure the jump table has this position as a target for the block
+                    self.table.label(frame.original_pc_offset, self.masm.pc());
+                }
+                self.masm._jumpdest()
+            },
             ControlStackFrameType::Loop => Ok(()),
             _ => {
                 self.table.label(frame.original_pc_offset, self.masm.pc());
