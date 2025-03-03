@@ -19,7 +19,7 @@ mod log;
 /// This macro calls itself recursively;
 /// 1. It no-ops when matching a supported operator.
 /// 2. Defines the visitor function and panics when
-///     matching an unsupported operator.
+///    matching an unsupported operator.
 macro_rules! impl_visit_operator {
     ( @mvp $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident $($rest:tt)* ) => {
         impl_visit_operator!($($rest)*);
