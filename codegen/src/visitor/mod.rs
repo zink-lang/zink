@@ -244,8 +244,7 @@ impl VisitOperator<'_> for Function {
             i32_reinterpret_f32,
             i64_reinterpret_f64,
             f32_reinterpret_i32,
-            f64_reinterpret_i64,
-            return
+            f64_reinterpret_i64
         },
         global: {
             else, select, end, nop, unreachable,
@@ -291,5 +290,26 @@ impl VisitOperator<'_> for Function {
                 table_byte: u8
             }
         }
+    }
+
+    // Custom implementation for the return instruction
+    fn visit_return(&mut self) -> Self::Output {
+        trace!("return");
+
+        let before = self.masm.buffer().len();
+
+        // for early returns in a function, emit return code with value 1 (true)
+        if self.is_main || self.abi.is_some() {
+            tracing::trace!("early return from main function");
+            self.masm.emit_return_value(&[1])?;
+        } else {
+            tracing::trace!("early return from call");
+            self.masm.call_return(self.ty.results())?;
+        }
+
+        let instr = self.masm.buffer()[before..].to_vec();
+        self.backtrace.push(instr);
+
+        Ok(())
     }
 }

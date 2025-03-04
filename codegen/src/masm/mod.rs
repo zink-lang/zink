@@ -247,6 +247,24 @@ impl MacroAssembler {
     /// NOTE: This `return` could be different from the `return` in
     /// the EVM.
     pub fn _return(&mut self) -> Result<()> {
-        todo!()
+        self.emit_return_value(&[1])
+    }
+
+    /// Emits EVM bytecode to return a value from the current execution context.
+    /// It handles the complete sequence for returning a value from an EVM contract
+    pub fn emit_return_value(&mut self, value: &[u8]) -> Result<()> {
+        // Push the value onto the stack
+        self.push(value)?;
+
+        // Store it at memory position 0
+        self.push(&[0])?;
+        self.asm._mstore()?;
+
+        // Return 32 bytes from position 0
+        self.push(&[32])?;
+        self.push(&[0])?;
+        self.asm._return()?;
+
+        Ok(())
     }
 }
