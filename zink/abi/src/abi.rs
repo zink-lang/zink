@@ -27,12 +27,12 @@ impl DerefMut for Abi {
 impl Abi {
     /// Convert [`Abi`] to bytes.
     pub fn to_bytes(&self) -> postcard::Result<Vec<u8>> {
-        postcard::to_stdvec(self).map_err(Into::into)
+        postcard::to_stdvec(self)
     }
 
     /// Convert bytes to [`Abi`].
     pub fn from_bytes(bytes: impl AsRef<[u8]>) -> postcard::Result<Self> {
-        postcard::from_bytes(bytes.as_ref()).map_err(Into::into)
+        postcard::from_bytes(bytes.as_ref())
     }
 }
 
