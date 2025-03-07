@@ -134,12 +134,6 @@ extern "C" {
     /// Get the current message sender
     pub fn caller() -> Address;
 
-    /// Get the current blob hash at index
-    pub fn blobhash();
-
-    /// Get the current blob base fee
-    pub fn blobbasefee();
-
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);
 
@@ -160,4 +154,40 @@ extern "C" {
         topic4: Bytes32,
         name: &'static [u8],
     );
+
+    /// Get the current block number.
+    pub fn number() -> u64;
+
+    /// Get the hash of one of the 256 most recent complete blocks.
+    pub fn blockhash(block_number: u64) -> Bytes32;
+
+    /// Get versioned hashes.
+    pub fn blobhash(index: u64) -> Bytes32;
+
+    /// Get the current block’s base fee.
+    pub fn basefee() -> u64;
+
+    /// Get the current block’s blob base fee.
+    pub fn blobbasefee() -> u64;
+
+    /// Get the current chain id.
+    pub fn chainid() -> u64;
+
+    /// Get the block’s beneficiary address.
+    pub fn coinbase() -> Address;
+
+    /// Get the previous block’s RANDAO mix.
+    pub fn prevrandao() -> Bytes32;
+
+    /// Get the current block gaslimit.
+    pub fn gaslimit() -> Bytes32;
+
+    /// Get the amount of available gas.
+    pub fn gas() -> Bytes32;
+
+    /// Get the block’s timestamp.
+    pub fn timestamp() -> u64;
+
+    /// Get the gas price of the transaction.
+    pub fn gasprice() -> u64;
 }

@@ -51,7 +51,7 @@ opcodes! {
     (0x41, COINBASE, 2, 0, 1, "Get the block's beneficiary address.", Frontier, BlockInformation),
     (0x42, TIMESTAMP, 2, 0, 1, "Get the block's timestamp.", Frontier, BlockInformation),
     (0x43, NUMBER, 2, 0, 1, "Get the block's number.", Frontier, BlockInformation),
-    (0x44, DIFFICULTY, 2, 0, 1, "Get the block's difficulty.", Frontier, BlockInformation),
+    (0x44, PREVRANDAO, 2, 0, 1, "Get the previous block’s RANDAO mix", Frontier, BlockInformation),
     (0x45, GASLIMIT, 2, 0, 1, "Get the block's gas limit.", Frontier, BlockInformation),
     (0x46, CHAINID, 2, 0, 1, "Get the chain ID.", Istanbul, BlockInformation),
     (0x47, SELFBALANCE, 5, 0, 1, "Get balance of currently executing account.", Istanbul, BlockInformation),
