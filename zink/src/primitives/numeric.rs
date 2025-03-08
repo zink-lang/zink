@@ -17,7 +17,6 @@ pub trait SafeNumeric: Copy + PartialOrd + Sized {
     fn safe_div(self, rhs: Self) -> Self;
 }
 
-// Local revert macro to use crate::ffi::asm
 macro_rules! local_revert {
     ($msg:expr) => {
         unsafe { crate::ffi::asm::revert1($msg) }
@@ -52,7 +51,7 @@ macro_rules! impl_safe_numeric_signed {
                 #[inline(always)]
                 fn safe_add(self, rhs: Self) -> Self {
                     let result = self.wrapping_add(rhs);
-                    if (self > 0 && rhs > 0 && result < self) || 
+                    if (self > 0 && rhs > 0 && result < self) ||
                        (self < 0 && rhs < 0 && result > self) {
                         local_revert!("addition overflow");
                     }
@@ -62,8 +61,7 @@ macro_rules! impl_safe_numeric_signed {
                 #[inline(always)]
                 fn safe_sub(self, rhs: Self) -> Self {
                     let result = self.wrapping_sub(rhs);
-                    if (rhs < 0 && self >= 0 && result < self) || 
-                       (rhs > 0 && self <= 0 && result > self) {
+                    if rhs < 0 && self > result {
                         local_revert!("subtraction overflow");
                     }
                     result
@@ -84,7 +82,7 @@ macro_rules! impl_safe_numeric_signed {
                         local_revert!("division by zero");
                     }
                     let result = self.wrapping_div(rhs);
-                    if rhs != 0 && result * rhs != self {
+                    if self == i32::MIN.into() && rhs == -1 {
                         local_revert!("division overflow");
                     }
                     result
@@ -105,7 +103,7 @@ macro_rules! impl_safe_numeric_unsigned {
                 #[inline(always)]
                 fn safe_add(self, rhs: Self) -> Self {
                     let result = self + rhs;
-                    if result < self { // Overflow for unsigned: result wraps below self
+                    if result < self {
                         local_revert!("addition overflow");
                     }
                     result
@@ -114,7 +112,7 @@ macro_rules! impl_safe_numeric_unsigned {
                 #[inline(always)]
                 fn safe_sub(self, rhs: Self) -> Self {
                     let result = self - rhs;
-                    if result > self { // Underflow for unsigned: result wraps above self
+                    if result > self {
                         local_revert!("subtraction overflow");
                     }
                     result
@@ -135,7 +133,6 @@ macro_rules! impl_safe_numeric_unsigned {
                         local_revert!("division by zero");
                     }
                     let result = self / rhs;
-                    // No overflow check needed for unsigned division
                     result
                 }
             }

@@ -1,3 +1,9 @@
+#![cfg_attr(target_arch = "wasm32", no_std)]
+#![cfg_attr(target_arch = "wasm32", no_main)]
+
+#[cfg(not(target_arch = "wasm32"))]
+extern crate std;
+
 use zink::primitives::numeric::SafeNumeric;
 
 #[no_mangle]
@@ -27,33 +33,33 @@ mod tests {
     #[test]
     #[should_panic(expected = "addition overflow")]
     fn test_add_overflow() {
-        addition(1); // 1 + i32::MAX
+        i32::MAX.safe_add(1);
     }
 
     #[test]
     #[should_panic(expected = "subtraction overflow")]
     fn test_sub_overflow() {
-        subtraction(i32::MAX); // i32::MAX - i32::MIN
+        0.safe_sub(i32::MIN);
     }
 
     #[test]
     #[should_panic(expected = "multiplication overflow")]
     fn test_mul_overflow() {
-        multiplication(i32::MAX); // i32::MAX * 2
+        i32::MAX.safe_mul(2);
     }
 
     #[test]
     #[should_panic(expected = "division overflow")]
     fn test_div_overflow() {
-        division(i32::MIN); // i32::MIN / -1
+        i32::MIN.safe_div(-1);
     }
 
     #[test]
     fn test_no_overflow() {
-        assert_eq!(addition(-1), i32::MAX - 1);
-        assert_eq!(subtraction(0), 0i32.wrapping_sub(i32::MIN)); // used wrapping_sub to avoid overflow in test
-        assert_eq!(multiplication(2), 4);
-        assert_eq!(division(2), -2);
+        assert_eq!((-1).safe_add(i32::MAX), i32::MAX - 1);
+        assert_eq!((-1).safe_sub(i32::MIN), -1 - i32::MIN);
+        assert_eq!(2.safe_mul(2), 4);
+        assert_eq!(2.safe_div(-1), -2);
     }
 }
 
