@@ -152,6 +152,7 @@ extern "C" {
     pub fn tstore_u64(val: u64);
 }
 
+#[allow(clippy::module_inception)]
 #[cfg(not(target_arch = "wasm32"))]
 pub mod asm {
     pub fn push_i8(_val: i8) {
