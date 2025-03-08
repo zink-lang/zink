@@ -19,7 +19,12 @@ pub trait SafeNumeric: Copy + PartialOrd + Sized {
 
 macro_rules! local_revert {
     ($msg:expr) => {
-        unsafe { crate::ffi::asm::revert1($msg) }
+        #[cfg(target_arch = "wasm32")]
+        unsafe {
+            crate::ffi::asm::revert1($msg)
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        crate::ffi::asm::asm::revert1($msg)
     };
 }
 
@@ -29,11 +34,17 @@ macro_rules! impl_numeric {
             impl Numeric for $t {
                 #[inline(always)]
                 fn addmod(self, other: Self, n: Self) -> Self {
+                    #[cfg(target_arch = "wasm32")]
                     unsafe { ffi::asm::$addmod_fn(n, other, self) }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    ffi::asm::$addmod_fn(n, other, self)
                 }
                 #[inline(always)]
                 fn mulmod(self, other: Self, n: Self) -> Self {
+                    #[cfg(target_arch = "wasm32")]
                     unsafe { ffi::asm::$mulmod_fn(n, other, self) }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    ffi::asm::$mulmod_fn(n, other, self)
                 }
             }
         )*
