@@ -25,24 +25,44 @@ pub trait TransientStorageValue: Asm {
 
 impl StorageValue for i32 {
     fn sload() -> Self {
-        unsafe { ffi::asm::sload_i32() }
+        #[cfg(target_arch = "wasm32")]
+        unsafe {
+            ffi::asm::sload_i32()
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        ffi::asm::sload_i32()
     }
 }
 
 impl StorageValue for u32 {
     fn sload() -> Self {
-        unsafe { ffi::asm::sload_u32() }
+        #[cfg(target_arch = "wasm32")]
+        unsafe {
+            ffi::asm::sload_u32()
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        ffi::asm::sload_u32()
     }
 }
 
 impl TransientStorageValue for i32 {
     fn tload() -> Self {
-        unsafe { ffi::asm::tload_i32() }
+        #[cfg(target_arch = "wasm32")]
+        unsafe {
+            ffi::asm::tload_i32()
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        ffi::asm::tload_i32()
     }
 }
 
 impl TransientStorageValue for u32 {
     fn tload() -> Self {
-        unsafe { ffi::asm::tload_u32() }
+        #[cfg(target_arch = "wasm32")]
+        unsafe {
+            ffi::asm::tload_u32()
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        ffi::asm::tload_u32()
     }
 }
