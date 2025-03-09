@@ -5,10 +5,10 @@ use paste::paste;
 macro_rules! impl_bytes {
     ($count:expr) => {
         paste! {
-            #[derive(Debug, Clone, Copy)]
+            #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
             pub struct [<Bytes $count>] (
                 #[allow(unused)]
-                #[cfg(target_family = "wasm")] i32,
+                #[cfg(target_family = "wasm")] pub i32,
                 #[cfg(not(target_family = "wasm"))] pub [u8; $count],
             );
 

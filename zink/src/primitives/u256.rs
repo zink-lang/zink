@@ -6,10 +6,11 @@ use crate::{
     storage::{StorageValue, TransientStorageValue},
     Asm,
 };
+use core::ops::Sub;
 
 /// Account address
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub struct U256(Bytes32);
 
 impl U256 {
@@ -42,6 +43,12 @@ impl U256 {
         unsafe { ffi::u256_sub(other, self) }
     }
 
+    /// u256 div
+    #[inline(always)]
+    pub fn div(self, other: Self) -> Self {
+        unsafe { ffi::u256_div(self, other) }
+    }
+
     /// max of u256
     #[inline(always)]
     pub fn max() -> Self {
@@ -63,6 +70,16 @@ impl U256 {
     #[inline(always)]
     pub fn mulmod(self, other: Self, modulus: Self) -> Self {
         unsafe { ffi::u256_mulmod(modulus, other, self) }
+    }
+}
+
+impl Sub for U256 {
+    type Output = Self;
+
+    /// u256 sub
+    #[inline(always)]
+    fn sub(self, other: Self) -> Self::Output {
+        unsafe { ffi::u256_sub(self, other) }
     }
 }
 
@@ -89,5 +106,21 @@ impl TransientStorageValue for U256 {
     #[inline(always)]
     fn tload() -> Self {
         Self(unsafe { ffi::bytes::tload_bytes32() })
+    }
+}
+
+impl From<u64> for U256 {
+    fn from(value: u64) -> Self {
+        #[cfg(target_family = "wasm")]
+        {
+            U256(Bytes32(value as i32))
+        }
+        #[cfg(not(target_family = "wasm"))]
+        {
+            // On non-WASM, Bytes32 is [u8; 32]
+            let mut bytes = [0u8; 32];
+            bytes[24..32].copy_from_slice(&value.to_be_bytes());
+            U256(Bytes32(bytes))
+        }
     }
 }
