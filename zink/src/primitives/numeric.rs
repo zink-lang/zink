@@ -1,4 +1,4 @@
-use crate::ffi;
+use crate::{ffi, primitives::U256};
 
 /// A trait for modular arithmetic operations on numeric types.
 pub trait Numeric: Copy {
@@ -8,8 +8,8 @@ pub trait Numeric: Copy {
 
 /// A trait for safe arithmetic operations with bound checks.
 pub trait SafeNumeric: Copy + PartialOrd + Sized {
-    const MAX: Self;
-    const MIN: Self;
+    fn max() -> Self;
+    fn min() -> Self;
 
     fn safe_add(self, rhs: Self) -> Self;
     fn safe_sub(self, rhs: Self) -> Self;
@@ -37,27 +37,42 @@ macro_rules! impl_numeric {
                     #[cfg(target_arch = "wasm32")]
                     unsafe { ffi::asm::$addmod_fn(n, other, self) }
                     #[cfg(not(target_arch = "wasm32"))]
-                    ffi::asm::$addmod_fn(n, other, self)
+                    ffi::asm::asm::$addmod_fn(n, other, self)
                 }
                 #[inline(always)]
                 fn mulmod(self, other: Self, n: Self) -> Self {
                     #[cfg(target_arch = "wasm32")]
                     unsafe { ffi::asm::$mulmod_fn(n, other, self) }
                     #[cfg(not(target_arch = "wasm32"))]
-                    ffi::asm::$mulmod_fn(n, other, self)
+                    ffi::asm::asm::$mulmod_fn(n, other, self)
                 }
             }
         )*
     };
+    // Special case for U256
+    (U256, $addmod_fn:ident, $mulmod_fn:ident) => {
+        impl Numeric for U256 {
+            #[inline(always)]
+            fn addmod(self, other: Self, n: Self) -> Self {
+                unsafe { ffi::$addmod_fn(n, other, self) }
+            }
+            #[inline(always)]
+            fn mulmod(self, other: Self, n: Self) -> Self {
+                unsafe { ffi::$mulmod_fn(n, other, self) }
+            }
+        }
+    };
 }
 
-// Signed types (i32, i64)
+// Signed types (i8, i16, i32, i64)
 macro_rules! impl_safe_numeric_signed {
     ($($t:ty);* $(;)?) => {
         $(
             impl SafeNumeric for $t {
-                const MAX: Self = <$t>::MAX;
-                const MIN: Self = <$t>::MIN;
+                #[inline(always)]
+                fn max() -> Self { <$t>::MAX }
+                #[inline(always)]
+                fn min() -> Self { <$t>::MIN }
 
                 #[inline(always)]
                 fn safe_add(self, rhs: Self) -> Self {
@@ -93,7 +108,7 @@ macro_rules! impl_safe_numeric_signed {
                         local_revert!("division by zero");
                     }
                     let result = self.wrapping_div(rhs);
-                    if self == i32::MIN.into() && rhs == -1 {
+                    if self == <Self as SafeNumeric>::min() && rhs == -1 {
                         local_revert!("division overflow");
                     }
                     result
@@ -103,17 +118,19 @@ macro_rules! impl_safe_numeric_signed {
     };
 }
 
-// Unsigned types (u32, u64)
+// Unsigned types (u8, u16, u32, u64)
 macro_rules! impl_safe_numeric_unsigned {
     ($($t:ty);* $(;)?) => {
         $(
             impl SafeNumeric for $t {
-                const MAX: Self = <$t>::MAX;
-                const MIN: Self = <$t>::MIN;
+                #[inline(always)]
+                fn max() -> Self { <$t>::MAX }
+                #[inline(always)]
+                fn min() -> Self { <$t>::MIN }
 
                 #[inline(always)]
                 fn safe_add(self, rhs: Self) -> Self {
-                    let result = self + rhs;
+                    let result = self.wrapping_add(rhs);
                     if result < self {
                         local_revert!("addition overflow");
                     }
@@ -122,7 +139,7 @@ macro_rules! impl_safe_numeric_unsigned {
 
                 #[inline(always)]
                 fn safe_sub(self, rhs: Self) -> Self {
-                    let result = self - rhs;
+                    let result = self.wrapping_sub(rhs);
                     if result > self {
                         local_revert!("subtraction overflow");
                     }
@@ -131,7 +148,7 @@ macro_rules! impl_safe_numeric_unsigned {
 
                 #[inline(always)]
                 fn safe_mul(self, rhs: Self) -> Self {
-                    let result = self * rhs;
+                    let result = self.wrapping_mul(rhs);
                     if rhs != 0 && result / rhs != self {
                         local_revert!("multiplication overflow");
                     }
@@ -143,12 +160,60 @@ macro_rules! impl_safe_numeric_unsigned {
                     if rhs == 0 {
                         local_revert!("division by zero");
                     }
-                    let result = self / rhs;
-                    result
+                    self / rhs
                 }
             }
         )*
     };
+}
+
+// U256 special case
+impl SafeNumeric for U256 {
+    #[inline(always)]
+    fn max() -> Self {
+        unsafe { ffi::u256_max() }
+    }
+    #[inline(always)]
+    fn min() -> Self {
+        U256::empty()
+    }
+
+    #[inline(always)]
+    fn safe_add(self, rhs: Self) -> Self {
+        let result = unsafe { ffi::u256_add(self, rhs) };
+        if result < self {
+            local_revert!("addition overflow");
+        }
+        result
+    }
+
+    #[inline(always)]
+    fn safe_sub(self, rhs: Self) -> Self {
+        let result = unsafe { ffi::u256_sub(self, rhs) };
+        if result > self {
+            local_revert!("subtraction overflow");
+        }
+        result
+    }
+
+    #[inline(always)]
+    fn safe_mul(self, rhs: Self) -> Self {
+        let max = Self::max();
+        let result = unsafe { ffi::u256_mulmod(self, rhs, max) };
+        // Check if result exceeds max when rhs > 1
+        if rhs > Self::min() && result > self && result > rhs && result > max - self {
+            local_revert!("multiplication overflow");
+        }
+        result
+    }
+
+    #[inline(always)]
+    fn safe_div(self, rhs: Self) -> Self {
+        if rhs == Self::min() {
+            local_revert!("division by zero");
+        }
+        unsafe { ffi::u256_div(self, rhs) }
+    }
 }
 
 impl_numeric! {
@@ -163,11 +228,15 @@ impl_numeric! {
 }
 
 impl_safe_numeric_signed! {
+    i8;
+    i16;
     i32;
     i64;
 }
 
 impl_safe_numeric_unsigned! {
+    u8;
+    u16;
     u32;
     u64;
 }

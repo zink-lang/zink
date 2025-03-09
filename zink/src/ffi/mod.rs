@@ -12,22 +12,25 @@ extern "C" {
     /// Emit ABI to host state.
     pub fn emit_abi(ptr: u32, len: u32);
 
-    /// Equal operation for addresses
+    /// Addition operation for addresses
     pub fn u256_add(this: U256, other: U256) -> U256;
 
-    /// Equal operation for addresses
+    /// Subtraction operation for addresses
     pub fn u256_sub(this: U256, other: U256) -> U256;
+
+    /// Division operation for addresses
+    pub fn u256_div(this: U256, other: U256) -> U256;
 
     /// Less than operation for addresses
     pub fn u256_lt(this: U256, other: U256) -> bool;
 
-    /// Equal operation for addresses
+    /// Returns the maximum U256 value
     pub fn u256_max() -> U256;
 
     /// Addmod operation for addresses
     pub fn u256_addmod(this: U256, other: U256, modulus: U256) -> U256;
 
-    /// Equal operation for addresses
+    /// Mulmod operation for addresses
     pub fn u256_mulmod(this: U256, other: U256, modulus: U256) -> U256;
 
     /// Set up a label for reserving 32 bytes in memory
