@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["emit_abi","label_reserve_mem_32","label_reserve_mem_64","u256_add","u256_addmod","u256_lt","u256_max","u256_mulmod","u256_sub"],"mod":["asm","bytes","evm"]};
+window.SIDEBAR_ITEMS = {"fn":["emit_abi","label_reserve_mem_32","label_reserve_mem_64","u256_add","u256_addmod","u256_div","u256_lt","u256_max","u256_mulmod","u256_sub"],"mod":["asm","bytes","evm"]};
