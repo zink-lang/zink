@@ -1,6 +1,6 @@
 //! WASM related primitives.
 
-mod abi;
+pub mod abi;
 mod data;
 mod func;
 mod host;
