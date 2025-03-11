@@ -2638,6 +2638,7 @@ dependencies = [
  "paste",
  "tiny-keccak",
  "tracing",
+ "zingen",
  "zink-codegen",
  "zinkc-filetests",
  "zint",

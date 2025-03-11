@@ -56,7 +56,7 @@ impl Type for usize {
     }
 }
 
-// Custom type for Ethereum address (20 bytes)
+/// Custom type for Ethereum address (20 bytes)
 #[derive(Clone, Copy)]
 pub struct Address(pub [u8; 20]);
 
@@ -71,14 +71,16 @@ impl Type for Address {
     }
 }
 
-// Custom type for fixed arrays
+/// Custom type for fixed arrays
 #[derive(Clone)]
 pub struct FixedArray<T: Type> {
     data: Vec<T>,
+    #[allow(dead_code)]
     len: usize,
 }
 
 impl<T: Type> FixedArray<T> {
+    /// Creates a new `FixedArray` from a vector of elements.
     pub fn new(data: Vec<T>) -> Self {
         let len = data.len();
         Self { data, len }
