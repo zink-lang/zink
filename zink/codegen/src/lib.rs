@@ -57,7 +57,7 @@ pub fn assert(input: TokenStream) -> TokenStream {
 ///     const NAME: &'static [u8] = b"Ping";
 /// }
 /// ```
-#[proc_macro_derive(Event)]
+#[proc_macro_derive(Event, attributes(indexed, anonymous))]
 pub fn event(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     event::parse(input)

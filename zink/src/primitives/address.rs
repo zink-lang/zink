@@ -1,6 +1,6 @@
 use crate::{
     ffi,
-    primitives::Bytes20,
+    primitives::{Bytes20, Bytes32},
     storage::{StorageValue, TransientStorageValue},
     Asm,
 };
@@ -30,6 +30,25 @@ impl Address {
     pub fn eq(self, other: Self) -> bool {
         self.0.eq(other.0)
     }
+
+    // Return Bytes32 for consistency with logN
+    pub fn to_bytes32(&self) -> Bytes32 {
+        #[cfg(target_family = "wasm")]
+        {
+            Bytes32(self.0 .0) // i32 in WASM
+        }
+        #[cfg(not(target_family = "wasm"))]
+        {
+            let mut bytes = [0u8; 32];
+            bytes[12..32].copy_from_slice(&self.0 .0); // [u8; 20] padded
+            Bytes32(bytes)
+        }
+    }
+
+    #[cfg(not(target_family = "wasm"))]
+    pub fn bytes32(&self) -> [u8; 32] {
+        self.to_bytes32().0 // Use to_bytes32 for non-WASM
+    }
 }
 
 impl Asm for Address {
@@ -39,7 +58,7 @@ impl Asm for Address {
 
     #[cfg(not(target_family = "wasm"))]
     fn bytes32(&self) -> [u8; 32] {
-        self.0.bytes32()
+        self.bytes32()
     }
 }
 

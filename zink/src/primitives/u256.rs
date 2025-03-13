@@ -55,12 +55,15 @@ impl U256 {
         unsafe { ffi::u256_max() }
     }
 
-    /// U256 to bytes32
-    pub fn bytes32(&self) -> Bytes32 {
+    pub fn to_bytes32(&self) -> Bytes32 {
         self.0
     }
 
-    /// Addmod for U256
+    #[cfg(not(target_family = "wasm"))]
+    pub fn bytes32(&self) -> [u8; 32] {
+        self.0 .0 // [u8; 32] in non-WASM
+    }
+
     #[inline(always)]
     pub fn addmod(self, other: Self, modulus: Self) -> Self {
         unsafe { ffi::u256_addmod(modulus, other, self) }
@@ -91,7 +94,7 @@ impl Asm for U256 {
 
     #[cfg(not(target_family = "wasm"))]
     fn bytes32(&self) -> [u8; 32] {
-        self.0 .0
+        self.bytes32() // Delegate to the instance method
     }
 }
 
