@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["impl_variant_fns","parse"]};
+window.SIDEBAR_ITEMS = {"fn":["abi_for_variant","get_solidity_type","impl_variant_fns","parse"]};
