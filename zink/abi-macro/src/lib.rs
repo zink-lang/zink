@@ -3,7 +3,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::{format_ident, quote};
 use std::fs;
-use syn::{parse_macro_input, Error, LitStr};
+use syn::{parse_macro_input, Error};
 
 /// A struct to represent the function in an ERC ABI
 #[derive(serde::Deserialize, Debug)]
@@ -41,8 +41,8 @@ struct EthereumAbi {
     abi: Vec<AbiFunction>,
 }
 
-/// Maps Solidity types to Rust types
-fn map_type_to_rust(solidity_type: &str) -> proc_macro2::TokenStream {
+/// Maps Solidity types to Rust types and handles encoding/decoding
+fn map_type_to_rust_and_encode(solidity_type: &str) -> proc_macro2::TokenStream {
     match solidity_type {
         "uint256" | "int256" => quote! { ::zink::primitives::u256::U256 },
         "uint8" | "int8" => quote! { u8 },
@@ -57,14 +57,14 @@ fn map_type_to_rust(solidity_type: &str) -> proc_macro2::TokenStream {
         // Handle arrays, e.g., uint256[]
         t if t.ends_with("[]") => {
             let inner_type = &t[..t.len() - 2];
-            let rust_inner_type = map_type_to_rust(inner_type);
+            let rust_inner_type = map_type_to_rust_and_encode(inner_type);
             quote! { Vec<#rust_inner_type> }
         }
         // Handle fixed size arrays, e.g., uint256[10]
         t if t.contains('[') && t.ends_with(']') => {
             let bracket_pos = t.find('[').unwrap();
             let inner_type = &t[..bracket_pos];
-            let rust_inner_type = map_type_to_rust(inner_type);
+            let rust_inner_type = map_type_to_rust_and_encode(inner_type);
             quote! { Vec<#rust_inner_type> }
         }
         // Default to bytes for any other type
@@ -85,7 +85,7 @@ fn generate_function_signature(func: &AbiFunction) -> proc_macro2::TokenStream {
             format_ident!("{}", input.name.to_case(Case::Snake))
         };
 
-        let param_type = map_type_to_rust(&input.param_type);
+        let param_type = map_type_to_rust_and_encode(&input.param_type);
         params = quote! { #params, #param_name: #param_type };
     }
 
@@ -93,13 +93,13 @@ fn generate_function_signature(func: &AbiFunction) -> proc_macro2::TokenStream {
     let return_type = if func.outputs.is_empty() {
         quote! { () }
     } else if func.outputs.len() == 1 {
-        let output_type = map_type_to_rust(&func.outputs[0].param_type);
+        let output_type = map_type_to_rust_and_encode(&func.outputs[0].param_type);
         quote! { #output_type }
     } else {
         let output_types = func
             .outputs
             .iter()
-            .map(|output| map_type_to_rust(&output.param_type))
+            .map(|output| map_type_to_rust_and_encode(&output.param_type))
             .collect::<Vec<_>>();
         quote! { (#(#output_types),*) }
     };
@@ -142,11 +142,11 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
             .join(",")
     );
 
-    // Generate the implementation
+    // Determine which method to call (view_call or call)
     let call_method = if is_view {
-        quote! { view_call }
+        format_ident!("view_call")
     } else {
-        quote! { call }
+        format_ident!("call")
     };
 
     // Generate parameter encoding for each input
@@ -155,9 +155,30 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
             // No parameters to encode
         }
     } else {
-        let encoding_statements = param_names.iter().map(|_param_name| {
-            quote! {
-                // For now, I'll add these parameters to the call data without encoding
+        let encoding_statements = param_names.iter().map(|param_name| {
+            let param_type = func
+                .inputs
+                .iter()
+                .find(|input| {
+                    if input.name.is_empty() {
+                        format_ident!("arg{}", input.name.len()) == *param_name
+                    } else {
+                        format_ident!("{}", input.name.to_case(Case::Snake)) == *param_name
+                    }
+                })
+                .map(|input| input.param_type.as_str())
+                .unwrap_or("unknown");
+
+            match param_type {
+                "address" => quote! {
+                    call_data.extend_from_slice(&zabi::encode_address(#param_name.as_bytes()));
+                },
+                "uint256" | "int256" => quote! {
+                    call_data.extend_from_slice(&zabi::encode_u256(#param_name.as_bytes()));
+                },
+                _ => quote! {
+                    call_data.extend_from_slice(&zabi::encode(#param_name));
+                },
             }
         });
 
@@ -175,18 +196,27 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
         // Handle different output types specifically
         let output_type = &func.outputs[0].param_type;
         match output_type.as_str() {
-            "uint8" => quote! { Ok(0u8) }, // Return a placeholder u8
-            "uint256" => {
+            "uint8" => quote! {
+                let decoded = zabi::decode::<u8>(&result)?;
+                Ok(decoded)
+            },
+            "uint256" | "int256" => {
                 quote! {
-                    // Return a placeholder U256
-                    Ok(::zink::primitives::u256::U256::empty())
+                    let decoded_bytes = zabi::decode_u256(&result)?;
+                    Ok(::zink::primitives::u256::U256::from_be_bytes(decoded_bytes))
                 }
             }
-            "bool" => quote! { Ok(true) }, // Return a placeholder boolean
-            "string" => quote! { Ok(String::from("Test")) }, // Return a placeholder string
+            "bool" => quote! {
+                let decoded = zabi::decode::<bool>(&result)?;
+                Ok(decoded)
+            },
+            "string" => quote! {
+                let decoded = zabi::decode::<String>(&result)?;
+                Ok(decoded)
+            },
             "address" => quote! {
-                // Return a placeholder address
-                Ok(::zink::primitives::address::Address::empty())
+                let decoded_bytes = zabi::decode_address(&result)?;
+                Ok(::zink::primitives::address::Address::from(decoded_bytes))
             },
             _ => quote! {
                 // Default fallback for unknown types
@@ -194,15 +224,13 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
             },
         }
     } else {
-        // For multiple outputs
         quote! {
-            // TODO: Implement proper decoding for multiple outputs
+            // TODO(g4titanx): Implement proper decoding for multiple outputs
             Err("Multiple return values not yet supported")
         }
     };
 
     // Calculate the function selector using tiny-keccak directly
-    // to avoid a circular dependency issue in using zink::abi
     quote! {
         #fn_signature {
             let mut hasher = tiny_keccak::Keccak::v256();
@@ -227,14 +255,75 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
     }
 }
 
-/// The procedural macro for importing an ABI
+/// The `import!` macro generates a Rust struct and implementation for interacting with an Ethereum
+/// smart contract based on its ABI (Application Binary Interface) and deploys the corresponding
+/// contract.
+///
+/// # Syntax
+/// ```ignore
+/// import!(abi_path: &str, contract_name: &str)
+/// ```
+///
+/// # Generated Code
+/// The macro generates a struct named after the ABI file's base name (e.g., `ERC20` for `"ERC20.json"`) with:
+/// - An `address` field of type `::zink::primitives::address::Address` to hold the contract address.
+/// - An `evm` field of type `::zint::revm::EVM<'static>` to manage the EVM state.
+/// - A `new` method that deploys the specified contract and initializes the EVM.
+/// - Methods for each function in the ABI, which encode parameters, call the contract, and decode the results.
+///
+/// # Example
+/// See examples/erc20_import.rs
+///
+/// # Requirements
+/// - The `abi-import` feature must be enabled (`--features abi-import`).
+/// - For `wasm32` targets, the `wasm-alloc` feature must be enabled (`--features wasm-alloc`) to provide a global allocator (`wee_alloc`).
+///
+/// # Notes
+/// - The contract specified by `contract_name` must exist and be compilable by `zint::Contract::search`.
+/// - The EVM state is initialized with a default account (`ALICE`) and deploys the contract on `new`.
 #[proc_macro]
 pub fn import(input: TokenStream) -> TokenStream {
-    // Parse the input string (file path)
-    let file_path = parse_macro_input!(input as LitStr).value();
+    let input = parse_macro_input!(input as syn::ExprTuple);
+    if input.elems.len() != 2 {
+        return Error::new(
+            Span::call_site(),
+            "import! macro expects two arguments: (abi_path, contract_name)",
+        )
+        .to_compile_error()
+        .into();
+    }
 
-    // Read the ABI file
-    let abi_content = match fs::read_to_string(&file_path) {
+    let abi_path = if let syn::Expr::Lit(syn::ExprLit {
+        lit: syn::Lit::Str(lit_str),
+        ..
+    }) = &input.elems[0]
+    {
+        lit_str.value()
+    } else {
+        return Error::new(
+            Span::call_site(),
+            "First argument must be a string literal for ABI path",
+        )
+        .to_compile_error()
+        .into();
+    };
+
+    let contract_name = if let syn::Expr::Lit(syn::ExprLit {
+        lit: syn::Lit::Str(lit_str),
+        ..
+    }) = &input.elems[1]
+    {
+        lit_str.value()
+    } else {
+        return Error::new(
+            Span::call_site(),
+            "Second argument must be a string literal for contract name",
+        )
+        .to_compile_error()
+        .into();
+    };
+
+    let abi_content = match fs::read_to_string(&abi_path) {
         Ok(content) => content,
         Err(e) => {
             return Error::new(Span::call_site(), format!("Failed to read ABI file: {}", e))
@@ -256,8 +345,7 @@ pub fn import(input: TokenStream) -> TokenStream {
         }
     };
 
-    // Extract contract name from file name
-    let file_name = std::path::Path::new(&file_path)
+    let file_name = std::path::Path::new(&abi_path)
         .file_stem()
         .and_then(|s| s.to_str())
         .unwrap_or("Contract");
@@ -272,29 +360,61 @@ pub fn import(input: TokenStream) -> TokenStream {
         .map(generate_function_implementation)
         .collect::<Vec<_>>();
 
-    // Generate the final output
     let expanded = quote! {
         pub struct #struct_name {
             address: ::zink::primitives::address::Address,
+            evm: ::zint::revm::EVM<'static>,
         }
 
         impl #struct_name {
             pub fn new(address: ::zink::primitives::address::Address) -> Self {
-                Self { address }
+                use ::zint::revm;
+                use ::zink::primitives::address::Address;
+                use ::zink::primitives::u256::U256;
+                use ::zint::Contract;
+
+                let mut evm = revm::EVM::default();
+                // Initialize ALICE account with maximum balance
+                evm.db_mut().insert_account_info(
+                    revm::primitives::Address::from(Address::from(revm::ALICE)),
+                    revm::primitives::AccountInfo::from_balance(U256::MAX),
+                );
+
+                // Compile and deploy the specified contract
+                let contract = Contract::search(#contract_name).expect("Contract not found");
+                let bytecode = contract.compile().expect("Compilation failed").bytecode().expect("No bytecode").to_vec();
+                let deployed = evm.contract(&bytecode).deploy(&bytecode).expect("Deploy failed");
+                evm = deployed.evm;
+                evm.commit(true);
+
+                // Initialize ALICE's balance
+                let mut evm = evm.caller(revm::ALICE);
+                let storage_key = ::zink::storage::Mapping::<Address, U256>::storage_key(Address::from(revm::ALICE));
+                let initial_balance = U256::from(1000); // Set ALICE's balance to 1000 tokens
+                evm.db_mut().insert_storage(
+                    *address.as_bytes(),
+                    storage_key,
+                    initial_balance,
+                );
+                Self { address, evm }
             }
 
-            // Helper method for view calls
             fn view_call(&self, data: &[u8]) -> ::std::result::Result<Vec<u8>, &'static str> {
-                // This would call the EVM to execute a view call
-                // For now, return an empty result as a placeholder
-                Ok(vec![])
+                self.evm
+                    .clone()
+                    .calldata(data)
+                    .call(*self.address.as_bytes())
+                    .map(|info| info.ret)
+                    .map_err(|_| "View call failed")
             }
 
-            // Helper method for state-changing calls
             fn call(&self, data: &[u8]) -> ::std::result::Result<Vec<u8>, &'static str> {
-                // This would call the EVM to execute a transaction
-                // For now, return an empty result as a placeholder
-                Ok(vec![])
+                self.evm
+                    .clone()
+                    .calldata(data)
+                    .call(*self.address.as_bytes())
+                    .map(|info| info.ret)
+                    .map_err(|_| "Call failed")
             }
 
             #(#function_impls)*

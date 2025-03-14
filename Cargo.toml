@@ -119,7 +119,12 @@ zint.workspace = true
 hex.workspace = true
 serde_json.workspace = true
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wee_alloc = { version = "0.4", optional = true }
+
 [features]
 # default = [ "evm" ]
 # evm = [  ]
 abi-import = ["zink-abi-macro", "zabi/encoding"]
+wasm-alloc = ["dep:wee_alloc"]
+default = ["wasm-alloc"]
