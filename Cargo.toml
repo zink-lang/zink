@@ -115,6 +115,7 @@ opcodes = { workspace = true, features = ["data"] }
 tracing.workspace = true
 zint.workspace = true
 hex.workspace = true
+serde_json.workspace = true
 
 # [features]
 # default = [ "evm" ]

@@ -2636,6 +2636,7 @@ dependencies = [
  "fmt",
  "hex",
  "paste",
+ "serde_json",
  "tiny-keccak",
  "tracing",
  "zink-codegen",
