@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["abi","result","selector"],"struct":["Abi"]};
+window.SIDEBAR_ITEMS = {"enum":["DecodeError"],"fn":["decode","encode","is_dynamic_type"],"mod":["abi","encoding","result","selector"],"struct":["Abi"],"trait":["AbiDecode","AbiEncode"]};
