@@ -3,7 +3,9 @@ use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::{format_ident, quote};
 use std::fs;
+use std::path::Path;
 use syn::{parse_macro_input, Error};
+use zint::Contract;
 
 /// A struct to represent the function in an ERC ABI
 #[derive(serde::Deserialize, Debug)]
@@ -193,7 +195,6 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
             Ok(())
         }
     } else if func.outputs.len() == 1 {
-        // Handle different output types specifically
         let output_type = &func.outputs[0].param_type;
         match output_type.as_str() {
             "uint8" => quote! {
@@ -207,7 +208,7 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
                 }
             }
             "bool" => quote! {
-                let decoded = zabi::decode::<bool>(&result)?;
+                let decoded = zabi::decode::<bool>(&root)?;
                 Ok(decoded)
             },
             "string" => quote! {
@@ -225,7 +226,6 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
         }
     } else {
         quote! {
-            // TODO(g4titanx): Implement proper decoding for multiple outputs
             Err("Multiple return values not yet supported")
         }
     };
@@ -259,10 +259,11 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
 /// smart contract based on its ABI (Application Binary Interface) and deploys the corresponding
 /// contract.
 ///
-/// # Syntax
-/// ```ignore
-/// import!(abi_path: &str, contract_name: &str)
-/// ```
+/// # Parameters
+/// - `abi_path`: A string literal specifying the path to the ABI JSON file (e.g., `"examples/ERC20.json"`).
+/// - `contract_name` (optional): A string literal specifying the name of the contract source file (e.g., `"my_erc20"`)
+///   without the `.rs` extension. If omitted, defaults to the base name of the ABI file (e.g., `"ERC20"` for `"ERC20.json"`).
+///   The file must be located in the `examples` directory or a configured search path.
 ///
 /// # Generated Code
 /// The macro generates a struct named after the ABI file's base name (e.g., `ERC20` for `"ERC20.json"`) with:
@@ -272,55 +273,123 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
 /// - Methods for each function in the ABI, which encode parameters, call the contract, and decode the results.
 ///
 /// # Example
-/// See examples/erc20_import.rs
+/// ```rust
+/// #[cfg(feature = "abi-import")]
+/// use zink::import;
+///
+/// #[cfg(test)]
+/// mod tests {
+///     use zink::primitives::address::Address;
+///     use zint::revm;
+///
+///     #[test]
+///     fn test_contract() -> anyhow::Result<()> {
+///         #[cfg(feature = "abi-import")]
+///         {
+///             // Single argument: uses default contract name "ERC20"
+///             import!("examples/ERC20.json");
+///             let contract_address = Address::from(revm::CONTRACT);
+///             let token = ERC20::new(contract_address);
+///             let decimals = token.decimals()?;
+///             assert_eq!(decimals, 18);
+///
+///             // Two arguments: specifies custom contract name "my_erc20"
+///             import!("examples/ERC20.json", "my_erc20");
+///             let token = MyERC20::new(contract_address);
+///             let decimals = token.decimals()?;
+///             assert_eq!(decimals, 8);
+///         }
+///         Ok(())
+///     }
+/// }
+/// ```
 ///
 /// # Requirements
 /// - The `abi-import` feature must be enabled (`--features abi-import`).
-/// - For `wasm32` targets, the `wasm-alloc` feature must be enabled (`--features wasm-alloc`) to provide a global allocator (`wee_alloc`).
+/// - For `wasm32` targets, the `wasm-alloc` feature must be enabled (`--features wasm-alloc`) to provide a global allocator (`dlmalloc`).
 ///
 /// # Notes
-/// - The contract specified by `contract_name` must exist and be compilable by `zint::Contract::search`.
+/// - The contract file (defaulting to the ABI base name or specified by `contract_name`) must exist and be compilable by `zint::Contract::search`.
 /// - The EVM state is initialized with a default account (`ALICE`) and deploys the contract on `new`.
 #[proc_macro]
 pub fn import(input: TokenStream) -> TokenStream {
+    // Parse the input as a tuple of (abi_path) or (abi_path, contract_name)
     let input = parse_macro_input!(input as syn::ExprTuple);
-    if input.elems.len() != 2 {
-        return Error::new(
-            Span::call_site(),
-            "import! macro expects two arguments: (abi_path, contract_name)",
-        )
-        .to_compile_error()
-        .into();
-    }
-
-    let abi_path = if let syn::Expr::Lit(syn::ExprLit {
-        lit: syn::Lit::Str(lit_str),
-        ..
-    }) = &input.elems[0]
-    {
-        lit_str.value()
-    } else {
-        return Error::new(
-            Span::call_site(),
-            "First argument must be a string literal for ABI path",
-        )
-        .to_compile_error()
-        .into();
+    let (abi_path, contract_name) = match input.elems.len() {
+        1 => {
+            let abi_path = if let syn::Expr::Lit(syn::ExprLit {
+                lit: syn::Lit::Str(lit_str),
+                ..
+            }) = &input.elems[0]
+            {
+                lit_str.value()
+            } else {
+                return Error::new(
+                    Span::call_site(),
+                    "First argument must be a string literal for ABI path",
+                )
+                .to_compile_error()
+                .into();
+            };
+            let file_name = Path::new(&abi_path)
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("Contract")
+                .to_string();
+            (abi_path, file_name)
+        }
+        2 => {
+            let abi_path = if let syn::Expr::Lit(syn::ExprLit {
+                lit: syn::Lit::Str(lit_str),
+                ..
+            }) = &input.elems[0]
+            {
+                lit_str.value()
+            } else {
+                return Error::new(
+                    Span::call_site(),
+                    "First argument must be a string literal for ABI path",
+                )
+                .to_compile_error()
+                .into();
+            };
+            let contract_name = if let syn::Expr::Lit(syn::ExprLit {
+                lit: syn::Lit::Str(lit_str),
+                ..
+            }) = &input.elems[1]
+            {
+                lit_str.value()
+            } else {
+                return Error::new(
+                    Span::call_site(),
+                    "Second argument must be a string literal for contract name",
+                )
+                .to_compile_error()
+                .into();
+            };
+            (abi_path, contract_name)
+        }
+        _ => {
+            return Error::new(Span::call_site(), "import! macro expects one or two arguments: (abi_path) or (abi_path, contract_name)")
+                .to_compile_error()
+                .into();
+        }
     };
 
-    let contract_name = if let syn::Expr::Lit(syn::ExprLit {
-        lit: syn::Lit::Str(lit_str),
-        ..
-    }) = &input.elems[1]
-    {
-        lit_str.value()
-    } else {
-        return Error::new(
-            Span::call_site(),
-            "Second argument must be a string literal for contract name",
-        )
-        .to_compile_error()
-        .into();
+    // Attempt to locate the contract file using zint::Contract::search
+    let _contract = match Contract::search(&contract_name) {
+        Ok(contract) => contract,
+        Err(e) => {
+            return Error::new(
+                Span::call_site(),
+                format!(
+                    "Failed to find or compile contract '{}': {}",
+                    contract_name, e
+                ),
+            )
+            .to_compile_error()
+            .into();
+        }
     };
 
     let abi_content = match fs::read_to_string(&abi_path) {
@@ -379,13 +448,17 @@ pub fn import(input: TokenStream) -> TokenStream {
                     revm::primitives::Address::from(Address::from(revm::ALICE)),
                     revm::primitives::AccountInfo::from_balance(U256::MAX),
                 );
-
                 // Compile and deploy the specified contract
                 let contract = Contract::search(#contract_name).expect("Contract not found");
                 let bytecode = contract.compile().expect("Compilation failed").bytecode().expect("No bytecode").to_vec();
                 let deployed = evm.contract(&bytecode).deploy(&bytecode).expect("Deploy failed");
                 evm = deployed.evm;
-                evm.commit(true);
+                evm.commit(true); // Commit the deployment
+
+                // Runtime check to ensure the contract is valid
+                if bytecode.is_empty() {
+                        panic!("Contract deployment failed: no bytecode generated");
+                    }
 
                 // Initialize ALICE's balance
                 let mut evm = evm.caller(revm::ALICE);
