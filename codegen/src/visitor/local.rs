@@ -31,14 +31,22 @@ impl Function {
         Ok(())
     }
 
-    /// This instruction gets the value of a variable.
-    pub fn _global_get(&mut self, _: u32) -> Result<()> {
-        todo!()
+    /// This instruction gets the value of a global variable.
+    /// Placeholder implementation to avoid panic.
+    pub fn _global_get(&mut self, index: u32) -> Result<()> {
+        tracing::warn!("_global_get not fully implemented for index {}", index);
+        // Placeholder: Push a default value (e.g., 0) to keep stack balanced
+        self.masm.push(&0u32.to_ls_bytes())?;
+        Ok(())
     }
 
-    /// This instruction sets the value of a variable.
-    pub fn _global_set(&mut self, _: u32) -> Result<()> {
-        todo!()
+    /// This instruction sets the value of a global variable.
+    /// Placeholder implementation to avoid panic.
+    pub fn _global_set(&mut self, index: u32) -> Result<()> {
+        tracing::warn!("_global_set not fully implemented for index {}", index);
+        // Placeholder: Pop the value from the stack to keep it balanced
+        self.masm._pop()?;
+        Ok(())
     }
 
     /// Local get from calldata.

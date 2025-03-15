@@ -107,6 +107,7 @@ zink-codegen.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tiny-keccak.workspace = true
+zingen = { path = "../zink/codegen", version = "0.1.11" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 anyhow.workspace = true

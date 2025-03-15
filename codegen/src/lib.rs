@@ -19,7 +19,7 @@ mod codegen;
 mod control;
 mod jump;
 mod local;
-mod masm;
+pub mod masm;
 mod result;
 mod validator;
 mod visitor;

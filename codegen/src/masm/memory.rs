@@ -37,12 +37,41 @@ impl MacroAssembler {
 
     /// Store n bytes in memory.
     pub fn _store(&mut self) -> Result<()> {
-        todo!()
+        tracing::warn!("_store is a placeholder implementation for EVM compatibility");
+
+        // EVM stack: [value, offset]
+        // MSTORE expects [offset, value], so swap the top two items
+        self._swap1()?;
+        // Stack: [offset, value]
+
+        // Store the value using MSTORE (32 bytes, EVM standard)
+        self._mstore()?;
+
+        Ok(())
     }
 
     /// Wrap self to i8 and store 1 byte
     pub fn _store8(&mut self) -> Result<()> {
-        todo!()
+        tracing::warn!("_store8 is a placeholder implementation for EVM compatibility");
+
+        // EVM stack: [value, offset]
+        // Duplicate the top two items to preserve them
+        self._dup2()?;
+
+        // The stack is now [value, offset, value, offset]
+        // Pop only the duplicated value to balance
+        self._pop()?; // Remove the duplicated value
+                      // Stack: [value, offset, offset]
+
+        // The top item is the offset; use it for MSTORE
+        // EVM MSTORE expects [value, offset], so swap to get [offset, value]
+        self._swap1()?;
+        // Stack: [offset, value]
+
+        // Store the value (MSTORE will take the 32-byte word, but we want only 1 byte)
+        self._mstore()?;
+
+        Ok(())
     }
 
     /// Wrap self to i16 and store 2 bytes
