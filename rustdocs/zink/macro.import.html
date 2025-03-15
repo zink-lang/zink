@@ -1,8 +1,13 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The `import!` macro generates a Rust struct and implementation for interacting with an Ethereum smart contract based on its ABI (Application Binary Interface) and deploys the corresponding contract."><title>import in zink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="zink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (ecade534c 2025-03-14)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-d8ac8691.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../zink/index.html">zink</a><span class="version">0.1.11</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">import</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#syntax" title="Syntax">Syntax</a></li><li><a href="#generated-code" title="Generated Code">Generated Code</a></li><li><a href="#example" title="Example">Example</a></li><li><a href="#requirements" title="Requirements">Requirements</a></li><li><a href="#notes" title="Notes">Notes</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate zink</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">zink</a></div><h1>Macro <span class="macro">import</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/zink_abi_macro/lib.rs.html#285">Source</a> </span></div><pre class="rust item-decl"><code>import!() { <span class="comment">/* proc-macro */</span> }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The <code>import!</code> macro generates a Rust struct and implementation for interacting with an Ethereum
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The `import!` macro generates a Rust struct and implementation for interacting with an Ethereum smart contract based on its ABI (Application Binary Interface) and deploys the corresponding contract."><title>import in zink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="zink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (ecade534c 2025-03-14)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-d8ac8691.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../zink/index.html">zink</a><span class="version">0.1.11</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">import</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#parameters" title="Parameters">Parameters</a></li><li><a href="#generated-code" title="Generated Code">Generated Code</a></li><li><a href="#example" title="Example">Example</a></li><li><a href="#requirements" title="Requirements">Requirements</a></li><li><a href="#notes" title="Notes">Notes</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate zink</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">zink</a></div><h1>Macro <span class="macro">import</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/zink_abi_macro/lib.rs.html#315">Source</a> </span></div><pre class="rust item-decl"><code>import!() { <span class="comment">/* proc-macro */</span> }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The <code>import!</code> macro generates a Rust struct and implementation for interacting with an Ethereum
 smart contract based on its ABI (Application Binary Interface) and deploys the corresponding
 contract.</p>
-<h2 id="syntax"><a class="doc-anchor" href="#syntax">§</a>Syntax</h2>
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="macro">import!</span>(abi_path: <span class="kw-2">&amp;</span>str, contract_name: <span class="kw-2">&amp;</span>str)</code></pre></div>
+<h2 id="parameters"><a class="doc-anchor" href="#parameters">§</a>Parameters</h2>
+<ul>
+<li><code>abi_path</code>: A string literal specifying the path to the ABI JSON file (e.g., <code>"examples/ERC20.json"</code>).</li>
+<li><code>contract_name</code> (optional): A string literal specifying the name of the contract source file (e.g., <code>"my_erc20"</code>)
+without the <code>.rs</code> extension. If omitted, defaults to the base name of the ABI file (e.g., <code>"ERC20"</code> for <code>"ERC20.json"</code>).
+The file must be located in the <code>examples</code> directory or a configured search path.</li>
+</ul>
 <h2 id="generated-code"><a class="doc-anchor" href="#generated-code">§</a>Generated Code</h2>
 <p>The macro generates a struct named after the ABI file’s base name (e.g., <code>ERC20</code> for <code>"ERC20.json"</code>) with:</p>
 <ul>
@@ -12,15 +17,42 @@ contract.</p>
 <li>Methods for each function in the ABI, which encode parameters, call the contract, and decode the results.</li>
 </ul>
 <h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
-<p>See examples/erc20_import.rs</p>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[cfg(feature = <span class="string">"abi-import"</span>)]
+</span><span class="kw">use </span>zink::import;
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>zink::primitives::address::Address;
+    <span class="kw">use </span>zint::revm;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_contract() -&gt; anyhow::Result&lt;()&gt; {
+        <span class="attr">#[cfg(feature = <span class="string">"abi-import"</span>)]
+        </span>{
+            <span class="comment">// Single argument: uses default contract name "ERC20"
+            </span><span class="macro">import!</span>(<span class="string">"examples/ERC20.json"</span>);
+            <span class="kw">let </span>contract_address = Address::from(revm::CONTRACT);
+            <span class="kw">let </span>token = ERC20::new(contract_address);
+            <span class="kw">let </span>decimals = token.decimals()<span class="question-mark">?</span>;
+            <span class="macro">assert_eq!</span>(decimals, <span class="number">18</span>);
+
+            <span class="comment">// Two arguments: specifies custom contract name "my_erc20"
+            </span><span class="macro">import!</span>(<span class="string">"examples/ERC20.json"</span>, <span class="string">"my_erc20"</span>);
+            <span class="kw">let </span>token = MyERC20::new(contract_address);
+            <span class="kw">let </span>decimals = token.decimals()<span class="question-mark">?</span>;
+            <span class="macro">assert_eq!</span>(decimals, <span class="number">8</span>);
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+}</code></pre></div>
 <h2 id="requirements"><a class="doc-anchor" href="#requirements">§</a>Requirements</h2>
 <ul>
 <li>The <code>abi-import</code> feature must be enabled (<code>--features abi-import</code>).</li>
-<li>For <code>wasm32</code> targets, the <code>wasm-alloc</code> feature must be enabled (<code>--features wasm-alloc</code>) to provide a global allocator (<code>wee_alloc</code>).</li>
+<li>For <code>wasm32</code> targets, the <code>wasm-alloc</code> feature must be enabled (<code>--features wasm-alloc</code>) to provide a global allocator (<code>dlmalloc</code>).</li>
 </ul>
 <h2 id="notes"><a class="doc-anchor" href="#notes">§</a>Notes</h2>
 <ul>
-<li>The contract specified by <code>contract_name</code> must exist and be compilable by <code>zint::Contract::search</code>.</li>
+<li>The contract file (defaulting to the ABI base name or specified by <code>contract_name</code>) must exist and be compilable by <code>zint::Contract::search</code>.</li>
 <li>The EVM state is initialized with a default account (<code>ALICE</code>) and deploys the contract on <code>new</code>.</li>
 </ul>
 </div></details></section></div></main></body></html>

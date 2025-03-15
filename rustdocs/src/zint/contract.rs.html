@@ -128,11 +128,13 @@
 <a href=#128 id=128 data-nosnippet>128</a>
 <a href=#129 id=129 data-nosnippet>129</a>    <span class="doccomment">/// Search for zink contract in the target directory.
 <a href=#130 id=130 data-nosnippet>130</a>    </span><span class="kw">pub fn </span>search(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-<a href=#131 id=131 data-nosnippet>131</a>        <span class="kw">crate</span>::setup_logger();
-<a href=#132 id=132 data-nosnippet>132</a>        <span class="kw">let </span>wasm = lookup::wasm(name)<span class="question-mark">?</span>;
-<a href=#133 id=133 data-nosnippet>133</a>        zinkc::utils::wasm_opt(<span class="kw-2">&amp;</span>wasm, <span class="kw-2">&amp;</span>wasm)<span class="question-mark">?</span>;
-<a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="macro">tracing::debug!</span>(<span class="string">"loading contract from {}"</span>, wasm.display());
-<a href=#136 id=136 data-nosnippet>136</a>        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from(fs::read(wasm)<span class="question-mark">?</span>))
-<a href=#137 id=137 data-nosnippet>137</a>    }
-<a href=#138 id=138 data-nosnippet>138</a>}</code></pre></div></section></main></body></html>
+<a href=#131 id=131 data-nosnippet>131</a>        <span class="comment">// TODO(g4titanx): `Contract::search` to fail properly
+<a href=#132 id=132 data-nosnippet>132</a>        // when the contract file isn’t found
+<a href=#133 id=133 data-nosnippet>133</a>        </span><span class="kw">crate</span>::setup_logger();
+<a href=#134 id=134 data-nosnippet>134</a>        <span class="kw">let </span>wasm = lookup::wasm(name)<span class="question-mark">?</span>;
+<a href=#135 id=135 data-nosnippet>135</a>        zinkc::utils::wasm_opt(<span class="kw-2">&amp;</span>wasm, <span class="kw-2">&amp;</span>wasm)<span class="question-mark">?</span>;
+<a href=#136 id=136 data-nosnippet>136</a>
+<a href=#137 id=137 data-nosnippet>137</a>        <span class="macro">tracing::debug!</span>(<span class="string">"loading contract from {}"</span>, wasm.display());
+<a href=#138 id=138 data-nosnippet>138</a>        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from(fs::read(wasm)<span class="question-mark">?</span>))
+<a href=#139 id=139 data-nosnippet>139</a>    }
+<a href=#140 id=140 data-nosnippet>140</a>}</code></pre></div></section></main></body></html>
