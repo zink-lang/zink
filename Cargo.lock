@@ -2726,6 +2726,7 @@ dependencies = [
  "syn 2.0.100",
  "tiny-keccak",
  "zabi",
+ "zint",
 ]
 
 [[package]]

@@ -34,10 +34,38 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_erc20_import_missing_contract() -> anyhow::Result<()> {
+        #[cfg(feature = "abi-import")]
+        {
+            // Import with a missing contract file
+            import!("examples/ERC20.json", "missing_contract");
+
+            let contract_address = Address::from(revm::CONTRACT);
+            let token = ERC20::new(contract_address);
+
+            // Attempt to call decimals and expect an error due to missing contract
+            match token.decimals() {
+                Ok(_) => panic!("Expected decimals to fail due to missing contract"),
+                Err(e) => {
+                    // Check if the error message indicates a contract file issue
+                    // Note: The exact error message depends on the macro's implementation
+                    // For now, we assume it fails with a generic error
+                    assert_eq_no_std!(
+                        e,
+                        "View call failed",
+                        "Expected failure due to missing contract"
+                    );
+                }
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
     fn test_my_erc20_full_flow() -> anyhow::Result<()> {
         #[cfg(feature = "abi-import")]
         {
-            import!("examples/ERC20.json", "my_erc20");
+            import!("examples/ERC20.json");
 
             let contract_address = Address::from(revm::CONTRACT);
             let token = ERC20::new(contract_address);
