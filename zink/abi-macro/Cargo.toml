@@ -20,6 +20,7 @@ serde_json.workspace = true
 zabi = { workspace = true, features = ["bytes", "hex", "selector", "serde", "encoding"] }
 sol-abi.workspace = true
 tiny-keccak = { workspace = true, optional = true, features = [ "sha3", "keccak" ] }
+zint.workspace = true
 
 # This dependency isn't in workspace, we need to add it
 convert_case = "0.6.0"

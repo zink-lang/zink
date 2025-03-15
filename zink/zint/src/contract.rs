@@ -128,6 +128,8 @@ impl Contract {
 
     /// Search for zink contract in the target directory.
     pub fn search(name: &str) -> Result<Self> {
+        // TODO(g4titanx): `Contract::search` to fail properly
+        // when the contract file isn’t found
         crate::setup_logger();
         let wasm = lookup::wasm(name)?;
         zinkc::utils::wasm_opt(&wasm, &wasm)?;
