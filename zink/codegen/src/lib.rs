@@ -8,6 +8,7 @@ use proc_macro2::Span;
 use quote::ToTokens;
 use syn::{parse_macro_input, Attribute, DeriveInput, Expr, ItemFn, ItemStruct, LitStr};
 
+mod contract;
 mod event;
 mod revert;
 mod selector;
@@ -31,6 +32,13 @@ pub fn revert(input: TokenStream) -> TokenStream {
 pub fn assert(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as revert::AssertInput);
     revert::parse_assert(input)
+}
+
+/// Declare contract storage
+#[proc_macro_derive(Storage)]
+pub fn storage_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as ItemStruct);
+    contract::parse(input)
 }
 
 /// Event logging interface

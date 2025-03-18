@@ -14,7 +14,6 @@ fn check_and_update(value: i32) -> bool {
     // This mimics the ERC20 balance check
     if current < value {
         zink::revert!("Not enough balance");
-        // TODO: #287
         return false;
     }
 
@@ -22,7 +21,6 @@ fn check_and_update(value: i32) -> bool {
     return true;
 }
 
-// TODO: identify if the problem is caused by control flow of incorrect opcode mapping. (issue #287)
 #[test]
 fn test_balance_check() -> anyhow::Result<()> {
     use zint::{Bytes32, Contract, EVM};

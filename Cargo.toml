@@ -106,6 +106,7 @@ paste.workspace = true
 zink-codegen.workspace = true
 zink-abi-macro = { path = "zink/abi-macro", optional = true }
 zabi = { path = "zink/abi", version = "0.1.11" }
+smallvec.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tiny-keccak.workspace = true

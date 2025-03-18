@@ -7,8 +7,8 @@ pub use {
     value::{Storage, TransientStorage},
 };
 
-mod dkmapping;
-mod mapping;
+pub mod dkmapping;
+pub mod mapping;
 mod value;
 
 /// Interface for the value of kv based storage

@@ -66,7 +66,7 @@ pub trait DoubleKeyTransientMapping {
 
 /// Load storage key to stack
 #[inline(always)]
-fn load_double_key(key1: impl Asm, key2: impl Asm, index: i32) {
+pub fn load_double_key(key1: impl Asm, key2: impl Asm, index: i32) {
     unsafe {
         ffi::label_reserve_mem_64();
 
