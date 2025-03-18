@@ -126,7 +126,7 @@ fn test_storage() -> anyhow::Result<()> {
 
     let mut evm = EVM::default().commit(true).caller(caller);
     let mut contract = Contract::search("contract")?.compile()?;
-    
+
     // Convert strings to Bytes32
     let name_bytes = "The Zink Language".as_bytes();
     let mut name_array = [0u8; 32];
@@ -135,7 +135,8 @@ fn test_storage() -> anyhow::Result<()> {
 
     let symbol_bytes = "zink".as_bytes();
     let mut symbol_array = [0u8; 32];
-    symbol_array[..symbol_bytes.len().min(32)].copy_from_slice(&symbol_bytes[..symbol_bytes.len().min(32)]);
+    symbol_array[..symbol_bytes.len().min(32)]
+        .copy_from_slice(&symbol_bytes[..symbol_bytes.len().min(32)]);
     let _symbol = Bytes32(symbol_array);
 
     let total_supply_value = U256::from(42u64);
@@ -145,9 +146,18 @@ fn test_storage() -> anyhow::Result<()> {
         &contract
             .construct(
                 [
-                    (ZintU256::from(0).to_le_bytes::<32>(), SmallVec::from_slice(&name_array)),
-                    (ZintU256::from(1).to_le_bytes::<32>(), SmallVec::from_slice(&symbol_array)),
-                    (ZintU256::from(2).to_le_bytes::<32>(), SmallVec::from_slice(&total_supply_value.bytes32())),
+                    (
+                        ZintU256::from(0).to_le_bytes::<32>(),
+                        SmallVec::from_slice(&name_array),
+                    ),
+                    (
+                        ZintU256::from(1).to_le_bytes::<32>(),
+                        SmallVec::from_slice(&symbol_array),
+                    ),
+                    (
+                        ZintU256::from(2).to_le_bytes::<32>(),
+                        SmallVec::from_slice(&total_supply_value.bytes32()),
+                    ),
                 ]
                 .into_iter()
                 .map(|(k, v)| (SmallVec::from_slice(&k), v))
@@ -159,13 +169,25 @@ fn test_storage() -> anyhow::Result<()> {
 
     // Test storage directly via EVM (bypassing contract calls due to revert issue)
     let name_storage = evm.storage(address, ZintU256::from(0).to_le_bytes::<32>())?;
-    assert_eq!(name_storage.to_vec(), name_array.to_vec(), "Name storage mismatch");
+    assert_eq!(
+        name_storage.to_vec(),
+        name_array.to_vec(),
+        "Name storage mismatch"
+    );
 
     let symbol_storage = evm.storage(address, ZintU256::from(1).to_le_bytes::<32>())?;
-    assert_eq!(symbol_storage.to_vec(), symbol_array.to_vec(), "Symbol storage mismatch");
+    assert_eq!(
+        symbol_storage.to_vec(),
+        symbol_array.to_vec(),
+        "Symbol storage mismatch"
+    );
 
     let total_supply_storage = evm.storage(address, ZintU256::from(2).to_le_bytes::<32>())?;
-    assert_eq!(total_supply_storage.to_vec(), total_supply_value.bytes32().to_vec(), "Total supply storage mismatch");
+    assert_eq!(
+        total_supply_storage.to_vec(),
+        total_supply_value.bytes32().to_vec(),
+        "Total supply storage mismatch"
+    );
 
     Ok(())
 }
