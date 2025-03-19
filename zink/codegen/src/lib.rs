@@ -37,8 +37,7 @@ pub fn assert(input: TokenStream) -> TokenStream {
 /// Declare contract storage
 #[proc_macro_derive(Storage)]
 pub fn storage_derive(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemStruct);
-    contract::parse(input)
+    contract::ContractStorage::parse(input)
 }
 
 /// Event logging interface

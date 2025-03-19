@@ -6,12 +6,7 @@ extern crate zink;
 
 use crate::zink::{DoubleKeyMapping as OtherDoubleKeyMapping, Mapping as OtherMapping, Storage};
 #[allow(unused)]
-use smallvec::SmallVec;
 use zink::primitives::{Address, Bytes32, U256};
-
-#[cfg(target_arch = "wasm32")]
-#[global_allocator]
-static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
 
 struct Mapping<K, V>(core::marker::PhantomData<(K, V)>);
 struct DoubleKeyMapping<K1, K2, V>(core::marker::PhantomData<(K1, K2, V)>);
@@ -40,6 +35,7 @@ impl ERC20 {
 
     #[zink::external]
     pub fn transfer(&self, to: Address, value: U256) -> bool {
+        // TODO: Dispatcher misroutes this to _transfer, causing reverts on getters
         let owner = Address::caller();
         self._transfer(owner, to, value);
         true
@@ -54,6 +50,7 @@ impl ERC20 {
 
     #[zink::external]
     pub fn transfer_from(&self, from: Address, to: Address, value: U256) -> bool {
+        // TODO: Dispatcher issue affects this call too
         let spender = Address::caller();
         self._spend_allowance(from, spender, value);
         self._transfer(from, to, value);
@@ -62,6 +59,7 @@ impl ERC20 {
 
     #[no_mangle]
     fn _transfer(&self, from: Address, to: Address, value: U256) {
+        // TODO: Investigate why this is triggered by unrelated getter calls
         if from.eq(Address::empty()) {
             zink::revert!("Empty from address");
         }
@@ -117,7 +115,10 @@ impl ERC20 {
 fn main() {}
 
 #[test]
+#[cfg(not(target_arch = "wasm32"))]
 fn test_storage() -> anyhow::Result<()> {
+    #[allow(unused)]
+    use smallvec::SmallVec;
     use zint::{Contract, EVM, U256 as ZintU256};
 
     let caller_bytes = hex::decode("be862ad9abfe6f22bcb087716c7d89a26051f74c")?;
