@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FieldType"],"fn":["classify_field_type","extract_double_key_mapping_types","extract_mapping_types"],"struct":["ContractStorage"],"trait":["ToUpperCamelCase"]};

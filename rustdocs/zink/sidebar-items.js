@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["external","storage","transient_storage"],"derive":["Event"],"fn":["keccak256","to_bytes32"],"macro":["assert","import","revert"],"mod":["asm","event","ffi","primitives","storage"],"trait":["Asm","Event"]};
+window.SIDEBAR_ITEMS = {"attr":["external","storage","transient_storage"],"derive":["Event","Storage"],"fn":["keccak256","to_bytes32"],"macro":["assert","import","revert"],"mod":["asm","event","ffi","primitives","storage"],"trait":["Asm","Event"]};
