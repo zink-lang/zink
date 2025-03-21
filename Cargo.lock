@@ -2704,6 +2704,7 @@ dependencies = [
  "hex",
  "paste",
  "serde_json",
+ "smallvec",
  "tiny-keccak",
  "tracing",
  "zabi",

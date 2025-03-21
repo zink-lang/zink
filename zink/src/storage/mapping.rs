@@ -59,7 +59,7 @@ pub trait TransientMapping {
 }
 
 /// Load storage key to stack
-fn load_key(key: impl Asm, index: i32) {
+pub fn load_key(key: impl Asm, index: i32) {
     unsafe {
         ffi::label_reserve_mem_32();
 
