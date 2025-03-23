@@ -1,6 +1,7 @@
 //! Zink package manager.
 
 mod build;
+pub mod examples;
 mod new;
 pub mod utils;
 
