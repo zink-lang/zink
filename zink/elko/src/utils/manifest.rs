@@ -74,8 +74,24 @@ impl Default for DevDependencies {
     }
 }
 
-/// Cargo Manifest for the zink project.
+/// Empty workspace to indicate this crate is standalone.
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct Workspace {}
+
+impl Default for Manifest {
+    fn default() -> Self {
+        Self {
+            package: Package::default(),
+            lib: Lib::default(),
+            dependencies: Dependencies::default(),
+            dev_dependencies: Some(DevDependencies::default()),
+            workspace: Workspace::default(),
+        }
+    }
+}
+
+/// Cargo Manifest for the zink project.
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Manifest {
     /// Package section of cargo manifest.
     pub package: Package,
@@ -83,6 +99,12 @@ pub struct Manifest {
     pub lib: Lib,
     /// Dependencies of the cargo project.
     pub dependencies: Dependencies,
+    /// Dev-dependencies of the cargo project.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dev_dependencies: Option<DevDependencies>,
+    /// Empty workspace to indicate this crate is standalone.
+    #[serde(default)]
+    pub workspace: Workspace,
 }
 
 impl Manifest {
