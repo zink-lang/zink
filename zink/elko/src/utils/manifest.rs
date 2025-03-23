@@ -59,6 +59,21 @@ impl Default for Dependencies {
     }
 }
 
+/// Dev-dependencies of the cargo project.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DevDependencies {
+    pub zint: Version,
+}
+
+impl Default for DevDependencies {
+    fn default() -> Self {
+        let zint_version = option_env!("ZINK_VERSION").unwrap_or("0.1.0");
+        Self {
+            zint: Version::parse(zint_version).expect("Invalid zint version format"),
+        }
+    }
+}
+
 /// Cargo Manifest for the zink project.
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Manifest {

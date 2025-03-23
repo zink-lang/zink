@@ -1,42 +1,5 @@
-//! Example templates for initializing Zink projects.
-/// Structure representing a project example.
-pub struct Example {
-    pub lib_rs: &'static str,
-    pub readme: &'static str,
-}
-
-/// Default "addition" example.
-pub const ADDITION: Example = Example {
-    lib_rs: r#"
-//! ${name}
-#![no_std]
-#[cfg(not(test))]
-extern crate zink;
-
-/// Adds two numbers together.
-#[no_mangle]
-pub extern "C" fn addition(x: u64, y: u64) -> u64 {
-    x + y
-}
-"#,
-    readme: r#"
-# ${name}
-
-> An EVM contract written in Rust with [The Zink Project][zink].
-
-## Getting Started
-
-```
-cargo install zinkup
-elko build
-ls target/zink/${name}.bin
-```
-
-[zink]: https://github.com/zink-lang/zink
-"#,
-};
-
-/// ERC20 example based on constructor.rs.
+use crate::examples::Example;
+/// ERC20 example
 pub const ERC20: Example = Example {
     lib_rs: r#"
 //! ${name}
