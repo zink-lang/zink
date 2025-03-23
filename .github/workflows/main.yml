@@ -35,7 +35,7 @@ jobs:
         run: |
             cargo run -p elko -- new addition
             cd addition
-            cargo run -p elko -- build
+            cargo run -p elko --manifest-path ../Cargo.toml -- build
             cargo test
 
   check:
