@@ -47,7 +47,12 @@ impl StorageValue for u32 {
 
 impl StorageValue for u64 {
     fn sload() -> Self {
-        unsafe { ffi::asm::sload_u64() }
+        #[cfg(target_arch = "wasm32")]
+        unsafe {
+            ffi::asm::sload_u64()
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        ffi::asm::sload_u64()
     }
 }
 

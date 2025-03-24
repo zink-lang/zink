@@ -65,10 +65,16 @@ pub fn gasleft() -> Bytes32 {
     properties::gasleft()
 }
 
+#[zink::external]
+pub fn msgdata() -> Bytes32 {
+    properties::msgdata()
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {}
 
 #[cfg(test)]
+#[cfg(not(target_arch = "wasm32"))]
 mod tests {
     use zint::{Bytes32, Contract, EVM};
 
@@ -219,6 +225,19 @@ mod tests {
         let gasleft2 = u64::from_be_bytes(info2.ret[24..].try_into().unwrap());
         let gas2 = 70000 - gasleft2;
         assert_eq!(gas1, gas2);
+        Ok(())
+    }
+
+    #[test]
+    fn test_msg_data() -> anyhow::Result<()> {
+        let mut evm = EVM::default().commit(true);
+        let contract = Contract::search("properties")?.compile()?;
+        let address = evm.deploy(&contract.bytecode()?)?.address;
+
+        let info = evm
+            .calldata(&contract.encode(["msgdata()".as_bytes()])?)
+            .call(address)?;
+        assert_eq!(info.ret, 1u64.to_bytes32(), "{info:?}");
         Ok(())
     }
 }

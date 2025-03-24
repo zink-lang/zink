@@ -60,3 +60,11 @@ pub fn timestamp() -> u64 {
 pub fn gasprice() -> u64 {
     unsafe { ffi::evm::gasprice() }
 }
+
+/// Get complete calldata.
+pub fn msgdata() -> Bytes32 {
+    unsafe {
+        ffi::evm::push1(0);
+        ffi::evm::calldataload()
+    }
+}
