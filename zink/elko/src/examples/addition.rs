@@ -18,15 +18,23 @@ fn main() {}
 
 #[cfg(test)]
 mod tests {
-    use zint::Contract;
+    use std::{fs, path::Path};
+    use zint::{EVM, Bytes32};
 
     #[test]
     fn test_addition() {
-        // Build the contract first (assumes `elko build` has run)
-        let contract = Contract::search("addition").expect("Failed to find addition contract");
-        let result = contract
-            .call(&[2u64.to_le_bytes().to_vec(), 3u64.to_le_bytes().to_vec()])
-            .expect("Failed to call addition");
+        // Assumes `elko build` has run and produced target/zink/addition.bin
+        let bytecode = fs::read("target/zink/addition.bin").expect("Failed to read addition.bin");
+        let inputs = vec![
+            2u64.to_le_bytes().to_vec(),
+            3u64.to_le_bytes().to_vec(),
+        ];
+        let calldata = inputs.iter().fold(Vec::new(), |mut acc, input| {
+            acc.extend_from_slice(&input.to_bytes32());
+            acc
+        });
+        let info = EVM::interp(&bytecode, &calldata).expect("Failed to execute addition");
+        let result = info.ret;
         let expected = 5u64.to_le_bytes().to_vec();
         assert_eq!(result, expected, "addition(2, 3) should return 5");
     }
