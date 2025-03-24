@@ -7,6 +7,16 @@ pub const ADDITION: Example = Example {
 #[cfg(not(test))]
 extern crate zink;
 
+// Only use std for tests, and only on non-WASM targets
+#[cfg(all(test, not(target_arch = "wasm32")))]
+use std::{fs, path::Path, vec};
+
+// Use `alloc` for Vec in no_std environments (but we only need it for tests)
+#[cfg(all(test, target_arch = "wasm32"))]
+extern crate alloc;
+#[cfg(all(test, target_arch = "wasm32"))]
+use alloc::vec;
+
 /// Adds two numbers together.
 #[no_mangle]
 pub extern "C" fn addition(x: u64, y: u64) -> u64 {
@@ -18,6 +28,7 @@ fn main() {}
 
 #[cfg(test)]
 mod tests {
+    #[cfg(not(target_arch = "wasm32"))]
     use std::{fs, path::Path};
     use zint::{EVM, Bytes32};
 
