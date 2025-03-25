@@ -61,6 +61,7 @@ impl Default for Dependencies {
 
 /// Dev-dependencies of the cargo project.
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename = "dev-dependencies")]
 pub struct DevDependencies {
     pub zint: Version,
 }
@@ -101,6 +102,7 @@ pub struct Manifest {
     pub dependencies: Dependencies,
     /// Dev-dependencies of the cargo project.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "dev-dependencies")]
     pub dev_dependencies: Option<DevDependencies>,
     /// Empty workspace to indicate this crate is standalone.
     #[serde(default)]

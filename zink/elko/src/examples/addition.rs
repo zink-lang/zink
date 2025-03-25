@@ -7,15 +7,8 @@ pub const ADDITION: Example = Example {
 #[cfg(not(test))]
 extern crate zink;
 
-// Only use std for tests, and only on non-WASM targets
 #[cfg(all(test, not(target_arch = "wasm32")))]
-use std::{fs, path::Path, vec};
-
-// Use `alloc` for Vec in no_std environments (but we only need it for tests)
-#[cfg(all(test, target_arch = "wasm32"))]
 extern crate alloc;
-#[cfg(all(test, target_arch = "wasm32"))]
-use alloc::vec;
 
 /// Adds two numbers together.
 #[no_mangle]
@@ -28,25 +21,26 @@ fn main() {}
 
 #[cfg(test)]
 mod tests {
-    #[cfg(not(target_arch = "wasm32"))]
-    use std::{fs, path::Path};
-    use zint::{EVM, Bytes32};
+    use zint::Contract;
+    use alloc::vec;
 
     #[test]
     fn test_addition() {
-        // Assumes `elko build` has run and produced target/zink/addition.bin
-        let bytecode = fs::read("target/zink/addition.bin").expect("Failed to read addition.bin");
+        // Assumes `elko build` has run and produced target/zink/addition.wasm
+        let contract = Contract::search("addition").expect("Failed to find addition contract");
+        let mut contract = contract
+            .pure()
+            .compile()
+            .expect("Failed to compile contract");
         let inputs = vec![
             2u64.to_le_bytes().to_vec(),
             3u64.to_le_bytes().to_vec(),
         ];
-        let calldata = inputs.iter().fold(Vec::new(), |mut acc, input| {
-            acc.extend_from_slice(&input.to_bytes32());
-            acc
-        });
-        let info = EVM::interp(&bytecode, &calldata).expect("Failed to execute addition");
+        let info = contract.execute(&inputs).expect("Failed to execute addition");
         let result = info.ret;
-        let expected = 5u64.to_le_bytes().to_vec();
+        let mut expected = [0u8; 32];
+        let expected_bytes = 5u64.to_le_bytes();
+        expected[24..32].copy_from_slice(&expected_bytes);
         assert_eq!(result, expected, "addition(2, 3) should return 5");
     }
 }
