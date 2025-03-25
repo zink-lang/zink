@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["build","new","utils"],"struct":["Build","Compile","New"]};
+window.SIDEBAR_ITEMS = {"mod":["build","examples","new","utils"],"struct":["Build","Compile","New"]};

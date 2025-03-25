@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Dependencies","Lib","Manifest","Package"]};
+window.SIDEBAR_ITEMS = {"struct":["Dependencies","DevDependencies","Lib","Manifest","Package","Workspace"]};
