@@ -20,3 +20,7 @@ thiserror.workspace = true
 toml.workspace = true
 tracing.workspace = true
 zinkc = { workspace = true, features = [ "cli" ] }
+tempfile.workspace = true
+
+[build-dependencies]
+cargo_metadata.workspace = true

@@ -58,11 +58,22 @@ impl Build {
             builder.build()?;
         }
 
+        // Copy the WASM file to target/zink/
+        let wasm_path = builder.output()?;
+        let wasm_dest = wasm_path
+            .with_extension("wasm")
+            .parent()
+            .unwrap()
+            .join("zink")
+            .join(wasm_path.file_name().unwrap());
+        fs::create_dir_all(wasm_dest.parent().unwrap())?;
+        fs::copy(&wasm_path, &wasm_dest)?;
+
         // Compile the wasm to evm bytecode.
-        let wasm = fs::read(builder.output()?)?;
+        let wasm = fs::read(&wasm_path)?;
         let config = Config::default().dispatcher(self.config.dispatcher);
         let artifact = Compiler::new(config).compile(&wasm)?;
-        let dst = builder.output()?.with_extension("bin");
+        let dst = wasm_path.with_extension("bin");
 
         fs::write(dst, artifact.runtime_bytecode)?;
         Ok(())

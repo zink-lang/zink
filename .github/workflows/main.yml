@@ -30,6 +30,13 @@ jobs:
 
       - name: Run Example Tests
         run: cargo nextest run --workspace --no-fail-fast --release --examples
+        
+      - name: Test Elko Addition Example
+        run: |
+            cargo run -p elko -- new addition
+            cd addition
+            cargo run -p elko --manifest-path ../Cargo.toml -- build
+            cargo test
 
   check:
     name: Check

@@ -9,6 +9,7 @@ use ccli::clap;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Config {
     /// If enable dispatcher.
+    #[cfg_attr(feature = "cli", clap(long))]
     pub dispatcher: bool,
 }
 

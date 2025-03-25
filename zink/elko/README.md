@@ -12,7 +12,7 @@ cargo install zinkup --features elko
 elko
 Package manager of zink.
 
-Usage: elko [OPTIONS] <COMMAND>
+Usage: elko <COMMAND> [OPTIONS]
 
 Commands:
   new    Create a new zink project
@@ -22,8 +22,27 @@ Commands:
 Options:
   -v, --verbose...  Verbose mode (-v, -vv, -vvv, etc.)
   -h, --help        Print help
-  -V, --version     Print version
+  -V, --version     Print version 
+  --example <EXAMPLE>  Specify an example template for `new` (e.g., "erc20", "addition"; defaults to "addition" if not set)
 ```
+
+Examples:
+  - Create a basic addition project:
+    ```bash
+    elko new myproj
+    cd myproj
+    elko build
+    ```
+  - Create an ERC20 token project:
+    ```bash
+    elko new mytoken --example erc20
+    cd mytoken
+    elko build
+    ```
+
+Notes:
+  - Create a project directory with `elko new` before running `elko build`.
+  - Subcommand options (like `--example`) apply after the command (e.g., `elko new mytoken --example erc20`).
 
 ## LICENSE
 
