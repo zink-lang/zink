@@ -23,9 +23,12 @@ pub trait Storage {
     fn set(value: Self::Value) {
         value.push();
         Asm::push(Self::STORAGE_SLOT);
+        #[cfg(target_arch = "wasm32")]
         unsafe {
             ffi::evm::sstore();
         }
+        #[cfg(not(target_arch = "wasm32"))]
+        ffi::evm::sstore();
     }
 }
 
@@ -47,8 +50,11 @@ pub trait TransientStorage {
     fn set(value: Self::Value) {
         value.push();
         Asm::push(Self::STORAGE_SLOT);
+        #[cfg(target_arch = "wasm32")]
         unsafe {
             ffi::evm::tstore();
         }
+        #[cfg(not(target_arch = "wasm32"))]
+        ffi::evm::tstore();
     }
 }
