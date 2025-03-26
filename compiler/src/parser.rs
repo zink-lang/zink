@@ -105,6 +105,15 @@ impl<'p> Parser<'p> {
             index,
         })) = iter.next()
         {
+            if let Some(existing) = exports.get(&index) {
+                return Err(anyhow::anyhow!(
+                    "duplicate function: {name} and {existing} are sharing the same logic, \
+                    consider removing one of them, see https://github.com/zink-lang/zink/issues/319 \
+                    for more details."
+                )
+                .into());
+            }
+
             exports.insert(index, name.into());
         }
 
