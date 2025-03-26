@@ -23,8 +23,10 @@ impl U256 {
     #[inline(always)]
     pub fn add(self, other: Self) -> Self {
         #[cfg(target_arch = "wasm32")]
-        unsafe { ffi::u256_add(self, other) }
-        
+        unsafe {
+            ffi::u256_add(self, other)
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         ffi::u256_add(self, other)
     }
@@ -33,8 +35,10 @@ impl U256 {
     #[inline(always)]
     pub fn lt(self, other: Self) -> bool {
         #[cfg(target_arch = "wasm32")]
-        unsafe { ffi::u256_lt(other, self) }
-        
+        unsafe {
+            ffi::u256_lt(other, self)
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         ffi::u256_lt(other, self)
     }
@@ -49,8 +53,10 @@ impl U256 {
     #[inline(always)]
     pub fn sub(self, other: Self) -> Self {
         #[cfg(target_arch = "wasm32")]
-        unsafe { ffi::u256_sub(other, self) }
-        
+        unsafe {
+            ffi::u256_sub(other, self)
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         ffi::u256_sub(other, self)
     }
@@ -65,8 +71,10 @@ impl U256 {
     #[inline(always)]
     pub fn max() -> Self {
         #[cfg(target_arch = "wasm32")]
-        unsafe { ffi::u256_max() }
-        
+        unsafe {
+            ffi::u256_max()
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         ffi::u256_max()
     }
@@ -83,8 +91,10 @@ impl U256 {
     #[inline(always)]
     pub fn addmod(self, other: Self, modulus: Self) -> Self {
         #[cfg(target_arch = "wasm32")]
-        unsafe { ffi::u256_addmod(modulus, other, self) }
-        
+        unsafe {
+            ffi::u256_addmod(modulus, other, self)
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         ffi::u256_addmod(modulus, other, self)
     }
@@ -93,8 +103,10 @@ impl U256 {
     #[inline(always)]
     pub fn mulmod(self, other: Self, modulus: Self) -> Self {
         #[cfg(target_arch = "wasm32")]
-        unsafe { ffi::u256_mulmod(modulus, other, self) }
-        
+        unsafe {
+            ffi::u256_mulmod(modulus, other, self)
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         ffi::u256_mulmod(modulus, other, self)
     }
@@ -107,8 +119,10 @@ impl Sub for U256 {
     #[inline(always)]
     fn sub(self, other: Self) -> Self::Output {
         #[cfg(target_arch = "wasm32")]
-        unsafe { ffi::u256_sub(self, other) }
-        
+        unsafe {
+            ffi::u256_sub(self, other)
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         ffi::u256_sub(self, other)
     }
@@ -121,7 +135,7 @@ impl Asm for U256 {
         unsafe {
             ffi::bytes::push_bytes32(self.0)
         }
-        
+
         #[cfg(not(target_arch = "wasm32"))]
         ffi::bytes::push_bytes32(self.0)
     }
@@ -136,8 +150,10 @@ impl StorageValue for U256 {
     #[inline(always)]
     fn sload() -> Self {
         #[cfg(target_arch = "wasm32")]
-        { Self(unsafe { ffi::bytes::sload_bytes32() }) }
-        
+        {
+            Self(unsafe { ffi::bytes::sload_bytes32() })
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         Self(ffi::bytes::sload_bytes32())
     }
@@ -147,8 +163,10 @@ impl TransientStorageValue for U256 {
     #[inline(always)]
     fn tload() -> Self {
         #[cfg(target_arch = "wasm32")]
-        { Self(unsafe { ffi::bytes::tload_bytes32() }) }
-        
+        {
+            Self(unsafe { ffi::bytes::tload_bytes32() })
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         Self(ffi::bytes::tload_bytes32())
     }

@@ -20,7 +20,9 @@ impl Address {
     #[inline(always)]
     pub fn caller() -> Self {
         #[cfg(target_arch = "wasm32")]
-        unsafe { ffi::evm::caller() }
+        unsafe {
+            ffi::evm::caller()
+        }
         #[cfg(not(target_family = "wasm"))]
         ffi::evm::caller()
     }

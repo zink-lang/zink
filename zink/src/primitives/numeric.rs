@@ -36,7 +36,7 @@ macro_rules! impl_numeric {
                 fn addmod(self, other: Self, n: Self) -> Self {
                     #[cfg(target_arch = "wasm32")]
                     unsafe { ffi::asm::$addmod_fn(n, other, self) }
-                    
+
                     #[cfg(not(target_arch = "wasm32"))]
                     ffi::asm::$addmod_fn(n, other, self)
                 }
@@ -44,7 +44,7 @@ macro_rules! impl_numeric {
                 fn mulmod(self, other: Self, n: Self) -> Self {
                     #[cfg(target_arch = "wasm32")]
                     unsafe { ffi::asm::$mulmod_fn(n, other, self) }
-                    
+
                     #[cfg(not(target_arch = "wasm32"))]
                     ffi::asm::$mulmod_fn(n, other, self)
                 }
@@ -191,7 +191,7 @@ impl SafeNumeric for U256 {
         let result = unsafe { ffi::u256_add(self, rhs) };
         #[cfg(not(target_arch = "wasm32"))]
         let result = ffi::u256_add(self, rhs);
-        
+
         if result < self {
             local_revert!("addition overflow");
         }
@@ -203,7 +203,6 @@ impl SafeNumeric for U256 {
         #[cfg(target_arch = "wasm32")]
         let result = unsafe { ffi::u256_sub(self, rhs) };
         #[cfg(not(target_arch = "wasm32"))]
-        
         let result = ffi::u256_sub(self, rhs);
         if result > self {
             local_revert!("subtraction overflow");
@@ -217,7 +216,6 @@ impl SafeNumeric for U256 {
         #[cfg(target_arch = "wasm32")]
         let result = unsafe { ffi::u256_mulmod(self, rhs, max) };
         #[cfg(not(target_arch = "wasm32"))]
-        
         let result = ffi::u256_mulmod(self, rhs, max);
         // Check if result exceeds max when rhs > 1
         if rhs > Self::min() && result > self && result > rhs && result > max - self {
