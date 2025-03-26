@@ -190,7 +190,4 @@ extern "C" {
 
     /// Get the gas price of the transaction.
     pub fn gasprice() -> u64;
-
-    /// Get input data of current environment.
-    pub fn calldataload() -> Bytes32;
 }
