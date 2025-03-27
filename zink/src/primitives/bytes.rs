@@ -5,6 +5,7 @@ use paste::paste;
 macro_rules! impl_bytes {
     ($count:expr) => {
         paste! {
+            #[repr(C)]
             #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
             pub struct [<Bytes $count>] (
                 #[allow(unused)]
@@ -29,14 +30,20 @@ macro_rules! impl_bytes {
                 #[inline(always)]
                 pub fn eq(self, other: Self) -> bool {
                     paste::paste! {
+                        #[cfg(target_arch = "wasm32")]
                         unsafe { ffi::bytes::[< bytes $count _eq >](self, other) }
+                        #[cfg(not(target_arch = "wasm32"))]
+                        ffi::bytes::[< bytes $count _eq >](self, other)
                     }
                 }
             }
 
             impl Asm for [<Bytes $count>] {
                 fn push(self) {
+                    #[cfg(target_arch = "wasm32")]
                     unsafe { ffi::bytes::[<push_bytes $count>](self) }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    ffi::bytes::[<push_bytes $count>](self)
                 }
 
                 #[cfg(not(target_family = "wasm"))]
@@ -49,7 +56,10 @@ macro_rules! impl_bytes {
 
             impl StorageValue for [<Bytes $count>] {
                 fn sload() -> Self {
+                    #[cfg(target_arch = "wasm32")]
                     unsafe { ffi::bytes::[<sload_bytes $count>]() }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    ffi::bytes::[<sload_bytes $count>]()
                 }
             }
         }

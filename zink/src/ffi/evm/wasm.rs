@@ -1,11 +1,9 @@
-//! EVM FFI.
-
 use crate::primitives::{Address, Bytes32};
 
 #[link(wasm_import_module = "evm")]
 #[allow(improper_ctypes)]
 extern "C" {
-    /// Push 1 byte to the stack.
+    // Stack operations
     pub fn push0();
 
     /// Push 1 byte to the stack.
@@ -101,13 +99,11 @@ extern "C" {
     /// Push 31 bytes to the stack.
     pub fn push31(val: i32);
 
-    /// Push 32 bytes to the stack.
+    /// Push 31 bytes to the stack.
     pub fn push32();
 
-    /// Store a value in the storage
+    // Storage operations
     pub fn sstore();
-
-    /// Load a value from the storage
     pub fn sload();
 
     /// Store a value in the transient storage
@@ -116,7 +112,7 @@ extern "C" {
     /// Load a value from the transient storage
     pub fn tload();
 
-    /// Save word to memory
+    // Memory operations
     pub fn mstore();
 
     /// Save byte to memory
@@ -128,10 +124,10 @@ extern "C" {
     /// Copy memory to memory
     pub fn mcopy();
 
-    /// Compute Keccak-256 hash
+    // Cryptographic operations
     pub fn keccak256();
 
-    /// Get the current message sender
+    // Environmental operations
     pub fn caller() -> Address;
 
     /// Get the current blob hash at index
@@ -143,16 +139,12 @@ extern "C" {
     /// Append log record with no topics
     pub fn log0(name: &'static [u8]);
 
-    /// Append log record with one topic
     pub fn log1(topic1: Bytes32, name: &'static [u8]);
 
-    /// Append log record with two topics
     pub fn log2(topic1: Bytes32, topic2: Bytes32, name: &'static [u8]);
 
-    /// Append log record with three topics
     pub fn log3(topic1: Bytes32, topic2: Bytes32, topic3: Bytes32, name: &'static [u8]);
 
-    /// Append log record with four topics
     pub fn log4(
         topic1: Bytes32,
         topic2: Bytes32,
