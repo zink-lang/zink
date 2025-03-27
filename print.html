@@ -1175,6 +1175,18 @@ embedded in this library.</p>
 <h2 id="test-utils"><a class="header" href="#test-utils">Test utils</a></h2>
 <p><code>/zint</code> is the testing library for zink projects, it is currently just a wrapper
 of <code>evm</code>, we need really a lot of features in this in <code>v0.3.0</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="bounties"><a class="header" href="#bounties">Bounties</a></h1>
+<p>We have bounty issues layout in <a href="https://zink-lang.org/bounties">zink-lang.org</a>.</p>
+<p>If you are solving a bounty issue, please add your wallet address in your PR description, We
+will send you the bounty once the PR is merged.</p>
+<p>for example:</p>
+<pre><code class="language-md">## Changes
+
+- [x] step 1
+- [ ] ...
+
+Polygon Address: `0x0000000000000000000000000000000000000000`
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="building"><a class="header" href="#building">Building</a></h1>
 <p>This section describes everything required to build and run zink.</p>
 <h2 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h2>
@@ -1196,6 +1208,21 @@ cargo b --release
 </code></pre>
 <p>The built wasm binaries will be localted at <code>examples/target/wasm32-unknown-unknown/realease/*.wasm</code>,
 then, you can you <code>zinkc</code> to compile them to EVM bytecode!</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="shortcuts"><a class="header" href="#shortcuts">Shortcuts</a></h2>
+<p>while developing zink, you may find the shortcuts below helpful:</p>
+<pre><code class="language-bash"># Clippy all packages
+cargo cc
+
+# Run all tests
+cargo tt
+
+# Build all examples
+cargo be
+
+# Run tests for examples
+cargo te
+</code></pre>
+<p>They are layout in <a href="https://github.com/zink-lang/zink/blob/main/.cargo/config.toml"><code>/.cargo/config.toml</code></a></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
 <p>This section describes how to run Zink’s tests and add new tests.</p>
 <p>Before continuing, make sure you can build Zink successfully. Can’t
