@@ -7,8 +7,8 @@ use crate::{
 
 /// Account address
 #[repr(C)]
-#[derive(Clone, Copy)]
-pub struct Address(Bytes20);
+#[derive(Clone, Copy, Debug)]
+pub struct Address(pub Bytes20);
 
 impl Address {
     /// Returns empty address

@@ -11,7 +11,7 @@ use core::ops::Sub;
 /// Account address
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
-pub struct U256(Bytes32);
+pub struct U256(pub Bytes32);
 
 impl U256 {
     /// Returns empty value  

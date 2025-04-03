@@ -6,8 +6,23 @@ extern crate zink;
 
 use zink::{
     primitives::{Address, String32, U256},
-    DoubleKeyMapping, Mapping, Storage,
+    DoubleKeyMapping, Event, Mapping, Storage,
 };
+use crate::zink::Asm;
+
+#[derive(Event)]
+pub enum DebugEvent {
+    Caller(Address),
+    FromAddr(Address),
+    Balance(U256),
+    Insufficient(U256, U256),
+    TestLog(U256),
+}
+
+#[zink::external]
+pub fn test_log(value: U256) {
+    DebugEvent::TestLog(value).emit();
+}
 
 #[zink::storage(String32)]
 pub struct Name;
@@ -40,6 +55,8 @@ pub fn decimals() -> u32 {
 #[zink::external]
 pub fn transfer(to: Address, value: U256) -> bool {
     let owner = Address::caller();
+    DebugEvent::Caller(owner).emit();
+    DebugEvent::TestLog(value).emit();
     _transfer(owner, to, value);
     true
 }
@@ -78,18 +95,22 @@ fn _update(from: Address, to: Address, value: U256) {
         TotalSupply::set(TotalSupply::get().add(value));
     } else {
         let from_balance = Balances::get(from);
-
+        DebugEvent::FromAddr(from).emit();
+        DebugEvent::Balance(from_balance).emit();
         if from_balance.lt(value) {
+            DebugEvent::Insufficient(from_balance, value).emit();
             zink::revert!("Insufficient balance");
         }
-
+        
         Balances::set(from, from_balance.sub(value));
+        DebugEvent::TestLog(from_balance).emit();
     }
 
     if to.eq(Address::empty()) {
         TotalSupply::set(TotalSupply::get().sub(value));
     } else {
-        TotalSupply::set(TotalSupply::get().add(value));
+        let to_balance = Balances::get(to);
+        Balances::set(to, to_balance.add(value));
     }
 }
 
@@ -153,7 +174,7 @@ fn deploy() -> anyhow::Result<()> {
     let name = "The Zink Language";
     let symbol = "zink";
     let value = 42;
-    //let half_value = 21;
+    let half_value = 21;
 
     // 1. deploy
     let info = evm.deploy(
@@ -241,6 +262,13 @@ fn deploy() -> anyhow::Result<()> {
         assert_eq!(info.ret, allowance);
     }
 
+    // Test log emission
+    let info = contract.execute(&[
+        b"test_log(uint256)".to_vec(),
+        U256::from(42).0.bytes32().to_vec(),
+    ])?;
+    println!("Test log result: {info:?}");
+
     // 4. check transfer
     {
         // 4.1. verify balance of the caller
@@ -252,9 +280,24 @@ fn deploy() -> anyhow::Result<()> {
             .call(address)?;
         assert_eq!(info.ret, value.to_bytes32(), "{info:?}");
 
+        // Debug: Check balance immediately before transfer
+        let balance_before = evm.storage(address, Balances::storage_key(Address::from(caller)))?;
+        println!("Balance in storage before transfer: {:?}", balance_before);
+        let info = evm
+            .calldata(&contract.encode(&[
+                b"balances(address)".to_vec(),
+                evm.caller.to_bytes32().to_vec(),
+            ])?)
+            .call(address)?;
+        println!("Balance via balances() before transfer: {:?}", info.ret);
+
         //  TODO: see br_balance.rs (#287)
         // 4.2. check transfer
-        /* evm = evm.commit(false);
+        evm = evm.commit(false);
+        println!(
+            "EVM storage after commit(false): {:?}",
+            evm.storage(address, Balances::storage_key(Address::from(caller)))?
+        );
         let info = evm
             .calldata(&contract.encode(&[
                 b"transfer(address,uint256)".to_vec(),
@@ -262,8 +305,9 @@ fn deploy() -> anyhow::Result<()> {
                 half_value.to_bytes32().to_vec(),
             ])?)
             .call(address)?;
-        println!("{info:?}");
-        assert_eq!(info.ret, true.to_bytes32(), "{info:?}"); */
+        println!("Transfer result: {info:?}");
+        println!("Logs: {:?}", info.logs);
+        assert_eq!(info.ret, true.to_bytes32(), "{info:?}");
     }
 
     Ok(())

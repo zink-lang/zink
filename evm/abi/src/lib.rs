@@ -1,6 +1,6 @@
 //! Solidity ABI implementation
 //!
-//! https://docs.soliditylang.org/en/latest/abi-spec.html#json
+//! <https://docs.soliditylang.org/en/latest/abi-spec.html#json>
 #![deny(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
