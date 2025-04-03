@@ -12,12 +12,13 @@ members = [
   "zink/abi",
   "zink/codegen",
   "zink/elko",
-  "zink/zint", "zink/abi-macro",
+  "zink/zint",
+  "zink/abi-macro",
 ]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.11"
+version = "0.1.12"
 authors = ["clearloop"]
 edition = "2021"
 license = "GPL-3.0-only"
@@ -56,20 +57,20 @@ wasmparser = "0.121.0"
 wat = "1.0.85"
 
 ## EVM packages
-opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.4", features = [
+opcodes = { package = "evm-opcodes", path = "evm/opcodes", version = "=0.0.5", features = [
   "data",
 ] }
 sol-abi = { path = "evm/abi", version = "=0.0.1" }
 
 ## Zink packages
-elko = { path = "elko", version = "0.1.11" }
-filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.11" }
-zabi = { path = "zink/abi", version = "0.1.11" }
-zingen = { path = "codegen", version = "0.1.11" }
-zink = { path = ".", version = "0.1.11" }
-zink-codegen = { path = "zink/codegen", version = "0.1.11" }
-zinkc = { path = "compiler", version = "0.1.11" }
-zint = { path = "zink/zint", version = "0.1.11" }
+elko = { path = "elko", version = "0.1.12" }
+filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.12" }
+zabi = { path = "zink/abi", version = "0.1.12" }
+zingen = { path = "codegen", version = "0.1.12" }
+zink = { path = ".", version = "0.1.12" }
+zink-codegen = { path = "zink/codegen", version = "0.1.12" }
+zinkc = { path = "compiler", version = "0.1.12" }
+zint = { path = "zink/zint", version = "0.1.12" }
 
 [workspace.metadata.conta]
 packages = [
