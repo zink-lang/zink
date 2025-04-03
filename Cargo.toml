@@ -68,6 +68,7 @@ filetests = { package = "zinkc-filetests", path = "compiler/filetests", version 
 zabi = { path = "zink/abi", version = "0.1.12" }
 zingen = { path = "codegen", version = "0.1.12" }
 zink = { path = ".", version = "0.1.12" }
+zink-abi-macro = { path = "zink/abi-macro", version = "0.1.12" }
 zink-codegen = { path = "zink/codegen", version = "0.1.12" }
 zinkc = { path = "compiler", version = "0.1.12" }
 zint = { path = "zink/zint", version = "0.1.12" }
@@ -80,6 +81,7 @@ packages = [
   "filetests",
   "zint",
   "zink-codegen",
+  "zink-abi-macro",
   "zink",
   "elko",
 ]
@@ -106,8 +108,8 @@ path = "zink/src/lib.rs"
 fmt = "0.1.0"
 paste.workspace = true
 zink-codegen.workspace = true
-zink-abi-macro = { path = "zink/abi-macro", optional = true }
-zabi = { path = "zink/abi", version = "0.1.11" }
+zink-abi-macro = { workspace = true, optional = true }
+zabi.workspace = true
 smallvec.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

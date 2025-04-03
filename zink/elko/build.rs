@@ -12,7 +12,7 @@ fn main() {
     let zink_version = metadata
         .packages
         .iter()
-        .find(|p| p.name == "zink")
+        .find(|p| p.name == "zinkc")
         .map(|p| p.version.to_string())
         .expect("Could not find zink dependency in metadata");
 

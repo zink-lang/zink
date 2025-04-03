@@ -15,12 +15,15 @@ cargo_metadata.workspace = true
 colored.workspace = true
 etc.workspace = true
 semver.workspace = true
-serde = { workspace = true, features = [ "derive" ] }
+serde = { workspace = true, features = ["derive"] }
 thiserror.workspace = true
 toml.workspace = true
 tracing.workspace = true
-zinkc = { workspace = true, features = [ "cli" ] }
+zinkc = { workspace = true, features = ["cli"] }
 tempfile.workspace = true
+
+[dev-dependencies]
+zint.workspace = true
 
 [build-dependencies]
 cargo_metadata.workspace = true
