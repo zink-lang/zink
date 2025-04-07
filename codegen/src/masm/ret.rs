@@ -5,7 +5,7 @@ use wasmparser::ValType;
 
 impl MacroAssembler {
     /// Return with nothing.
-    pub(crate) fn handle_empty_return(&mut self) -> Result<()> {
+    pub(crate) fn _handle_empty_return(&mut self) -> Result<()> {
         self._push0()?;
         self._push0()?;
         self.asm._return()?;
@@ -16,34 +16,38 @@ impl MacroAssembler {
     /// Handle the end of the main function.
     pub fn main_return(&mut self, results: &[ValType]) -> Result<()> {
         if results.is_empty() {
-            return self.handle_empty_return();
+            self._push0()?;
+            self._push0()?;
+            self.asm._return()?;
+        } else {
+            self._push0()?; // Offset 0
+            self._mstore()?; // Store result
+            self.push(&32u32.to_ls_bytes())?; // Size 32
+            self._push0()?; // Offset 0
+            self.asm._return()?;
         }
 
-        let size = self.memory_write(results)?.size;
-        let offset =
-            self.mp_offset(|mp| mp.checked_sub(size).ok_or_else(|| Error::InvalidMP(0)))?;
-
-        self.push(&size.to_ls_bytes())?;
-        self.push(&offset)?;
-        self.asm._return()?;
         Ok(())
     }
 
     /// Handle the return of a call.
     pub fn call_return(&mut self, results: &[ValType]) -> Result<()> {
-        let len = results.len() as u16;
+        let expected_sp = results.len() as u16 + 1; // Results + return PC
+        if self.sp() < expected_sp {
+            return Err(Error::StackUnderflow {
+                expected: expected_sp,
+                found: self.sp(),
+            });
+        }
 
-        tracing::trace!("cleaning frame stack, target: {}", len + 1);
-        // TODO: clean stacks via the count of nested control stacks.
-        while self.sp() > len + 1 {
+        while self.sp() > expected_sp {
             self._drop()?;
         }
 
-        // Shift stack to prompt the jump instruction,
-        // what about just dup it?
-        //
-        // TODO: handle the length of results > u8::MAX.
-        self.shift_stack(len, false)?;
-        self._jump()
+        if !results.is_empty() {
+            self._swap1()?; // Result over return PC, SP = expected_sp
+        }
+        self._jump()?; // Jump back to caller
+        Ok(())
     }
 }

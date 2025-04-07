@@ -267,4 +267,17 @@ impl MacroAssembler {
 
         Ok(())
     }
+
+    ///
+    pub fn set_sp(&mut self, value: u16) -> Result<()> {
+        if value > 1024 {
+            // EVM stack limit
+            return Err(Error::StackOverflow {
+                expected: self.sp(), // Current SP before overflow
+                found: value,        // Attempted SP exceeding limit
+            });
+        }
+        self.asm.sp = value;
+        Ok(())
+    }
 }

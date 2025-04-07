@@ -13,7 +13,9 @@ impl MacroAssembler {
         self.push(&[1])?;
         // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
-        self.asm._lt()
+        self.asm._lt()?; // a b-1 lt -> a < b-1 -> a <= b
+        self.asm._iszero()?; // Invert: a >= b
+        Ok(())
     }
 
     /// Greater than or equal comparison.
@@ -25,7 +27,9 @@ impl MacroAssembler {
         self.push(&[1])?;
         // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
-        self.asm._slt()
+        self.asm._slt()?; // a b-1 slt -> a < b-1 (signed) -> a <= b
+        self.asm._iszero()?; // Invert: a >= b
+        Ok(())
     }
 
     /// Greater than or equal comparison.
@@ -37,7 +41,9 @@ impl MacroAssembler {
         self.push(&[1])?;
         // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
-        self.asm._slt()
+        self.asm._sgt()?; // a b-1 sgt -> a > b-1 (signed) -> a >= b
+        self.asm._iszero()?; // Invert: a <= b
+        Ok(())
     }
 
     /// Greater than or equal comparison.
@@ -49,28 +55,33 @@ impl MacroAssembler {
         self.push(&[1])?;
         // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
-        self.asm._lt()
+        self.asm._gt()?; // a b-1 gt -> a > b-1 -> a >= b
+        self.asm._iszero()?; // Invert: a <= b
+        Ok(())
     }
 
     /// Greater than and equal comparison.
     ///
     /// Using slt due to order of stack.
     pub fn _sgt(&mut self) -> Result<()> {
-        self.asm._slt()
+        self.asm._gt()?; // Correct: GT (0x11)
+        Ok(())
     }
 
     /// Greater than comparison.
     ///
     /// Using lt due to order of stack.
     pub fn _gt(&mut self) -> Result<()> {
-        self.asm._lt()
+        self.asm._lt()?; // Correct: LT (0x10)
+        Ok(())
     }
 
     /// less than comparison.
     ///
     /// Using gt due to order of stack.
     pub fn _lt(&mut self) -> Result<()> {
-        self.asm._gt()
+        self.asm._slt()?; // Correct: SLT (0x12)
+        Ok(())
     }
 
     /// less than or equal comparison.

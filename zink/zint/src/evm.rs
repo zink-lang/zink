@@ -129,6 +129,8 @@ pub struct Info {
     pub gas: u64,
     /// Return value.
     pub ret: Vec<u8>,
+    ///
+    pub memory: Vec<u8>,
     /// The storage.
     pub storage: HashMap<U256, U256>,
     /// Execution logs.
@@ -145,6 +147,7 @@ impl TryFrom<ExecutionResult> for Info {
     fn try_from(result: ExecutionResult) -> Result<Self> {
         let mut info = Info {
             gas: result.gas_used(),
+            memory: Vec::new(),
             ..Default::default()
         };
 

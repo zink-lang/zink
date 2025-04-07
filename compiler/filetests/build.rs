@@ -23,17 +23,16 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-/// Read the contents of a directory, returning
-/// all wat files.
+/// Read the contents of a directory, returning all wat files.
 fn list_wat(dir: impl AsRef<Path>, files: &mut Vec<PathBuf>) -> Result<()> {
     let entry = fs::read_dir(dir)?;
     for entry in entry {
         let entry = entry?;
         let path = entry.path();
 
-        if path.ends_with("as_if_else.wat") {
-            continue;
-        }
+        // if path.ends_with("as_if_else.wat") {
+        //     continue;
+        // }
 
         if path.is_dir() {
             list_wat(path, files)?;
@@ -53,6 +52,7 @@ fn wat_files() -> Result<Vec<PathBuf>> {
     Ok(files)
 }
 
+/// Batch example wasm files.
 fn examples() -> Result<Vec<PathBuf>> {
     let release = cargo_metadata::MetadataCommand::new()
         .no_deps()

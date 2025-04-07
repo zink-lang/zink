@@ -112,7 +112,10 @@ impl Contract {
     where
         Param: Bytes32,
     {
-        EVM::interp(&self.artifact.runtime_bytecode, &self.encode(inputs)?)
+        let info = EVM::interp(&self.artifact.runtime_bytecode, &self.encode(inputs)?)?;
+        tracing::debug!("EVM memory after exec: {:?}", info.memory);
+        tracing::debug!("Return value: {:?}", info.ret);
+        Ok(info)
     }
 
     /// Get the JSON ABI of the contract.
