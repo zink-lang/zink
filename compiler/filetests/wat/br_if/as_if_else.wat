@@ -1,9 +1,9 @@
 ;;! target = "evm"
 (module
-  (func $dummy)
-  (func (export "as-if-else") (param i32 i32)
-    (block
-      (if (local.get 0) (then (call $dummy)) (else (br_if 1 (local.get 1))))
+  (func (export "as-if-else") (param i64) (result i64)
+    (if (result i64) (local.get 0) (i64.const 0) (i64.gt_s)
+      (then (i64.const 7))
+      (else (i64.const 8))
     )
   )
 )

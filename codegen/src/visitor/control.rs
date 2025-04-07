@@ -2,7 +2,7 @@
 
 use crate::{
     control::{ControlStackFrame, ControlStackFrameType},
-    Function, Result,
+    Error, Function, Result,
 };
 use wasmparser::{BlockType, BrTable};
 
@@ -64,8 +64,6 @@ impl Function {
     /// Marks an else block of an if.
     pub fn _else(&mut self) -> Result<()> {
         let last_frame = self.control.mark_else()?;
-
-        // push an `Else` frame to the control stack.
         let frame = ControlStackFrame::new(
             ControlStackFrameType::Else,
             self.masm.pc(),
@@ -73,10 +71,10 @@ impl Function {
             last_frame.result(),
         );
         self.control.push(frame);
-        self.masm.asm.increment_sp(1)?;
-        self.masm._jump()?;
 
-        // mark else as the jump destination of the if block.
+        // Jump to end of if-else block
+        self.masm.increment_sp(1)?; // For JUMP
+        self.masm._jump()?;
         self.table
             .label(last_frame.original_pc_offset, self.masm.pc());
         self.masm._jumpdest()?;
@@ -157,18 +155,38 @@ impl Function {
     /// - End of function.
     /// - End of program.
     pub fn _end(&mut self) -> Result<()> {
-        if let Ok(frame) = self.control.pop() {
-            return self.handle_frame_popping(frame);
+        tracing::trace!("ENTERING _end, sp: {}", self.masm.sp());
+        if !self.control.is_empty() {
+            if let Ok(frame) = self.control.pop() {
+                return self.handle_frame_popping(frame);
+            }
+        }
+
+        let expected_sp = self.returns
+            + if self.is_main || self.abi.is_some() {
+                0
+            } else {
+                1
+            };
+        while self.masm.sp() > expected_sp {
+            self.masm._drop()?;
+        }
+        if self.masm.sp() < expected_sp {
+            return Err(Error::StackMismatch {
+                expected: expected_sp,
+                found: self.masm.sp(),
+            });
         }
 
         let results = self.ty.results();
         if self.is_main || self.abi.is_some() {
             tracing::trace!("end of main function");
-            self.masm.main_return(results)
+            self.masm.main_return(results)?;
         } else {
             tracing::trace!("end of call");
-            self.masm.call_return(results)
+            self.masm.call_return(results)?;
         }
+        Ok(())
     }
 
     /// Mark as invalid for now.

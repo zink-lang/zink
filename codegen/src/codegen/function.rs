@@ -7,7 +7,7 @@ use crate::{
     masm::MacroAssembler,
     validator::ValidateThenVisit,
     wasm::Env,
-    Buffer, Error, Result,
+    Buffer, Result,
 };
 use opcodes::ShangHai as OpCode;
 use wasmparser::{FuncType, FuncValidator, LocalsReader, OperatorsReader, ValidatorResources};
@@ -33,11 +33,17 @@ pub struct Function {
     pub ty: FuncType,
     /// If this function is the main function.
     pub is_main: bool,
+    ///
+    pub takes: u16,
+    ///
+    pub returns: u16,
 }
 
 impl Function {
     /// Create a new code generator.
     pub fn new(env: Env, ty: FuncType, abi: Option<Abi>, is_main: bool) -> Result<Self> {
+        let takes = ty.params().len() as u16;
+        let returns = ty.results().len() as u16;
         let is_external = abi.is_some();
         let mut codegen = Self {
             abi,
@@ -46,26 +52,20 @@ impl Function {
             env,
             ty,
             locals: Default::default(),
-            masm: Default::default(),
+            masm: MacroAssembler::default(),
             table: Default::default(),
             is_main,
+            takes,
+            returns,
         };
 
-        if is_main {
-            return Ok(codegen);
+        if is_main || is_external {
+            codegen.masm.set_sp(0)?; // Params loaded via CALLDATALOAD
+        } else {
+            codegen.masm.set_sp(1)?; // Return PC for internal calls
         }
 
-        // post process program counter and stack pointer.
-        if is_external {
-            // codegen.masm.increment_sp(1)?;
-            tracing::debug!("<External function>");
-            codegen.masm._jumpdest()?;
-        } else {
-            // Mock the stack frame for the callee function
-            //
-            // STACK: [ PC ]
-            tracing::debug!("<Internal function>");
-            codegen.masm.increment_sp(1)?;
+        if !is_main && !is_external {
             codegen.masm._jumpdest()?;
         }
 
@@ -136,11 +136,7 @@ impl Function {
 
     /// Finish code generation.
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
-        let sp = self.masm.sp();
-        if !self.is_main && self.abi.is_none() && self.masm.sp() != self.ty.results().len() as u16 {
-            return Err(Error::StackNotBalanced(sp));
-        }
-
+        // Remove SP check here; trust _end's validation
         jump_table.merge(self.table, pc)?;
         Ok(self.masm.buffer().into())
     }

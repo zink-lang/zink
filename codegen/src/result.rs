@@ -19,7 +19,7 @@ pub enum Error {
     #[error("Control stack underflow")]
     ControlStackUnderflow,
     /// Data not found in data section.
-    #[error("Data not found in data setction, offset {0}, size {1}")]
+    #[error("Data not found in data section, offset {0}, size {1}")]
     DataNotFound(i32, usize),
     /// Failed to register program counter to function index.
     #[error("Function {0} already exists in jump table")]
@@ -81,21 +81,39 @@ pub enum Error {
     /// Failed to index data on memory.
     #[error("Memory index is out of range")]
     MemoryOutOfBounds,
-    /// Failed to find function selectors.0
+    /// Failed to find function selectors.
     #[error("Function selector is not found.")]
     SelectorNotFound,
     /// Failed to index data on stack.
     #[error("Stack index is out of range {0}, max is 255 (0x400)")]
     StackIndexOutOfRange(u16),
     /// Failed to increment stack pointer.
-    #[error("Stack overflow, max is 1024 stack items, but add {1} to {0}")]
-    StackOverflow(u16, u16),
+    #[error("Stack overflow, max is 1024 stack items, attempted {found} (current {expected})")]
+    StackOverflow {
+        ///
+        expected: u16,
+        ///
+        found: u16,
+    },
     /// Failed to decrement stack pointer.
-    #[error("Stack underflow, current stack items {0}, expect at least {1}")]
-    StackUnderflow(u16, u16),
+    #[error("Stack underflow, current stack items {found}, expect at least {expected}")]
+    StackUnderflow {
+        ///
+        expected: u16,
+        ///
+        found: u16,
+    },
     /// Failed to pop stack.
     #[error("Stack not balanced, current stack items {0}")]
     StackNotBalanced(u16),
+    /// Stack mismatch between expected and actual items.
+    #[error("Stack mismatch: expected {expected} items, found {found} items")]
+    StackMismatch {
+        ///
+        expected: u16,
+        ///
+        found: u16,
+    },
     /// Failed to queue host functions.
     #[error("Unsupported host function {0:?}")]
     UnsupportedHostFunc(crate::wasm::HostFunc),

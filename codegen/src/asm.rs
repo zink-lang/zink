@@ -53,13 +53,16 @@ impl Assembler {
             self.sp,
             self.sp + items
         );
-        self.sp = self
-            .sp
-            .checked_add(items)
-            .ok_or(Error::StackOverflow(self.sp, items))?;
+        self.sp = self.sp.checked_add(items).ok_or(Error::StackOverflow {
+            expected: self.sp,      // Current SP before overflow
+            found: self.sp + items, // Attempted SP after increment
+        })?;
 
         if self.sp > MAX_STACK_SIZE {
-            return Err(Error::StackOverflow(self.sp, items));
+            return Err(Error::StackOverflow {
+                expected: MAX_STACK_SIZE,
+                found: self.sp,
+            });
         }
 
         Ok(())
@@ -79,9 +82,10 @@ impl Assembler {
         self.sp = if self.sp == items {
             0
         } else {
-            self.sp
-                .checked_sub(items)
-                .ok_or(Error::StackUnderflow(self.sp, items))?
+            self.sp.checked_sub(items).ok_or(Error::StackUnderflow {
+                expected: items, // Minimum required items
+                found: self.sp,  // Current items available
+            })?
         };
 
         Ok(())

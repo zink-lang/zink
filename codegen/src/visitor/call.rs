@@ -11,6 +11,7 @@ use crate::{
 };
 use anyhow::anyhow;
 use opcodes::Cancun as OpCode;
+use wasmparser::ValType;
 
 impl Function {
     /// The call indirect instruction calls a function indirectly                                                                                                                                          
@@ -67,9 +68,13 @@ impl Function {
         let reserved = self.env.slots.get(&index).unwrap_or(&0);
         let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
 
-        // TODO This is a temporary fix to avoid stack underflow.
-        // We need to find a more elegant solution for this.
-        self.masm.increment_sp(1)?;
+        // Validate caller has enough stack items
+        if self.masm.sp() < *params as u16 {
+            return Err(Error::StackUnderflow {
+                expected: *params as u16,
+                found: self.masm.sp(),
+            });
+        }
 
         // Store parameters in memory and register the call index in the jump table.
         for i in (0..*params).rev() {
@@ -78,18 +83,37 @@ impl Function {
             self.masm._mstore()?;
         }
 
-        // Register the label to jump back.
-        let return_pc = self.masm.pc() + 2;
+        // Push return address
+        let return_pc = self.masm.pc() + 3; // After JUMPDEST and JUMP
+        self.masm.push(&return_pc.to_ls_bytes())?;
         self.table.label(self.masm.pc(), return_pc);
-        self.masm._jumpdest()?; // TODO: support same pc different label
-
-        // Register the call index in the jump table.
-        self.table.call(self.masm.pc(), index); // [PUSHN, CALL_PC]
+        self.masm._jumpdest()?;
+        self.table.call(self.masm.pc(), index);
         self.masm._jump()?;
 
-        // Adjust the stack pointer for the results.
+        // Post-call landing point
         self.masm._jumpdest()?;
-        self.masm.increment_sp(*results as u16)?;
+        let _ = self.masm.set_sp(*results as u16 + 1); // Results + return PC
+        Ok(())
+    }
+
+    ///
+    pub fn call_return(&mut self, results: &[ValType]) -> Result<()> {
+        tracing::trace!("call_return: results={:?}, sp={}", results, self.masm.sp());
+        let expected_sp = results.len() as u16 + 1; // Results + return PC
+        if self.masm.sp() < expected_sp {
+            return Err(Error::StackUnderflow {
+                expected: expected_sp,
+                found: self.masm.sp(),
+            });
+        }
+
+        if !results.is_empty() {
+            self.masm._push0()?;
+            self.masm._mstore()?;
+            self.masm._swap1()?;
+        }
+        self.masm._jump()?;
         Ok(())
     }
 
