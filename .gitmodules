@@ -1,0 +1,3 @@
+[submodule "zint/cli/storage/lib/forge-std"]
+	path = zint/cli/storage/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std

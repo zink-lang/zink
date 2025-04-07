@@ -1,0 +1,48 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-zink:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install cargo-nextest
+        run: cargo install cargo-nextest --locked
+
+      - name: Build cargo-zint
+        run: cargo build --release -p cargo-zint
+        working-directory: zint/cli
+
+      - name: Build Foundry project
+        run: forge build
+        working-directory: zint/storage
+
+      - name: Create Zink tests
+        run: ../../cli/target/release/cargo-zint new
+        working-directory: zint/storage
+
+      - name: Run Zink tests
+        run: ../../cli/target/release/cargo-zint run
+        working-directory: zint/storage
+
+      - name: Debug on failure
+        if: failure()
+        run: |
+          ls -la ztests/
+          cat ztests/Cargo.toml
+          cat ztests/src/main.rs
+        working-directory: zint/storage

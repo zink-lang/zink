@@ -1,0 +1,23 @@
+[package]
+name = "cargo-zint"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[lib]
+name = "cargo_zint"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+zint = { path = "../" }
+zink = { path = "../../../zink" }
+smallvec = "1.13"
+hex = "0.4"
+which = "7.0.2"

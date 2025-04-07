@@ -1,0 +1,14 @@
+
+[package]
+name = "ztests"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[dependencies]
+anyhow = "1.0"
+zint = { path = "https://github.com/zink-lang/zink/zint" }
+zink = { git = "https://github.com/zink-lang/zink" }
+smallvec = "1.13"
+hex = "0.4"
