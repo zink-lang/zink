@@ -27,7 +27,7 @@ pub fn create_ztests_crate() -> Result<()> {
     let zink_version = std::env::var("ZINK_VERSION").unwrap_or_else(|_| "0.1.12".to_string());
 
     // Write ztests/Cargo.toml with workspace dependencies
-let cargo_toml_content = format!(
+    let cargo_toml_content = format!(
         r#"
 [package]
 name = "ztests"
