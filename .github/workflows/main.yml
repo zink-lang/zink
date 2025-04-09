@@ -41,7 +41,7 @@ jobs:
           cargo run -p elko -- new addition
           cd addition
           cargo run -p elko --manifest-path ../Cargo.toml -- build
-          cargo test --features abi-import
+          cargo test
 
       - name: Test Foundry Integration
         run: |
