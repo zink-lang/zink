@@ -84,30 +84,29 @@ impl Contract {
                 }
                 // Look for .json files in subdirectories (e.g., out/Storage.sol/)
                 for sub_entry in fs::read_dir(&path)? {
-                    let sub_entry = sub_entry?;
+                    let sub_entry = sub_entry.context("Failed to read directory entry")?;
                     let sub_path = sub_entry.path();
                     if sub_path.extension().and_then(|s| s.to_str()) == Some("json") {
-                        let file_name = sub_path.file_name().unwrap().to_str().unwrap();
-                        if let Some(contract_name) = file_name.strip_suffix(".json") {
+                    let file_name = sub_path
+                        .file_name()
+                        .context("Failed to get file name")?
+                        .to_str()
+                        .context("File name is not valid UTF-8")?;
+                       let Some(contract_name) = file_name.strip_suffix(".json") else {
+                          continue;
+                        };
                             // Only process files where the contract name (before .json) looks like a contract name
                             if contract_name
                                 .chars()
                                 .all(|c| c.is_alphanumeric() || c == '_')
                             {
                                 let content = fs::read_to_string(&sub_path)?;
-                                let output: FoundryOutput = match serde_json::from_str(&content) {
-                                    Ok(output) => output,
-                                    Err(e) => {
-                                        println!("Failed to parse JSON for {}: {}", file_name, e);
-                                        continue;
-                                    }
-                                };
+                                let output: FoundryOutput =  serde_json::from_str(&content).context(format!("Failed to parse JSON for {file_name}"))?;
                                 let bytecode =
                                     hex::decode(output.bytecode().trim_start_matches("0x"))
                                         .context("Failed to decode bytecode")?;
                                 outputs.push((contract_name.to_string(), sub_path, bytecode));
                             }
-                        }
                     }
                 }
             }
