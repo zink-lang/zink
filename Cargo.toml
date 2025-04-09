@@ -7,13 +7,13 @@ members = [
   "codegen",
   "compiler",
   "compiler/filetests",
+  "crates/zint",
+  "crates/zint/cli",
   "evm/opcodes",
   "evm/abi",
   "zink/abi",
   "zink/codegen",
   "zink/elko",
-  "zint",
-  "zint/cli", 
   "zink/abi-macro",
 ]
 resolver = "2"
@@ -29,6 +29,7 @@ repository = "https://github.com/clearloop/zink.git"
 [workspace.dependencies]
 anyhow = "1.0.79"
 cargo_metadata = "0.18.1"
+clap = { version = "4.5.35", features = ["derive"] }
 ccli = "0.0.1"
 colored = "2.1.0"
 etc = "0.1.19"
@@ -72,8 +73,7 @@ zink = { path = ".", version = "0.1.12" }
 zink-abi-macro = { path = "zink/abi-macro", version = "0.1.12" }
 zink-codegen = { path = "zink/codegen", version = "0.1.12" }
 zinkc = { path = "compiler", version = "0.1.12" }
-zint = { path = "zint", version = "0.1.12" }
-cargo-zint =  { path = "zint/cli", version = "0.1.12" }
+zint = { path = "crates/zint", version = "0.1.12" }
 
 [workspace.metadata.conta]
 packages = [
@@ -114,6 +114,7 @@ zink-codegen.workspace = true
 zink-abi-macro = { workspace = true, optional = true }
 zabi.workspace = true
 smallvec.workspace = true
+clap.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tiny-keccak.workspace = true

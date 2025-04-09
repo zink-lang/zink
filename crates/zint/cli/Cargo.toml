@@ -1,0 +1,29 @@
+[package]
+name = "zint-cli"
+description = "CLI tool for Zink testing with Foundry projects"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "cargo-zint"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+cargo_metadata.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+zint.workspace = true
+zink.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[build-dependencies]
+cargo_metadata.workspace = true
