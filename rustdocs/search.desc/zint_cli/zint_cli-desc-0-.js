@@ -1,0 +1,1 @@
+searchState.loadedDescShard("zint_cli", 0, "Create a new ztests crate in the Foundry project\nRun the tests in the ztests crate\nZink testing commands\nReturns the argument unchanged.\nReturns the argument unchanged.\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.\nCalls <code>U::from(self)</code>.\nCalls <code>U::from(self)</code>.")

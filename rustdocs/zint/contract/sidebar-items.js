@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Contract"]};
+window.SIDEBAR_ITEMS = {"struct":["BytecodeObject","Contract","FoundryOutput"]};
