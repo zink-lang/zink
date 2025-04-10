@@ -6,11 +6,15 @@ mod contract;
 mod evm;
 mod lookup;
 
+/// Shared utilities for the `zint` crate.
+pub mod utils;
+
 pub use self::{
     bytes::Bytes32,
     contract::Contract,
     evm::{Info, EVM},
 };
+
 pub use hex;
 pub use revm::primitives::{HaltReason, OutOfGasError, U256};
 pub use tracing as log;
