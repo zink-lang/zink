@@ -19,7 +19,12 @@ impl Address {
     /// Returns empty address
     #[inline(always)]
     pub fn caller() -> Self {
-        unsafe { ffi::evm::caller() }
+        #[cfg(target_arch = "wasm32")]
+        unsafe {
+            ffi::evm::caller()
+        }
+        #[cfg(not(target_family = "wasm"))]
+        ffi::evm::caller()
     }
 
     /// if self equal to another
@@ -53,7 +58,12 @@ impl Address {
 
 impl Asm for Address {
     fn push(self) {
-        unsafe { ffi::bytes::push_bytes20(self.0) }
+        #[cfg(target_arch = "wasm32")]
+        unsafe {
+            ffi::bytes::push_bytes20(self.0)
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        ffi::bytes::push_bytes20(self.0)
     }
 
     #[cfg(not(target_family = "wasm"))]
@@ -64,7 +74,12 @@ impl Asm for Address {
 
 impl StorageValue for Address {
     fn sload() -> Self {
-        Self(unsafe { ffi::bytes::sload_bytes20() })
+        #[cfg(target_arch = "wasm32")]
+        {
+            Self(unsafe { ffi::bytes::sload_bytes20() })
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        Self(ffi::bytes::sload_bytes20())
     }
 }
 
@@ -83,6 +98,11 @@ impl From<[u8; 20]> for Address {
 
 impl TransientStorageValue for Address {
     fn tload() -> Self {
-        Address(unsafe { ffi::bytes::tload_bytes20() })
+        #[cfg(target_arch = "wasm32")]
+        {
+            Address(unsafe { ffi::bytes::tload_bytes20() })
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        Address(ffi::bytes::tload_bytes20())
     }
 }
