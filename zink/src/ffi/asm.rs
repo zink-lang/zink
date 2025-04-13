@@ -29,6 +29,7 @@ extern "C" {
 
     /// Emit opcode ADDMOD
     pub fn addmod_i8(a: i8, b: i8, n: i8) -> i8;
+
     /// Emit opcode ADDMOD
     pub fn mulmod_i8(a: i8, b: i8, n: i8) -> i8;
 
@@ -49,6 +50,7 @@ extern "C" {
 
     /// Emit opcode ADDMOD
     pub fn addmod_u8(a: u8, b: u8, n: u8) -> u8;
+    
     /// Emit opcode ADDMOD
     pub fn mulmod_u8(a: u8, b: u8, n: u8) -> u8;
 

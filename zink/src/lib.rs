@@ -8,14 +8,15 @@ extern crate alloc;
 mod asm;
 mod event;
 pub mod ffi;
+mod num;
 pub mod primitives;
 pub mod storage;
-pub use self::{asm::Asm, event::Event};
+pub use self::{asm::Asm, event::Event, num::Numeric};
 pub use storage::{DoubleKeyMapping, Mapping, Storage, TransientStorage};
 pub use zink_codegen::{assert, external, revert, storage, transient_storage, Event, Storage};
 
 #[cfg(feature = "abi-import")]
-pub use zink_abi_macro::import;
+pub use zabi_codegen::import;
 
 /// Generate a keccak hash of the input (sha3)
 #[cfg(not(target_family = "wasm"))]

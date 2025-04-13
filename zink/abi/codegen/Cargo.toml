@@ -1,5 +1,5 @@
 [package]
-name = "zink-abi-macro"
+name = "zabi-codegen"
 description = "Procedural macros for Zink ABI integration"
 version.workspace = true
 authors.workspace = true
@@ -17,9 +17,18 @@ quote.workspace = true
 syn.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-zabi = { workspace = true, features = ["bytes", "hex", "selector", "serde", "encoding"] }
+zabi = { workspace = true, features = [
+    "bytes",
+    "hex",
+    "selector",
+    "serde",
+    "encoding",
+] }
 sol-abi.workspace = true
-tiny-keccak = { workspace = true, optional = true, features = [ "sha3", "keccak" ] }
+tiny-keccak = { workspace = true, optional = true, features = [
+    "sha3",
+    "keccak",
+] }
 zint.workspace = true
 convert_case = "0.6.0"
 

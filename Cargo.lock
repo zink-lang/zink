@@ -2640,6 +2640,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "zabi-codegen"
+version = "0.1.12"
+dependencies = [
+ "convert_case",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "sol-abi",
+ "syn 2.0.100",
+ "tiny-keccak",
+ "zabi",
+ "zint",
+]
+
+[[package]]
 name = "zerocopy"
 version = "0.8.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2713,25 +2729,9 @@ dependencies = [
  "tiny-keccak",
  "tracing",
  "zabi",
- "zink-abi-macro",
+ "zabi-codegen",
  "zink-codegen",
  "zinkc-filetests",
- "zint",
-]
-
-[[package]]
-name = "zink-abi-macro"
-version = "0.1.12"
-dependencies = [
- "convert_case",
- "proc-macro2",
- "quote",
- "serde",
- "serde_json",
- "sol-abi",
- "syn 2.0.100",
- "tiny-keccak",
- "zabi",
  "zint",
 ]
 

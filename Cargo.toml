@@ -10,9 +10,9 @@ members = [
   "evm/opcodes",
   "evm/abi",
   "zink/abi",
+  "zink/abi/codegen",
   "zink/codegen",
   "zink/elko",
-  "zink/abi-macro",
   "zint",
   "zint/cli",
 ]
@@ -68,9 +68,9 @@ sol-abi = { path = "evm/abi", version = "=0.0.1" }
 elko = { path = "elko", version = "0.1.12" }
 filetests = { package = "zinkc-filetests", path = "compiler/filetests", version = "0.1.12" }
 zabi = { path = "zink/abi", version = "0.1.12" }
+zabi-codegen = { path = "zink/abi/codegen", version = "0.1.12" }
 zingen = { path = "codegen", version = "0.1.12" }
 zink = { path = ".", version = "0.1.12" }
-zink-abi-macro = { path = "zink/abi-macro", version = "0.1.12" }
 zink-codegen = { path = "zink/codegen", version = "0.1.12" }
 zinkc = { path = "compiler", version = "0.1.12" }
 zint = { path = "zint", version = "0.1.12" }
@@ -78,12 +78,12 @@ zint = { path = "zint", version = "0.1.12" }
 [workspace.metadata.conta]
 packages = [
   "zabi",
+  "zabi-codegen",
   "zingen",
   "zinkc",
   "filetests",
   "zint",
   "zink-codegen",
-  "zink-abi-macro",
   "zink",
   "cargo-zint",
   "elko",
@@ -111,8 +111,8 @@ path = "zink/src/lib.rs"
 fmt = "0.1.0"
 paste.workspace = true
 zink-codegen.workspace = true
-zink-abi-macro = { workspace = true, optional = true }
 zabi.workspace = true
+zabi-codegen = { workspace = true, optional = true }
 smallvec.workspace = true
 clap.workspace = true
 
@@ -133,8 +133,6 @@ tempfile.workspace = true
 dlmalloc = { version = "0.2", optional = true, features = ["global"] }
 
 [features]
-# default = [ "evm" ]
-# evm = [  ]
-abi-import = ["zink-abi-macro", "zabi/encoding"]
+abi-import = ["zabi-codegen", "zabi/encoding"]
 wasm-alloc = ["dep:dlmalloc"]
 default = ["wasm-alloc"]
