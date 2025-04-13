@@ -7,14 +7,14 @@ members = [
   "codegen",
   "compiler",
   "compiler/filetests",
-  "crates/zint",
-  "crates/zint/cli",
   "evm/opcodes",
   "evm/abi",
   "zink/abi",
   "zink/codegen",
   "zink/elko",
   "zink/abi-macro",
+  "zint",
+  "zint/cli",
 ]
 resolver = "2"
 
@@ -73,7 +73,7 @@ zink = { path = ".", version = "0.1.12" }
 zink-abi-macro = { path = "zink/abi-macro", version = "0.1.12" }
 zink-codegen = { path = "zink/codegen", version = "0.1.12" }
 zinkc = { path = "compiler", version = "0.1.12" }
-zint = { path = "crates/zint", version = "0.1.12" }
+zint = { path = "zint", version = "0.1.12" }
 
 [workspace.metadata.conta]
 packages = [
