@@ -50,12 +50,6 @@ impl TryFrom<(&str, &str)> for HostFunc {
         match import {
             ("zinkc", name) => match name {
                 "emit_abi" => Ok(Self::EmitABI),
-                "u256_add" => Ok(Self::Evm(OpCode::ADD)),
-                "u256_sub" => Ok(Self::Evm(OpCode::SUB)),
-                "u256_lt" => Ok(Self::Evm(OpCode::LT)),
-                "u256_max" => Ok(Self::U256MAX),
-                "u256_addmod" => Ok(Self::Evm(OpCode::ADDMOD)),
-                "u256_mulmod" => Ok(Self::Evm(OpCode::MULMOD)),
                 "label_reserve_mem_32" => Ok(Self::Label(CompilerLabel::ReserveMemory32)),
                 "label_reserve_mem_64" => Ok(Self::Label(CompilerLabel::ReserveMemory64)),
                 _ => Err(Error::HostFuncNotFound(module.into(), name.into())),
@@ -65,6 +59,12 @@ impl TryFrom<(&str, &str)> for HostFunc {
                 Error::HostFuncNotFound(module.into(), name.into())
             })?)),
             ("ext", name) => match name {
+                "u256_add" => Ok(Self::Evm(OpCode::ADD)),
+                "u256_sub" => Ok(Self::Evm(OpCode::SUB)),
+                "u256_lt" => Ok(Self::Evm(OpCode::LT)),
+                "u256_max" => Ok(Self::U256MAX),
+                "u256_addmod" => Ok(Self::Evm(OpCode::ADDMOD)),
+                "u256_mulmod" => Ok(Self::Evm(OpCode::MULMOD)),
                 n if n.starts_with("sload") => Ok(Self::Evm(OpCode::SLOAD)),
                 n if n.starts_with("tload") => Ok(Self::Evm(OpCode::TLOAD)),
                 n if n.starts_with("revert") => {
