@@ -45,7 +45,7 @@ jobs:
 
       - name: Test Foundry Integration
         run: |
-          cd crates/zint/storage
+          cd zint/storage
           forge build
           cargo zint new
           cargo zint run
