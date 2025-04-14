@@ -10,7 +10,7 @@
 [![ci][ci-badge]][ci-link]
 [![telegram][telegram-badge]][telegram-group]
 
-Welcome to the Zink Language! [Bounty issues](https://zink-lang.org/budgets) are now available, join the development of Zink by reading the [book](https://zink-lang.org/).
+Welcome to the Zink Language! [Bounty issues](https://zink-lang.org/bounties) are now available, join the development of Zink by reading the [book](https://zink-lang.org/).
 
 ```rust
 //! ERC20 Example (WIP)
