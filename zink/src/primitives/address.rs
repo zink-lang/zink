@@ -1,5 +1,5 @@
 use crate::{
-    ffi,
+    isa,
     primitives::{Bytes20, Bytes32},
     storage::{StorageValue, TransientStorageValue},
     Asm,
@@ -19,7 +19,7 @@ impl Address {
     /// Returns empty address
     #[inline(always)]
     pub fn caller() -> Self {
-        unsafe { ffi::evm::caller() }
+        unsafe { isa::evm::caller() }
     }
 
     /// if self equal to another
@@ -53,7 +53,7 @@ impl Address {
 
 impl Asm for Address {
     fn push(self) {
-        unsafe { ffi::bytes::push_bytes20(self.0) }
+        unsafe { isa::bytes::push_bytes20(self.0) }
     }
 
     #[cfg(not(target_family = "wasm"))]
@@ -64,7 +64,7 @@ impl Asm for Address {
 
 impl StorageValue for Address {
     fn sload() -> Self {
-        Self(unsafe { ffi::bytes::sload_bytes20() })
+        Self(unsafe { isa::bytes::sload_bytes20() })
     }
 }
 
@@ -83,6 +83,6 @@ impl From<[u8; 20]> for Address {
 
 impl TransientStorageValue for Address {
     fn tload() -> Self {
-        Address(unsafe { ffi::bytes::tload_bytes20() })
+        Address(unsafe { isa::bytes::tload_bytes20() })
     }
 }

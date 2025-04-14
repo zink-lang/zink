@@ -46,7 +46,7 @@ pub fn parse(item: DeriveInput) -> TokenStream {
             }
 
             pub fn emit_name() {
-                unsafe { zink::ffi::evm::log0(Self::name()) }
+                unsafe { zink::isa::evm::log0(Self::name()) }
             }
 
             pub fn register_abi() {
@@ -54,7 +54,7 @@ pub fn parse(item: DeriveInput) -> TokenStream {
                 unsafe {
                     let ptr = abi.as_ptr() as u32;
                     let len = abi.len() as u32;
-                    zink::ffi::emit_abi(ptr, len);
+                    zink::isa::emit_abi(ptr, len);
                 }
             }
 
@@ -213,7 +213,7 @@ fn impl_variant_fns(variant: &Variant, expr_match: &mut ExprMatch) -> ImplItemFn
 
     parse_quote! {
         pub fn #name_snake(#inputs) {
-            unsafe { zink::ffi::evm::#logn(#(#args),*, &Self::name()) }
+            unsafe { zink::isa::evm::#logn(#(#args),*, &Self::name()) }
         }
     }
 }

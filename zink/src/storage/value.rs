@@ -1,6 +1,6 @@
 //! Key-Value storage
 use crate::{
-    ffi,
+    isa,
     storage::{StorageValue, TransientStorageValue},
     Asm,
 };
@@ -24,7 +24,7 @@ pub trait Storage {
         value.push();
         Asm::push(Self::STORAGE_SLOT);
         unsafe {
-            ffi::evm::sstore();
+            isa::evm::sstore();
         }
     }
 }
@@ -48,7 +48,7 @@ pub trait TransientStorage {
         value.push();
         Asm::push(Self::STORAGE_SLOT);
         unsafe {
-            ffi::evm::tstore();
+            isa::evm::tstore();
         }
     }
 }

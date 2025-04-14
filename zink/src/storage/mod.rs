@@ -1,6 +1,6 @@
 //! Zink storage implementation.
 
-use crate::{ffi, Asm};
+use crate::{isa, Asm};
 pub use {
     dkmapping::{DoubleKeyMapping, DoubleKeyTransientMapping},
     mapping::{Mapping, TransientMapping},
@@ -27,10 +27,10 @@ impl StorageValue for i32 {
     fn sload() -> Self {
         #[cfg(target_arch = "wasm32")]
         unsafe {
-            ffi::asm::sload_i32()
+            isa::asm::sload_i32()
         }
         #[cfg(not(target_arch = "wasm32"))]
-        ffi::asm::sload_i32()
+        isa::asm::sload_i32()
     }
 }
 
@@ -38,10 +38,10 @@ impl StorageValue for u32 {
     fn sload() -> Self {
         #[cfg(target_arch = "wasm32")]
         unsafe {
-            ffi::asm::sload_u32()
+            isa::asm::sload_u32()
         }
         #[cfg(not(target_arch = "wasm32"))]
-        ffi::asm::sload_u32()
+        isa::asm::sload_u32()
     }
 }
 
@@ -49,10 +49,10 @@ impl TransientStorageValue for i32 {
     fn tload() -> Self {
         #[cfg(target_arch = "wasm32")]
         unsafe {
-            ffi::asm::tload_i32()
+            isa::asm::tload_i32()
         }
         #[cfg(not(target_arch = "wasm32"))]
-        ffi::asm::tload_i32()
+        isa::asm::tload_i32()
     }
 }
 
@@ -60,9 +60,9 @@ impl TransientStorageValue for u32 {
     fn tload() -> Self {
         #[cfg(target_arch = "wasm32")]
         unsafe {
-            ffi::asm::tload_u32()
+            isa::asm::tload_u32()
         }
         #[cfg(not(target_arch = "wasm32"))]
-        ffi::asm::tload_u32()
+        isa::asm::tload_u32()
     }
 }

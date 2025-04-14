@@ -1,4 +1,4 @@
-use crate::{ffi, primitives::U256};
+use crate::{isa, primitives::U256};
 
 /// A trait for modular arithmetic operations on numeric types.
 pub trait Numeric: Copy {
@@ -21,10 +21,10 @@ macro_rules! local_revert {
     ($msg:expr) => {
         #[cfg(target_arch = "wasm32")]
         unsafe {
-            crate::ffi::asm::revert1($msg)
+            crate::isa::asm::revert1($msg)
         }
         #[cfg(not(target_arch = "wasm32"))]
-        crate::ffi::asm::asm::revert1($msg)
+        crate::isa::asm::asm::revert1($msg)
     };
 }
 
@@ -135,7 +135,7 @@ macro_rules! impl_safe_numeric_unsigned {
 impl SafeNumeric for U256 {
     #[inline(always)]
     fn max() -> Self {
-        unsafe { ffi::u256_max() }
+        unsafe { isa::u256_max() }
     }
     #[inline(always)]
     fn min() -> Self {
@@ -144,7 +144,7 @@ impl SafeNumeric for U256 {
 
     #[inline(always)]
     fn safe_add(self, rhs: Self) -> Self {
-        let result = unsafe { ffi::u256_add(self, rhs) };
+        let result = unsafe { isa::u256_add(self, rhs) };
         if result < self {
             local_revert!("addition overflow");
         }
@@ -153,7 +153,7 @@ impl SafeNumeric for U256 {
 
     #[inline(always)]
     fn safe_sub(self, rhs: Self) -> Self {
-        let result = unsafe { ffi::u256_sub(self, rhs) };
+        let result = unsafe { isa::u256_sub(self, rhs) };
         if result > self {
             local_revert!("subtraction overflow");
         }
@@ -163,7 +163,7 @@ impl SafeNumeric for U256 {
     #[inline(always)]
     fn safe_mul(self, rhs: Self) -> Self {
         let max = Self::max();
-        let result = unsafe { ffi::u256_mulmod(self, rhs, max) };
+        let result = unsafe { isa::u256_mulmod(self, rhs, max) };
         // Check if result exceeds max when rhs > 1
         if rhs > Self::min() && result > self && result > rhs && result > max - self {
             local_revert!("multiplication overflow");
@@ -176,7 +176,7 @@ impl SafeNumeric for U256 {
         if rhs == Self::min() {
             local_revert!("division by zero");
         }
-        unsafe { ffi::u256_div(self, rhs) }
+        unsafe { isa::u256_div(self, rhs) }
     }
 }
 

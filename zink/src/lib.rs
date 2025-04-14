@@ -7,7 +7,7 @@ extern crate alloc;
 
 mod asm;
 mod event;
-pub mod ffi;
+pub mod isa;
 mod num;
 pub mod primitives;
 pub mod storage;

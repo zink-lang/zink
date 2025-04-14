@@ -1,6 +1,6 @@
 //! Assembly trait implementation.
 
-use crate::ffi;
+use crate::isa;
 use paste::paste;
 
 /// Types implemented this trait are able to be pushed on stack.
@@ -18,10 +18,10 @@ macro_rules! impl_asm {
             fn push(self) {
                 #[cfg(target_arch = "wasm32")]
                 unsafe {
-                    paste! { ffi::asm::[<push_ $ty>](self); }
+                    paste! { isa::asm::[<push_ $ty>](self); }
                 }
                 #[cfg(not(target_arch = "wasm32"))]
-                paste! { ffi::asm::[<push_ $ty>](self); }
+                paste! { isa::asm::[<push_ $ty>](self); }
             }
 
             #[cfg(not(target_family = "wasm"))]

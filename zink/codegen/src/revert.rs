@@ -33,7 +33,7 @@ pub fn parse(input: LitStr) -> TokenStream {
     );
 
     quote! {
-        unsafe { zink::ffi::asm::#rev(#lit) }
+        unsafe { zink::isa::asm::#rev(#lit) }
     }
     .into()
 }

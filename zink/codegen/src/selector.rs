@@ -26,7 +26,7 @@ pub fn external(mut item: ItemFn) -> TokenStream {
             #[doc = #doc]
             pub extern "C" fn #ident() {
                 unsafe {
-                    zink::ffi::emit_abi(#abi.as_ptr() as u32, #abi_len);
+                    zink::isa::emit_abi(#abi.as_ptr() as u32, #abi_len);
                 }
             }
         }
