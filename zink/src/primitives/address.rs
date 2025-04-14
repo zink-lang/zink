@@ -1,8 +1,7 @@
 use crate::{
     isa,
     primitives::{Bytes20, Bytes32},
-    storage::{StorageValue, TransientStorageValue},
-    Asm,
+    storage::Value,
 };
 
 /// Account address
@@ -51,7 +50,15 @@ impl Address {
     }
 }
 
-impl Asm for Address {
+impl Value for Address {
+    fn sload() -> Self {
+        Self(unsafe { isa::bytes::sload_bytes20() })
+    }
+
+    fn tload() -> Self {
+        Self(unsafe { isa::bytes::tload_bytes20() })
+    }
+
     fn push(self) {
         unsafe { isa::bytes::push_bytes20(self.0) }
     }
@@ -59,12 +66,6 @@ impl Asm for Address {
     #[cfg(not(target_family = "wasm"))]
     fn bytes32(&self) -> [u8; 32] {
         self.bytes32()
-    }
-}
-
-impl StorageValue for Address {
-    fn sload() -> Self {
-        Self(unsafe { isa::bytes::sload_bytes20() })
     }
 }
 
@@ -78,11 +79,5 @@ impl From<Bytes20> for Address {
 impl From<[u8; 20]> for Address {
     fn from(value: [u8; 20]) -> Self {
         Address(Bytes20(value))
-    }
-}
-
-impl TransientStorageValue for Address {
-    fn tload() -> Self {
-        Address(unsafe { isa::bytes::tload_bytes20() })
     }
 }

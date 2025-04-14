@@ -1,11 +1,6 @@
 #![allow(clippy::should_implement_trait)]
 
-use crate::{
-    isa,
-    primitives::Bytes32,
-    storage::{StorageValue, TransientStorageValue},
-    Asm,
-};
+use crate::{isa, primitives::Bytes32, storage::Value};
 use core::ops::Sub;
 
 /// Account address
@@ -86,7 +81,17 @@ impl Sub for U256 {
     }
 }
 
-impl Asm for U256 {
+impl Value for U256 {
+    #[inline(always)]
+    fn tload() -> Self {
+        Self(unsafe { isa::bytes::tload_bytes32() })
+    }
+
+    #[inline(always)]
+    fn sload() -> Self {
+        Self(unsafe { isa::bytes::sload_bytes32() })
+    }
+
     #[inline(always)]
     fn push(self) {
         unsafe { isa::bytes::push_bytes32(self.0) }
@@ -95,20 +100,6 @@ impl Asm for U256 {
     #[cfg(not(target_family = "wasm"))]
     fn bytes32(&self) -> [u8; 32] {
         self.bytes32() // Delegate to the instance method
-    }
-}
-
-impl StorageValue for U256 {
-    #[inline(always)]
-    fn sload() -> Self {
-        Self(unsafe { isa::bytes::sload_bytes32() })
-    }
-}
-
-impl TransientStorageValue for U256 {
-    #[inline(always)]
-    fn tload() -> Self {
-        Self(unsafe { isa::bytes::tload_bytes32() })
     }
 }
 

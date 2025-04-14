@@ -58,7 +58,6 @@ impl<'f> Functions<'f> {
     pub fn drain_selectors(&mut self, exports: &Exports) -> Self {
         let mut functions = Self::default();
         let selectors = exports.selectors();
-        tracing::debug!("selectors: {:?}", selectors);
         for index in selectors {
             if let Some(function) = self.0.remove(&index) {
                 functions.0.insert(index, function);

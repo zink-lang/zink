@@ -97,7 +97,6 @@ impl Env {
             return Err(Error::InvalidSelector);
         };
 
-        tracing::debug!("validating selector for function {:?}", index);
         if !self.imports.is_emit_abi(index) {
             return Err(Error::FuncNotImported("emit_abi".into()));
         }

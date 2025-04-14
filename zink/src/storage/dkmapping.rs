@@ -1,18 +1,14 @@
 //! Double key mapping
 
-use crate::{
-    isa,
-    storage::{StorageValue, TransientStorageValue},
-    Asm,
-};
+use crate::{isa, storage::Value};
 
 /// Storage mapping interface
 pub trait DoubleKeyMapping {
     const STORAGE_SLOT: i32;
 
-    type Key1: Asm;
-    type Key2: Asm;
-    type Value: StorageValue;
+    type Key1: Value;
+    type Key2: Value;
+    type Value: Value;
 
     #[cfg(not(target_family = "wasm"))]
     fn storage_key(key1: Self::Key1, key2: Self::Key2) -> [u8; 32];
@@ -39,9 +35,9 @@ pub trait DoubleKeyMapping {
 pub trait DoubleKeyTransientMapping {
     const STORAGE_SLOT: i32;
 
-    type Key1: Asm;
-    type Key2: Asm;
-    type Value: TransientStorageValue;
+    type Key1: Value;
+    type Key2: Value;
+    type Value: Value;
 
     #[cfg(not(target_family = "wasm"))]
     fn storage_key(key1: Self::Key1, key2: Self::Key2) -> [u8; 32];
@@ -66,7 +62,7 @@ pub trait DoubleKeyTransientMapping {
 
 /// Load storage key to stack
 #[inline(always)]
-pub fn load_double_key(key1: impl Asm, key2: impl Asm, index: i32) {
+pub fn load_double_key(key1: impl Value, key2: impl Value, index: i32) {
     unsafe {
         isa::label_reserve_mem_64();
 

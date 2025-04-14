@@ -147,7 +147,7 @@ impl Storage {
 
                 #[cfg(not(target_family = "wasm"))]
                 fn storage_key(key: Self::Key) -> [u8; 32] {
-                    use zink::Asm;
+                    use zink::Value;
 
                     let mut seed = [0; 64];
                     seed[..32].copy_from_slice(&key.bytes32());
@@ -193,7 +193,7 @@ impl Storage {
 
                 #[cfg(not(target_family = "wasm"))]
                 fn storage_key(key1: Self::Key1, key2: Self::Key2) -> [u8; 32] {
-                    use zink::Asm;
+                    use zink::Value;
 
                     let mut seed = [0; 64];
                     seed[..32].copy_from_slice(&key1.bytes32());

@@ -1,17 +1,13 @@
 //! Storage Mapping
 
-use crate::{
-    isa,
-    storage::{StorageValue, TransientStorageValue},
-    Asm,
-};
+use crate::{isa, storage::Value};
 
 /// Storage mapping interface
 pub trait Mapping {
     const STORAGE_SLOT: i32;
 
-    type Key: Asm;
-    type Value: StorageValue;
+    type Key: Value;
+    type Value: Value;
 
     #[cfg(not(target_family = "wasm"))]
     fn storage_key(key: Self::Key) -> [u8; 32];
@@ -36,8 +32,8 @@ pub trait Mapping {
 pub trait TransientMapping {
     const STORAGE_SLOT: i32;
 
-    type Key: Asm;
-    type Value: TransientStorageValue;
+    type Key: Value;
+    type Value: Value;
 
     #[cfg(not(target_family = "wasm"))]
     fn storage_key(key: Self::Key) -> [u8; 32];
@@ -60,7 +56,7 @@ pub trait TransientMapping {
 }
 
 /// Load storage key to stack
-pub fn load_key(key: impl Asm, index: i32) {
+pub fn load_key(key: impl Value, index: i32) {
     unsafe {
         isa::label_reserve_mem_32();
 

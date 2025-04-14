@@ -21,7 +21,7 @@ fn main() {}
 
 #[test]
 fn value() -> anyhow::Result<()> {
-    use zink::Asm;
+    use zink::Value;
     use zint::Contract;
 
     let mut contract = Contract::search("bytes")?.compile()?;

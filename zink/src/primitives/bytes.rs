@@ -1,5 +1,5 @@
 //! Fixed bytes
-use crate::{isa, storage::StorageValue, Asm};
+use crate::{isa, storage::Value};
 use paste::paste;
 
 macro_rules! impl_bytes {
@@ -34,7 +34,15 @@ macro_rules! impl_bytes {
                 }
             }
 
-            impl Asm for [<Bytes $count>] {
+            impl Value for [<Bytes $count>] {
+                fn tload() -> Self {
+                    unsafe { isa::bytes::[<tload_bytes $count>]() }
+                }
+
+                fn sload() -> Self {
+                    unsafe { isa::bytes::[<sload_bytes $count>]() }
+                }
+
                 fn push(self) {
                     unsafe { isa::bytes::[<push_bytes $count>](self) }
                 }
@@ -44,12 +52,6 @@ macro_rules! impl_bytes {
                     let mut output = [0; 32];
                     output[(32-$count)..].copy_from_slice(&self.0);
                     output
-                }
-            }
-
-            impl StorageValue for [<Bytes $count>] {
-                fn sload() -> Self {
-                    unsafe { isa::bytes::[<sload_bytes $count>]() }
                 }
             }
         }

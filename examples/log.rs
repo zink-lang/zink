@@ -49,8 +49,7 @@ pub fn test_log4(value1: U256, value2: U256, value3: U256, value4: U256) {
 
 #[cfg(test)]
 mod tests {
-
-    use zink::Asm;
+    use zink::Value;
     use zint::{Bytes32, Contract};
 
     #[test]
