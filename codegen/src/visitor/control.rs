@@ -85,7 +85,7 @@ impl Function {
     }
 
     /// The select instruction selects one of its first two operands based
-    /// on whether its third oprand is zero or not.
+    /// on whether its third operand is zero or not.
     ///
     /// STACK: [cond, val2, val1] -> \[val1\] if cond is non-zero, \[val2\] otherwise.
     pub fn _select(&mut self) -> Result<()> {

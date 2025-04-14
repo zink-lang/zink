@@ -58,7 +58,7 @@ impl<'p> Parser<'p> {
 
             slots += locals;
 
-            // process prarams for internal functions only
+            // process params for internal functions only
             if !self.env.is_external(fun.index()) && !self.env.is_main(fun.index()) {
                 slots += params as u32;
             }

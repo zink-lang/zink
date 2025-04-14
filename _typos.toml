@@ -1,7 +1,8 @@
 [default]
-extend-ignore-re = [
-    "\\w{44,52}",
-]
+extend-ignore-re = ["\\w{44,52}"]
 
 [default.extend-words]
 zink = "zink"
+
+[files]
+extend-exclude = ["docs/theme/*"]
