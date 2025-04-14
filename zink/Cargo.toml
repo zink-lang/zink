@@ -1,0 +1,41 @@
+[package]
+name = "zink"
+description = "Standard library for zink projects."
+documentation = "https://docs.rs/zink"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[dependencies]
+fmt = "0.1.0"
+paste.workspace = true
+zink-codegen.workspace = true
+zabi.workspace = true
+zabi-codegen = { workspace = true, optional = true }
+smallvec.workspace = true
+clap.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tiny-keccak.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+anyhow.workspace = true
+filetests.workspace = true
+opcodes = { workspace = true, features = ["data"] }
+tracing.workspace = true
+zint.workspace = true
+hex.workspace = true
+serde_json.workspace = true
+tempfile.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+dlmalloc = { version = "0.2", optional = true, features = ["global"] }
+
+[features]
+abi-import = ["zabi-codegen", "zabi/encoding"]
+wasm-alloc = ["dep:dlmalloc"]
+default = ["wasm-alloc"]
+wrong-tests = []
