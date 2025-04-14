@@ -5,17 +5,15 @@ pub trait Event {
     const NAME: &'static [u8];
 
     fn log0(&self) {
-        unsafe {
-            isa::evm::log0(Self::NAME);
-        }
+        isa::evm::log0(Self::NAME);
     }
 
     fn log1(&self, topic: impl Into<Bytes32>) {
-        unsafe { isa::evm::log1(topic.into(), Self::NAME) }
+        isa::evm::log1(topic.into(), Self::NAME)
     }
 
     fn log2(&self, topic1: impl Into<Bytes32>, topic2: impl Into<Bytes32>) {
-        unsafe { isa::evm::log2(topic1.into(), topic2.into(), Self::NAME) }
+        isa::evm::log2(topic1.into(), topic2.into(), Self::NAME)
     }
 
     fn log3(
@@ -24,7 +22,7 @@ pub trait Event {
         topic2: impl Into<Bytes32>,
         topic3: impl Into<Bytes32>,
     ) {
-        unsafe { isa::evm::log3(topic1.into(), topic2.into(), topic3.into(), Self::NAME) }
+        isa::evm::log3(topic1.into(), topic2.into(), topic3.into(), Self::NAME)
     }
 
     fn log4(
@@ -34,14 +32,12 @@ pub trait Event {
         topic3: impl Into<Bytes32>,
         topic4: impl Into<Bytes32>,
     ) {
-        unsafe {
-            isa::evm::log4(
-                topic1.into(),
-                topic2.into(),
-                topic3.into(),
-                topic4.into(),
-                Self::NAME,
-            )
-        }
+        isa::evm::log4(
+            topic1.into(),
+            topic2.into(),
+            topic3.into(),
+            topic4.into(),
+            Self::NAME,
+        )
     }
 }

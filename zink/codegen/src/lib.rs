@@ -10,6 +10,7 @@ use syn::{parse_macro_input, Attribute, DeriveInput, Expr, ItemFn, ItemStruct, L
 
 mod contract;
 mod event;
+mod ffi;
 mod revert;
 mod selector;
 mod storage;
@@ -111,4 +112,10 @@ pub fn transient_storage(attr: TokenStream, input: TokenStream) -> TokenStream {
 pub fn external(_args: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemFn);
     selector::external(input)
+}
+
+/// Apply safe block for ffi interfaces
+#[proc_macro_attribute]
+pub fn impl_safe(_args: TokenStream, input: TokenStream) -> TokenStream {
+    ffi::impl_safe(input)
 }

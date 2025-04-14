@@ -136,3 +136,4 @@ dlmalloc = { version = "0.2", optional = true, features = ["global"] }
 abi-import = ["zabi-codegen", "zabi/encoding"]
 wasm-alloc = ["dep:dlmalloc"]
 default = ["wasm-alloc"]
+wrong-tests = []

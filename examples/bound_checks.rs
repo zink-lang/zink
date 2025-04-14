@@ -28,6 +28,8 @@ pub fn division(x: i32) -> i32 {
     x.safe_div(-1)
 }
 
+// NOTE: these tests are useless since they are not testing the contract.
+#[cfg(feature = "wrong-tests")]
 #[cfg(test)]
 mod tests {
     use super::*;

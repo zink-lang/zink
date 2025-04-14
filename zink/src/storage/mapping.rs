@@ -26,9 +26,7 @@ pub trait Mapping {
     fn set(key: Self::Key, value: Self::Value) {
         value.push();
         load_key(key, Self::STORAGE_SLOT);
-        unsafe {
-            isa::evm::sstore();
-        }
+        isa::evm::sstore();
     }
 }
 
@@ -52,30 +50,26 @@ pub trait TransientMapping {
     fn set(key: Self::Key, value: Self::Value) {
         value.push();
         load_key(key, Self::STORAGE_SLOT);
-        unsafe {
-            isa::evm::tstore();
-        }
+        isa::evm::tstore();
     }
 }
 
 /// Load storage key to stack
 pub fn load_key(key: impl Asm, index: i32) {
-    unsafe {
-        isa::label_reserve_mem_32();
+    isa::label_reserve_mem_32();
 
-        // write key to memory
-        key.push();
-        isa::evm::push0();
-        isa::evm::mstore();
+    // write key to memory
+    key.push();
+    isa::evm::push0();
+    isa::evm::mstore();
 
-        // write index to memory
-        index.push();
-        isa::asm::push_u8(0x20);
-        isa::evm::mstore();
+    // write index to memory
+    index.push();
+    isa::asm::push_u8(0x20);
+    isa::evm::mstore();
 
-        // hash key
-        isa::asm::push_u8(0x40);
-        isa::evm::push0();
-        isa::evm::keccak256();
-    }
+    // hash key
+    isa::asm::push_u8(0x40);
+    isa::evm::push0();
+    isa::evm::keccak256();
 }

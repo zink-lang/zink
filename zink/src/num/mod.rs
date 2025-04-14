@@ -18,12 +18,12 @@ macro_rules! impl_numeric {
             impl Numeric for $t {
                 #[inline(always)]
                 fn addmod(self, other: Self, n: Self) -> Self {
-                    unsafe { isa::asm::[<addmod_ $t>](n, other, self) }
+                    isa::asm::[<addmod_ $t>](n, other, self)
                 }
 
                 #[inline(always)]
                 fn mulmod(self, other: Self, n: Self) -> Self {
-                    unsafe { isa::asm::[<mulmod_ $t>](n, other, self) }
+                    isa::asm::[<mulmod_ $t>](n, other, self)
                 }
             }
         )*

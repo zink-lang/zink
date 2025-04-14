@@ -1,7 +1,9 @@
 //! EVM FFI.
 
 use crate::primitives::{Address, Bytes32};
+use zink_codegen::impl_safe;
 
+#[impl_safe]
 #[link(wasm_import_module = "evm")]
 #[allow(improper_ctypes)]
 extern "C" {

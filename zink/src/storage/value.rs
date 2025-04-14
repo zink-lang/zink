@@ -23,9 +23,7 @@ pub trait Storage {
     fn set(value: Self::Value) {
         value.push();
         Asm::push(Self::STORAGE_SLOT);
-        unsafe {
-            isa::evm::sstore();
-        }
+        isa::evm::sstore();
     }
 }
 
@@ -47,8 +45,6 @@ pub trait TransientStorage {
     fn set(value: Self::Value) {
         value.push();
         Asm::push(Self::STORAGE_SLOT);
-        unsafe {
-            isa::evm::tstore();
-        }
+        isa::evm::tstore();
     }
 }

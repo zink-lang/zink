@@ -22,13 +22,13 @@ impl U256 {
     /// u256 add
     #[inline(always)]
     pub fn add(self, other: Self) -> Self {
-        unsafe { isa::u256_add(self, other) }
+        isa::u256_add(self, other)
     }
 
     /// u256 less than
     #[inline(always)]
     pub fn lt(self, other: Self) -> bool {
-        unsafe { isa::u256_lt(other, self) }
+        isa::u256_lt(other, self)
     }
 
     /// u256 eq
@@ -40,19 +40,19 @@ impl U256 {
     /// u256 sub
     #[inline(always)]
     pub fn sub(self, other: Self) -> Self {
-        unsafe { isa::u256_sub(other, self) }
+        isa::u256_sub(other, self)
     }
 
     /// u256 div
     #[inline(always)]
     pub fn div(self, other: Self) -> Self {
-        unsafe { isa::u256_div(self, other) }
+        isa::u256_div(self, other)
     }
 
     /// max of u256
     #[inline(always)]
     pub fn max() -> Self {
-        unsafe { isa::u256_max() }
+        isa::u256_max()
     }
 
     pub fn to_bytes32(&self) -> Bytes32 {
@@ -66,13 +66,13 @@ impl U256 {
 
     #[inline(always)]
     pub fn addmod(self, other: Self, modulus: Self) -> Self {
-        unsafe { isa::u256_addmod(modulus, other, self) }
+        isa::u256_addmod(modulus, other, self)
     }
 
     /// Mulmod for U256
     #[inline(always)]
     pub fn mulmod(self, other: Self, modulus: Self) -> Self {
-        unsafe { isa::u256_mulmod(modulus, other, self) }
+        isa::u256_mulmod(modulus, other, self)
     }
 }
 
@@ -82,7 +82,7 @@ impl Sub for U256 {
     /// u256 sub
     #[inline(always)]
     fn sub(self, other: Self) -> Self::Output {
-        unsafe { isa::u256_sub(self, other) }
+        isa::u256_sub(self, other)
     }
 }
 

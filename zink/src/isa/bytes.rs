@@ -1,11 +1,13 @@
 //! Bytes based instructions
 
 use crate::primitives::*;
+// use zink_codegen::impl_safe;
 
 macro_rules! impl_bytes {
     ($($count:expr),*) => {
         #[link(wasm_import_module = "bytes")]
         #[allow(improper_ctypes)]
+   //     #[impl_safe]
         extern "C" {
             paste::paste! {
               $(
