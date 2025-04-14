@@ -2,9 +2,9 @@
 
 use crate::primitives::U256;
 
-pub mod asm;
 pub mod bytes;
 pub mod evm;
+pub mod ext;
 
 #[link(wasm_import_module = "zinkc")]
 #[allow(improper_ctypes)]

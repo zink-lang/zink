@@ -3,7 +3,7 @@
 #![no_std]
 
 mod event;
-pub mod isa;
+pub mod asm;
 mod num;
 pub mod primitives;
 pub mod storage;

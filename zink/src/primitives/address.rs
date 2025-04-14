@@ -1,5 +1,5 @@
 use crate::{
-    isa,
+    asm,
     primitives::{Bytes20, Bytes32},
     storage::Value,
 };
@@ -18,7 +18,7 @@ impl Address {
     /// Returns empty address
     #[inline(always)]
     pub fn caller() -> Self {
-        unsafe { isa::evm::caller() }
+        unsafe { asm::evm::caller() }
     }
 
     /// if self equal to another
@@ -52,15 +52,15 @@ impl Address {
 
 impl Value for Address {
     fn sload() -> Self {
-        Self(unsafe { isa::bytes::sload_bytes20() })
+        Self(unsafe { asm::bytes::sload_bytes20() })
     }
 
     fn tload() -> Self {
-        Self(unsafe { isa::bytes::tload_bytes20() })
+        Self(unsafe { asm::bytes::tload_bytes20() })
     }
 
     fn push(self) {
-        unsafe { isa::bytes::push_bytes20(self.0) }
+        unsafe { asm::bytes::push_bytes20(self.0) }
     }
 
     #[cfg(not(target_family = "wasm"))]

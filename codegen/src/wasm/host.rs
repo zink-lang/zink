@@ -64,7 +64,7 @@ impl TryFrom<(&str, &str)> for HostFunc {
                 tracing::error!("Failed to load host function: {:?}", import);
                 Error::HostFuncNotFound(module.into(), name.into())
             })?)),
-            ("asm", name) => match name {
+            ("ext", name) => match name {
                 n if n.starts_with("sload") => Ok(Self::Evm(OpCode::SLOAD)),
                 n if n.starts_with("tload") => Ok(Self::Evm(OpCode::TLOAD)),
                 n if n.starts_with("revert") => {

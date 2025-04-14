@@ -1,6 +1,6 @@
 //! Double key mapping
 
-use crate::{isa, storage::Value};
+use crate::{asm, storage::Value};
 
 /// Storage mapping interface
 pub trait DoubleKeyMapping {
@@ -26,7 +26,7 @@ pub trait DoubleKeyMapping {
         value.push();
         load_double_key(key1, key2, Self::STORAGE_SLOT);
         unsafe {
-            isa::evm::sstore();
+            asm::evm::sstore();
         }
     }
 }
@@ -55,7 +55,7 @@ pub trait DoubleKeyTransientMapping {
         value.push();
         load_double_key(key1, key2, Self::STORAGE_SLOT);
         unsafe {
-            isa::evm::tstore();
+            asm::evm::tstore();
         }
     }
 }
@@ -64,35 +64,35 @@ pub trait DoubleKeyTransientMapping {
 #[inline(always)]
 pub fn load_double_key(key1: impl Value, key2: impl Value, index: i32) {
     unsafe {
-        isa::label_reserve_mem_64();
+        asm::label_reserve_mem_64();
 
         // write key1 to memory
         key1.push();
-        isa::evm::push0();
-        isa::evm::mstore();
+        asm::evm::push0();
+        asm::evm::mstore();
 
         // write index to memory
         index.push();
-        isa::asm::push_u8(0x20);
-        isa::evm::mstore();
+        asm::ext::push_u8(0x20);
+        asm::evm::mstore();
 
         // hash key
-        isa::asm::push_u8(0x40);
-        isa::evm::push0();
-        isa::evm::keccak256();
+        asm::ext::push_u8(0x40);
+        asm::evm::push0();
+        asm::evm::keccak256();
 
         // stores the hash
-        isa::evm::push0();
-        isa::evm::mstore();
+        asm::evm::push0();
+        asm::evm::mstore();
 
         // write index to memory
         key2.push();
-        isa::asm::push_u8(0x20);
-        isa::evm::mstore();
+        asm::ext::push_u8(0x20);
+        asm::evm::mstore();
 
         // hash key
-        isa::asm::push_u8(0x40);
-        isa::evm::push0();
-        isa::evm::keccak256();
+        asm::ext::push_u8(0x40);
+        asm::evm::push0();
+        asm::evm::keccak256();
     }
 }

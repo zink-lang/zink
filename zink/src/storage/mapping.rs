@@ -1,6 +1,6 @@
 //! Storage Mapping
 
-use crate::{isa, storage::Value};
+use crate::{asm, storage::Value};
 
 /// Storage mapping interface
 pub trait Mapping {
@@ -23,7 +23,7 @@ pub trait Mapping {
         value.push();
         load_key(key, Self::STORAGE_SLOT);
         unsafe {
-            isa::evm::sstore();
+            asm::evm::sstore();
         }
     }
 }
@@ -50,7 +50,7 @@ pub trait TransientMapping {
         load_key(key, Self::STORAGE_SLOT);
 
         unsafe {
-            isa::evm::tstore();
+            asm::evm::tstore();
         }
     }
 }
@@ -58,21 +58,21 @@ pub trait TransientMapping {
 /// Load storage key to stack
 pub fn load_key(key: impl Value, index: i32) {
     unsafe {
-        isa::label_reserve_mem_32();
+        asm::label_reserve_mem_32();
 
         // write key to memory
         key.push();
-        isa::evm::push0();
-        isa::evm::mstore();
+        asm::evm::push0();
+        asm::evm::mstore();
 
         // write index to memory
         index.push();
-        isa::asm::push_u8(0x20);
-        isa::evm::mstore();
+        asm::ext::push_u8(0x20);
+        asm::evm::mstore();
 
         // hash key
-        isa::asm::push_u8(0x40);
-        isa::evm::push0();
-        isa::evm::keccak256();
+        asm::ext::push_u8(0x40);
+        asm::evm::push0();
+        asm::evm::keccak256();
     }
 }

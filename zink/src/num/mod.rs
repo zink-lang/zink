@@ -1,6 +1,6 @@
 //! Extended traits for primitives
 
-use crate::isa;
+use crate::asm;
 
 /// A trait for modular arithmetic operations on numeric types.
 pub trait Numeric: Copy {
@@ -18,12 +18,12 @@ macro_rules! impl_numeric {
             impl Numeric for $t {
                 #[inline(always)]
                 fn addmod(self, other: Self, n: Self) -> Self {
-                    unsafe { isa::asm::[<addmod_ $t>](n, other, self) }
+                    unsafe { asm::ext::[<addmod_ $t>](n, other, self) }
                 }
 
                 #[inline(always)]
                 fn mulmod(self, other: Self, n: Self) -> Self {
-                    unsafe { isa::asm::[<mulmod_ $t>](n, other, self) }
+                    unsafe { asm::ext::[<mulmod_ $t>](n, other, self) }
                 }
             }
         )*

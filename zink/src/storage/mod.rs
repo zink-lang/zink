@@ -1,6 +1,6 @@
 //! Zink storage implementation.
 
-use crate::isa;
+use crate::asm;
 pub use {
     dkmapping::{DoubleKeyMapping, DoubleKeyTransientMapping},
     mapping::{Mapping, TransientMapping},
@@ -33,15 +33,15 @@ macro_rules! impl_value {
             paste::paste! {
                 impl Value for $ty {
                     fn sload() -> Self {
-                        unsafe { isa::asm::[<sload_ $ty>]() }
+                        unsafe { asm::ext::[<sload_ $ty>]() }
                     }
 
                     fn tload() -> Self {
-                        unsafe { isa::asm::[<tload_ $ty>]() }
+                        unsafe { asm::ext::[<tload_ $ty>]() }
                     }
 
                     fn push(self) {
-                        unsafe { isa::asm::[<push_ $ty>](self); }
+                        unsafe { asm::ext::[<push_ $ty>](self); }
                     }
 
                     #[cfg(not(target_family = "wasm"))]

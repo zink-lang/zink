@@ -1,6 +1,6 @@
 //! Assembly FFI.
 
-#[link(wasm_import_module = "asm")]
+#[link(wasm_import_module = "ext")]
 #[allow(improper_ctypes)]
 extern "C" {
     /// Push a 8-bit signed integer to the stack.
@@ -35,16 +35,19 @@ extern "C" {
 
     /// Emit opcode ADDMOD
     pub fn addmod_i16(a: i16, b: i16, n: i16) -> i16;
+
     /// Emit opcode ADDMOD
     pub fn mulmod_i16(a: i16, b: i16, n: i16) -> i16;
 
     /// Emit opcode ADDMOD
     pub fn addmod_i32(a: i32, b: i32, n: i32) -> i32;
+
     /// Emit opcode ADDMOD
     pub fn mulmod_i32(a: i32, b: i32, n: i32) -> i32;
 
     /// Emit opcode ADDMOD
     pub fn addmod_i64(a: i64, b: i64, n: i64) -> i64;
+
     /// Emit opcode ADDMOD
     pub fn mulmod_i64(a: i64, b: i64, n: i64) -> i64;
 
@@ -56,16 +59,19 @@ extern "C" {
 
     /// Emit opcode ADDMOD
     pub fn addmod_u16(a: u16, b: u16, n: u16) -> u16;
+
     /// Emit opcode ADDMOD
     pub fn mulmod_u16(a: u16, b: u16, n: u16) -> u16;
 
     /// Emit opcode ADDMOD
     pub fn addmod_u32(a: u32, b: u32, n: u32) -> u32;
+
     /// Emit opcode ADDMOD
     pub fn mulmod_u32(a: u32, b: u32, n: u32) -> u32;
 
     /// Emit opcode ADDMOD
     pub fn addmod_u64(a: u64, b: u64, n: u64) -> u64;
+
     /// Emit opcode ADDMOD
     pub fn mulmod_u64(a: u64, b: u64, n: u64) -> u64;
 

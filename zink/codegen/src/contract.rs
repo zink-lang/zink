@@ -64,7 +64,7 @@ impl ContractStorage {
                             fn set(value: Self::Value) {
                                 value.push();
                                 zink::Value::push(Self::STORAGE_SLOT);
-                                unsafe { zink::isa::evm::sstore(); }
+                                unsafe { zink::asm::evm::sstore(); }
                             }
                         }
                     }
@@ -93,7 +93,7 @@ impl ContractStorage {
                             fn set(key: Self::Key, value: Self::Value) {
                                 value.push();
                                 zink::storage::mapping::load_key(key, Self::STORAGE_SLOT);
-                                unsafe { zink::isa::evm::sstore(); }
+                                unsafe { zink::asm::evm::sstore(); }
                             }
                         }
                     }
@@ -123,7 +123,7 @@ impl ContractStorage {
                             fn set(key1: Self::Key1, key2: Self::Key2, value: Self::Value) {
                                 value.push();
                                 zink::storage::dkmapping::load_double_key(key1, key2, Self::STORAGE_SLOT);
-                                unsafe { zink::isa::evm::sstore(); }
+                                unsafe { zink::asm::evm::sstore(); }
                             }
                         }
                     }

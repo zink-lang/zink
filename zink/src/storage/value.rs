@@ -1,5 +1,5 @@
 //! Key-Value storage
-use crate::{isa, storage::Value};
+use crate::{asm, storage::Value};
 
 /// Storage trait. Currently not for public use
 pub trait Storage {
@@ -20,7 +20,7 @@ pub trait Storage {
         value.push();
         Value::push(Self::STORAGE_SLOT);
         unsafe {
-            isa::evm::sstore();
+            asm::evm::sstore();
         }
     }
 }
@@ -44,7 +44,7 @@ pub trait TransientStorage {
         value.push();
         Value::push(Self::STORAGE_SLOT);
         unsafe {
-            isa::evm::tstore();
+            asm::evm::tstore();
         }
     }
 }
