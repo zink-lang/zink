@@ -1,8 +1,31 @@
 //! Assembly FFI.
 
+use crate::primitives::U256;
+
 #[link(wasm_import_module = "ext")]
 #[allow(improper_ctypes)]
 extern "C" {
+    /// Addition operation for addresses
+    pub fn u256_add(this: U256, other: U256) -> U256;
+
+    /// Subtraction operation for addresses
+    pub fn u256_sub(this: U256, other: U256) -> U256;
+
+    /// Division operation for addresses
+    pub fn u256_div(this: U256, other: U256) -> U256;
+
+    /// Less than operation for addresses
+    pub fn u256_lt(this: U256, other: U256) -> bool;
+
+    /// Returns the maximum U256 value
+    pub fn u256_max() -> U256;
+
+    /// Addmod operation for addresses
+    pub fn u256_addmod(this: U256, other: U256, modulus: U256) -> U256;
+
+    /// Mulmod operation for addresses
+    pub fn u256_mulmod(this: U256, other: U256, modulus: U256) -> U256;
+
     /// Push a 8-bit signed integer to the stack.
     pub fn push_i8(val: i8);
 

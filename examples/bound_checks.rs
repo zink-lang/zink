@@ -4,7 +4,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 extern crate std;
 
-use zink::primitives::numeric::SafeNumeric;
+use zink::num::SafeNumeric;
 #[allow(unused_imports)]
 use zink::primitives::U256;
 

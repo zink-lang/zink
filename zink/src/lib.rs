@@ -2,9 +2,9 @@
 
 #![no_std]
 
-mod event;
 pub mod asm;
-mod num;
+mod event;
+pub mod num;
 pub mod primitives;
 pub mod storage;
 pub use self::{event::Event, num::Numeric, storage::Value};

@@ -1,7 +1,5 @@
 //! Zink FFI.
 
-use crate::primitives::U256;
-
 pub mod bytes;
 pub mod evm;
 pub mod ext;
@@ -11,27 +9,6 @@ pub mod ext;
 extern "C" {
     /// Emit ABI to host state.
     pub fn emit_abi(ptr: u32, len: u32);
-
-    /// Addition operation for addresses
-    pub fn u256_add(this: U256, other: U256) -> U256;
-
-    /// Subtraction operation for addresses
-    pub fn u256_sub(this: U256, other: U256) -> U256;
-
-    /// Division operation for addresses
-    pub fn u256_div(this: U256, other: U256) -> U256;
-
-    /// Less than operation for addresses
-    pub fn u256_lt(this: U256, other: U256) -> bool;
-
-    /// Returns the maximum U256 value
-    pub fn u256_max() -> U256;
-
-    /// Addmod operation for addresses
-    pub fn u256_addmod(this: U256, other: U256, modulus: U256) -> U256;
-
-    /// Mulmod operation for addresses
-    pub fn u256_mulmod(this: U256, other: U256, modulus: U256) -> U256;
 
     /// Set up a label for reserving 32 bytes in memory
     pub fn label_reserve_mem_32();

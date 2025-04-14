@@ -1,9 +1,25 @@
 //! Extended traits for primitives
 
 use crate::asm;
+use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+pub use safe::SafeNumeric;
+
+mod safe;
 
 /// A trait for modular arithmetic operations on numeric types.
-pub trait Numeric: Copy {
+pub trait Numeric:
+    Add
+    + AddAssign
+    + Mul
+    + MulAssign
+    + Sub
+    + SubAssign
+    + Div
+    + DivAssign
+    + Sized
+    + PartialEq
+    + PartialOrd
+{
     /// Add modulo
     fn addmod(self, other: Self, n: Self) -> Self;
 
