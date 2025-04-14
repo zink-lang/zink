@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["impl_safe_numeric_signed","impl_safe_numeric_unsigned","local_revert"],"trait":["SafeNumeric"]};

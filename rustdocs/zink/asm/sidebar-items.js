@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_asm"],"trait":["Asm"]};
+window.SIDEBAR_ITEMS = {"fn":["emit_abi","label_reserve_mem_32","label_reserve_mem_64"],"mod":["bytes","evm","ext"]};

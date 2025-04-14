@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["dkmapping","mapping","value"],"trait":["Storage","StorageValue","TransientStorage","TransientStorageValue"]};
+window.SIDEBAR_ITEMS = {"macro":["impl_value"],"mod":["dkmapping","mapping","value"],"trait":["Storage","TransientStorage","Value"]};

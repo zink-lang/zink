@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["cargo_zint","elko","evm_opcodes","sol_abi","zabi","zingen","zink","zink_abi_macro","zink_codegen","zinkc","zinkc_filetests","zint","zint_cli"];
-//{"start":21,"fragment_lengths":[12,7,14,10,7,9,7,17,15,8,18,7,11]}
+window.ALL_CRATES = ["cargo_zint","elko","evm_opcodes","sol_abi","zabi","zabi_codegen","zingen","zink","zink_codegen","zinkc","zinkc_filetests","zint","zint_cli"];
+//{"start":21,"fragment_lengths":[12,7,14,10,7,15,9,7,15,8,18,7,11]}
