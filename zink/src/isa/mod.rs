@@ -1,13 +1,11 @@
 //! Zink FFI.
 
 use crate::primitives::U256;
-use zink_codegen::impl_safe;
 
 pub mod asm;
 pub mod bytes;
 pub mod evm;
 
-#[impl_safe]
 #[link(wasm_import_module = "zinkc")]
 #[allow(improper_ctypes)]
 extern "C" {

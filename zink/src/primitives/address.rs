@@ -19,7 +19,7 @@ impl Address {
     /// Returns empty address
     #[inline(always)]
     pub fn caller() -> Self {
-        isa::evm::caller()
+        unsafe { isa::evm::caller() }
     }
 
     /// if self equal to another

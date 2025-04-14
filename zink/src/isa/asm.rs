@@ -1,8 +1,5 @@
 //! Assembly FFI.
 
-use zink_codegen::impl_safe;
-
-#[impl_safe]
 #[link(wasm_import_module = "asm")]
 #[allow(improper_ctypes)]
 extern "C" {

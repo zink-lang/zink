@@ -139,6 +139,7 @@ fn generate_native_exports(extern_mod: &ItemForeignMod) -> proc_macro2::TokenStr
         // Generate the safe wrapper function with original docs
         quote::quote! {
             #(#doc_attrs)*
+            #[inline(always)]
             pub fn #name(#inputs) #output {
                 unimplemented!("Only available in wasm32 target");
             }

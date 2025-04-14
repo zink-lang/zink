@@ -96,7 +96,6 @@ impl Compiler {
 
         tracing::debug!("compile function {func_index} {:?}, abi: {abi:#?}", sig);
         let is_main = !self.config.dispatcher && env.is_main(func_index);
-
         let mut codegen = Function::new(env, sig, abi, is_main)?;
         let mut locals_reader = func.body.get_locals_reader()?;
         let mut ops_reader = func.body.get_operators_reader()?;

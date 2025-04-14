@@ -29,7 +29,9 @@ pub trait DoubleKeyMapping {
     fn set(key1: Self::Key1, key2: Self::Key2, value: Self::Value) {
         value.push();
         load_double_key(key1, key2, Self::STORAGE_SLOT);
-        isa::evm::sstore();
+        unsafe {
+            isa::evm::sstore();
+        }
     }
 }
 
@@ -56,41 +58,45 @@ pub trait DoubleKeyTransientMapping {
     fn set(key1: Self::Key1, key2: Self::Key2, value: Self::Value) {
         value.push();
         load_double_key(key1, key2, Self::STORAGE_SLOT);
-        isa::evm::tstore();
+        unsafe {
+            isa::evm::tstore();
+        }
     }
 }
 
 /// Load storage key to stack
 #[inline(always)]
 pub fn load_double_key(key1: impl Asm, key2: impl Asm, index: i32) {
-    isa::label_reserve_mem_64();
+    unsafe {
+        isa::label_reserve_mem_64();
 
-    // write key1 to memory
-    key1.push();
-    isa::evm::push0();
-    isa::evm::mstore();
+        // write key1 to memory
+        key1.push();
+        isa::evm::push0();
+        isa::evm::mstore();
 
-    // write index to memory
-    index.push();
-    isa::asm::push_u8(0x20);
-    isa::evm::mstore();
+        // write index to memory
+        index.push();
+        isa::asm::push_u8(0x20);
+        isa::evm::mstore();
 
-    // hash key
-    isa::asm::push_u8(0x40);
-    isa::evm::push0();
-    isa::evm::keccak256();
+        // hash key
+        isa::asm::push_u8(0x40);
+        isa::evm::push0();
+        isa::evm::keccak256();
 
-    // stores the hash
-    isa::evm::push0();
-    isa::evm::mstore();
+        // stores the hash
+        isa::evm::push0();
+        isa::evm::mstore();
 
-    // write index to memory
-    key2.push();
-    isa::asm::push_u8(0x20);
-    isa::evm::mstore();
+        // write index to memory
+        key2.push();
+        isa::asm::push_u8(0x20);
+        isa::evm::mstore();
 
-    // hash key
-    isa::asm::push_u8(0x40);
-    isa::evm::push0();
-    isa::evm::keccak256();
+        // hash key
+        isa::asm::push_u8(0x40);
+        isa::evm::push0();
+        isa::evm::keccak256();
+    }
 }

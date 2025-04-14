@@ -16,7 +16,9 @@ macro_rules! impl_asm {
     ($ty:ident) => {
         impl Asm for $ty {
             fn push(self) {
-                paste! { isa::asm::[<push_ $ty>](self); }
+                unsafe {
+                    paste! { isa::asm::[<push_ $ty>](self); }
+                }
             }
 
             #[cfg(not(target_family = "wasm"))]

@@ -97,6 +97,7 @@ impl Env {
             return Err(Error::InvalidSelector);
         };
 
+        tracing::debug!("validating selector for function {:?}", index);
         if !self.imports.is_emit_abi(index) {
             return Err(Error::FuncNotImported("emit_abi".into()));
         }
@@ -118,7 +119,6 @@ impl Env {
 
     /// Check if the input function is external function
     pub fn is_external(&self, index: u32) -> bool {
-        // self.exports.get(&index).is_some()
         let Some(name) = self.exports.get(&index) else {
             return false;
         };
