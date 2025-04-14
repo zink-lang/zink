@@ -101,18 +101,15 @@ pub enum CompilerLabel {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Ok;
-
     use super::*;
 
     #[test]
     fn test_addmod_mulmod_host_functions() -> anyhow::Result<()> {
-        let addmod_func = HostFunc::try_from(("zinkc", "u256_addmod"))?;
-
+        let addmod_func = HostFunc::try_from(("ext", "u256_addmod"))?;
         assert_eq!(addmod_func, HostFunc::Evm(OpCode::ADDMOD));
 
         // Test MULMOD host function conversion
-        let mulmod_func = HostFunc::try_from(("zinkc", "u256_mulmod"));
+        let mulmod_func = HostFunc::try_from(("ext", "u256_mulmod"));
         assert!(mulmod_func.is_ok());
         Ok(())
     }
