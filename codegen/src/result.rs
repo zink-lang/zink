@@ -88,14 +88,43 @@ pub enum Error {
     #[error("Stack index is out of range {0}, max is 255 (0x400)")]
     StackIndexOutOfRange(u16),
     /// Failed to increment stack pointer.
-    #[error("Stack overflow, max is 1024 stack items, but add {1} to {0}")]
-    StackOverflow(u16, u16),
+    #[error("Stack overflow, max is 1024 stack items, attempted {found} (current {expected})")]
+    StackOverflow {
+        /// Expected stack items
+        expected: u16,
+        /// Actual stack items found
+        found: u16,
+    },
     /// Failed to decrement stack pointer.
-    #[error("Stack underflow, current stack items {0}, expect at least {1}")]
-    StackUnderflow(u16, u16),
+    #[error("Stack underflow, current stack items {found}, expect at least {expected}")]
+    StackUnderflow {
+        /// Expected stack items
+        expected: u16,
+        /// Actual stack items found
+        found: u16,
+    },
     /// Failed to pop stack.
-    #[error("Stack not balanced, current stack items {0}")]
-    StackNotBalanced(u16),
+    #[error("Stack not balanced in function {func_index:?}, current stack items {found}, expected {expected}")]
+    StackNotBalanced {
+        /// Function index where imbalance occurred
+        func_index: Option<u32>,
+        /// Expected stack items
+        expected: u16,
+        /// Actual stack items found
+        found: u16,
+    },
+    /// Stack mismatch between expected and actual items.
+    #[error(
+        "Stack mismatch in function {func_index:?}: expected {expected} items, found {found} items"
+    )]
+    StackMismatch {
+        /// Function index where mismatch occurred
+        func_index: Option<u32>,
+        /// Expected stack items
+        expected: u16,
+        /// Actual stack items found
+        found: u16,
+    },
     /// Failed to queue host functions.
     #[error("Unsupported host function {0:?}")]
     UnsupportedHostFunc(crate::wasm::HostFunc),

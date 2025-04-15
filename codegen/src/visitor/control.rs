@@ -157,6 +157,7 @@ impl Function {
     /// - End of function.
     /// - End of program.
     pub fn _end(&mut self) -> Result<()> {
+        tracing::trace!("ENTERING _end, sp: {}", self.masm.sp());
         if let Ok(frame) = self.control.pop() {
             return self.handle_frame_popping(frame);
         }
@@ -164,11 +165,13 @@ impl Function {
         let results = self.ty.results();
         if self.is_main || self.abi.is_some() {
             tracing::trace!("end of main function");
-            self.masm.main_return(results)
+            self.masm.main_return(results)?;
         } else {
             tracing::trace!("end of call");
-            self.masm.call_return(results)
+            self.masm.call_return(results)?;
         }
+
+        Ok(())
     }
 
     /// Mark as invalid for now.

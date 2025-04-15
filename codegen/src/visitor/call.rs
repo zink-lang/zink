@@ -67,9 +67,12 @@ impl Function {
         let reserved = self.env.slots.get(&index).unwrap_or(&0);
         let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
 
-        // TODO This is a temporary fix to avoid stack underflow.
-        // We need to find a more elegant solution for this.
-        self.masm.increment_sp(1)?;
+        if self.masm.sp() < *params as u16 {
+            return Err(Error::StackUnderflow {
+                expected: *params as u16,
+                found: self.masm.sp(),
+            });
+        }
 
         // Store parameters in memory and register the call index in the jump table.
         for i in (0..*params).rev() {
@@ -78,18 +81,26 @@ impl Function {
             self.masm._mstore()?;
         }
 
-        // Register the label to jump back.
-        let return_pc = self.masm.pc() + 2;
+        let return_pc = self.masm.pc() + 3;
+        self.masm.push(&return_pc.to_ls_bytes())?;
         self.table.label(self.masm.pc(), return_pc);
-        self.masm._jumpdest()?; // TODO: support same pc different label
-
-        // Register the call index in the jump table.
-        self.table.call(self.masm.pc(), index); // [PUSHN, CALL_PC]
+        self.masm._jumpdest()?;
+        self.table.call(self.masm.pc(), index);
         self.masm._jump()?;
 
         // Adjust the stack pointer for the results.
         self.masm._jumpdest()?;
-        self.masm.increment_sp(*results as u16)?;
+        if *results > 0 {
+            self.masm._push0()?;
+            self.masm._mload()?;
+            while self.masm.sp() > *results as u16 {
+                self.masm._drop()?;
+            }
+        } else {
+            // Preserve return PC, let caller handle result
+            self.masm._jumpdest()?;
+        }
+
         Ok(())
     }
 

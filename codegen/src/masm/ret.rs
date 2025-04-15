@@ -39,11 +39,16 @@ impl MacroAssembler {
             self._drop()?;
         }
 
+        // skipping SWAP1 for len=0. for results=[], only JUMP is executed, consuming return PC (sp=1 → sp=0).
+        // this maintains behavior for len>0 (e.g., $func2 in ../stack/dispatcher.wat).
+        if len > 0 {
+            self.shift_stack(len, false)?;
+        }
+
         // Shift stack to prompt the jump instruction,
         // what about just dup it?
         //
         // TODO: handle the length of results > u8::MAX.
-        self.shift_stack(len, false)?;
         self._jump()
     }
 }
