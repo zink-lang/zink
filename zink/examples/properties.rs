@@ -177,7 +177,7 @@ mod tests {
         let mut evm = EVM::default()
             .coinbase([1; 20])
             .prevrandao(hash_to_bytes32(data))
-            .timestamp(26)
+            .timestamp(27)
             .commit(false);
         let contract = Contract::search("properties")?.compile()?;
         let info = evm.deploy(&contract.bytecode()?)?;
@@ -196,7 +196,7 @@ mod tests {
         let info = evm
             .calldata(&contract.encode(["timestamp()".as_bytes()])?)
             .call(address)?;
-        assert_eq!(info.ret, 26u64.to_bytes32(), "{info:?}");
+        assert_eq!(info.ret, 27u64.to_bytes32(), "{info:?}");
         Ok(())
     }
 
