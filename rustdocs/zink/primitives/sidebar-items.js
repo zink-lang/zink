@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["address","bytes","u256"],"type":["String32"]};
+window.SIDEBAR_ITEMS = {"mod":["address","bytes","properties","u256"],"type":["String32"]};
