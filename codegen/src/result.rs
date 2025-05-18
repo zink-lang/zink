@@ -69,6 +69,9 @@ pub enum Error {
     /// Failed to parse function selector.
     #[error("Invalid function selector")]
     InvalidSelector,
+    /// Failed to get correct stack value size or format
+    #[error("Invalid stack value")]
+    InvalidStackValue,
     /// Failed to patch jump destination.
     #[error("Invalid frame label")]
     LabelMismatch,

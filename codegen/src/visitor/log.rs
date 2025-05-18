@@ -1,6 +1,7 @@
 //! System instructions
 
 use crate::{masm::MemoryInfo, wasm::ToLSBytes, Error, Function, Result};
+use zabi::utils::Bytes32;
 
 impl Function {
     /// Parse log data from the bytecode.
@@ -63,14 +64,14 @@ impl Function {
         let (offset, size) = self.data()?;
         let data = self.env.data.load(offset, size as usize)?;
 
-        // 1. write data to memory
+        // 1. write data to memory with 32-byte padding
         let MemoryInfo { offset, size } = self.masm.memory_write_bytes(&data)?;
 
         // 3. prepare the offset and size of the data.
-        self.masm.push(&size.to_ls_bytes())?;
+        self.masm.push(&size.to_bytes32())?;
         self.masm.push(&offset)?;
 
-        // 4. run log for the data
+        // 4. emit log opcode
         match count {
             0 => self.masm._log0(),
             1 => self.masm._log1(),

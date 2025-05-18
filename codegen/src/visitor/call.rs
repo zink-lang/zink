@@ -74,21 +74,28 @@ impl Function {
             });
         }
 
-        // Store parameters in memory and register the call index in the jump table.
+        // Store parameters in memory.
         for i in (0..*params).rev() {
             tracing::trace!("Storing local at {} for function {index}", i + reserved);
             self.masm.push(&((i + reserved) * 0x20).to_ls_bytes())?;
             self.masm._mstore()?;
         }
 
-        let return_pc = self.masm.pc() + 3;
-        self.masm.push(&return_pc.to_ls_bytes())?;
-        self.table.label(self.masm.pc(), return_pc);
+        // Emit JUMPDEST to mark the return point.
         self.masm._jumpdest()?;
+        let return_pc = self.masm.pc(); // return PC is the current PC after JUMPDEST.
+
+        // Register the return PC as a label in the JumpTable.
+        self.table.label(self.masm.pc(), return_pc);
+
+        // Push the return PC onto the stack.
+        self.masm.push(&return_pc.to_ls_bytes())?;
+
+        // Register the function call in the JumpTable and emit JUMP.
         self.table.call(self.masm.pc(), index);
         self.masm._jump()?;
 
-        // Adjust the stack pointer for the results.
+        // Adjust the stack for results.
         self.masm._jumpdest()?;
         if *results > 0 {
             self.masm._push0()?;
@@ -96,9 +103,6 @@ impl Function {
             while self.masm.sp() > *results as u16 {
                 self.masm._drop()?;
             }
-        } else {
-            // Preserve return PC, let caller handle result
-            self.masm._jumpdest()?;
         }
 
         Ok(())
