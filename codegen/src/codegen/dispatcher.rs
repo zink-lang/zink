@@ -1,7 +1,7 @@
 //! Code generator for EVM dispatcher.
 
 use crate::{
-    wasm::{self, Env, Functions},
+    wasm::{self, Env, Functions, ToLSBytes},
     JumpTable, MacroAssembler, Result,
 };
 use std::collections::BTreeMap;
@@ -61,6 +61,9 @@ impl Dispatcher {
 
     /// Emit selector to buffer.
     fn emit_selector(&mut self, selector: &wasm::Function<'_>, last: bool) -> Result<()> {
+        const RETURN_OFFSET: u8 = 0;
+        const RETURN_SIZE: u8 = 32;
+
         let abi = self.env.load_abi(selector)?;
         self.abi.push(abi.clone());
 
@@ -71,22 +74,37 @@ impl Dispatcher {
             abi.signature(),
         );
 
+        // Compare selectors.
+        self.asm.push(&selector_bytes)?; // Stack: [selector, selector_bytes]
+        self.asm._eq()?; // Stack: [result]
+
+        // Conditional jump to function.
         let func = self.env.query_func(&abi.name)?;
-        self.asm.increment_sp(1)?;
-
-        // Prepare the `PC` of the callee function.
         self.table.call(self.asm.pc(), func);
+        self.asm._jumpi()?; // Jump to func if result != 0
 
+        // Skip to next selector or stop.
         if last {
-            self.asm._swap1()?;
+            self.asm._stop()?;
         } else {
-            self.asm._dup2()?;
+            // Drop result of failed selector match
+            self.asm._pop()?;
         }
 
-        self.asm.push(&selector_bytes)?;
-        self.asm._eq()?;
-        self.asm._swap1()?;
-        self.asm._jumpi()?;
+        // Function return handling.
+        let has_return = self
+            .funcs
+            .get(&func)
+            .map(|ty| !ty.results().is_empty())
+            .unwrap_or(false);
+        if has_return {
+            self.asm._jumpdest()?;
+            self.asm.push(&RETURN_OFFSET.to_ls_bytes())?;
+            self.asm._mstore()?;
+            self.asm.push(&RETURN_SIZE.to_ls_bytes())?;
+            self.asm.push(&RETURN_OFFSET.to_ls_bytes())?;
+            self.asm._return()?;
+        }
 
         Ok(())
     }

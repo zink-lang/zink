@@ -67,29 +67,41 @@ impl Function {
         let reserved = self.env.slots.get(&index).unwrap_or(&0);
         let (params, results) = self.env.funcs.get(&index).unwrap_or(&(0, 0));
 
-        // TODO This is a temporary fix to avoid stack underflow.
-        // We need to find a more elegant solution for this.
-        self.masm.increment_sp(1)?;
+        if self.masm.sp() < *params as u16 {
+            return Err(Error::StackUnderflow {
+                expected: *params as u16,
+                found: self.masm.sp(),
+            });
+        }
 
-        // Store parameters in memory and register the call index in the jump table.
+        // Store parameters in memory.
         for i in (0..*params).rev() {
             tracing::trace!("Storing local at {} for function {index}", i + reserved);
             self.masm.push(&((i + reserved) * 0x20).to_ls_bytes())?;
             self.masm._mstore()?;
         }
 
-        // Register the label to jump back.
-        let return_pc = self.masm.pc() + 2;
-        self.table.label(self.masm.pc(), return_pc);
-        self.masm._jumpdest()?; // TODO: support same pc different label
+        // Emit JUMPDEST to mark the return point.
+        self.masm._jumpdest()?;
+        let return_pc = self.masm.pc(); // return PC is the current PC after JUMPDEST.
 
-        // Register the call index in the jump table.
-        self.table.call(self.masm.pc(), index); // [PUSHN, CALL_PC]
+        // Register the return PC as a label in the JumpTable.
+        self.table.label(self.masm.pc(), return_pc);
+
+        // Push the return PC onto the stack.
+        self.masm.push(&return_pc.to_ls_bytes())?;
+
+        // Register the function call in the JumpTable and emit JUMP.
+        self.table.call(self.masm.pc(), index);
         self.masm._jump()?;
 
-        // Adjust the stack pointer for the results.
+        // Drop any excess values to ensure stack contains exactly the expected return values.
+        // Assumes that the callee may leave extra values, but never fewer than expected.
         self.masm._jumpdest()?;
-        self.masm.increment_sp(*results as u16)?;
+        while self.masm.sp() > *results as u16 {
+            self.masm._drop()?;
+        }
+
         Ok(())
     }
 

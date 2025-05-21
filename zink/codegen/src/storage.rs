@@ -1,4 +1,3 @@
-use crate::utils::Bytes32;
 use heck::AsSnakeCase;
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span, TokenTree};
@@ -9,6 +8,7 @@ use syn::{
     parse::{Parse, ParseStream, Result},
     parse_quote, Attribute, Ident, ItemFn, ItemStruct, Visibility,
 };
+use zabi::utils::Bytes32;
 
 thread_local! {
    static STORAGE_REGISTRY: RefCell<HashSet<String>> = RefCell::new(HashSet::new());

@@ -1,6 +1,4 @@
 //! Utils for bytes conversion.
-//!
-//! TODO: move this util to other library
 
 /// Trait for converting type to bytes32.
 pub trait Bytes32: Sized {
@@ -13,28 +11,25 @@ pub trait Bytes32: Sized {
     }
 }
 
-/// Implement Bytes32 for types.
 macro_rules! impl_bytes32 {
     ($($ty:ident),+) => {
         $(
             impl Bytes32 for $ty {
                 fn to_bytes32(&self) -> [u8; 32] {
                     let mut bytes = [0u8; 32];
-                    let ls_bytes = {
-                        self.to_le_bytes()
-                            .into_iter()
-                            .rev()
-                            .skip_while(|b| *b == 0)
-                            .collect::<Vec<_>>()
-                            .into_iter()
-                            .rev()
-                            .collect::<Vec<_>>()
-                    };
+                    let src = self.to_le_bytes();
 
-                    bytes[(32 - ls_bytes.len())..].copy_from_slice(&ls_bytes);
+                    // To prevent empty slices for 0u32.
+                    // zero has no significant bytes, and the EVM expects [0; 32] for a zero value
+                    if *self == 0 {
+                        return bytes;
+                    }
+
+                    let significant_bytes = src.len() - (self.leading_zeros() as usize / 8);
+                    let end = significant_bytes.max(1); // Ensures non-empty slice
+                    bytes[(32 - end)..].copy_from_slice(&src[..end]);
                     bytes
                 }
-
                 fn to_vec(&self) -> Vec<u8> {
                     self.to_le_bytes().to_vec()
                 }

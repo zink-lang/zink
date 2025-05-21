@@ -138,7 +138,11 @@ impl Function {
     pub fn finish(self, jump_table: &mut JumpTable, pc: u16) -> Result<Buffer> {
         let sp = self.masm.sp();
         if !self.is_main && self.abi.is_none() && self.masm.sp() != self.ty.results().len() as u16 {
-            return Err(Error::StackNotBalanced(sp));
+            return Err(Error::StackNotBalanced {
+                func_index: self.env.index,
+                expected: self.ty.results().len() as u16,
+                found: sp,
+            });
         }
 
         jump_table.merge(self.table, pc)?;

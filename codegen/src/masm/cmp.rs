@@ -13,7 +13,9 @@ impl MacroAssembler {
         self.push(&[1])?;
         // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
-        self.asm._lt()
+        self.asm._lt()?; // a b-1 lt -> a < b-1 -> a <= b
+        self.asm._iszero()?; // Invert: a >= b
+        Ok(())
     }
 
     /// Greater than or equal comparison.
@@ -25,22 +27,26 @@ impl MacroAssembler {
         self.push(&[1])?;
         // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
-        self.asm._slt()
+        self.asm._slt()?; // a b-1 slt -> a < b-1 (signed) -> a <= b
+        self.asm._iszero()?; // Invert: a >= b
+        Ok(())
     }
 
-    /// Greater than or equal comparison.
+    /// Less than or equal comparison.
     ///
-    /// a b sge -> a b-1 sgt(slt)
+    /// a b sle -> a b-1 sgt(slt)
     ///
-    /// Using lt due to order of stack.
+    /// Using gt due to order of stack.
     pub fn _sle(&mut self) -> Result<()> {
         self.push(&[1])?;
         // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
-        self.asm._slt()
+        self.asm._sgt()?; // a b-1 sgt -> a > b-1 (signed) -> a >= b
+        self.asm._iszero()?; // Invert: a <= b
+        Ok(())
     }
 
-    /// Greater than or equal comparison.
+    /// Less than or equal comparison.
     ///
     /// a b le -> a b-1 lt(gt)
     ///
@@ -49,35 +55,41 @@ impl MacroAssembler {
         self.push(&[1])?;
         // NOTE: this is the overridden sub but not `self.asm.sub`
         self._sub()?;
-        self.asm._lt()
+        self.asm._gt()?; // a b-1 gt -> a > b-1 -> a >= b
+        self.asm._iszero()?; // Invert: a <= b
+        Ok(())
     }
 
-    /// Greater than and equal comparison.
+    /// Signed greater than comparison.
     ///
-    /// Using slt due to order of stack.
+    /// Using sgt due to order of stack.
     pub fn _sgt(&mut self) -> Result<()> {
-        self.asm._slt()
+        self.asm._sgt()?; // Correct: SGT (0x13)
+        Ok(())
     }
 
     /// Greater than comparison.
     ///
-    /// Using lt due to order of stack.
+    /// Using gt due to order of stack.
     pub fn _gt(&mut self) -> Result<()> {
-        self.asm._lt()
+        self.asm._gt()?; // Correct: GT (0x11)
+        Ok(())
     }
 
-    /// less than comparison.
+    /// Less than comparison.
     ///
-    /// Using gt due to order of stack.
+    /// Using lt due to order of stack.
     pub fn _lt(&mut self) -> Result<()> {
-        self.asm._gt()
+        self.asm._lt()?; // Correct: LT (0x10)
+        Ok(())
     }
 
-    /// less than or equal comparison.
+    /// Signed less than comparison.
     ///
-    /// Using gt due to order of stack.
+    /// Using slt due to order of stack.
     pub fn _slt(&mut self) -> Result<()> {
-        self.asm._sgt()
+        self.asm._slt()?; // Correct: SLT (0x12)
+        Ok(())
     }
 
     /// Sign-agnostic compare unequal.

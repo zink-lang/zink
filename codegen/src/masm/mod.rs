@@ -267,4 +267,17 @@ impl MacroAssembler {
 
         Ok(())
     }
+
+    /// Set the stack pointer to a specific value.
+    pub fn set_sp(&mut self, value: u16) -> Result<()> {
+        if value > 1024 {
+            return Err(Error::StackOverflow {
+                expected: self.sp(),
+                found: value,
+            });
+        }
+        tracing::trace!("set stack pointer {} -> {}", self.sp(), value);
+        self.asm.sp = value;
+        Ok(())
+    }
 }
