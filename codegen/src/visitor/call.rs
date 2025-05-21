@@ -95,14 +95,11 @@ impl Function {
         self.table.call(self.masm.pc(), index);
         self.masm._jump()?;
 
-        // Adjust the stack for results.
+        // Drop any excess values to ensure stack contains exactly the expected return values.
+        // Assumes that the callee may leave extra values, but never fewer than expected.
         self.masm._jumpdest()?;
-        if *results > 0 {
-            self.masm._push0()?;
-            self.masm._mload()?;
-            while self.masm.sp() > *results as u16 {
-                self.masm._drop()?;
-            }
+        while self.masm.sp() > *results as u16 {
+            self.masm._drop()?;
         }
 
         Ok(())
