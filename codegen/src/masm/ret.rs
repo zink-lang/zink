@@ -33,9 +33,9 @@ impl MacroAssembler {
     pub fn call_return(&mut self, results: &[ValType]) -> Result<()> {
         let len = results.len() as u16;
 
-        tracing::trace!("cleaning frame stack, target: {}", len + 1);
+        tracing::trace!("cleaning frame stack, target: {}", len);
         // TODO: clean stacks via the count of nested control stacks.
-        while self.sp() > len + 1 {
+        while self.sp() > len {
             self._drop()?;
         }
 
@@ -43,6 +43,8 @@ impl MacroAssembler {
         // this maintains behavior for len>0 (e.g., $func2 in ../stack/dispatcher.wat).
         if len > 0 {
             self.shift_stack(len, false)?;
+        } else {
+            self.increment_sp(1)?;
         }
 
         // Shift stack to prompt the jump instruction,

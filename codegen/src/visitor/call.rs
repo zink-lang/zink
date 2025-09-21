@@ -101,6 +101,9 @@ impl Function {
         while self.masm.sp() > *results as u16 {
             self.masm._drop()?;
         }
+        while self.masm.sp() < *results as u16 {
+            self.masm.increment_sp(1)?;
+        }
 
         Ok(())
     }
