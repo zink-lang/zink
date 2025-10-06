@@ -126,6 +126,39 @@ mod tests {
             assert_eq!(info.logs[0].topics()[0].to_vec(), value4.bytes32().to_vec());
         }
     }
+
+    #[test]
+    fn test_log_abi() {
+        let contract = Contract::search("log").unwrap().compile().expect("failed to compile");
+        let abi = contract.artifact.abi;
+
+        assert_eq!(abi.len(), 5);
+
+        let test_log0 = abi.iter().find(|a| a.name == "test_log0").unwrap();
+        assert_eq!(test_log0.inputs.len(), 0);
+
+        let test_log1 = abi.iter().find(|a| a.name == "test_log1").unwrap();
+        assert_eq!(test_log1.inputs.len(), 1);
+        assert_eq!(test_log1.inputs[0].ty.to_string(), "uint256");
+
+        let test_log2 = abi.iter().find(|a| a.name == "test_log2").unwrap();
+        assert_eq!(test_log2.inputs.len(), 2);
+        assert_eq!(test_log2.inputs[0].ty.to_string(), "uint256");
+        assert_eq!(test_log2.inputs[1].ty.to_string(), "uint256");
+
+        let test_log3 = abi.iter().find(|a| a.name == "test_log3").unwrap();
+        assert_eq!(test_log3.inputs.len(), 3);
+        assert_eq!(test_log3.inputs[0].ty.to_string(), "uint256");
+        assert_eq!(test_log3.inputs[1].ty.to_string(), "uint256");
+        assert_eq!(test_log3.inputs[2].ty.to_string(), "uint256");
+
+        let test_log4 = abi.iter().find(|a| a.name == "test_log4").unwrap();
+        assert_eq!(test_log4.inputs.len(), 4);
+        assert_eq!(test_log4.inputs[0].ty.to_string(), "uint256");
+        assert_eq!(test_log4.inputs[1].ty.to_string(), "uint256");
+        assert_eq!(test_log4.inputs[2].ty.to_string(), "uint256");
+        assert_eq!(test_log4.inputs[3].ty.to_string(), "uint256");
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
