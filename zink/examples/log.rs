@@ -129,7 +129,10 @@ mod tests {
 
     #[test]
     fn test_log_abi() {
-        let contract = Contract::search("log").unwrap().compile().expect("failed to compile");
+        let contract = Contract::search("log")
+            .unwrap()
+            .compile()
+            .expect("failed to compile");
         let abi = contract.artifact.abi;
 
         assert_eq!(abi.len(), 5);
