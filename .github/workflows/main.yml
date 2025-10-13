@@ -15,10 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-      - uses: Swatinem/rust-cache@v2
+      - name: Install Toolchain
+        run: |
+          rustup update stable && rustup default stable
+          rustup target add wasm32-unknown-unknown
+      - uses: taiki-e/install-action@sccache
       - uses: taiki-e/install-action@nextest
       - uses: foundry-rs/foundry-toolchain@v1
 
