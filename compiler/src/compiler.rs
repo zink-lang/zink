@@ -1,6 +1,7 @@
 //! Zink compiler
 
 use crate::{parser::Parser, Artifact, Config, Error, Result};
+use std::collections::HashMap;
 use zabi::Abi;
 use zingen::{
     wasm::{self, Env},
@@ -11,7 +12,7 @@ use zingen::{
 #[derive(Default)]
 pub struct Compiler {
     /// ABIs of the compiled contract.
-    pub(crate) abi: Vec<Abi>,
+    pub(crate) abi: HashMap<String, Abi>,
     /// EVM bytecode buffer.
     pub(crate) buffer: Buffer,
     /// Compiler configuration.
@@ -59,7 +60,7 @@ impl Compiler {
 
         tracing::debug!("code length: {}", buffer.len());
         Ok(Artifact {
-            abi,
+            abi: abi.into_values().collect(),
             config,
             runtime_bytecode: buffer.to_vec(),
         })
@@ -73,7 +74,9 @@ impl Compiler {
         let env = parser.env.clone();
 
         if !self.config.dispatcher {
-            self.abi.append(&mut env.load_abis(&selectors)?);
+            for abi in env.load_abis(&selectors)? {
+                self.abi.insert(abi.name.clone(), abi);
+            }
             return Ok(());
         }
 
@@ -84,7 +87,9 @@ impl Compiler {
             return Err(Error::BufferOverflow(self.buffer.len()));
         }
 
-        self.abi.append(&mut dispatcher.abi);
+        for abi in dispatcher.abi {
+            self.abi.insert(abi.name.clone(), abi);
+        }
         Ok(())
     }
 
@@ -124,6 +129,6 @@ impl Compiler {
     /// Get abi from env and function index
     fn abi(&self, env: &Env, index: u32) -> Option<Abi> {
         let name = env.exports.get(&index)?;
-        self.abi.iter().find(|a| name == &a.name).cloned()
+        self.abi.get(name).cloned()
     }
 }
