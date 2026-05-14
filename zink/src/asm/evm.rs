@@ -190,4 +190,15 @@ extern "C" {
 
     /// Get the gas price of the transaction.
     pub fn gasprice() -> u64;
+
+    /// Delegate-call into another account's code.
+    #[allow(clippy::too_many_arguments)]
+    pub fn delegatecall(
+        gas: u64,
+        address: Address,
+        args_offset: u64,
+        args_size: u64,
+        ret_offset: u64,
+        ret_size: u64,
+    ) -> bool;
 }
