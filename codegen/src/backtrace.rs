@@ -38,4 +38,17 @@ impl Backtrace {
 
         r
     }
+
+    /// Peek at the last `n` operands from the backtrace in original order.
+    pub fn peekn(&self, n: usize) -> Vec<Vec<u8>> {
+        let mut instrs = self
+            .instrs
+            .values()
+            .rev()
+            .take(n)
+            .cloned()
+            .collect::<Vec<_>>();
+        instrs.reverse();
+        instrs
+    }
 }

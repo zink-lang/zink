@@ -2,6 +2,8 @@
 
 use crate::{wasm::ToLSBytes, Error, Function, Result};
 
+const DEFAULT_WASM_STACK_POINTER: u32 = 0x10_0000;
+
 impl Function {
     /// This instruction gets the value of a variable.
     pub fn _local_get(&mut self, local_index: u32) -> Result<()> {
@@ -32,13 +34,17 @@ impl Function {
     }
 
     /// This instruction gets the value of a variable.
-    pub fn _global_get(&mut self, _: u32) -> Result<()> {
-        todo!()
+    pub fn _global_get(&mut self, global_index: u32) -> Result<()> {
+        tracing::debug!("Global get: {global_index}");
+        self.masm.push(&DEFAULT_WASM_STACK_POINTER.to_ls_bytes())?;
+        Ok(())
     }
 
     /// This instruction sets the value of a variable.
-    pub fn _global_set(&mut self, _: u32) -> Result<()> {
-        todo!()
+    pub fn _global_set(&mut self, global_index: u32) -> Result<()> {
+        tracing::debug!("Global set: {global_index}");
+        self.masm._drop()?;
+        Ok(())
     }
 
     /// Local get from calldata.

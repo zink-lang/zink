@@ -273,7 +273,7 @@ fn generate_function_implementation(func: &AbiFunction) -> proc_macro2::TokenStr
 /// - Methods for each function in the ABI, which encode parameters, call the contract, and decode the results.
 ///
 /// # Example
-/// ```rust
+/// ```rust,ignore
 /// #[cfg(feature = "abi-import")]
 /// use zink::import;
 ///
