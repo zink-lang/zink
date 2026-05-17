@@ -53,12 +53,10 @@ impl JumpTable {
             total_offset += instr_size;
         }
 
-        // Second pass: apply shifts with accumulated offsets
-        total_offset = 0;
+        // Second pass: apply shifts with the precomputed target sizes
         for (pc, size) in target_sizes {
             tracing::debug!("shift target at pc=0x{pc:x} with size={size}");
             self.shift_target(pc, size)?;
-            total_offset += size;
         }
 
         Ok(())

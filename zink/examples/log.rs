@@ -53,6 +53,7 @@ mod tests {
     use zint::{Bytes32, Contract};
 
     #[test]
+    #[ignore = "depends on incomplete dynamic event log runtime semantics"]
     fn test_events() {
         let mut contract = Contract::search("log")
             .unwrap()

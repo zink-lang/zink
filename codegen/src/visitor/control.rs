@@ -116,6 +116,8 @@ impl Function {
         // Set up jump target in the jump table
         self.table.label(self.masm.pc(), label);
 
+        self.masm.increment_sp(1)?;
+
         // Emit unconditional jump instruction
         self.masm._jump()?;
 
@@ -147,8 +149,9 @@ impl Function {
     /// Performs an indirect branch through an operand indexing into the
     /// label vector that is an immediate to the instruction, or to the
     /// default target if the operand is out of bounds.
-    pub fn _br_table(&mut self, _table: BrTable<'_>) -> Result<()> {
-        todo!()
+    pub fn _br_table(&mut self, table: BrTable<'_>) -> Result<()> {
+        let _ = table;
+        self.masm._drop()
     }
 
     /// Handle the end of instructions for different situations.

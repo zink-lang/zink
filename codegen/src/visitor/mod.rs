@@ -26,6 +26,9 @@ macro_rules! impl_visit_operator {
     };
     ( @$proposal:ident $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident $($rest:tt)* ) => {
         fn $visit(&mut self $($(, $arg: $argty)*)?) -> Self::Output {
+            $($(
+                let _ = &$arg;
+            )*)?
             trace!("{}", stringify!($op));
             Ok(())
         }

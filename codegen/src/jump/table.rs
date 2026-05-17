@@ -89,8 +89,8 @@ impl JumpTable {
     /// Get the max target from the current jump table
     pub fn max_target(&self) -> u16 {
         self.jump
-            .iter()
-            .filter_map(|(_, jump)| self.target(jump).ok())
+            .values()
+            .filter_map(|jump| self.target(jump).ok())
             .max()
             .unwrap_or(0)
     }
