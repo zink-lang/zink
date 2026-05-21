@@ -37,13 +37,65 @@ macro_rules! impl_visit_operator {
 
 /// Implement arithmetic operators for types.
 macro_rules! map_wasm_operators {
+    (@basic i32, load, load $arg:ident: MemArg) => {
+        fn visit_i32_load(&mut self, $arg: MemArg) -> Self::Output {
+            trace!("i32.load");
+
+            let before = self.masm.buffer().len();
+            self.masm._load32($arg)?;
+
+            let instr = self.masm.buffer()[before..].to_vec();
+            self.backtrace.push(instr);
+
+            Ok(())
+        }
+    };
+    (@basic i64, load, load $arg:ident: MemArg) => {
+        fn visit_i64_load(&mut self, $arg: MemArg) -> Self::Output {
+            trace!("i64.load");
+
+            let before = self.masm.buffer().len();
+            self.masm._load64($arg)?;
+
+            let instr = self.masm.buffer()[before..].to_vec();
+            self.backtrace.push(instr);
+
+            Ok(())
+        }
+    };
+    (@basic f32, load, load $arg:ident: MemArg) => {
+        fn visit_f32_load(&mut self, $arg: MemArg) -> Self::Output {
+            trace!("f32.load");
+
+            let before = self.masm.buffer().len();
+            self.masm._load32($arg)?;
+
+            let instr = self.masm.buffer()[before..].to_vec();
+            self.backtrace.push(instr);
+
+            Ok(())
+        }
+    };
+    (@basic f64, load, load $arg:ident: MemArg) => {
+        fn visit_f64_load(&mut self, $arg: MemArg) -> Self::Output {
+            trace!("f64.load");
+
+            let before = self.masm.buffer().len();
+            self.masm._load64($arg)?;
+
+            let instr = self.masm.buffer()[before..].to_vec();
+            self.backtrace.push(instr);
+
+            Ok(())
+        }
+    };
     (@basic $ty:tt, $wasm:tt, $evm:tt $($arg:ident: $argty:ty),*) => {
         paste! {
             fn [< visit_ $ty _ $wasm >](&mut self $(,$arg: $argty),*) -> Self::Output {
                 trace!("{}.{}", stringify!($ty), stringify!($evm));
 
                 let before = self.masm.buffer().len();
-                self.masm.[< _ $evm >]()?;
+                self.masm.[< _ $evm >]($($arg),*)?;
 
                 let instr = self.masm.buffer()[before..].to_vec();
                 self.backtrace.push(instr);

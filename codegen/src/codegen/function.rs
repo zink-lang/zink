@@ -6,7 +6,7 @@ use crate::{
     local::{LocalSlot, LocalSlotType, Locals},
     masm::MacroAssembler,
     validator::ValidateThenVisit,
-    wasm::Env,
+    wasm::{Env, ToLSBytes},
     Buffer, Error, Result,
 };
 use opcodes::ShangHai as OpCode;
@@ -60,6 +60,7 @@ impl Function {
             // codegen.masm.increment_sp(1)?;
             tracing::debug!("<External function>");
             codegen.masm._jumpdest()?;
+            codegen.hydrate_tuple_params()?;
         } else {
             // Mock the stack frame for the callee function
             //
@@ -70,6 +71,34 @@ impl Function {
         }
 
         Ok(codegen)
+    }
+
+    /// Copy tuple ABI parameters from calldata into EVM memory.
+    fn hydrate_tuple_params(&mut self) -> Result<()> {
+        let Some(abi) = self.abi.clone() else {
+            return Ok(());
+        };
+
+        let mut calldata_slot = 0;
+        for (local_index, input) in abi.inputs.iter().enumerate() {
+            if let Some(fields) = input.ty.tuple_field_offsets() {
+                let base = (self.env.reserved() + local_index as u32) as usize * 0x20;
+
+                for (field_offset, field_slot) in fields.into_iter().rev() {
+                    let calldata_offset = 4 + (calldata_slot + field_slot) * 32;
+                    let memory_offset = base + field_offset;
+
+                    self.masm.push(&calldata_offset.to_ls_bytes())?;
+                    self.masm._calldataload()?;
+                    self.masm.push(&memory_offset.to_ls_bytes())?;
+                    self.masm._mstore()?;
+                }
+            }
+
+            calldata_slot += input.ty.calldata_slots();
+        }
+
+        Ok(())
     }
 
     /// Emit function locals
